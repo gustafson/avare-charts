@@ -1,0 +1,93 @@
+#!/bin/sh -login
+#PBS -l mem=60000mb
+#PBS -l nodes=1:ppn=16
+#PBS -l walltime=1000:00:00
+#PBS -m abe 
+#PBS -V 
+#PBS -M peter.gustafson@wmich.edu
+#PBS -N databases
+#PBS -e z_databases.${PBS_JOBID}.e
+#PBS -o z_databases.${PBS_JOBID}.o
+
+if [[ ${PBS_NODEFILE} ]]; then
+
+    echo ------------------------------------------------------
+    NODE=`cat ${PBS_NODEFILE} |head -n1`
+    HOST=`echo ${PBS_O_HOST} |cut -f1 -d.`
+    echo Job is running on node ${NODE} with host ${HOST}
+    echo ------------------------------------------------------
+    echo PBS: qsub was run on ${PBS_O_HOST}
+    echo PBS: originating queue is ${PBS_O_QUEUE}
+    echo PBS: executing queue is ${PBS_QUEUE}
+    echo PBS: working directory is ${PBS_O_WORKDIR}
+    echo PBS: execution mode is ${PBS_ENVIRONMENT}
+    echo PBS: job identifier is ${PBS_JOBID}
+    echo PBS: job name is ${PBS_JOBNAME}
+    echo PBS: node file is ${PBS_NODEFILE}
+    echo PBS: current home directory is ${PBS_O_HOME}
+    echo PBS: PATH = ${PBS_O_PATH}
+    echo ------------------------------------------------------
+
+    NP=$(cat ${PBS_NODEFILE} | wc -l)
+else
+    NP=32
+fi
+export OMP_NUM_THREADS=${NP}
+
+###############################
+
+cd /home/pi/gustafson/avare.charts.git/sm/maps
+
+
+function updatetiles {
+    #echo $0
+    TYPE=`echo $0|cut -d/ -f2`
+    LEVEL=`echo $0 |cut -f4 -d/`
+    NONBLACK=`convert $0.tif -threshold 2% -format %[mean] info:-`
+
+    if [[ ! $NONBLACK == 0 ]]; then
+    ## tiles/elv  tiles/ifr  tiles/rel  tiles/sec  tiles/tac  tiles/wac
+	## EXT=jpg;
+	## NAME=$0.$EXT;
+	## convert $0.tif -unsharp 0x3 -quality 50 ${NAME}
+	if [[ $TYPE = sec || $TYPE = tac || $TYPE = wac || $TYPE = oth || $TYPE = rel || $TYPE = elv ]]; then
+	    EXT=jpg;
+	    NAME=$0.$EXT;
+	    convert $0.tif -antialias -unsharp 0x3 -quality 50 ${NAME}
+	else
+	    EXT=png;
+	    NAME=$0.$EXT;
+	    ## convert $0.tif -antialias -unsharp 0x3 -dither none -remap colors-ifr-nosharp-256.png ${NAME} && optipng ${NAME}
+	    convert $0.tif -antialias -dither none -remap colors-ifr-a256.png ${NAME} && optipng ${NAME}
+	fi
+    else
+	EXT=jpg;
+	NAME=$0.$EXT;
+    fi	
+
+    POS="`python -W ignore coords.py $0.tif`"
+    echo "$NAME, $POS, $LEVEL" >> /dev/shm/files.csv
+}
+
+
+export -f updatetiles
+
+for dir in elv eh el rel sec tac wac oth; do #
+    if [[ ${dir} = eh || ${dir} == el ]]; then
+	newdir="ifr/${dir}"
+    else
+	newdir=${dir}
+    fi
+    
+    echo $newdir
+
+    [[ -f /dev/shm/files.csv ]] && rm /dev/shm/files.csv
+    
+    find tiles/${newdir} -name "*.tif" -print | sed s/'.tif'// | sort | 
+    xargs -P ${NP} -n 1 bash -c updatetiles 
+    
+    mv /dev/shm/files.csv files.csv
+    
+    [[ -f maps.${dir}.db ]] && rm maps.${dir}.db
+    sqlite3 -init init.sql maps.${dir}.db < importfiles.sql
+done

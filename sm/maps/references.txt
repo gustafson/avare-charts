@@ -1,0 +1,33 @@
+Airport frequencies:
+http://www.ourairports.com/data/
+
+FAA charts:
+http://aeronav.faa.gov/index.asp?xml=aeronav/applications/VFR/chartlist_sect
+http://aeronav.faa.gov/index.asp?xml=aeronav/applications/VFR/chartlist_wac
+http://aeronav.faa.gov/index.asp?xml=aeronav/applications/VFR/chartlist_tac
+
+FAA FADDS:
+https://nfdc.faa.gov/portal username=discretesys passw=A...._8
+
+Multi-touch:
+Luke Hutchison (luke.hutch@mit.edu)
+
+Distance and bearing calculation:
+http://www.movable-type.co.uk/scripts/latlong.html
+
+reapfiles.pl:
+Note: use wget directly wget -r -e robots=off -A.zip http://aeronav.faa.gov/index.asp?xml=aeronav/applications/VFR/chartlist_sect -Bhttp://aeronav.faa.gov
+
+http://www.mikealeonetti.com/wiki/index.php/Download_all_files_on_a_website_perl_script
+
+Mercator scale correctioni (1/cos(phi)):
+http://mysite.du.edu/~jcalvert/math/mercator.htm
+
+GDAL:
+gdal.org
+
+Fonts:
+http://www.fontspace.com/category/monospaced
+
+NACO Plates:
+http://www.mstewart.net/super8/grtgetallplates/index.htm
