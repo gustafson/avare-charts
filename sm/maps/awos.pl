@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#Copyright (c) 2012, Zubair Khan (governer@gmail.com)
+#Copyright (c) 2012, Zubair Khan (governer@gmail.com), Jesse McGraw (jlmcgraw@gmail.com)
 #All rights reserved.
 #
 #Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -94,7 +94,7 @@ while (<FILE>) {
         $awos_remarks++;
 
 #There can be multiple comment lines for each station so accumulate them with * in between each
-        $remark = $remark . "*" . ltrim( rtrim( substr( $_, 19, 90 ) ) );
+        $remark = ltrim( rtrim( substr( $_, 19, 90 ) ) ) . "." . $remark;
     }
 
 }
