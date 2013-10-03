@@ -67,16 +67,25 @@ export OMP_NUM_THREADS=${NP}
 
 [[ -d tiles ]] && rm -fr tiles
 
+mkdir -p tiles/sec/48
+mkdir -p tiles/sec/ak
+mkdir -p tiles/sec/hi
+mkdir -p tiles/wac/48
+mkdir -p tiles/wac/ak
+mkdir -p tiles/ifr/eh
+mkdir -p tiles/ifr/el
+mkdir -p tiles/tac/48
+mkdir -p tiles/tac/an
+mkdir -p tiles/tac/fa
+mkdir -p tiles/tac/pr
+
 gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -targetDir tiles/sec/48 -levels 4 -ps 512 512 -useDirForEachRow sec-48.tif &
 gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -targetDir tiles/sec/ak -levels 4 -ps 512 512 -useDirForEachRow sec-ak.tif 
 gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -targetDir tiles/sec/hi -levels 4 -ps 512 512 -useDirForEachRow sec-hi.tif &
-
 gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -targetDir tiles/wac/48 -levels 4 -ps 512 512 -useDirForEachRow wac-48.tif &
 gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -targetDir tiles/wac/ak -levels 4 -ps 512 512 -useDirForEachRow wac-ak.tif &
-
 gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -targetDir tiles/ifr/eh -levels 4 -ps 512 512 -useDirForEachRow ifh.tif &
 gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -targetDir tiles/ifr/el -levels 4 -ps 512 512 -useDirForEachRow ifr.tif &
-
 gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -targetDir tiles/tac/48 -levels 4 -ps 512 512 -useDirForEachRow tac.tif &
 gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -targetDir tiles/tac/an -levels 4 -ps 512 512 -useDirForEachRow merge/TC/AnchorageTAC.tif &
 gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -targetDir tiles/tac/fa -levels 4 -ps 512 512 -useDirForEachRow merge/TC/FairbanksTAC.tif &
