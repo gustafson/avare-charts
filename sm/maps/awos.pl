@@ -26,7 +26,7 @@ sub ltrim($) {
 
 open FILE, "<AWOS.txt" or die $!;
 
-#This variable is used to track if we're seeing an additional AWOS after accumulating comments
+#This variable is used to track if we're seeing the next AWOS after accumulating comments 
 $ready_to_print = "0";
 
 $awos_count   = "0";
@@ -55,15 +55,15 @@ while (<FILE>) {
         $lat  = ltrim( rtrim( substr( $_, 31, 14 ) ) );
 
         if ( length($lat) == 14 ) {
-            $latd = ltrim( rtrim( substr( $lat, 0, 3 ) ) ) / 1;
-            $latm = ltrim( rtrim( substr( $lat, 4, 2 ) ) ) / 60;
-            $lats = ltrim( rtrim( substr( $lat, 7, 7 ) ) ) / 3600;
-            $latl = substr( $lat, 0, 1 );
-            if ( $latl == "N" ) {
-                $lt = ( $latd + $latm + $lats );
+            $lat_d = ltrim( rtrim( substr( $lat, 0, 3 ) ) ) / 1;
+            $lat_m = ltrim( rtrim( substr( $lat, 4, 2 ) ) ) / 60;
+            $lat_s = ltrim( rtrim( substr( $lat, 7, 7 ) ) ) / 3600;
+            $lat_l = substr( $lat, 0, 1 );
+            if ( $lat_l == "N" ) {
+                $lt = ( $lat_d + $lat_m + $lat_s );
             }
             else {
-                $lt = -( $latd + $latm + $lats );
+                $lt = -( $lat_d + $lat_m + $lat_s );
             }
         }
         else {
@@ -71,15 +71,15 @@ while (<FILE>) {
         }
         $lon = ltrim( rtrim( substr( $_, 45, 14 ) ) );
         if ( length($lon) == 14 ) {
-            $lond = ltrim( rtrim( substr( $lon, 0, 3 ) ) ) / 1;
-            $lonm = ltrim( rtrim( substr( $lon, 4, 2 ) ) ) / 60;
-            $lons = ltrim( rtrim( substr( $lon, 7, 7 ) ) ) / 3600;
-            $lonl = substr( $lon, 14, 1 );
-            if ( $lonl == "W" ) {
-                $ln = -( $lond + $lonm + $lons );
+            $lon_d = ltrim( rtrim( substr( $lon, 0, 3 ) ) ) / 1;
+            $lon_m = ltrim( rtrim( substr( $lon, 4, 2 ) ) ) / 60;
+            $lon_s = ltrim( rtrim( substr( $lon, 7, 7 ) ) ) / 3600;
+            $lon_l = substr( $lon, 14, 1 );
+            if ( $lon_l == "W" ) {
+                $ln = -( $lon_d + $lon_m + $lon_s );
             }
             else {
-                $ln = ( $lond + $lonm + $lons );
+                $ln = ( $lon_d + $lon_m + $lon_s );
             }
         }
         else {
@@ -93,7 +93,7 @@ while (<FILE>) {
     if (m/^AWOS2/) {
         $awos_remarks++;
 
-#There can be multiple comment lines for each station so accumulate them with * in between each
+#There can be multiple comment lines for each station so accumulate them with . in between each
         $remark = ltrim( rtrim( substr( $_, 19, 90 ) ) ) . "." . $remark;
     }
 
