@@ -57,7 +57,7 @@ function update {
 	let NEW=$OLD+1
 	let EXP=$OLD-1
 	echo $BASE $OLD $NEW
-	echo wget -c http://aeronav.faa.gov/content/aeronav/${LOC}/${BASE}${NEW}.zip
+	wget -c http://aeronav.faa.gov/content/aeronav/${LOC}/${BASE}${NEW}.zip
 	if [[ -f ${BASE}${EXP}.zip ]]; then
 	    echo Removing ${BASE}${EXP}.zip 
 	    rm ${BASE}${EXP}.zip

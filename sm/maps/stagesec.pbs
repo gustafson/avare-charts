@@ -37,11 +37,11 @@
 # WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-if [[ ${PBS_NODEFILE} ]]; then
+if [[ -f ${PBS_NODEFILE} ]]; then
     echo ------------------------------------------------------
-    NODE=`cat ${PBS_NODEFILE} |head -n1`
+    NODE=`sort ${PBS_NODEFILE} | uniq -c`
     HOST=`echo ${PBS_O_HOST} |cut -f1 -d.`
-    echo Job is running on node ${NODE} with host ${HOST}
+    echo Job is running on node ${NODE} from host ${HOST}
     echo ------------------------------------------------------
     echo PBS: qsub was run on ${PBS_O_HOST}
     echo PBS: originating queue is ${PBS_O_QUEUE}
@@ -62,8 +62,7 @@ fi
 export OMP_NUM_THREADS=${NP}
 
 ###############################
-cd /home/pi/gustafson/avare.charts.git/sm/maps
+[[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
 /usr/bin/time -v -o ${PBS_JOBNAME}.log -a ./stagesec > ${PBS_JOBNAME}.log
-
 wait
 ###############################

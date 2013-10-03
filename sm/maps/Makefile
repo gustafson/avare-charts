@@ -118,26 +118,15 @@ unzip:
 	rm -f *.tif && \
 	unzip -j \*.zip \*.tif
 
-stageit:
+stageall:
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	gcc -march=native -O3 -Wall stagesec.c -o stagesec -fopenmp
 	gcc -march=native -O3 -Wall stageifr.c -o stageifr -fopenmp
 	gcc -march=native -O3 -Wall stageifh.c -o stageifh -fopenmp
 	gcc -march=native -O3 -Wall stagetac.c -o stagetac -fopenmp
-	## The following could be run as a shell scripts but are
-	## instead run through pbs.  This allows efficient use of
-	## resources.
-	DEPS=""
-	J=qsub stagesec.pbs && DEPS=$(DEPS):$(J)
-	sleep 60; ## Sleep prevents massive I/O overload as they are in different stages
-	J=qsub stagetac.pbs && DEPS=$(DEPS):$(J)
-	sleep 60;
-	J=qsub stageifr.pbs && DEPS=$(DEPS):$(J)
-	sleep 60;
-	J=qsub stageifh.pbs && DEPS=$(DEPS):$(J)
-	sleep 60;
-	[[ $(DEPS) ]] && DEPS="-W depend=afterok:$(DEPS)"
-	qsub $(DEPS) databases.pbs
+	## each pbs script could be run as a shell script but is 
+	## run through pbs for efficient resource management.
+	./stageall.sh
 
 ## 	This allows high level tiles to be included in databases.zip.
 HIGHLEVELS=`sqlite3 maps.eh.db  "select name from files where (level = ' 3') or (level = ' 4');"` \
