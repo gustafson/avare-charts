@@ -36,6 +36,10 @@ CREATE TABLE alternate(LocationID Text,File Text);
 
 .import mins/alt.csv alternate
 
+CREATE TABLE awos(LocationID Text, Type Text, FacilityName Text, Phone Text, Latitude float,Longitude float,Frequency Text, APTId Text, Remark Text);
+
+.import awos.csv awos
+
 .import canap.csv airports
 .import canrun.csv airportrunways
 .import canfreq.csv airportfreq

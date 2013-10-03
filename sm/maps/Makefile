@@ -46,6 +46,7 @@ fresh:
 
 data0:
 	wget https://nfdc.faa.gov/webContent/56DaySub/2013-08-22/APT.zip && unzip APT.zip && rm APT.zip
+	wget https://nfdc.faa.gov/webContent/56DaySub/2013-08-22/AWOS.zip && unzip AWOS.zip && rm AWOS.zip
 	wget https://nfdc.faa.gov/webContent/56DaySub/2013-08-22/TWR.zip && unzip TWR.zip && rm TWR.zip
 	wget https://nfdc.faa.gov/webContent/56DaySub/2013-08-22/FIX.zip && unzip FIX.zip && rm FIX.zip
 	wget https://nfdc.faa.gov/webContent/56DaySub/2013-08-22/NAV.zip && unzip NAV.zip && rm NAV.zip
@@ -63,6 +64,7 @@ data:
 	./fix.pl > fix.csv
 	./nav.pl > nav.csv
 	./dof.pl > dof.csv
+	./awos.pl > awos.csv
 	#./get_ads.sh 1310 # change cycle here  ## ZDont need. Zubair says they are in the plates already
 	./plates_png.sh
 	./afd.sh # change date here  
