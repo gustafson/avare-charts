@@ -11,21 +11,21 @@
 #
  
 
-zip -1 -q final/EHUS_NE.zip `sqlite3 maps.eh.db "select name from files where (latc >= 38) and (lonc >= -85) and name like '%tiles/ifr/eh%';"`
-sqlite3 maps.eh.db    		    "update files set info='EHUS_NE' where (latc >= 38) and (lonc >= -85) and name like '%tiles/ifr/eh%';"
+zip -1 -q final/EHUS_NE.zip `sqlite3 maps.eh.db "select name from files where (latc >= 38) and (lonc >= -85) and (level != ' 4') and (level != ' 4') and name like '%tiles/ifr/eh%';"`
+sqlite3 maps.eh.db    		    "update files set info='EHUS_NE' where (latc >= 38) and (lonc >= -85) and (level != ' 4') and name like '%tiles/ifr/eh%';"
 
-zip -1 -q final/EHUS_NC.zip `sqlite3 maps.eh.db "select name from files where (latc >= 38) and (lonc <= -85) and (lonc >= -110) and name like '%tiles/ifr/eh%';"`
-sqlite3 maps.eh.db 		    "update files set info='EHUS_NC' where (latc >= 38) and (lonc <= -85) and (lonc >= -110) and name like '%tiles/ifr/eh%';"
+zip -1 -q final/EHUS_NC.zip `sqlite3 maps.eh.db "select name from files where (latc >= 38) and (lonc <= -85) and (lonc >= -110) and (level != ' 4') and (level != ' 4') and name like '%tiles/ifr/eh%';"`
+sqlite3 maps.eh.db 		    "update files set info='EHUS_NC' where (latc >= 38) and (lonc <= -85) and (lonc >= -110) and (level != ' 4') and name like '%tiles/ifr/eh%';"
 
-zip -1 -q final/EHUS_NW.zip `sqlite3 maps.eh.db "select name from files where (latc >= 38) and (lonc <= -110) and name like '%tiles/ifr/eh%';"`
-sqlite3 maps.eh.db 		    "update files set info='EHUS_NW' where (latc >= 38) and (lonc <= -110) and name like '%tiles/ifr/eh%';"
+zip -1 -q final/EHUS_NW.zip `sqlite3 maps.eh.db "select name from files where (latc >= 38) and (lonc <= -110) and (level != ' 4') and (level != ' 4') and name like '%tiles/ifr/eh%';"`
+sqlite3 maps.eh.db 		    "update files set info='EHUS_NW' where (latc >= 38) and (lonc <= -110) and (level != ' 4') and name like '%tiles/ifr/eh%';"
 
-zip -1 -q final/EHUS_SE.zip `sqlite3 maps.eh.db "select name from files where (latc <= 38) and (lonc >= -85) and name like '%tiles/ifr/eh%';"`
-sqlite3 maps.eh.db 		    "update files set info='EHUS_SE' where (latc <= 38) and (lonc >= -85) and name like '%tiles/ifr/eh%';"
+zip -1 -q final/EHUS_SE.zip `sqlite3 maps.eh.db "select name from files where (latc <= 38) and (lonc >= -85) and (level != ' 4') and (level != ' 4') and name like '%tiles/ifr/eh%';"`
+sqlite3 maps.eh.db 		    "update files set info='EHUS_SE' where (latc <= 38) and (lonc >= -85) and (level != ' 4') and name like '%tiles/ifr/eh%';"
 
-zip -1 -q final/EHUS_SC.zip `sqlite3 maps.eh.db "select name from files where (latc <= 38) and (lonc <= -85) and (lonc >= -110) and name like '%tiles/ifr/eh%';"`
-sqlite3 maps.eh.db 		    "update files set info='EHUS_SC' where (latc <= 38) and (lonc <= -85) and (lonc >= -110) and name like '%tiles/ifr/eh%';"
+zip -1 -q final/EHUS_SC.zip `sqlite3 maps.eh.db "select name from files where (latc <= 38) and (lonc <= -85) and (level != ' 4') and (lonc >= -110) and (level != ' 4') and name like '%tiles/ifr/eh%';"`
+sqlite3 maps.eh.db 		    "update files set info='EHUS_SC' where (latc <= 38) and (lonc <= -85) and (lonc >= -110) and (level != ' 4') and name like '%tiles/ifr/eh%';"
 
-zip -1 -q final/EHUS_SW.zip `sqlite3 maps.eh.db "select name from files where (latc <= 38) and (lonc <= -110) and name like '%tiles/ifr/eh%';"`
-sqlite3 maps.eh.db 		    "update files set info='EHUS_SW' where (latc <= 38) and (lonc <= -110) and name like '%tiles/ifr/eh%';"
+zip -1 -q final/EHUS_SW.zip `sqlite3 maps.eh.db "select name from files where (latc <= 38) and (lonc <= -110) and (level != ' 4') and (level != ' 4') and name like '%tiles/ifr/eh%';"`
+sqlite3 maps.eh.db 		    "update files set info='EHUS_SW' where (latc <= 38) and (lonc <= -110) and (level != ' 4') and name like '%tiles/ifr/eh%';"
 

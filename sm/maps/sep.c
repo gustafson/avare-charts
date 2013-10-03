@@ -54,12 +54,12 @@ int main(int argc, char *argv[])
     if((0 == folder) || (2 == folder)) {
 
       snprintf(buffer, sizeof(buffer),
-	       "zip final/%s.zip -r -9 -T -q `sqlite3 maps.%s.db \"select name from files where (latc <= %f) and (latc >= %f) and (lonc >= %f) and (lonc <= %f) and name like '%%tiles/%s%%';\"`", 
+	       "zip final/%s.zip -r -9 -T -q `sqlite3 maps.%s.db \"select name from files where (latc <= %f) and (latc >= %f) and (lonc >= %f) and (lonc <= %f) and (level != ' 4') and name like '%%tiles/%s%%';\"`", 
 	       n_ptr, dirstr, maps[map].latu, maps[map].latd, maps[map].lonl, maps[map].lonr, dirstr);
       out(buffer);
 
       snprintf(buffer, sizeof(buffer),
-	       "sqlite3 maps.%s.db \"update files set info='%s' where (latc <= %f) and (latc >= %f) and (lonc >= %f) and (lonc <= %f) and name like '%%tiles/%s%%';\"",
+	       "sqlite3 maps.%s.db \"update files set info='%s' where (latc <= %f) and (latc >= %f) and (lonc >= %f) and (lonc <= %f) and (level != ' 4') and name like '%%tiles/%s%%';\"",
 	       dirstr, n_ptr, maps[map].latu, maps[map].latd, maps[map].lonl, maps[map].lonr, dirstr);
       out(buffer);
 

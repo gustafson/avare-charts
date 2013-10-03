@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
     out(buffer);
 		
     snprintf(buffer, sizeof(buffer),
-	     "gdal_translate -q -projwin %f %f %f %f  %s_w.tif merge/%s/%s_c.tif",
+	     "gdal_translate -q -projwin %f %f %f %f  %s_w.tif merge/%s/%s.tif",
 	     maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
 	     tmpstr,
 	     "TC",
@@ -114,13 +114,13 @@ int main(int argc, char *argv[])
 
     if(0 == strcmp(maps[map].reg, "TS")) {
       // Don't include the separate TACs (in Alaska and Puerto Rico) in the continental US chart
-      snprintf(buffer, sizeof(buffer),
-	       "gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir tiles_tac -ps 512 512 -useDirForEachRow merge/TC/%s.tif", n_ptr);
-      printf("#retiling %s\n", n_ptr);
-      out(buffer);
+      // snprintf(buffer, sizeof(buffer),
+      // 	       "gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir tiles_tac -ps 512 512 -useDirForEachRow merge/TC/%s.tif", n_ptr);
+      // printf("#retiling %s\n", n_ptr);
+      // out(buffer);
     }
     else {
-      snprintf(buffer, sizeof(buffer), "merge/TC/%s_c.tif ", n_ptr);
+      snprintf(buffer, sizeof(buffer), "merge/TC/%s.tif ", n_ptr);
       strcat(mbuffer, buffer);
     }
   }
