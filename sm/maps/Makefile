@@ -142,9 +142,9 @@ zipit:
 	mkdir final
 	if [ -a main.db ]; then rm main.db; fi;
 	sqlite3 main.db < importother.sql
-	gcc -march=native -O3 -Wall sep.c -o sep
+	gcc -march=native -O3 -Wall sepsec.c -o sepsec
 	gcc -march=native -O3 -Wall septac.c -o septac
-	./sep
+	./sepsec
 	./septac
 	./sepelus.sh
 	./sepehus.sh
