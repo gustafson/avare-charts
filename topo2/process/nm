@@ -1,5 +1,0 @@
-for file in `find tiles -name "*.jpeg"`
-do
-	fl=`echo ${file} | sed s/cantopo_60/cantopo/`
-	mv ${file} ${fl}
-done
