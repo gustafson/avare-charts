@@ -39,3 +39,20 @@ station_id Text,
 flight_category Text);
 
 .import metars.csv metars
+
+CREATE TABLE wa(
+stationid Text,
+valid Text,
+longitude float,
+latitude float,
+w3k Text,
+w6k Text,
+w9k Text,
+w12k Text,
+w18k Text,
+w24k Text,
+w30k Text,
+w34k Text,
+w39k Text);
+
+.import wa.csv wa
