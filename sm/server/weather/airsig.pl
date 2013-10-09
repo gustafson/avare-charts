@@ -129,6 +129,7 @@ sub hdl_end {
 	if($elt eq 'AIRSIGMET') {
         $raw_text //= "";
         $raw_text =~ s/\n//g;
+        $raw_text =~ s/,/;/g;
         $valid_time_from //= "";
         $valid_time_to //= "";
         $point //= "";
@@ -139,6 +140,7 @@ sub hdl_end {
         $movement_speed_kt //= "";
         $hazard //= "";
         $severity //= "";
+        $severity =~ s/,/;/g;
         $airsigmet_type //= "";
         print "$raw_text,$valid_time_from,$valid_time_to,$point,$min_ft_msl,$max_ft_msl,$movement_dir_degrees,$movement_speed_kt,$hazard,$severity,$airsigmet_type\n";
 	}

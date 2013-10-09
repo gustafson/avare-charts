@@ -81,6 +81,7 @@ sub hdl_end {
 	if($elt eq 'AircraftReport') {
         $raw_text //= "";
         $raw_text =~ s/\n//g;
+        $raw_text =~ s/,/;/g;
         $observation_time //= "";
         $latitude //= "";
         $longitude //= "";

@@ -67,6 +67,7 @@ sub hdl_end {
 	if($elt eq 'TAF') {
         $raw_text //= "";
         $raw_text =~ s/\n//g;
+        $raw_text =~ s/,/;/g;
         $issue_time //= "";
         $station_id //= "";
         print "$raw_text,$issue_time,$station_id\n";

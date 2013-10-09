@@ -74,6 +74,7 @@ sub hdl_end {
 	if($elt eq 'METAR') {
         $raw_text //= "";
         $raw_text =~ s/\n//g;
+        $raw_text =~ s/,/;/g;
         $observation_time //= "";
         $station_id //= "";
         print "$raw_text,$observation_time,$station_id,$flight_category\n";

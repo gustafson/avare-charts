@@ -36,6 +36,3 @@ perl metars.pl > metars.csv
 
 sqlite3 weather.db < import.sql
 
-rm -f /home/apps4av/mamba.dreamhosters.com/new/weather.zip
-zip /home/apps4av/mamba.dreamhosters.com/new/weather.zip weather.db
-rm -f *.gz *.csv *.xml *.db
