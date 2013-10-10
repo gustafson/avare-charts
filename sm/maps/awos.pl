@@ -11,6 +11,8 @@
 #
 
 # Right trim function to remove trailing whitespace
+$debug = 0;
+
 sub rtrim($) {
     my $string = shift;
     $string =~ s/\s+$//;
@@ -26,11 +28,14 @@ sub ltrim($) {
 
 open FILE, "<AWOS.txt" or die $!;
 
-#This variable is used to track if we're seeing the next AWOS after accumulating comments 
+#This variable is used to track if we're seeing the next AWOS after accumulating comments
 $ready_to_print = "0";
 
 $awos_count   = "0";
 $awos_remarks = "0";
+print
+"ident,type,commisionstatus,commisiondate,lt,ln,elevation,surveymethod,freq1,freq2,tel1,tel2,apt_id,city,state,effectivedate,remark\n"
+  if $debug;
 
 while (<FILE>) {
 
@@ -38,7 +43,8 @@ while (<FILE>) {
         $ready_to_print++;
 
         if ( $ready_to_print eq "2" ) {
-            print "$id,$type,$name,$tel1,$lt,$ln,$freq1,$apt_id,$remark\n";
+            print
+"$ident,$type,$commisionstatus,$commisiondate,$lt,$ln,$elevation,$surveymethod,$freq1,$freq2,$tel1,$tel2,$apt_id,$city,$state,$effectivedate,$remark\n";
             $awos_count++;
             $ready_to_print = "1";
 
@@ -46,13 +52,12 @@ while (<FILE>) {
             $remark = "";
         }
 
-        $id   = ltrim( rtrim( substr( $_, 5,   4 ) ) );
-        $type = ltrim( rtrim( substr( $_, 9,   10 ) ) );
-        $name = ltrim( rtrim( substr( $_, 121, 40 ) ) );
-        $name =~ s/,/;/g;
-        $tel1 = ltrim( rtrim( substr( $_, 82, 28 ) ) );
-        $tel2 = ltrim( rtrim( substr( $_, 94, 12 ) ) );
-        $lat  = ltrim( rtrim( substr( $_, 31, 14 ) ) );
+        $ident           = ltrim( rtrim( substr( $_, 5,  4 ) ) );
+        $type            = ltrim( rtrim( substr( $_, 9,  10 ) ) );
+        $commisionstatus = ltrim( rtrim( substr( $_, 19, 1 ) ) );
+        $commisiondate   = ltrim( rtrim( substr( $_, 20, 10 ) ) );
+
+        $lat = ltrim( rtrim( substr( $_, 31, 14 ) ) );
 
         if ( length($lat) == 14 ) {
             $lat_d = ltrim( rtrim( substr( $lat, 0, 3 ) ) ) / 1;
@@ -85,24 +90,35 @@ while (<FILE>) {
         else {
             $ln = "";
         }
-        $freq1  = ltrim( rtrim( substr( $_, 68,  7 ) ) );
-        $freq2  = ltrim( rtrim( substr( $_, 0,   40 ) ) );
-        $apt_id = ltrim( rtrim( substr( $_, 110, 10 ) ) );
+        $elevation    = ltrim( rtrim( substr( $_, 60,  7 ) ) );
+        $surveymethod = ltrim( rtrim( substr( $_, 67,  1 ) ) );
+        $freq1        = ltrim( rtrim( substr( $_, 68,  7 ) ) );
+        $freq2        = ltrim( rtrim( substr( $_, 75,  7 ) ) );
+        $tel1         = ltrim( rtrim( substr( $_, 82,  14 ) ) );
+        $tel2         = ltrim( rtrim( substr( $_, 96,  14 ) ) );
+        $apt_id       = ltrim( rtrim( substr( $_, 110, 11 ) ) );
+        $city         = ltrim( rtrim( substr( $_, 121, 40 ) ) );
+        $city =~ s/,/;/g;
+        $state         = ltrim( rtrim( substr( $_, 161, 2 ) ) );
+        $effectivedate = ltrim( rtrim( substr( $_, 163, 10 ) ) );
 
     }
     if (m/^AWOS2/) {
         $awos_remarks++;
 
 #There can be multiple comment lines for each station so accumulate them with . in between each
-        $remark = ltrim( rtrim( substr( $_, 19, 90 ) ) ) . "." . $remark;
+        $remark = ltrim( rtrim( substr( $_, 19, 236 ) ) ) . "..." . $remark;
+        $remark =~ s/,/;/g;
+
     }
 
 }
 
 #This is a hack to print the last station
-print "$id,$type,$name,$tel1,$lt,$ln,$freq1,$apt_id,$remark\n";
+print
+"$ident,$type,$commisionstatus,$commisiondate,$lt,$ln,$elevation,$surveymethod,$freq1,$freq2,$tel1,$tel2,$apt_id,$city,$state,$effectivedate,$remark\n";
 $awos_count++;
 
-#print "$awos_count stations, $awos_remarks remarks\n";
+print "$awos_count stations, $awos_remarks remarks\n" if $debug;
 close(FILE);
 
