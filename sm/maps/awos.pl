@@ -34,7 +34,7 @@ $ready_to_print = "0";
 $awos_count   = "0";
 $awos_remarks = "0";
 print
-"ident,type,commisionstatus,commisiondate,lt,ln,elevation,surveymethod,freq1,freq2,tel1,tel2,apt_id,city,state,effectivedate,remark\n"
+  "ident,type,commisionstatus,lt,ln,elevation,freq1,freq2,tel1,tel2,remark\n"
   if $debug;
 
 while (<FILE>) {
@@ -44,7 +44,7 @@ while (<FILE>) {
 
         if ( $ready_to_print eq "2" ) {
             print
-"$ident,$type,$commisionstatus,$commisiondate,$lt,$ln,$elevation,$surveymethod,$freq1,$freq2,$tel1,$tel2,$apt_id,$city,$state,$effectivedate,$remark\n";
+"$ident,$type,$commisionstatus,$lt,$ln,$elevation,$freq1,$freq2,$tel1,$tel2,$remark\n";
             $awos_count++;
             $ready_to_print = "1";
 
@@ -116,7 +116,7 @@ while (<FILE>) {
 
 #This is a hack to print the last station
 print
-"$ident,$type,$commisionstatus,$commisiondate,$lt,$ln,$elevation,$surveymethod,$freq1,$freq2,$tel1,$tel2,$apt_id,$city,$state,$effectivedate,$remark\n";
+"$ident,$type,$commisionstatus,$lt,$ln,$elevation,$freq1,$freq2,$tel1,$tel2,$remark\n";
 $awos_count++;
 
 print "$awos_count stations, $awos_remarks remarks\n" if $debug;
