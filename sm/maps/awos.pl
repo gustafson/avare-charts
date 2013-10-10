@@ -95,7 +95,9 @@ while (<FILE>) {
         $freq1        = ltrim( rtrim( substr( $_, 68,  7 ) ) );
         $freq2        = ltrim( rtrim( substr( $_, 75,  7 ) ) );
         $tel1         = ltrim( rtrim( substr( $_, 82,  14 ) ) );
+	$tel2 =~ s/,//g;
         $tel2         = ltrim( rtrim( substr( $_, 96,  14 ) ) );
+	$tel2 =~ s/,//g;
         $apt_id       = ltrim( rtrim( substr( $_, 110, 11 ) ) );
         $city         = ltrim( rtrim( substr( $_, 121, 40 ) ) );
         $city =~ s/,/;/g;
@@ -108,7 +110,7 @@ while (<FILE>) {
 
 #There can be multiple comment lines for each station so accumulate them with . in between each
         $remark = ltrim( rtrim( substr( $_, 19, 236 ) ) ) . "..." . $remark;
-        $remark =~ s/,/;/g;
+        $remark =~ s/,//g;
 
     }
 

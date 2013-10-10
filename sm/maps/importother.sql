@@ -36,7 +36,7 @@ CREATE TABLE alternate(LocationID Text,File Text);
 
 .import mins/alt.csv alternate
 
-CREATE TABLE awos(LocationID Text, Type Text, FacilityName Text, Phone Text, Latitude float,Longitude float,Frequency Text, APTId Text, Remark Text);
+CREATE TABLE awos(LocationID Text, Type Text, Status Text, Latitude float,Longitude float, Elevation Text, Frequency1 Text, Frequency2 Text, Telephone1 Text, Telephone2 Text, Remark Text);
 
 .import awos.csv awos
 
