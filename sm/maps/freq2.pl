@@ -37,19 +37,18 @@ my @towerarray = <$file>;  # Reads all lines into array
 
 foreach (@towerarray) {
     if (m/^TWR1/) {
-        #Find each tower defintion
+        #Find each tower/airport defintion
         $airport_count++;
         #print "New airport #$airport_count\n";
-        print "--------------------------------------------------------------------\n";
+        #print "--------------------------------------------------------------------\n";
         my $tcfi   = ltrim( rtrim( substr( $_, 4,  4 ) ) );
         my $apt_id = ltrim( rtrim( substr( $_, 18, 11 ) ) );
 	my $tower_name = ltrim( rtrim( substr( $_, 804, 26 ) ) );
-print "$tcfi,$apt_id,$tower_name\n";
-#Reset this file handle back to the beginning of the TWR.txt file
-        #seek $file2,0,0;
+#Get approach/departure names here too
+	print "$tcfi,$apt_id,$tower_name\n";
         
         foreach (@towerarray) {
-            #Loop through the whole thing for each tower defined above
+            #Loop through the whole file for each tower/airport found above since the records aren't always in order.  Maybe there's a better way to do this but this works
             if ( m/^TWR3/ && ( $tcfi eq ltrim( rtrim( substr( $_, 4, 4 ) ) ) ) )
             {
                 #TWR3 records are a list of frequencies for the airport
