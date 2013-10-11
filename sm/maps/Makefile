@@ -84,12 +84,12 @@ download-vfr:
 	./update_vfr_charts.sh ## New process gets only updates
 
 download-ifr:
-	if [[ ! -d charts/iff ]]; rm -fr charts/iff; fi
-	if [[ ! -d charts/ifh ]]; rm -fr charts/ifh; fi
+	if [[ -d charts/iff ]]; then rm -fr charts/iff; fi
+	if [[ -d charts/ifh ]]; then rm -fr charts/ifh; fi
 	mkdir -p charts/iff
 	mkdir -p charts/ifh
-	cd charts/iff && ../../dlifr.sh 09-19-2013 #change date
-	cd charts/ifh && ../../dlifh.sh 09-19-2013 #change date
+	cd charts/iff && ../../dlifr.sh 08-22-2013 #change date
+	cd charts/ifh && ../../dlifh.sh 08-22-2013 #change date
 
 unzip:
 	cd charts/tac && \
@@ -139,7 +139,7 @@ HIGHLEVELS=`sqlite3 maps.eh.db  "select name from files where (level = ' 3') or 
 	`sqlite3 maps.oth.db "select name from files where (level = ' 3') or (level = ' 4');"` 
 
 zipit:
-	mkdir final
+	if [ -d final ]; then rm -fr final; fi;
 	if [ -a main.db ]; then rm main.db; fi;
 	sqlite3 main.db < importother.sql
 	gcc -march=native -O3 -Wall sepsec.c -o sepsec
