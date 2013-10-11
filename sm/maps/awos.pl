@@ -39,7 +39,10 @@ print
 
 while (<FILE>) {
 
+    #replace all commas with spaces in each line
+    $_ =~ s/,/ /g;
     if (m/^AWOS1/) {
+
         $ready_to_print++;
 
         if ( $ready_to_print eq "2" ) {
@@ -58,7 +61,7 @@ while (<FILE>) {
         $commisiondate   = ltrim( rtrim( substr( $_, 20, 10 ) ) );
 
         $lat = ltrim( rtrim( substr( $_, 31, 14 ) ) );
-
+	#If we have the right amount of latitude information parse out the separate components
         if ( length($lat) == 14 ) {
             $lat_d = ltrim( rtrim( substr( $lat, 0, 3 ) ) ) / 1;
             $lat_m = ltrim( rtrim( substr( $lat, 4, 2 ) ) ) / 60;
@@ -74,7 +77,9 @@ while (<FILE>) {
         else {
             $lt = "";
         }
+
         $lon = ltrim( rtrim( substr( $_, 45, 14 ) ) );
+	#If we have the right amount of longitude information parse out the separate components
         if ( length($lon) == 14 ) {
             $lon_d = ltrim( rtrim( substr( $lon, 0, 3 ) ) ) / 1;
             $lon_m = ltrim( rtrim( substr( $lon, 4, 2 ) ) ) / 60;
@@ -90,17 +95,14 @@ while (<FILE>) {
         else {
             $ln = "";
         }
-        $elevation    = ltrim( rtrim( substr( $_, 60,  7 ) ) );
-        $surveymethod = ltrim( rtrim( substr( $_, 67,  1 ) ) );
-        $freq1        = ltrim( rtrim( substr( $_, 68,  7 ) ) );
-        $freq2        = ltrim( rtrim( substr( $_, 75,  7 ) ) );
-        $tel1         = ltrim( rtrim( substr( $_, 82,  14 ) ) );
-	$tel2 =~ s/,//g;
-        $tel2         = ltrim( rtrim( substr( $_, 96,  14 ) ) );
-	$tel2 =~ s/,//g;
-        $apt_id       = ltrim( rtrim( substr( $_, 110, 11 ) ) );
-        $city         = ltrim( rtrim( substr( $_, 121, 40 ) ) );
-        $city =~ s/,/;/g;
+        $elevation     = ltrim( rtrim( substr( $_, 60,  7 ) ) );
+        $surveymethod  = ltrim( rtrim( substr( $_, 67,  1 ) ) );
+        $freq1         = ltrim( rtrim( substr( $_, 68,  7 ) ) );
+        $freq2         = ltrim( rtrim( substr( $_, 75,  7 ) ) );
+        $tel1          = ltrim( rtrim( substr( $_, 82,  14 ) ) );
+        $tel2          = ltrim( rtrim( substr( $_, 96,  14 ) ) );
+        $apt_id        = ltrim( rtrim( substr( $_, 110, 11 ) ) );
+        $city          = ltrim( rtrim( substr( $_, 121, 40 ) ) );
         $state         = ltrim( rtrim( substr( $_, 161, 2 ) ) );
         $effectivedate = ltrim( rtrim( substr( $_, 163, 10 ) ) );
 
@@ -108,9 +110,8 @@ while (<FILE>) {
     if (m/^AWOS2/) {
         $awos_remarks++;
 
-#There can be multiple comment lines for each station so accumulate them with . in between each
+	#There can be multiple comment lines for each station so accumulate them with . in between each
         $remark = ltrim( rtrim( substr( $_, 19, 236 ) ) ) . "..." . $remark;
-        $remark =~ s/,//g;
 
     }
 
