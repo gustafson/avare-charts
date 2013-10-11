@@ -36,6 +36,8 @@ open my $file, '<' , $filename or die "can't open '$filename' for reading : $!";
 my @towerarray = <$file>;  # Reads all lines into array
 
 foreach (@towerarray) {
+    #replace all commas with spaces in each line
+    $_ =~ s/,/ /g;
     if (m/^TWR1/) {
         #Find each tower/airport defintion
         $airport_count++;
@@ -44,8 +46,10 @@ foreach (@towerarray) {
         my $tcfi   = ltrim( rtrim( substr( $_, 4,  4 ) ) );
         my $apt_id = ltrim( rtrim( substr( $_, 18, 11 ) ) );
 	my $tower_name = ltrim( rtrim( substr( $_, 804, 26 ) ) );
-#Get approach/departure names here too
-	print "$tcfi,$apt_id,$tower_name\n";
+	my $approach_name = ltrim( rtrim( substr( $_, 856, 26 ) ) );
+	my $departure_name = ltrim( rtrim( substr( $_, 908, 26 ) ) );
+ 
+	print "$tcfi,$apt_id,$tower_name,$approach_name,$departure_name\n";
         
         foreach (@towerarray) {
             #Loop through the whole file for each tower/airport found above since the records aren't always in order.  Maybe there's a better way to do this but this works
@@ -56,9 +60,9 @@ foreach (@towerarray) {
                 my $cut = substr( $_, 8, length($_) );
                 while ( length($cut) > 93 ) {
                     my $freq = ltrim( rtrim( substr( $cut, 0, 44 ) ) );
-                    $freq =~ s/,/;/g;
+                
                     my $type = ltrim( rtrim( substr( $cut, 44, 50 ) ) );
-                    $type =~ s/,/;/g;
+                  
                     $cut = substr( $cut, 94, length($cut) );
                     if (   ( $type =~ "ATIS" )
                         || ( $type =~ "GND" )
