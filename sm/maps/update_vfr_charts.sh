@@ -41,30 +41,35 @@ function unzipclean {
 }
 
 function update {
-    pushd charts/$1
+    if [[ -d charts/$1 ]]; then
+	pushd charts/$1
 
-    if [[ $1 = wac ]]; then
-	LOC=wac_files;
-    elif [[ $1 = sec ]]; then
-	LOC=sectional_files;
-    elif [[ $1 = tac ]]; then
-	LOC=tac_files;
-    fi
-
-    for a in *zip; do 
-	BASE=`echo $a | sed 's/.\{6\}$//'`
-	OLD=`echo $a |sed s/$BASE//|cut -f1 -d.`
-	let NEW=$OLD+1
-	let EXP=$OLD-1
-	echo $BASE $OLD $NEW
-	wget -c http://aeronav.faa.gov/content/aeronav/${LOC}/${BASE}${NEW}.zip
-	if [[ -f ${BASE}${EXP}.zip ]]; then
-	    echo Removing ${BASE}${EXP}.zip 
-	    rm ${BASE}${EXP}.zip
+	if [[ $1 = wac ]]; then
+	    LOC=wac_files;
+	elif [[ $1 = sec ]]; then
+	    LOC=sectional_files;
+	elif [[ $1 = tac ]]; then
+	    LOC=tac_files;
 	fi
-    done
+
+	for a in *zip; do 
+	    BASE=`echo $a | sed 's/.\{6\}$//'`
+	    OLD=`echo $a |sed s/$BASE//|cut -f1 -d.`
+	    let NEW=$OLD+1
+	    let EXP=$OLD-1
+	    echo $BASE $OLD $NEW
+	    wget -c http://aeronav.faa.gov/content/aeronav/${LOC}/${BASE}${NEW}.zip
+	    if [[ -f ${BASE}${EXP}.zip ]]; then
+		echo Removing ${BASE}${EXP}.zip 
+		rm ${BASE}${EXP}.zip
+	    fi
+	done
 # rmtif; unzipclean;
-    popd
+	popd
+    else
+	echo "update_vfr_charts.sh only works when the old zip files exist."
+	echo "If you are starting from scratch, uncomment the chart reapfiles.pl code in the Makefile."
+    fi
 }
 
 update wac
