@@ -29,40 +29,44 @@ sub ltrim($) {
 }
 
 my $airport_count = 0;
-my $filename = "TWR.txt";
+my $filename      = "TWR.txt";
 
-open my $file, '<' , $filename or die "can't open '$filename' for reading : $!";
+open my $file, '<', $filename or die "can't open '$filename' for reading : $!";
 
-my @towerarray = <$file>;  # Reads all lines into array
+my @towerarray = <$file>;    # Reads all lines into array
 
 foreach (@towerarray) {
+
     #replace all commas with spaces in each line
     $_ =~ s/,/ /g;
     if (m/^TWR1/) {
+
         #Find each tower/airport defintion
         $airport_count++;
-        #print "New airport #$airport_count\n";
-        #print "--------------------------------------------------------------------\n";
-        my $tcfi   = ltrim( rtrim( substr( $_, 4,  4 ) ) );
-        my $apt_id = ltrim( rtrim( substr( $_, 18, 11 ) ) );
-	my $tower_name = ltrim( rtrim( substr( $_, 804, 26 ) ) );
-	my $approach_name = ltrim( rtrim( substr( $_, 856, 26 ) ) );
-	my $departure_name = ltrim( rtrim( substr( $_, 908, 26 ) ) );
- 
-	print "$tcfi,$apt_id,$tower_name,$approach_name,$departure_name\n";
-        
+
+#print "New airport #$airport_count\n";
+#print "--------------------------------------------------------------------\n";
+        my $tcfi           = ltrim( rtrim( substr( $_, 4,   4 ) ) );
+        my $apt_id         = ltrim( rtrim( substr( $_, 18,  11 ) ) );
+        my $tower_name     = ltrim( rtrim( substr( $_, 804, 26 ) ) );
+        my $approach_name  = ltrim( rtrim( substr( $_, 856, 26 ) ) );
+        my $departure_name = ltrim( rtrim( substr( $_, 908, 26 ) ) );
+
+        #print "$tcfi,$apt_id,$tower_name,$approach_name,$departure_name\n";
+
         foreach (@towerarray) {
-            #Loop through the whole file for each tower/airport found above since the records aren't always in order.  Maybe there's a better way to do this but this works
+
+#Loop through the whole file for each tower/airport found above since the records aren't always in order.  Maybe there's a better way to do this but this works
             if ( m/^TWR3/ && ( $tcfi eq ltrim( rtrim( substr( $_, 4, 4 ) ) ) ) )
             {
-                #TWR3 records are a list of frequencies for the airport
-                #This iterates through each of the frequency records in the overal TWR3 record
+  #TWR3 records are a list of frequencies for the airport
+  #This iterates through each of the frequency records in the overal TWR3 record
                 my $cut = substr( $_, 8, length($_) );
                 while ( length($cut) > 93 ) {
                     my $freq = ltrim( rtrim( substr( $cut, 0, 44 ) ) );
-                
+
                     my $type = ltrim( rtrim( substr( $cut, 44, 50 ) ) );
-                  
+
                     $cut = substr( $cut, 94, length($cut) );
                     if (   ( $type =~ "ATIS" )
                         || ( $type =~ "GND" )
@@ -71,58 +75,64 @@ foreach (@towerarray) {
                         || ( $type =~ "GATE" )
                         || ( $type =~ "CD" ) )
                     {
+                        $type =~ s/(GND\/?.)/GROUND/g;
+                        $type =~ s/(LCL\/?.)/TOWER "$tower_name"/g;
+                        $type =~ s/(CD\/?.)/CLEARANCE DELIVERY/g;
                         print "$tcfi,$type,$freq\n";
                     }
 
                 }
 
             }
-            if ( m/^TWR7/ && ( $apt_id eq ltrim( rtrim( substr( $_, 102, 11 ) ) ) ) )
+            if ( m/^TWR7/
+                && ( $apt_id eq ltrim( rtrim( substr( $_, 102, 11 ) ) ) ) )
             {
-                    #TWR7 records are for satellite airport data
-                    #But they also display information about our own frequencies (eg approach and departure)
-                    #The plan here is to only print frequencies for this airport, not what it may be providing to others
-                    my $freq = ltrim( rtrim( substr( $_, 8, 44 ) ) );
-                    $freq =~ s/,/;/g;
-                    my $type = ltrim( rtrim( substr( $_, 50, 52 ) ) );
-                    $type =~ s/,/;/g;
-                    print "$tcfi,$type,$freq\n";
-                
+#TWR7 records are for satellite airport data
+#But they also display information about our own frequencies (eg approach and departure)
+#The plan here is to only print frequencies for this airport, not what it may be providing to others
+                my $freq = ltrim( rtrim( substr( $_, 8, 44 ) ) );
+
+                my $type = ltrim( rtrim( substr( $_, 50, 52 ) ) );
+
+                $type =~ s/(APCH\/?.)/APPROACH "$approach_name"/g;
+                $type =~ s/(DEP\/?.)/DEPARTURE "$departure_name"/g;
+                $type =~ s/(CD\/?.)/CLEARANCE DELIVERY/g;
+
+                print "$tcfi,$type,$freq\n";
 
             }
             if ( m/^TWR6/ && ( $tcfi eq ltrim( rtrim( substr( $_, 4, 4 ) ) ) ) )
             {
                 #TWR6 records are for remarks
                 my $remark = ltrim( rtrim( substr( $_, 13, length($_) ) ) );
-                $remark =~ s/,/ /g;
+
                 print "$tcfi,Remark,$remark\n";
             }
-   	    if ( m/^TWR4/ && ( $tcfi eq ltrim( rtrim( substr( $_, 4, 4 ) ) ) ) )
-            {
-                #TWR4 records are for services for satellite airpoirts
-                my $remark = ltrim( rtrim( substr( $_, 8, 100) ) );
-                $remark =~ s/,/ /g;
-                print "$tcfi,T4,$remark\n";
-            }
-	    if ( m/^TWR2/ && ( $tcfi eq ltrim( rtrim( substr( $_, 4, 4 ) ) ) ) )
-            {
-                #TWR2 are for operating hours
-                my $militaryhours = ltrim( rtrim( substr( $_, 408, 200) ) );
-                my $approachhours1 = ltrim( rtrim( substr( $_, 608, 200) ) );
-                my $approachhours2 = ltrim( rtrim( substr( $_, 808, 200) ) );
-                my $departurehours1 = ltrim( rtrim( substr( $_, 1008, 200) ) );
-                my $departurehours2 = ltrim( rtrim( substr( $_, 1208, 200) ) );
-		my $towerhours = ltrim( rtrim( substr( $_, 1408, 200) ) );
- 		               
- 		#$remark =~ s/,/ /g;
-                print "$tcfi,T2,$militaryhours,$approachhours1,$approachhours2,$departurehours1,$departurehours2,$towerhours\n";
-            }
- 
+
+          # if ( m/^TWR4/ && ( $tcfi eq ltrim( rtrim( substr( $_, 4, 4 ) ) ) ) )
+          # {
+          # #TWR4 records are for services for satellite airpoirts
+          # my $remark = ltrim( rtrim( substr( $_, 8, 100) ) );
+
+          # print "$tcfi,T4,$remark\n";
+          # }
+          # if ( m/^TWR2/ && ( $tcfi eq ltrim( rtrim( substr( $_, 4, 4 ) ) ) ) )
+          # {
+          # #TWR2 are for operating hours
+          # my $militaryhours = ltrim( rtrim( substr( $_, 408, 200) ) );
+          # my $approachhours1 = ltrim( rtrim( substr( $_, 608, 200) ) );
+          # my $approachhours2 = ltrim( rtrim( substr( $_, 808, 200) ) );
+          # my $departurehours1 = ltrim( rtrim( substr( $_, 1008, 200) ) );
+          # my $departurehours2 = ltrim( rtrim( substr( $_, 1208, 200) ) );
+          # my $towerhours = ltrim( rtrim( substr( $_, 1408, 200) ) );
+
+# print "$tcfi,T2,$militaryhours,$approachhours1,$approachhours2,$departurehours1,$departurehours2,$towerhours\n";
+# }
+
         }
-  
 
     }
- 
+
 }
 close($file);
 
