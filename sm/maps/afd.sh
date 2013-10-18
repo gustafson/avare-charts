@@ -45,7 +45,7 @@ wait
 
 ## Optimize the png for file size and rendering
 find afd -name "*.png" | 
-xargs -P ${NP} -n 1 -quiet optipng
+xargs -P ${NP} -n 1 optipng -quiet
 wait
 
 ##

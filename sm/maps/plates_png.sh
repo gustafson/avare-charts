@@ -40,6 +40,7 @@ function download {
     if [[ -d plates_$1 ]]; then
 	rsync -avP --del plates_$1/ plates/
     else
+	mkdir plates
 	perl DownloadPlates.pl --states=$1
     fi
 

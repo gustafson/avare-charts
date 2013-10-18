@@ -77,7 +77,7 @@ my $parser = new XML::Parser (Handlers => {
 
 my $response;
 
-my $name = "afd_22AUG2013.xml";
+my $name = "afd_17OCT2013.xml";
 
 # Dates coincide with IFR charts every 56 days 
 if (!(-e $name)) {

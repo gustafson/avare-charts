@@ -172,9 +172,13 @@ print "HTML cycle = $htmlcycle\n";
 #exit ();
 
 #with the FAA hosing me on this XML catalog file, temp fix is to manually support it on my servers. ARGH!
+
+### USE THIS TO GET NEW LIST 
 #my $cmd = "$wgetCmd $xmlFile $webServer$htmlcycle$MySlash$xmlDataDir$MySlash$xmlFile";
 # ZK my $cmd = "$wgetCmd $xmlFile $webServer/1303$MySlash$xmlDataDir$MySlash$xmlFile";
 #my $cmd = "$wgetCmd $xmlFile http://mstewart.net/super8/grtgetallplates/d-TPP_Metafile.xml";
+
+### USE THIS TO NOT REDOWNLOAD
 my $cmd = "dir"; #I use this for testing only so I donthave to keep downloading the xml
 #print "$cmd\n";
 #print "downloading from the FAA's NACO site $xmlFile for the cycle $htmlcycle\n";

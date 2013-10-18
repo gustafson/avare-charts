@@ -60,7 +60,7 @@ xargs -P ${NP} -n 1 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -b
 wait
 
 find . -name "*.png" | 
-xargs -P ${NP} -n 1 -quiet optipng
+xargs -P ${NP} -n 1 optipng -quiet
 wait
 
 for REG in ${REGNS}

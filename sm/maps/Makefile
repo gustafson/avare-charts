@@ -31,33 +31,35 @@
 # Copy APT.txt TWR.txt, FIX.txt, NAV.txt, DOF.DAT
 # Set dates in afd.sh get_ads.sh
 
-
 all:
-	@echo "do one by one"
+	@echo execute make update or make scratch
+
+scratch: base download-vfr unzip stageall zipit
+update: base update-vfr unzip stageall zipit
+base: fresh download-base-data process-data download-ifr 
 
 fresh:
 	rm -rf plates
 	rm -rf afd 
 	rm -rf final
 	rm -rf merge
-	rm -f maps.db*
+	rm -f maps*.db
 	rm -f *.csv
-	rm -f sep septac stagesec stageifr stageifh stagetac *.tif *.jpeg *.xml
+	rm -f sepsec septac stagesec stageifr stageifh stagetac *.tif *.jpeg *.xml
 
-data0:
-	wget https://nfdc.faa.gov/webContent/56DaySub/2013-08-22/APT.zip && unzip APT.zip && rm APT.zip
-	wget https://nfdc.faa.gov/webContent/56DaySub/2013-08-22/AWOS.zip && unzip AWOS.zip && rm AWOS.zip
-	wget https://nfdc.faa.gov/webContent/56DaySub/2013-08-22/TWR.zip && unzip TWR.zip && rm TWR.zip
-	wget https://nfdc.faa.gov/webContent/56DaySub/2013-08-22/FIX.zip && unzip FIX.zip && rm FIX.zip
-	wget https://nfdc.faa.gov/webContent/56DaySub/2013-08-22/NAV.zip && unzip NAV.zip && rm NAV.zip
+download-base-data:
+	wget https://nfdc.faa.gov/webContent/56DaySub/2013-10-17/APT.zip && unzip APT.zip && rm APT.zip
+	wget https://nfdc.faa.gov/webContent/56DaySub/2013-10-17/AWOS.zip && unzip AWOS.zip && rm AWOS.zip
+	wget https://nfdc.faa.gov/webContent/56DaySub/2013-10-17/TWR.zip && unzip TWR.zip && rm TWR.zip
+	wget https://nfdc.faa.gov/webContent/56DaySub/2013-10-17/FIX.zip && unzip FIX.zip && rm FIX.zip
+	wget https://nfdc.faa.gov/webContent/56DaySub/2013-10-17/NAV.zip && unzip NAV.zip && rm NAV.zip
 	## obstacles file
-	wget https://nfdc.faa.gov/tod/public/DOFS/DOF_130915.zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
+	wget https://nfdc.faa.gov/tod/public/DOFS/DOF_13xxxx.zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
 	# https://nfdc.faa.gov/webContent/dtpp/current.xml
 
-data:
+process-data:
 	mkdir plates
 	mkdir final
-	mkdir afd 
 	./airport.pl > airport.csv
 	./runway.pl > runway.csv
 	./freq.pl > freq.csv
@@ -65,22 +67,24 @@ data:
 	./nav.pl > nav.csv
 	./dof.pl > dof.csv
 	./awos.pl > awos.csv
-	#./get_ads.sh 1310 # change cycle here  ## ZDont need. Zubair says they are in the plates already
+	#./get_ads.sh 1311 # change cycle here  ## Don't need. Zubair says they are in the plates already
 	./plates_png.sh
 	./afd.sh # change date here  
-	./domins.sh 1310 # change cycle here
+	./domins.sh 1311 # change cycle here
 
 download-vfr:
-	#mkdir merge
-	#mkdir -p charts/wac  
-	#mkdir -p charts/sec 
-	#mkdir -p charts/tac
-	#cd charts/sec && \
-	#perl ../../reapfiles.pl -f zip http://aeronav.faa.gov/index.asp?xml=aeronav/applications/VFR/chartlist_sect
-	#cd charts/tac && \
-	#perl ../../reapfiles.pl -f zip http://aeronav.faa.gov/index.asp?xml=aeronav/applications/VFR/chartlist_tac
-	#cd charts/wac && \
-	#perl ../../reapfiles.pl -f zip http://aeronav.faa.gov/index.asp?xml=aeronav/applications/VFR/chartlist_wac
+	mkdir merge
+	mkdir -p charts/wac  
+	mkdir -p charts/sec 
+	mkdir -p charts/tac
+	cd charts/sec && \
+	perl ../../reapfiles.pl -f zip http://aeronav.faa.gov/index.asp?xml=aeronav/applications/VFR/chartlist_sect
+	cd charts/tac && \
+	perl ../../reapfiles.pl -f zip http://aeronav.faa.gov/index.asp?xml=aeronav/applications/VFR/chartlist_tac
+	cd charts/wac && \
+	perl ../../reapfiles.pl -f zip http://aeronav.faa.gov/index.asp?xml=aeronav/applications/VFR/chartlist_wac
+
+update-vfr:
 	./update_vfr_charts.sh ## New process gets only updates
 
 download-ifr:
@@ -88,8 +92,8 @@ download-ifr:
 	if [[ -d charts/ifh ]]; then rm -fr charts/ifh; fi
 	mkdir -p charts/iff
 	mkdir -p charts/ifh
-	cd charts/iff && ../../dlifr.sh 08-22-2013 #change date
-	cd charts/ifh && ../../dlifh.sh 08-22-2013 #change date
+	cd charts/iff && ../../dlifr.sh 10-17-2013 #change date
+	cd charts/ifh && ../../dlifh.sh 10-17-2013 #change date
 
 unzip:
 	cd charts/tac && \
@@ -138,8 +142,17 @@ HIGHLEVELS=`sqlite3 maps.eh.db  "select name from files where (level = ' 3') or 
 	`sqlite3 maps.wac.db "select name from files where (level = ' 3') or (level = ' 4');"` \
 	`sqlite3 maps.oth.db "select name from files where (level = ' 3') or (level = ' 4');"` 
 
+HIGHLEVEL=`sqlite3 maps.eh.db  "select name from files where (level = ' 4');"` \
+	`sqlite3 maps.el.db  "select name from files where (level = ' 4');"` \
+	`sqlite3 maps.elv.db "select name from files where (level = ' 4');"` \
+	`sqlite3 maps.rel.db "select name from files where (level = ' 4');"` \
+	`sqlite3 maps.sec.db "select name from files where (level = ' 4');"` \
+	`sqlite3 maps.tac.db "select name from files where (level = ' 4');"` \
+	`sqlite3 maps.wac.db "select name from files where (level = ' 4');"` \
+	`sqlite3 maps.oth.db "select name from files where (level = ' 4');"` 
+
 zipit:
-	if [ -d final ]; then rm -fr final; fi;
+	## FIXME must find out how to updated canap.csv canfreq.csv canrun.csv
 	if [ -a main.db ]; then rm main.db; fi;
 	sqlite3 main.db < importother.sql
 	gcc -march=native -O3 -Wall sepsec.c -o sepsec
@@ -148,9 +161,9 @@ zipit:
 	./septac
 	./sepelus.sh
 	./sepehus.sh
-	./sepelev.sh
-	./seprel.sh
-	./sephelo.sh
+	./sepelev.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
+	./seprel.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
+	./sephelo.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
 	##./septopo.sh copy charts zips on servers as no expires
 	##./sepgc.sh copy charts zips on servers as no expires
 	sqlite3 maps.eh.db "VACUUM;"
@@ -162,6 +175,7 @@ zipit:
 	sqlite3 maps.wac.db "VACUUM;"
 	sqlite3 maps.oth.db "VACUUM;"
 	sqlite3 main.db "VACUUM;"
-	zip -9 -r final/databases.zip maps.*.db main.db $(HIGHLEVELS)
+	## FIXME must add maps.topo.db 
+	zip -9 -r final/databases.zip maps.*.db main.db $(HIGHLEVEL)
 
 # Use gdalinfo -approx_stats to check tif files for success.

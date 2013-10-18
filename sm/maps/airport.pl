@@ -60,7 +60,7 @@ while (<FILE>) {
 		}
 		$var = ltrim(rtrim(substr($_, 586, 3)));
 		$fuel = ltrim(rtrim(substr($_, 900, 40)));
-		$use = ltrim(rtrim(substr($_, 183, 2)));
+		$use = ltrim(rtrim(substr($_, 185, 2)));
 		$elevation = ltrim(rtrim(substr($_, 578, 7)));
 		$patterna = ltrim(rtrim(substr($_, 593, 4)));
 		$ctaff = ltrim(rtrim(substr($_, 988, 7)));
