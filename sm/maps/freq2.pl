@@ -37,8 +37,8 @@ my @towerarray = <$file>;    # Reads all lines into array
 
 foreach (@towerarray) {
 
-    #replace all commas with spaces in each line
-    $_ =~ s/,/ /g;
+    #sanitize input text for output to csv
+    $_ =~ s/,|"/ /g;
     if (m/^TWR1/) {
 
         #Find each tower/airport defintion
@@ -55,7 +55,8 @@ foreach (@towerarray) {
         #print "$tcfi,$apt_id,$tower_name,$approach_name,$departure_name\n";
 
         foreach (@towerarray) {
-	$_ =~ s/,/ /g;
+	#sanitize input text for output to csv
+	$_ =~ s/,|"/ /g;
 
 #Loop through the whole file for each tower/airport found above since the records aren't always in order.  Maybe there's a better way to do this but this works
             if ( m/^TWR3/ && ( $tcfi eq ltrim( rtrim( substr( $_, 4, 4 ) ) ) ) )
