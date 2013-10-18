@@ -45,19 +45,19 @@ while (<FILE>) {
 
         $ready_to_print++;
 
-        if ( $ready_to_print eq "2" ) {
-            print
-"$ident,$type,$commisionstatus,$lt,$ln,$elevation,$freq1,$freq2,$tel1,$tel2,$remark\n";
+        if ( $ready_to_print eq "2"  && uc($commisionstatus) eq "Y"){
+            print "$ident,$type,$commisionstatus,$lt,$ln,$elevation,$freq1,$freq2,$tel1,$tel2,$remark\n";
             $awos_count++;
+            }
             $ready_to_print = "1";
-
             #Clear out the remarks string for each new AWOS listing
-            $remark = "";
-        }
+            $remark = "";         
+        
 
         $ident           = ltrim( rtrim( substr( $_, 5,  4 ) ) );
         $type            = ltrim( rtrim( substr( $_, 9,  10 ) ) );
         $commisionstatus = ltrim( rtrim( substr( $_, 19, 1 ) ) );
+        
         $commisiondate   = ltrim( rtrim( substr( $_, 20, 10 ) ) );
 
         $lat = ltrim( rtrim( substr( $_, 31, 14 ) ) );
@@ -112,16 +112,16 @@ while (<FILE>) {
 
 	#There can be multiple comment lines for each station so accumulate them with . in between each
         $remark = ltrim( rtrim( substr( $_, 19, 236 ) ) ) . "..." . $remark;
-
     }
 
 }
 
 #This is a hack to print the last station
-print
-"$ident,$type,$commisionstatus,$lt,$ln,$elevation,$freq1,$freq2,$tel1,$tel2,$remark\n";
-$awos_count++;
+     if ( uc($commisionstatus) eq "Y"){
+            print "$ident,$type,$commisionstatus,$lt,$ln,$elevation,$freq1,$freq2,$tel1,$tel2,$remark\n";
+            $awos_count++;
+        }
 
-print "$awos_count stations, $awos_remarks remarks\n" if $debug;
+print "$awos_count active stations, $awos_remarks remarks\n" if $debug;
 close(FILE);
 
