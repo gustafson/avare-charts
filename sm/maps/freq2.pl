@@ -14,6 +14,8 @@
 use strict;
 use warnings;
 
+my $debug = 0;
+
 # Right trim function to remove trailing whitespace
 sub rtrim($) {
     my $string = shift;
@@ -44,8 +46,10 @@ foreach (@towerarray) {
         #Find each tower/airport defintion
         $airport_count++;
 
-#print "New airport #$airport_count\n";
-#print "--------------------------------------------------------------------\n";
+        print "New airport #$airport_count\n" if $debug;
+        print
+"--------------------------------------------------------------------\n"
+          if $debug;
         my $tcfi           = ltrim( rtrim( substr( $_, 4,   4 ) ) );
         my $apt_id         = ltrim( rtrim( substr( $_, 18,  11 ) ) );
         my $tower_name     = ltrim( rtrim( substr( $_, 804, 26 ) ) );
@@ -55,8 +59,9 @@ foreach (@towerarray) {
         #print "$tcfi,$apt_id,$tower_name,$approach_name,$departure_name\n";
 
         foreach (@towerarray) {
-	#sanitize input text for output to csv
-	$_ =~ s/,|"/ /g;
+
+            #sanitize input text for output to csv
+            $_ =~ s/,|"/ /g;
 
 #Loop through the whole file for each tower/airport found above since the records aren't always in order.  Maybe there's a better way to do this but this works
             if ( m/^TWR3/ && ( $tcfi eq ltrim( rtrim( substr( $_, 4, 4 ) ) ) ) )
@@ -77,10 +82,26 @@ foreach (@towerarray) {
                         || ( $type =~ "GATE" )
                         || ( $type =~ "CD" ) )
                     {
-                        $type =~ s/(GND\/?.)/GROUND/g;
-                        $type =~ s/(LCL\/?.)/TOWER "$tower_name"/g;
-                        $type =~ s/(CD\/?.)/CLEARANCE DELIVERY/g;
-                        print "$tcfi,$type,$freq\n";
+                        #$type =~ s/\/P/\(Primary\)/g;
+                        #$type =~ s/\/S/\(Secondary\)/g;
+
+                        if ( $type =~ "LCL" ) {
+                            $type =~ s/LCL/Tower/g;
+                            $type = $type . " \"$tower_name\"";
+                        }
+                        else {
+                            $type =~ s/GND/Ground/g;
+                            $type =~ s/CD/Clearance Delivery/g;
+
+                        }
+
+#This will print only lines with VHF Aviation frequencies.  Comment out to also print UHF
+                        if ( $freq =~ m/(1[1-3][0-9]\.\d{1,3})/
+                            && ( $1 >= 118 && $1 < 137 ) )
+                        {
+
+                            print "$tcfi,$type,$freq\n";
+                        }
                     }
 
                 }
@@ -96,11 +117,34 @@ foreach (@towerarray) {
 
                 my $type = ltrim( rtrim( substr( $_, 50, 52 ) ) );
 
-                $type =~ s/(APCH\/?.)/APPROACH "$approach_name"/g;
-                $type =~ s/(DEP\/?.)/DEPARTURE "$departure_name"/g;
-                $type =~ s/(CD\/?.)/CLEARANCE DELIVERY/g;
+                #$type =~ s/\/P/\(Primary\)/g;
+                #$type =~ s/\/S/\(Secondary\)/g;
 
-                print "$tcfi,$type,$freq\n";
+                if ( $type =~ /APCH/ && /DEP/ ) {
+                    $type = "Approach/Departure";
+                    $type = $type . " \"$approach_name\"";
+                }
+                elsif ( $type =~ "APCH" ) {
+                    $type =~ s/APCH/Approach/g;
+                    $type = $type . " \"$approach_name\"";
+                }
+                elsif ( $type =~ "DEP" ) {
+                    $type =~ s/DEP/Departure /g;
+                    $type = $type . " \"$departure_name\"";
+
+                }
+                elsif ( $type =~ "CD" ) {
+                    $type =~ s/CD/Clearance Delivery/g;
+
+                }
+
+#This will print only lines with VHF Aviation frequencies.  Comment out to also print UHF
+                if ( $freq =~ m/(1[1-3][0-9]\.\d{1,3})/
+                    && ( $1 >= 118 && $1 < 137 ) )
+                {
+
+                    print "$tcfi,$type,$freq\n";
+                }
 
             }
             if ( m/^TWR6/ && ( $tcfi eq ltrim( rtrim( substr( $_, 4, 4 ) ) ) ) )
@@ -108,7 +152,7 @@ foreach (@towerarray) {
                 #TWR6 records are for remarks
                 my $remark = ltrim( rtrim( substr( $_, 13, length($_) ) ) );
 
-                print "$tcfi,Remark,$remark\n";
+                print "$tcfi,Remarks,$remark\n";
             }
 
           # if ( m/^TWR4/ && ( $tcfi eq ltrim( rtrim( substr( $_, 4, 4 ) ) ) ) )
