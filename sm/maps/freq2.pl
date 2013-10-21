@@ -82,16 +82,17 @@ foreach (@towerarray) {
                         || ( $type =~ "GATE" )
                         || ( $type =~ "CD" ) )
                     {
-                        #$type =~ s/\/P/\(Primary\)/g;
-                        #$type =~ s/\/S/\(Secondary\)/g;
+                $type =~ s/\s*\/P\s*/ 1/g;
+                $type =~ s/\s*\/S\s*/ 2/g;
 
                         if ( $type =~ "LCL" ) {
-                            $type =~ s/LCL/Tower/g;
+                            $freq = $freq." (".$type.")";
+                            $type = "Tower";
                             $type = $type . " \"$tower_name\"";
                         }
                         else {
                             $type =~ s/GND/Ground/g;
-                            $type =~ s/CD/Clearance Delivery/g;
+                            $type =~ s/CD/Clearance Del./g;
 
                         }
 
@@ -117,11 +118,11 @@ foreach (@towerarray) {
 
                 my $type = ltrim( rtrim( substr( $_, 50, 52 ) ) );
 
-                #$type =~ s/\/P/\(Primary\)/g;
-                #$type =~ s/\/S/\(Secondary\)/g;
+                $type =~ s/\s*\/P\s*/ 1/g;
+                $type =~ s/\s*\/S\s*/ 2/g;
 
                 if ( $type =~ /APCH/ && /DEP/ ) {
-                    $type = "Approach/Departure";
+                    $type = "Apch/Dep";
                     $type = $type . " \"$approach_name\"";
                 }
                 elsif ( $type =~ "APCH" ) {
