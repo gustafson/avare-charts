@@ -30,6 +30,63 @@ sub ltrim($) {
     return $string;
 }
 
+sub cleantext {
+    my ( $freq, $type, $tower_name, $approach_name, $departure_name ) = @_;
+
+    # $type =~ s/\s*\/P/1/g;
+    # $type =~ s/\s*\/S/2/g;
+    #Add a space after a VHF frequency
+    $freq =~ s/(1[1-3][0-9]\.\d{1,3})(\b)/$1 $2/g;
+    #Add degree marks to a sector indicator
+    #(ddd-ddd)
+    #$freq =~s/\(([0-3][0-9][0-9])\)[-]\(([0-3][0-9][0-9])\)/$1°-$2°/g;
+
+    if ( $type =~ m/LC|LCL/ ) {
+        $freq = $freq . " (" . $type . ")";
+        $type =
+          ( $tower_name ne "" ? "Tower" . " (" . $tower_name . ")" : "Tower" );
+    }
+    elsif ( $type =~ m/GND|GROUND/ ) {
+        $freq = $freq . " (" . $type . ")";
+        $type = "Ground";
+    }
+    elsif ( $type =~ m/CD|CLNC.DEL/ ) {
+        $freq = $freq . " (" . $type . ")";
+        $type = "Clearance Delivery";
+    }
+    elsif ( $type =~ "ATIS" ) {
+    }
+    elsif ( $type =~ m/APCH|APP/ && $type =~ m/DEP/ ) {
+        $freq = $freq . " (" . $type . ")";
+        $type =
+          ( $approach_name ne ""
+            ? "Apch/Dep" . " (" . $approach_name . ")"
+            : "Apch/Dep" );
+    }
+    elsif ( $type =~ m/APCH/ ) {
+        $freq = $freq . " (" . $type . ")";
+        $type =
+          ( $approach_name ne ""
+            ? "Approach" . " (" . $approach_name . ")"
+            : "Approach" );
+    }
+    elsif ( $type =~ m/DEP/ ) {
+        $freq = $freq . " (" . $type . ")";
+        $type =
+          ( $departure_name ne ""
+            ? "Departure" . " (" . $departure_name . ")"
+            : "Departure" );
+    }
+    #Expand some abbreviations
+    $type =~ s/RDR/RADAR/g;
+
+    $freq = ltrim( rtrim($freq) );
+    $type = ltrim( rtrim($type) );
+    #All whitespace to one space
+    $freq =~ s/\s{2,}/ /g;
+    return ( $freq, $type );
+}
+
 my $airport_count = 0;
 my $filename      = "TWR.txt";
 
@@ -47,7 +104,9 @@ foreach (@towerarray) {
         $airport_count++;
 
         print "New airport #$airport_count\n" if $debug;
-        print "--------------------------------------------------------------------\n" if $debug;
+        print
+"--------------------------------------------------------------------\n"
+          if $debug;
         my $tcfi           = ltrim( rtrim( substr( $_, 4,   4 ) ) );
         my $apt_id         = ltrim( rtrim( substr( $_, 18,  11 ) ) );
         my $tower_name     = ltrim( rtrim( substr( $_, 804, 26 ) ) );
@@ -61,57 +120,33 @@ foreach (@towerarray) {
             #sanitize input text for output to csv
             $_ =~ s/,|"/ /g;
 
-#Loop through the whole file for each tower/airport found above since the records aren't always in order.  Maybe there's a better way to do this but this works
+#Loop through the whole file for each tower/airport found above since the records might not be grouped together. 
+#Maybe there's a better way to do this but this works for now
             if ( m/^TWR3/ && ( $tcfi eq ltrim( rtrim( substr( $_, 4, 4 ) ) ) ) )
             {
-  #TWR3 records are a list of frequencies for the airport
-  #This iterates through each of the frequency records in the overall TWR3 record
+                #TWR3 records are a list of frequencies for the airport
+                #This iterates through each of the frequency records in the overall TWR3 record
                 my $cut = substr( $_, 8, length($_) );
                 while ( length($cut) > 93 ) {
-                    my $freq = ltrim( rtrim( substr( $cut, 0, 44 ) ) );
+                    my $freq = ltrim( rtrim( substr( $cut, 0,  44 ) ) );
                     my $type = ltrim( rtrim( substr( $cut, 44, 50 ) ) );
-
                     $cut = substr( $cut, 94, length($cut) );
-                    if (   ( $type =~ "ATIS" )
-                        || ( $type =~ "GND" )
-                        || ( $type =~ "LCL" )
-                        || ( $type =~ "EMERG" )
-                        || ( $type =~ "GATE" )
-                        || ( $type =~ "CD" ) )
-                    {
-                        $type =~ s/\s*\/P/1/g;
-                        $type =~ s/\s*\/S/2/g;
-                        #Add a space after a VHF frequency
-                        $freq =~ s/(1[1-3][0-9]\.\d{1,3})(\S)/$1 $2/g;
-                        #Add degree marks to a sector
-                        $freq =~s/([0-3][0-9][0-9])[-]([0-3][0-9][0-9])/$1°-$2°/g;
-          
-                        if ( $type =~ "LCL" ) {
-                            $freq = $freq . " (" . $type . ")";
-                            $type = "Tower";
-                            $type = $type . " \"$tower_name\"";
-                        }
-                        elsif ( $type =~ "GND" ) {
-                            $freq = $freq . " (" . $type . ")";
-                            $type = "Ground";
-                        }
-                        elsif ( $type =~ "CD" ) {
-                            $freq = $freq . " (" . $type . ")";
-                            $type = "Clearance Delivery";
-                        }
-                        elsif ( $type =~ "ATIS" ) {
-                        }
 
-                        #This will print only lines with VHF Aviation frequencies.  Comment out to also print UHF
-                        if ( $freq =~ m/(1[1-3][0-9]\.\d{1,3})/
-                            && ( $1 >= 118 && $1 < 137 ) )
-                        {
-                           $freq = ltrim( rtrim( $freq) );
-                           $type = ltrim( rtrim( $type) );
-                            print "$tcfi,$type,$freq\n";
-                        }
-                    }
+                    #ignore this line if the TYPE doesn't contain a letter
+                    next if ( !( $type =~ m/[A-Za-z]/ ) );
 
+                    #ignore this line if TYPE contains anything that looks like a frequency (meaning it's probably misformatted)
+                    next if ( $type =~ m/(\d{3}\.\d{1,3})/ );
+
+                    #ignore this line if FREQ doesn't contain a valid VHF Aviation frequency
+                    next
+                      if !( $freq =~ m/(1[1-3][0-9]\.\d{1,3})/
+                        && ( $1 >= 118 && $1 < 137 ) );
+
+                    ( $freq, $type ) =
+                      cleantext( $freq, $type, $tower_name, $approach_name,
+                        $departure_name );
+                    print "$tcfi,$type,$freq\n";
                 }
 
             }
@@ -121,47 +156,26 @@ foreach (@towerarray) {
                 #TWR7 records are for satellite airport data
                 #But they also display information about our own frequencies (eg approach and departure)
                 #The plan here is to only print frequencies for this airport, not what it may be providing to others
-                my $freq = ltrim( rtrim( substr( $_, 8, 44 ) ) );
+                my $freq = ltrim( rtrim( substr( $_, 8,  44 ) ) );
                 my $type = ltrim( rtrim( substr( $_, 50, 52 ) ) );
 
-                $type =~ s/\s*\/P/1/g;
-                $type =~ s/\s*\/S/2/g;
-                #Add a space after a VHF frequency
-                $freq =~ s/(1[1-3][0-9]\.\d{1,3})(\W)/$1 $2/g;
-                 #Add degree marks to a sector
-                 $freq =~ s/([0-3][0-9][0-9])[-]([0-3][0-9][0-9])/$1°-$2°/g;
-       
-                if ( $type =~ /APCH/ && /DEP/ ) {
-                    $freq = $freq . " (" . $type . ")";
-                    $type = "Apch/Dep";
-                    $type = $type . " \"$approach_name\"";
-                }
-                elsif ( $type =~ "APCH" ) {
-                    $freq = $freq . " (" . $type . ")";
-                    $type = "Approach";
-                    $type = $type . " \"$approach_name\"";
-                }
-                elsif ( $type =~ "DEP" ) {
-                    $freq = $freq . " (" . $type . ")";
-                    $type = "Departure";
-                    $type = $type . " \"$departure_name\"";
+                #ignore this line if the type doesn't contain a letter
+                next if ( !( $type =~ m/[A-Za-z]/ ) );
 
-                }
-                elsif ( $type =~ "CD" ) {
-                    $freq = $freq . " (" . $type . ")";
-                    $type = "Clearance Delivery";
-                }
+                #ignore this line if type contains anything that looks like a frequency (meaning it's probably misformatted)
+                next if ( $type =~ m/(\d{3}\.\d{1,3})/ );
 
-                #This will print only lines with VHF Aviation frequencies.  Comment out to also print UHF
-                if ( $freq =~ m/(1[1-3][0-9]\.\d{1,3})/
-                    && ( $1 >= 118 && $1 < 137 ) )
-                {
-                      $freq = ltrim( rtrim( $freq) );
-                      $type = ltrim( rtrim( $type) );
-                      print "$tcfi,$type,$freq\n";
-                }
+                #ignore this line if frequency doesn't contain a valid VHF Aviation frequency
+                next
+                  if !( $freq =~ m/(1[1-3][0-9]\.\d{1,3})/
+                    && ( $1 >= 118 && $1 < 137 ) );
 
+                ( $freq, $type ) =
+                  cleantext( $freq, $type, $tower_name, $approach_name,
+                    $departure_name );
+                print "$tcfi,$type,$freq\n";
             }
+            
             if ( m/^TWR6/ && ( $tcfi eq ltrim( rtrim( substr( $_, 4, 4 ) ) ) ) )
             {
                 #TWR6 records are for remarks
@@ -175,20 +189,20 @@ foreach (@towerarray) {
           # #TWR4 records are for services for satellite airpoirts
           # my $remark = ltrim( rtrim( substr( $_, 8, 100) ) );
 
-            # print "$tcfi,T4,$remark\n";
-            # }
-            # if ( m/^TWR2/ && ( $tcfi eq ltrim( rtrim( substr( $_, 4, 4 ) ) ) ) )
-            # {
-                # #TWR2 are for operating hours
-                # my $militaryhours   = ltrim( rtrim( substr( $_, 408,  200 ) ) );
-                # my $approachhours1  = ltrim( rtrim( substr( $_, 608,  200 ) ) );
-                # my $approachhours2  = ltrim( rtrim( substr( $_, 808,  200 ) ) );
-                # my $departurehours1 = ltrim( rtrim( substr( $_, 1008, 200 ) ) );
-                # my $departurehours2 = ltrim( rtrim( substr( $_, 1208, 200 ) ) );
-                # my $towerhours      = ltrim( rtrim( substr( $_, 1408, 200 ) ) );
+          # print "$tcfi,T4,$remark\n";
+          # }
+          # if ( m/^TWR2/ && ( $tcfi eq ltrim( rtrim( substr( $_, 4, 4 ) ) ) ) )
+          # {
+          # #TWR2 are for operating hours
+          # my $militaryhours   = ltrim( rtrim( substr( $_, 408,  200 ) ) );
+          # my $approachhours1  = ltrim( rtrim( substr( $_, 608,  200 ) ) );
+          # my $approachhours2  = ltrim( rtrim( substr( $_, 808,  200 ) ) );
+          # my $departurehours1 = ltrim( rtrim( substr( $_, 1008, 200 ) ) );
+          # my $departurehours2 = ltrim( rtrim( substr( $_, 1208, 200 ) ) );
+          # my $towerhours      = ltrim( rtrim( substr( $_, 1408, 200 ) ) );
 
-            # # print "$tcfi,T2,$militaryhours,$approachhours1,$approachhours2,$departurehours1,$departurehours2,$towerhours\n";
-            # }
+# # print "$tcfi,T2,$militaryhours,$approachhours1,$approachhours2,$departurehours1,$departurehours2,$towerhours\n";
+# }
 
         }
 
