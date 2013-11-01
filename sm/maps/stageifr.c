@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     if((0 == strcmp(maps[map].reg, "IF"))) {
 			
       snprintf(buffer, sizeof(buffer),
-	       "gdal_translate -outsize 50%% 50%% -srcwin %d %d %d %d charts/%s/%s.tif %s.tif",
+	       "gdal_translate -outsize 100%% 100%% -srcwin %d %d %d %d charts/%s/%s.tif %s.tif",
 	       maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
 	       dir_ptr,
 	       n_ptr,

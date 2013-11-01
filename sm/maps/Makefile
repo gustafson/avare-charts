@@ -32,7 +32,7 @@
 # Set dates in afd.sh get_ads.sh
 
 all:
-	@echo execute make update or make scratch
+	@echo execute \"make update\" or \"make scratch\"
 
 scratch: base download-vfr unzip stageall zipit
 update: base update-vfr unzip stageall zipit
@@ -43,8 +43,8 @@ fresh:
 	rm -rf afd 
 	rm -rf final
 	rm -rf merge
-	rm -f maps*.db
-	rm -f *.csv
+	rm -f maps.eh.db maps.el.db maps.oth.db maps.sec.db maps.tac.db maps.wac.db
+	rm -f afd.csv airport.csv awos.csv dof.csv files.csv fix.csv freq.csv nav.csv runway.csv ## FIXME Canadian stuff left... update after any refresh
 	rm -f sepsec septac stagesec stageifr stageifh stagetac *.tif *.jpeg *.xml
 
 download-base-data:
@@ -54,7 +54,7 @@ download-base-data:
 	wget https://nfdc.faa.gov/webContent/56DaySub/2013-10-17/FIX.zip && unzip FIX.zip && rm FIX.zip
 	wget https://nfdc.faa.gov/webContent/56DaySub/2013-10-17/NAV.zip && unzip NAV.zip && rm NAV.zip
 	## obstacles file
-	wget https://nfdc.faa.gov/tod/public/DOFS/DOF_13xxxx.zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
+	wget https://nfdc.faa.gov/tod/public/DOFS/DOF_1300915.zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
 	# https://nfdc.faa.gov/webContent/dtpp/current.xml
 
 process-data:
@@ -90,10 +90,13 @@ update-vfr:
 download-ifr:
 	if [[ -d charts/iff ]]; then rm -fr charts/iff; fi
 	if [[ -d charts/ifh ]]; then rm -fr charts/ifh; fi
+	if [[ -d charts/ifa ]]; then rm -fr charts/ifa; fi
 	mkdir -p charts/iff
 	mkdir -p charts/ifh
+	mkdir -p charts/ifa
 	cd charts/iff && ../../dlifr.sh 10-17-2013 #change date
 	cd charts/ifh && ../../dlifh.sh 10-17-2013 #change date
+	cd charts/ifa && ../../dlifa.sh 10-17-2013 #change date
 
 unzip:
 	cd charts/tac && \

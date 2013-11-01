@@ -12,14 +12,21 @@
 
 export DT=$1
 
-cd charts/iff
+cd charts/ifa
 
-for ch in 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 
+for ch in 2 4;
 do
-	wget http://aeronav.faa.gov/Enroute/${DT}/ENR_L$ch.zip
+    ## Alaska low
+    wget http://aeronav.faa.gov/enroute/${DT}/ENR_AKL0$ch.zip
 done
+## Alaska high
+wget http://aeronav.faa.gov/enroute/${DT}/ENR_AKH02.zip
 
-for ch in 1 2 3;
+
+for ch in 1 2 ;
 do
-	wget http://aeronav.faa.gov/enroute/${DT}/DELAK$ch.zip
+    ## Hawaii Pacific
+    wget http://aeronav.faa.gov/enroute/${DT}/ENR_P0$ch.zip
+    ## IFR Areas
+    wget http://aeronav.faa.gov/enroute/${DT}/ENR_A0$ch.zip
 done

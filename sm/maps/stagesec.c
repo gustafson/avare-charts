@@ -91,6 +91,7 @@ int main(int argc, char *argv[])
       }
  
       if(0 != strcmp(maps[map].reg, "HI")) {
+	// Expand to rgb
 	snprintf(buffer, sizeof(buffer),
 		 "gdal_translate -expand rgb `ls charts/%s/%s*.tif|tail -n2|head -n1` %sa.tif;\n",
 		 dir_ptr, n_ptr, filestr);
@@ -99,6 +100,14 @@ int main(int argc, char *argv[])
 		 "gdal_translate -expand rgb `ls charts/%s/%s*.tif|tail -n1` %sb.tif;\n",
 		 dir_ptr, n_ptr, filestr);
 	strcat(cmdstr, buffer);
+	// Put a mask near the edges so that no seams show on the tiles
+	snprintf(buffer, sizeof(buffer),
+		 "nearblack -color 0,0,0 -color 255,255,255 -setmask %sa.tif;\n", filestr);
+	strcat(cmdstr, buffer);
+	snprintf(buffer, sizeof(buffer),
+		 "nearblack -color 0,0,0 -color 255,255,255 -setmask %sb.tif;\n", filestr);
+	strcat(cmdstr, buffer);
+	// Check to see if the two images are identical
 	snprintf(buffer, sizeof(buffer),
 		 "[[ `diff %sa.tif %sb.tif` ]] || rm %sb.tif;\n",
 		 filestr, filestr, filestr);

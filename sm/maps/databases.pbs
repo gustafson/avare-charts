@@ -83,8 +83,7 @@ function updatetiles {
 	else
 	    EXT=png;
 	    NAME=$0.$EXT;
-	    ## convert $0.tif -antialias -unsharp 0x3 -dither none -remap colors-ifr-nosharp-256.png ${NAME} && optipng ${NAME}
-	    convert $0.tif -antialias -dither none -remap colors-ifr-a256.png ${NAME} && optipng ${NAME}
+	    convert $0.tif -antialias -dither none -remap colors-ifr-nosharp-256.png ${NAME} && optipng ${NAME}
 	fi
     else
 	EXT=jpg;
