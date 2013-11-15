@@ -43,7 +43,7 @@ typedef struct {
 } Maps;
 
 int debug=0;
-#include "chartsifr.c"
+#include "chartsifa.c"
 #include "stageall.c"
 
 int main(int argc, char *argv[])
@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
 
   if (argc==2){debug=1;}
 
-  out("rm -fr merge/IF; mkdir merge/IF"); // IFR 48 
-  // out("rm -fr tiles_ifr; mkdir tiles_ifr"); // IFR 48 
+  out("rm -fr merge/IFA; mkdir merge/IFA;");
+  // out("rm -fr tiles_ifa; mkdir tiles_ifa;");
 
   int entries = sizeof(maps) / sizeof(maps[0]);
 
@@ -66,16 +66,16 @@ int main(int argc, char *argv[])
     n_ptr = maps[map].name; 
 
     // Establish a parallel safe tmp name
-    snprintf(tmpstr, sizeof(tmpstr), "/dev/shm/tmpstageifr%i", map);
-
+    snprintf(tmpstr, sizeof(tmpstr), "/dev/shm/tmpstageifa%i", map);
+    
     printf("\n\n# %s\n\n", maps[map].name);
-
-    if(0 == strcmp(maps[map].reg, "IF")) {
-      dir_ptr = "iff";
+    
+    if(0 == strcmp(maps[map].reg, "IFA")) {
+      dir_ptr = "ifa";
     }
-
-    if((0 == strcmp(maps[map].reg, "IF"))) {
-			
+    
+    if((0 == strcmp(maps[map].reg, "IFA"))) {
+      
       snprintf(buffer, sizeof(buffer),
 	       "gdal_translate -outsize 100%% 100%% -srcwin %d %d %d %d charts/%s/%s.tif %s.tif",
 	       maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
@@ -83,27 +83,34 @@ int main(int argc, char *argv[])
 	       n_ptr,
 	       tmpstr);
       out(buffer);
-			
+
+      snprintf(buffer, sizeof(buffer), "nearblack -color 0,0,0 -setmask %s.tif;\n", tmpstr);
+      out(buffer);
+
       snprintf(buffer, sizeof(buffer),  
 	       "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -dstnodata '51 51 51' -r cubicspline -t_srs WGS84 %s.tif merge/%s/%s_c.tif",
 	       tmpstr,
 	       maps[map].reg,
 	       n_ptr);
       out(buffer);
+      
+      // snprintf(buffer, sizeof(buffer), "nearblack -color 0,0,0 -setmask merge/%s/%s_c.tif;\n", maps[map].reg, n_ptr);
+      // out(buffer);
+
     }
     
-    snprintf(buffer, sizeof(buffer), "rm -f %s.tif", tmpstr);
+    snprintf(buffer, sizeof(buffer), "rm -f %s.tif %s.tif.msk", tmpstr, tmpstr);
     out(buffer);
 
   }
 
   /* one image */
-  out("rm ifr.tif ifr_small.jpeg");
-  out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 merge/IF/*_c.tif ifr_full.tif");
-  out("gdal_translate -outsize 50%% 50%% ifr_full.tif ifr_50.tif");
-  out("gdal_translate -outsize 12.5%% 12.5%% -of JPEG ifr_full.tif ifr_small.jpeg");
-  // out("gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir tiles_ifr -ps 512 512 -useDirForEachRow ifr.tif");
-  // out("mv tiles_ifr/0 tiles_ifr/3");
+  out("rm ifa.tif ifa_full.tif ifa_small.jpeg");
+  out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 merge/IFA/*_c.tif ifa_full.tif");
+  out("gdal_translate -outsize 50%% 50%% ifa_full.tif ifa.tif");
+  out("gdal_translate -outsize 25%% 25%% -of JPEG ifa.tif ifa_small.jpeg");
+  // out("gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir tiles_ifa -ps 512 512 -useDirForEachRow ifa.tif");
+  // out("mv tiles_ifa/0 tiles_ifa/4");
 
   return 0;
 }

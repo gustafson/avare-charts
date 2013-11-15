@@ -36,13 +36,14 @@ all:
 
 scratch: base download-vfr unzip stageall zipit
 update: base update-vfr unzip stageall zipit
-base: fresh download-base-data process-data download-ifr 
+base: fresh download-ifr download-base-data process-data
 
 fresh:
 	rm -rf plates
 	rm -rf afd 
 	rm -rf final
 	rm -rf merge
+	rm APT.txt AWOS.txt TWR.txt FIX.txt NAV.txt
 	rm -f maps.eh.db maps.el.db maps.oth.db maps.sec.db maps.tac.db maps.wac.db
 	rm -f afd.csv airport.csv awos.csv dof.csv files.csv fix.csv freq.csv nav.csv runway.csv ## FIXME Canadian stuff left... update after any refresh
 	rm -f sepsec septac stagesec stageifr stageifh stagetac *.tif *.jpeg *.xml
@@ -54,7 +55,7 @@ download-base-data:
 	wget https://nfdc.faa.gov/webContent/56DaySub/2013-10-17/FIX.zip && unzip FIX.zip && rm FIX.zip
 	wget https://nfdc.faa.gov/webContent/56DaySub/2013-10-17/NAV.zip && unzip NAV.zip && rm NAV.zip
 	## obstacles file
-	wget https://nfdc.faa.gov/tod/public/DOFS/DOF_1300915.zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
+	wget https://nfdc.faa.gov/tod/public/DOFS/DOF_131110.zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
 	# https://nfdc.faa.gov/webContent/dtpp/current.xml
 
 process-data:
@@ -70,7 +71,7 @@ process-data:
 	#./get_ads.sh 1311 # change cycle here  ## Don't need. Zubair says they are in the plates already
 	./plates_png.sh
 	./afd.sh # change date here  
-	./domins.sh 1311 # change cycle here
+	./domins.sh 1312 # change cycle here
 
 download-vfr:
 	mkdir merge
@@ -121,6 +122,9 @@ unzip:
 	cd charts/ifh && \
 	rm -f *.tif && \
 	unzip -j \*.zip \*.tif
+	cd charts/ifa && \
+	rm -f *.tif && \
+	unzip -j \*.zip \*.tif
 	cd charts/iff && \
 	rm -f *.tif && \
 	unzip -j \*.zip \*.tif
@@ -130,6 +134,7 @@ stageall:
 	gcc -march=native -O3 -Wall stagesec.c -o stagesec -fopenmp
 	gcc -march=native -O3 -Wall stageifr.c -o stageifr -fopenmp
 	gcc -march=native -O3 -Wall stageifh.c -o stageifh -fopenmp
+	gcc -march=native -O3 -Wall stageifa.c -o stageifa -fopenmp
 	gcc -march=native -O3 -Wall stagetac.c -o stagetac -fopenmp
 	## each pbs script could be run as a shell script but is 
 	## run through pbs for efficient resource management.

@@ -49,8 +49,8 @@ int debug=0;
 int main(int argc, char *argv[])
 {
   int map;
-  char buffer[256];
-  char tmpstr[256];
+  char buffer[512];
+  char tmpstr[128];
   char *n_ptr;
   char *dir_ptr;
 
@@ -76,20 +76,19 @@ int main(int argc, char *argv[])
 
     if((0 == strcmp(maps[map].reg, "IFH"))) {
 			
-      snprintf(buffer, sizeof(buffer), // -co COMPRESS=LZW
-	       "gdal_translate -srcwin %d %d %d %d charts/%s/%s.tif %s.tif",
+      snprintf(buffer, sizeof(buffer),
+	       "gdal_translate -outsize 100%% 100%% -srcwin %d %d %d %d charts/%s/%s.tif %s.tif",
 	       maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
 	       dir_ptr,
 	       n_ptr,
 	       tmpstr);
       out(buffer);
 			
-      snprintf(buffer, sizeof(buffer),
+      snprintf(buffer, sizeof(buffer),  
 	       "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -dstnodata '51 51 51' -r cubicspline -t_srs WGS84 %s.tif merge/%s/%s_c.tif",
 	       tmpstr,
 	       maps[map].reg,
 	       n_ptr);
-			
       out(buffer);
     }
     
@@ -97,8 +96,6 @@ int main(int argc, char *argv[])
     out(buffer);
 
   }
-
-  printf("\n\n\n");
 
   /* one image */
   out("rm ifh.tif ifh_small.jpeg");

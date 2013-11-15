@@ -97,18 +97,12 @@ function updatetiles {
 
 export -f updatetiles
 
-for dir in elv eh el rel sec tac wac oth; do #
-    if [[ ${dir} = eh || ${dir} == el ]]; then
-	newdir="ifr/${dir}"
-    else
-	newdir=${dir}
-    fi
-    
-    echo $newdir
+for dir in ifh ifr; do #elv ifh ifr rel sec tac wac oth
+    echo $dir
 
     [[ -f /dev/shm/files.csv ]] && rm /dev/shm/files.csv
     
-    find tiles/${newdir} -name "*.tif" -print | sed s/'.tif'// | sort | 
+    find tiles/${dir} -name "*.tif" -print | sed s/'.tif'// | sort | 
     xargs -P ${NP} -n 1 bash -c updatetiles 
     
     mv /dev/shm/files.csv files.csv

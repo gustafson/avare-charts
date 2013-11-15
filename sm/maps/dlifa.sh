@@ -14,14 +14,15 @@ export DT=$1
 
 cd charts/ifa
 
-for ch in 2 4;
-do
+for ch in 1 2 3 4; do
     ## Alaska low
     wget http://aeronav.faa.gov/enroute/${DT}/ENR_AKL0$ch.zip
 done
-## Alaska high
-wget http://aeronav.faa.gov/enroute/${DT}/ENR_AKH02.zip
 
+for ch in 1 2; do
+## Alaska high
+    wget http://aeronav.faa.gov/enroute/${DT}/ENR_AKH0$ch.zip
+done
 
 for ch in 1 2 ;
 do
