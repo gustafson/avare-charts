@@ -31,22 +31,27 @@
 # Copy APT.txt TWR.txt, FIX.txt, NAV.txt, DOF.DAT
 # Set dates in afd.sh get_ads.sh
 
+## ToDo for "normal" machines.
+## 1) Update NP variable in scripts
+
 all:
-	@echo execute \"make update\" or \"make scratch\"
+	@echo execute \"make fresh\" to clean out temp files
+	@echo execute \"make update\" to update a prior build \(save download time\)
+	@echo execute \"make scratch\" to start from scratch \"make scratch\"
 
 scratch: base download-vfr unzip stageall zipit
 update: base update-vfr unzip stageall zipit
-base: fresh download-ifr download-base-data process-data
+base: download-base-data process-data download-ifr 
 
 fresh:
 	rm -rf plates
 	rm -rf afd 
 	rm -rf final
 	rm -rf merge
-	rm APT.txt AWOS.txt TWR.txt FIX.txt NAV.txt
-	rm -f maps.eh.db maps.el.db maps.oth.db maps.sec.db maps.tac.db maps.wac.db
-	rm -f afd.csv airport.csv awos.csv dof.csv files.csv fix.csv freq.csv nav.csv runway.csv ## FIXME Canadian stuff left... update after any refresh
-	rm -f sepsec septac stagesec stageifr stageifh stagetac *.tif *.jpeg *.xml
+	rm ads.txt APT.txt AWOS.txt FIX.txt TWR.txt
+	rm maps.ifr.db maps.ifh.db maps.oth.db maps.sec.db maps.tac.db maps.wac.db
+	rm afd.csv airport.csv awos.csv dof.csv files.csv fix.csv freq.csv nav.csv runway.csv ## FIXME Canadian stuff left... update after any refresh
+	rm sepsec septac stagesec stageifr stageifa stageifh stagetac *.tif *.jpeg *.xml
 
 download-base-data:
 	wget https://nfdc.faa.gov/webContent/56DaySub/2013-10-17/APT.zip && unzip APT.zip && rm APT.zip
@@ -69,7 +74,7 @@ process-data:
 	./dof.pl > dof.csv
 	./awos.pl > awos.csv
 	#./get_ads.sh 1311 # change cycle here  ## Don't need. Zubair says they are in the plates already
-	./plates_png.sh
+	./plates_png.sh  ## FIXME MANUAL INTERVENTION: the DownloadPlates.pl attempts to redownload the base xml file with every state.  This is error prone due to FAA server timeouts
 	./afd.sh # change date here  
 	./domins.sh 1312 # change cycle here
 
@@ -91,13 +96,15 @@ update-vfr:
 download-ifr:
 	if [[ -d charts/iff ]]; then rm -fr charts/iff; fi
 	if [[ -d charts/ifh ]]; then rm -fr charts/ifh; fi
-	if [[ -d charts/ifa ]]; then rm -fr charts/ifa; fi
+	if [[ -d charts/ifal ]]; then rm -fr charts/ifal; fi
+	if [[ -d charts/ifah ]]; then rm -fr charts/ifah; fi
 	mkdir -p charts/iff
 	mkdir -p charts/ifh
-	mkdir -p charts/ifa
-	cd charts/iff && ../../dlifr.sh 10-17-2013 #change date
-	cd charts/ifh && ../../dlifh.sh 10-17-2013 #change date
-	cd charts/ifa && ../../dlifa.sh 10-17-2013 #change date
+	mkdir -p charts/ifal
+	mkdir -p charts/ifah
+	./dlifr.sh 10-17-2013 #change date
+	./dlifh.sh 10-17-2013 #change date
+	./dlifa.sh 10-17-2013 #change date
 
 unzip:
 	cd charts/tac && \
@@ -134,7 +141,8 @@ stageall:
 	gcc -march=native -O3 -Wall stagesec.c -o stagesec -fopenmp
 	gcc -march=native -O3 -Wall stageifr.c -o stageifr -fopenmp
 	gcc -march=native -O3 -Wall stageifh.c -o stageifh -fopenmp
-	gcc -march=native -O3 -Wall stageifa.c -o stageifa -fopenmp
+	gcc -march=native -O3 -Wall stageifal.c -o stageifal -fopenmp
+	gcc -march=native -O3 -Wall stageifah.c -o stageifah -fopenmp
 	gcc -march=native -O3 -Wall stagetac.c -o stagetac -fopenmp
 	## each pbs script could be run as a shell script but is 
 	## run through pbs for efficient resource management.
@@ -185,5 +193,8 @@ zipit:
 	sqlite3 main.db "VACUUM;"
 	## FIXME must add maps.topo.db 
 	zip -9 -r final/databases.zip maps.*.db main.db $(HIGHLEVEL)
+
+qualitycontrol:
+	./qualitycontrol.sh
 
 # Use gdalinfo -approx_stats to check tif files for success.

@@ -43,7 +43,7 @@ typedef struct {
 } Maps;
 
 int debug=0;
-#include "chartsifa.c"
+#include "chartsifal.c"
 #include "stageall.c"
 
 int main(int argc, char *argv[])
@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
 
   if (argc==2){debug=1;}
 
-  out("rm -fr merge/IFA; mkdir merge/IFA;");
-  // out("rm -fr tiles_ifa; mkdir tiles_ifa;");
+  out("rm -fr merge/IFAL; mkdir merge/IFAL;");
+  // out("rm -fr tiles_ifal; mkdir tiles_ifal;");
 
   int entries = sizeof(maps) / sizeof(maps[0]);
 
@@ -66,15 +66,15 @@ int main(int argc, char *argv[])
     n_ptr = maps[map].name; 
 
     // Establish a parallel safe tmp name
-    snprintf(tmpstr, sizeof(tmpstr), "/dev/shm/tmpstageifa%i", map);
+    snprintf(tmpstr, sizeof(tmpstr), "/dev/shm/tmpstageifal%i", map);
     
     printf("\n\n# %s\n\n", maps[map].name);
     
-    if(0 == strcmp(maps[map].reg, "IFA")) {
-      dir_ptr = "ifa";
+    if(0 == strcmp(maps[map].reg, "IFAL")) {
+      dir_ptr = "ifal";
     }
     
-    if((0 == strcmp(maps[map].reg, "IFA"))) {
+    if((0 == strcmp(maps[map].reg, "IFAL"))) {
       
       snprintf(buffer, sizeof(buffer),
 	       "gdal_translate -outsize 100%% 100%% -srcwin %d %d %d %d charts/%s/%s.tif %s.tif",
@@ -84,33 +84,34 @@ int main(int argc, char *argv[])
 	       tmpstr);
       out(buffer);
 
-      snprintf(buffer, sizeof(buffer), "nearblack -color 0,0,0 -setmask %s.tif;\n", tmpstr);
-      out(buffer);
-
       snprintf(buffer, sizeof(buffer),  
-	       "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -dstnodata '51 51 51' -r cubicspline -t_srs WGS84 %s.tif merge/%s/%s_c.tif",
+	       //"gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -dstnodata '51 51 51' -r cubicspline -t_srs WGS84 -tr 0.000905038613196 0.000905038613196 %s.tif merge/%s/%s_c.tif",
+	       "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -dstnodata '51 51 51' -r cubicspline -t_srs WGS84 -tr 0.000905038613196 0.000905038613196 %s.tif merge/%s/%s_c.tif",
 	       tmpstr,
 	       maps[map].reg,
 	       n_ptr);
       out(buffer);
       
-      // snprintf(buffer, sizeof(buffer), "nearblack -color 0,0,0 -setmask merge/%s/%s_c.tif;\n", maps[map].reg, n_ptr);
-      // out(buffer);
-
+      snprintf(buffer, sizeof(buffer), "nearblack -color 0,0,0 -setmask %s.tif;\n", tmpstr);
+      out(buffer);
+      
     }
-    
-    snprintf(buffer, sizeof(buffer), "rm -f %s.tif %s.tif.msk", tmpstr, tmpstr);
-    out(buffer);
-
+  }
+  
+  out("rm ifal_east.tif ifal_west.tif");
+  
+#pragma omp parallel num_threads(2)
+  {
+    map = omp_get_thread_num();
+    if (map==0){
+      // out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.000905038613196 0.000905038613196 -te -180 40.225 -119.35 47.25 merge/IFAL/*_c.tif ifal_west.tif");
+      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.000905038613196 0.000905038613196 -te -180 40.225 -119.35 74.25 /dev/shm/tmpstageifal*tif ifal_west.tif");
+    } else if (map==1){
+      // out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.000905038613196 0.000905038613196 -te 170 44 180 62.25 merge/IFAL/*_c.tif ifal_east.tif");
+      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.000905038613196 0.000905038613196 -te 170 44 180 62.25 /dev/shm/tmpstageifal*tif ifal_east.tif");
+    }
   }
 
-  /* one image */
-  out("rm ifa.tif ifa_full.tif ifa_small.jpeg");
-  out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 merge/IFA/*_c.tif ifa_full.tif");
-  out("gdal_translate -outsize 50%% 50%% ifa_full.tif ifa.tif");
-  out("gdal_translate -outsize 25%% 25%% -of JPEG ifa.tif ifa_small.jpeg");
-  // out("gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir tiles_ifa -ps 512 512 -useDirForEachRow ifa.tif");
-  // out("mv tiles_ifa/0 tiles_ifa/4");
-
+  out("rm /dev/shm/tmpstageifal*tif");
   return 0;
 }

@@ -1,13 +1,13 @@
 #!/bin/sh -login
 #PBS -l mem=50000mb
-#PBS -l nodes=1:ppn=16
+#PBS -l nodes=1:ppn=6
 #PBS -l walltime=1000:00:00
 #PBS -m abe 
 #PBS -V 
 #PBS -M peter.gustafson@wmich.edu
-#PBS -N stageifa
-#PBS -e z_stageifa.${PBS_JOBID}.e
-#PBS -o z_stageifa.${PBS_JOBID}.o
+#PBS -N stageifal
+#PBS -e z_stageifal.${PBS_JOBID}.e
+#PBS -o z_stageifal.${PBS_JOBID}.o
 
 #!/bin/bash
 # Copyright (c) 2013, Peter A. Gustafson (peter.gustafson@wmich.edu)
@@ -63,6 +63,6 @@ export OMP_NUM_THREADS=${NP}
 
 ###############################
 [[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
-/usr/bin/time -v -o ${PBS_JOBNAME}.log -a ./stageifa > ${PBS_JOBNAME}.log
+/usr/bin/time -v -o ${PBS_JOBNAME}.log -a ./stageifal > ${PBS_JOBNAME}.log
 wait
 ###############################

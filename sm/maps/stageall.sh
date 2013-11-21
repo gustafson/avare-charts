@@ -1,9 +1,16 @@
 #!/bin/bash
 
-J=`qsub stagesec.pbs`
-J=`qsub -W depend=afterok:${J} stagetac.pbs`
-J=`qsub -W depend=afterok:${J} stageifr.pbs`
-J=`qsub -W depend=afterok:${J} stageifh.pbs`
-J=`qsub -W depend=afterok:${J} stageifa.pbs`
-J=`qsub -W depend=afterok:${J} pyramids.pbs`
-J=`qsub -W depend=afterok:${J} databases.pbs`
+[[ -d tiles ]] && rm -fr tiles
+
+## Do TAC separately since it takes the longest by a substantial margin
+J1=`qsub stagetac.pbs`
+J1=`qsub -W depend=afterok:${J1} pyramids-tac.pbs`
+
+## Do the rest
+J1=`qsub stagesec.pbs`
+J2=`qsub stageifr.pbs`
+J3=`qsub stageifh.pbs`
+J4=`qsub stageifal.pbs`
+J5=`qsub stageifah.pbs`
+J6=`qsub -W depend=afterok:${J1} -W depend=afterok:${J2} -W depend=afterok:${J3} -W depend=afterok:${J4} -W depend=afterok:${J5} pyramids.pbs`
+J7=`qsub -W depend=afterok:${J6} databases.pbs`

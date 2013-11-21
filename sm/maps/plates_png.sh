@@ -24,6 +24,11 @@ function download {
 	perl DownloadPlates.pl --states=$1
     fi
 
+    ## Remove special characters from file names.  These mess up xargs below.
+    rename "'" "" `find plates -name "*.pdf" |grep \'`
+    rename "," "" `find plates -name "*.pdf" |grep \,`
+
+
     [[ -f final/$1.zip ]] && rm final/$1.zip
     find plates -name "*.pdf" | 
     xargs -P ${NP} -n 1 mogrify -dither none -antialias -density ${DPI} -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -format png
@@ -33,7 +38,7 @@ function download {
     wait
 
     zip -r -i "*.png" -1 -T -q final/$1.zip plates
-    find plates -name "*png" |xargs rm
+    find plates -name "*png" | xargs rm
 
     rsync -avPq plates/ plates_$1/
     rm -fr plates

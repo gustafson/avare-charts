@@ -65,20 +65,21 @@ export OMP_NUM_THREADS=${NP}
 
 [[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
 
-[[ -d tiles ]] && rm -fr tiles
-
 mkdir -p tiles/sec/48
 mkdir -p tiles/sec/ak
 mkdir -p tiles/sec/hi
 mkdir -p tiles/wac/48
 mkdir -p tiles/wac/ak
 mkdir -p tiles/ifh/48
+mkdir -p tiles/ifh/ak/w
+mkdir -p tiles/ifh/ak/e
 mkdir -p tiles/ifr/48
-mkdir -p tiles/ifr/ak
-mkdir -p tiles/tac/48
-mkdir -p tiles/tac/an
-mkdir -p tiles/tac/fa
-mkdir -p tiles/tac/pr
+mkdir -p tiles/ifr/ak/w
+mkdir -p tiles/ifr/ak/e
+## mkdir -p tiles/tac/48
+## mkdir -p tiles/tac/an
+## mkdir -p tiles/tac/fa
+## mkdir -p tiles/tac/pr
 
 gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/sec/48 -levels 4 -ps 512 512 -useDirForEachRow sec-48.tif &
 gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/sec/ak -levels 4 -ps 512 512 -useDirForEachRow sec-ak.tif &
@@ -86,12 +87,15 @@ gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/sec/hi -levels 4
 gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/wac/48 -levels 4 -ps 512 512 -useDirForEachRow wac-48.tif &
 gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/wac/ak -levels 4 -ps 512 512 -useDirForEachRow wac-ak.tif &
 gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/ifh/48 -levels 4 -ps 512 512 -useDirForEachRow ifh.tif &
+gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/ifh/ak/w -levels 4 -ps 512 512 -useDirForEachRow ifah_west.tif &
+gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/ifh/ak/e -levels 4 -ps 512 512 -useDirForEachRow ifah_east.tif &
 gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/ifr/48 -levels 4 -ps 512 512 -useDirForEachRow ifr.tif &
-gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/ifr/ak -levels 4 -ps 512 512 -useDirForEachRow ifa.tif &
-gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/tac/48 -levels 4 -ps 512 512 -useDirForEachRow tac.tif &
-gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/tac/an -levels 4 -ps 512 512 -useDirForEachRow merge/TC/AnchorageTAC.tif &
-gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/tac/fa -levels 4 -ps 512 512 -useDirForEachRow merge/TC/FairbanksTAC.tif &
-gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/tac/pr -levels 4 -ps 512 512 -useDirForEachRow merge/TC/PuertoRico-VITAC.tif &
+gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/ifr/ak/w -levels 4 -ps 512 512 -useDirForEachRow ifal_west.tif &
+gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/ifr/ak/e -levels 4 -ps 512 512 -useDirForEachRow ifal_east.tif &
+## gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/tac/48 -levels 4 -ps 512 512 -useDirForEachRow tac.tif &
+## gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/tac/an -levels 4 -ps 512 512 -useDirForEachRow merge/TC/AnchorageTAC.tif &
+## gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/tac/fa -levels 4 -ps 512 512 -useDirForEachRow merge/TC/FairbanksTAC.tif &
+## gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/tac/pr -levels 4 -ps 512 512 -useDirForEachRow merge/TC/PuertoRico-VITAC.tif &
 
 ## for job in `jobs -p`; do wait $job; done
 wait
