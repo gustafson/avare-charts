@@ -1,9 +1,37 @@
 #!/bin/bash
 
+# Copyright (c) 2013, Peter Gustafson (peter.gustafson@wmich.edu)
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# * Redistributions of source code must retain the above copyright
+# * notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+# * notice, this list of conditions and the following disclaimer in
+# * the documentation and/or other materials provided with the
+# * distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+
 pushd final
 
 echo Unzipping reference data
-unzip -q ../qualitycontrols.zip
+unzip -q ../qualitycontrol.zip
 
 for a in *.zip; do
     ## Count files and total file size
@@ -39,10 +67,15 @@ files=$(ls -U *manualcheck 2> /dev/null | wc -l)
 if [ "$files" != "0" ]; then
     echo 
     echo "Inconsistency Detected: Manual Check is Recommended."
+    echo
 else
     echo 
     echo "Apparent Success."
-    zip -q -9 qualitycontrols.newref.zip *ref && mv qualitycontrols.newref.zip ..
+    echo "  Move qualitycontrol.newref.zip to qualitycontrol.zip to update the result."
+    echo "  Here is a command:"
+    echo "     mv qualitycontrol.newref.zip qualitycontrol.zip"
+    echo
+    zip -q -9 qualitycontrol.newref.zip *ref && mv qualitycontrol.newref.zip ..
     rm *ref
     rm *qc
 fi
