@@ -32,7 +32,7 @@ function download {
 
     [[ -f final/$1.zip ]] && rm final/$1.zip
     find plates -name "*.pdf" | 
-    xargs -P ${NP} -n 1 mogrify -dither none -antialias -density ${DPI} -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -format png
+    xargs -P ${NP} -n 1 mogrify -dither none -antialias -density ${DPI} -depth 8 -quality 00 -background white -alpha remove -colors 15 -format png
     wait
 
     find plates -name "*.png"| xargs -P ${NP} -n 1 optipng -quiet

@@ -97,7 +97,7 @@ function updatetiles {
 
 export -f updatetiles
 
-for dir in ifh ifr; do #elv ifh ifr rel sec tac wac oth
+for dir in ifh ifr sec tac wac oth ; do #elv rel 
     echo $dir
 
     [[ -f /dev/shm/files.csv ]] && rm /dev/shm/files.csv

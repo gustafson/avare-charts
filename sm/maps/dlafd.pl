@@ -77,7 +77,8 @@ my $parser = new XML::Parser (Handlers => {
 
 my $response;
 
-my $name = "afd_17OCT2013.xml";
+my $cycle = "12DEC2013";
+my $name = "afd_$cycle.xml";
 
 # Dates coincide with IFR charts every 56 days 
 if (!(-e $name)) {
@@ -96,7 +97,9 @@ foreach(@list) {
 	if (!(-e "afd/$nm")) {
 		print "$count of ";
 		print scalar @list;
-		print" $_ $nm \n"; 
-		getstore("http://aeronav.faa.gov/pdfs/$_", "afd/$nm");
+		print " $_ $nm \n"; 
+		print "http://aeronav.faa.gov/afd/$cycle/$_ ";
+		print "afd/$nm \n"; 
+		getstore("http://aeronav.faa.gov/afd/$cycle/$_", "afd/$nm");
 	}
 }

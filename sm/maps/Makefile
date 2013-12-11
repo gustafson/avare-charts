@@ -31,41 +31,60 @@
 # Copy APT.txt TWR.txt, FIX.txt, NAV.txt, DOF.DAT
 # Set dates in afd.sh get_ads.sh
 
+
 ## ToDo for "normal" machines.
 ## 1) Update NP variable in scripts
 
 all:
-	@echo execute \"make fresh\" to clean out temp files
-	@echo execute \"make update\" to update a prior build \(save download time\)
-	@echo execute \"make scratch\" to start from scratch \"make scratch\"
+	@echo
+	@echo
+	@echo "Build instructions for Avare charts"
+	@echo
+	@echo 'execute \"make fresh\" to clean out temp files'
+	@echo
+	@echo "  Change the dates in the download-base-data target of Makefile as applicable"
+	@echo "  Change the date in dlafd.pl if applicable (afd_12DEC2013.xml)"
+	@echo "  Change the dates in the download-ifr target of the Makefile as applicable"
+	@echo
+	@echo 'execute "make update" to update a prior build (saving download time)'
+	@echo 'execute "make scratch" to start from scratch'
+	@echo
+	@echo "Due to FAA posting sequence, this may be the preferred order (all included in above)."
+	@echo "  make download-ifr"
+	@echo "  make update-vfr"
+	@echo "  make unzip"
+	@echo "  make stageall"
+	@echo "  make plates"
+	@echo "  make download-base-data"
+	@echo "  make process-data"
+	@echo "  make zipit"
 
-scratch: base download-vfr unzip stageall zipit
-update: base update-vfr unzip stageall zipit
-base: download-base-data process-data download-ifr 
+scratch: download-ifr download-vfr unzip stageall plates download-base-data process-data zipit
+update: download-ifr update-vfr unzip stageall plates download-base-data process-data zipit
 
 fresh:
 	rm -rf plates
 	rm -rf afd 
 	rm -rf final
 	rm -rf merge
+	rm -fr tiles/{ifh,ifr,sec,tac,wac}
 	rm ads.txt APT.txt AWOS.txt FIX.txt TWR.txt
-	rm maps.ifr.db maps.ifh.db maps.oth.db maps.sec.db maps.tac.db maps.wac.db
+	rm maps.el.db maps.eh.db maps.oth.db maps.sec.db maps.tac.db maps.wac.db
 	rm afd.csv airport.csv awos.csv dof.csv files.csv fix.csv freq.csv nav.csv runway.csv ## FIXME Canadian stuff left... update after any refresh
 	rm sepsec septac stagesec stageifr stageifa stageifh stagetac *.tif *.jpeg *.xml
 
 download-base-data:
-	wget https://nfdc.faa.gov/webContent/56DaySub/2013-10-17/APT.zip && unzip APT.zip && rm APT.zip
-	wget https://nfdc.faa.gov/webContent/56DaySub/2013-10-17/AWOS.zip && unzip AWOS.zip && rm AWOS.zip
-	wget https://nfdc.faa.gov/webContent/56DaySub/2013-10-17/TWR.zip && unzip TWR.zip && rm TWR.zip
-	wget https://nfdc.faa.gov/webContent/56DaySub/2013-10-17/FIX.zip && unzip FIX.zip && rm FIX.zip
-	wget https://nfdc.faa.gov/webContent/56DaySub/2013-10-17/NAV.zip && unzip NAV.zip && rm NAV.zip
+	# https://nfdc.faa.gov/fadds/subscriptionDownload.do?productId=548752
+	wget https://nfdc.faa.gov/webContent/56DaySub/2013-12-12/APT.zip && unzip APT.zip && rm APT.zip
+	wget https://nfdc.faa.gov/webContent/56DaySub/2013-12-12/AWOS.zip && unzip AWOS.zip && rm AWOS.zip
+	wget https://nfdc.faa.gov/webContent/56DaySub/2013-12-12/TWR.zip && unzip TWR.zip && rm TWR.zip
+	wget https://nfdc.faa.gov/webContent/56DaySub/2013-12-12/FIX.zip && unzip FIX.zip && rm FIX.zip
+	wget https://nfdc.faa.gov/webContent/56DaySub/2013-12-12/NAV.zip && unzip NAV.zip && rm NAV.zip
 	## obstacles file
 	wget https://nfdc.faa.gov/tod/public/DOFS/DOF_131110.zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
 	# https://nfdc.faa.gov/webContent/dtpp/current.xml
 
 process-data:
-	mkdir plates
-	mkdir final
 	./airport.pl > airport.csv
 	./runway.pl > runway.csv
 	./freq.pl > freq.csv
@@ -73,10 +92,14 @@ process-data:
 	./nav.pl > nav.csv
 	./dof.pl > dof.csv
 	./awos.pl > awos.csv
-	#./get_ads.sh 1311 # change cycle here  ## Don't need. Zubair says they are in the plates already
+
+plates:
+	mkdir plates
+	mkdir final
+	#./get_ads.sh 1313 # change cycle here  ## Don't need. They are in the plates already
 	./plates_png.sh  ## FIXME MANUAL INTERVENTION: the DownloadPlates.pl attempts to redownload the base xml file with every state.  This is error prone due to FAA server timeouts
-	./afd.sh # change date here  
-	./domins.sh 1312 # change cycle here
+	./afd.sh # change date here by fixing the date in dlafd.pl (afd_12DEC2013.xml)
+	./domins.sh 1313 # change cycle here
 
 download-vfr:
 	mkdir merge
@@ -102,39 +125,28 @@ download-ifr:
 	mkdir -p charts/ifh
 	mkdir -p charts/ifal
 	mkdir -p charts/ifah
-	./dlifr.sh 10-17-2013 #change date
-	./dlifh.sh 10-17-2013 #change date
-	./dlifa.sh 10-17-2013 #change date
+	./dlifr.sh 12-12-2013 #change date  #IFR low
+	./dlifh.sh 12-12-2013 #change date  #IFH high
+	./dlifa.sh 12-12-2013 #change date  #Alaska high and low
 
 unzip:
-	cd charts/tac && \
-	rm -rf *.tif && \
-	unzip -j \*.zip \*.tif && \
+	cd charts/tac && rm -rf *.tif && unzip -j \*.zip \*.tif && \
 	for file in *\ *; do \
 		mv "$$file" `echo $$file | sed 's/ //g'`;\
 	done && \
 	rm -f NewYorkTACVFRPlanningCharts*.tif
-	cd charts/wac && \
-	rm -f *.tif && \
-	unzip -j \*.zip \*.tif && \
+	cd charts/wac && rm -f *.tif && unzip -j \*.zip \*.tif && \
 	for file in *\ *; do \
 		mv "$$file" `echo $$file | sed 's/ //g'`;\
 	done
-	cd charts/sec && \
-	rm -f *.tif && \
-	unzip -j \*.zip \*.tif && \
+	cd charts/sec && rm -f *.tif && unzip -j \*.zip \*.tif && \
 	for file in *\ *; do \
 		mv "$$file" `echo $$file | sed 's/ //g'`;\
 	done
-	cd charts/ifh && \
-	rm -f *.tif && \
-	unzip -j \*.zip \*.tif
-	cd charts/ifa && \
-	rm -f *.tif && \
-	unzip -j \*.zip \*.tif
-	cd charts/iff && \
-	rm -f *.tif && \
-	unzip -j \*.zip \*.tif
+	cd charts/ifh  && rm -f *.tif && unzip -j \*.zip \*.tif
+	cd charts/iff  && rm -f *.tif && unzip -j \*.zip \*.tif
+	cd charts/ifah && rm -f *.tif && unzip -j \*.zip \*.tif
+	cd charts/ifal && rm -f *.tif && unzip -j \*.zip \*.tif
 
 stageall:
 	if [[ ! -d merge ]]; then mkdir merge; fi
@@ -149,14 +161,15 @@ stageall:
 	./stageall.sh
 
 ## 	This allows high level tiles to be included in databases.zip.
-HIGHLEVELS=`sqlite3 maps.eh.db  "select name from files where (level = ' 3') or (level = ' 4');"` \
-	`sqlite3 maps.el.db  "select name from files where (level = ' 3') or (level = ' 4');"` \
-	`sqlite3 maps.elv.db "select name from files where (level = ' 3') or (level = ' 4');"` \
-	`sqlite3 maps.rel.db "select name from files where (level = ' 3') or (level = ' 4');"` \
-	`sqlite3 maps.sec.db "select name from files where (level = ' 3') or (level = ' 4');"` \
-	`sqlite3 maps.tac.db "select name from files where (level = ' 3') or (level = ' 4');"` \
-	`sqlite3 maps.wac.db "select name from files where (level = ' 3') or (level = ' 4');"` \
-	`sqlite3 maps.oth.db "select name from files where (level = ' 3') or (level = ' 4');"` 
+##HIGHLEVELS=`sqlite3 maps.eh.db  "select name from files where (level = ' 3') or (level = ' 4');"` \
+##	`sqlite3 maps.el.db  "select name from files where (level = ' 3') or (level = ' 4');"` \
+##	`sqlite3 maps.elv.db "select name from files where (level = ' 3') or (level = ' 4');"` \
+##	`sqlite3 maps.rel.db "select name from files where (level = ' 3') or (level = ' 4');"` \
+##	`sqlite3 maps.sec.db "select name from files where (level = ' 3') or (level = ' 4');"` \
+##	`sqlite3 maps.tac.db "select name from files where (level = ' 3') or (level = ' 4');"` \
+##	`sqlite3 maps.wac.db "select name from files where (level = ' 3') or (level = ' 4');"` \
+##	`sqlite3 maps.oth.db "select name from files where (level = ' 3') or (level = ' 4');"` 
+##	`sqlite3 maps.topo.db "select name from files where (level = ' 3') or (level = ' 4');"` \
 
 HIGHLEVEL=`sqlite3 maps.eh.db  "select name from files where (level = ' 4');"` \
 	`sqlite3 maps.el.db  "select name from files where (level = ' 4');"` \
@@ -166,6 +179,8 @@ HIGHLEVEL=`sqlite3 maps.eh.db  "select name from files where (level = ' 4');"` \
 	`sqlite3 maps.tac.db "select name from files where (level = ' 4');"` \
 	`sqlite3 maps.wac.db "select name from files where (level = ' 4');"` \
 	`sqlite3 maps.oth.db "select name from files where (level = ' 4');"` 
+#	`sqlite3 maps.topo.db "select name from files where (level = ' 4');"` \
+
 
 zipit:
 	## FIXME must find out how to updated canap.csv canfreq.csv canrun.csv
@@ -186,6 +201,7 @@ zipit:
 	sqlite3 maps.el.db "VACUUM;"
 	sqlite3 maps.elv.db "VACUUM;"
 	sqlite3 maps.rel.db "VACUUM;"
+	sqlite3 maps.topo.db "VACUUM;"
 	sqlite3 maps.sec.db "VACUUM;"
 	sqlite3 maps.tac.db "VACUUM;"
 	sqlite3 maps.wac.db "VACUUM;"

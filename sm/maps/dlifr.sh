@@ -19,7 +19,7 @@ do
 	wget http://aeronav.faa.gov/Enroute/${DT}/ENR_L$ch.zip
 done
 
-for ch in 1 2 3;
-do
-	wget http://aeronav.faa.gov/enroute/${DT}/DELAK$ch.zip
-done
+#for ch in 1 2 3;
+#do
+#	wget http://aeronav.faa.gov/enroute/${DT}/DELAK$ch.zip
+#done
