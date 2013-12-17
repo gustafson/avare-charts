@@ -45,17 +45,16 @@ done
 for a in *.ref; do
     b=`basename $a .ref`
     echo Comparing $b $a
-
     ## Number of files should not change by more than 10%
     paste $b $a |head -n2 | awk '
 function abs(x){return ((x < 0.0) ? -x : x)}
-{if ((abs(1-$1/$2))>0.1) printf "%f\n", (abs(1-$1/$2))}' >> ${b}.manualcheck
+{if ((abs(1-$1/$2))>0.1) printf "Number of zipped files should not change by more than .1 but changed by %f\n", (abs(1-$1/$2))}' >> ${b}.manualcheck
     
     if [[ `wc -w $a|cut -c1` -eq 3 ]]; then
-	## Number of airports should not change
+	## echo Number of airports should not by more than 2% >> ${b}.manualcheck
 	paste $b $a |tail -n1 | awk '
 function abs(x){return ((x < 0.0) ? -x : x)}
-{if ((abs(1-$1/$2))!=0) printf "%f\n", (abs(1-$1/$2))}' >> ${b}.manualcheck
+{if ((abs(1-$1/$2))>=0.02) printf "Number of airports should not change changed by more than 0.02 %f\n", (abs(1-$1/$2))}' >> ${b}.manualcheck
     fi
 
     ## Erase empty files
@@ -75,9 +74,9 @@ else
     echo "  Here is a command:"
     echo "     mv qualitycontrol.newref.zip qualitycontrol.zip"
     echo
+    rename .qc .qc.ref *qc
     zip -q -9 qualitycontrol.newref.zip *ref && mv qualitycontrol.newref.zip ..
     rm *ref
-    rm *qc
 fi
 
 popd

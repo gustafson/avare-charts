@@ -99,8 +99,8 @@ int main(int argc, char *argv[])
 
   /* one image */
   out("rm ifr.tif ifr_small.jpeg");
-  out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 merge/IF/*_c.tif ifr.tif");
-  out("gdal_translate -outsize 50%% 50%% ifr.tif ifr_50.tif");
+  out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 merge/IF/*_c.tif ifr_full.tif");
+  out("gdal_translate -outsize 50%% 50%% ifr_full.tif ifr.tif");
   out("gdal_translate -outsize 12.5%% 12.5%% -of JPEG ifr.tif ifr_small.jpeg");
   // out("gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir tiles_ifr -ps 512 512 -useDirForEachRow ifr.tif");
   // out("mv tiles_ifr/0 tiles_ifr/3");
