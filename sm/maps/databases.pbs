@@ -69,6 +69,12 @@ function updatetiles {
     #echo $0
     TYPE=`echo $0|cut -d/ -f2`
     LEVEL=`echo $0 |cut -f4 -d/`
+
+    ## This for alaska which has east/west split due to the dateline.
+    if [[ ${LEVEL} == w || ${LEVEL} == e ]]; then
+	LEVEL=`echo $0 |cut -f5 -d/`
+    fi
+
     NONBLACK=`convert $0.tif -threshold 2% -format %[mean] info:-`
 
     if [[ ! $NONBLACK == 0 ]]; then
@@ -97,7 +103,7 @@ function updatetiles {
 
 export -f updatetiles
 
-for dir in ifh ifr sec tac wac oth ; do #elv rel 
+for dir in ifh ifr sec tac wac oth; do #elv rel 
     echo $dir
 
     [[ -f /dev/shm/files.csv ]] && rm /dev/shm/files.csv
@@ -109,4 +115,10 @@ for dir in ifh ifr sec tac wac oth ; do #elv rel
     
     [[ -f maps.${dir}.db ]] && rm maps.${dir}.db
     sqlite3 -init init.sql maps.${dir}.db < importfiles.sql
+
+    if [[ $dir == ifr ]]; then
+	mv maps.${dir}.db maps.el.db
+    elif [[ $dir == ifh ]]; then
+	mv maps.${dir}.db maps.eh.db
+    fi
 done
