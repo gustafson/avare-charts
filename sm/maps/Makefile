@@ -160,17 +160,6 @@ stageall:
 	## run through pbs for efficient resource management.
 	./stageall.sh
 
-## 	This allows high level tiles to be included in databases.zip.
-##HIGHLEVELS=`sqlite3 maps.eh.db  "select name from files where (level = ' 3') or (level = ' 4');"` \
-##	`sqlite3 maps.el.db  "select name from files where (level = ' 3') or (level = ' 4');"` \
-##	`sqlite3 maps.elv.db "select name from files where (level = ' 3') or (level = ' 4');"` \
-##	`sqlite3 maps.rel.db "select name from files where (level = ' 3') or (level = ' 4');"` \
-##	`sqlite3 maps.sec.db "select name from files where (level = ' 3') or (level = ' 4');"` \
-##	`sqlite3 maps.tac.db "select name from files where (level = ' 3') or (level = ' 4');"` \
-##	`sqlite3 maps.wac.db "select name from files where (level = ' 3') or (level = ' 4');"` \
-##	`sqlite3 maps.oth.db "select name from files where (level = ' 3') or (level = ' 4');"` 
-##	`sqlite3 maps.topo.db "select name from files where (level = ' 3') or (level = ' 4');"` \
-
 HIGHLEVEL=`sqlite3 maps.eh.db  "select name from files where (level = ' 4');"` \
 	`sqlite3 maps.el.db  "select name from files where (level = ' 4');"` \
 	`sqlite3 maps.elv.db "select name from files where (level = ' 4');"` \
