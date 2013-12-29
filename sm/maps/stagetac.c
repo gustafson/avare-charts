@@ -58,7 +58,8 @@ int main(int argc, char *argv[])
   if (argc==2){debug=1;}
 
   out("rm -fr merge/TC; mkdir merge/TC"); // TAC
-  out("rm -fr `ls /dev/shm/*|grep -v pulse`");
+  out("[[ -d tmp-stagetac ]] && rm -fr tmp-stagetac");
+  out("mkdir tmp-stagetac");
   int entries = sizeof(maps) / sizeof(maps[0]);
 
 #pragma omp parallel for private (n_ptr, dir_ptr, buffer, tmpstr)
@@ -66,7 +67,7 @@ int main(int argc, char *argv[])
     n_ptr = maps[map].name; 
 
     // Establish a parallel safe tmp name
-    snprintf(tmpstr, sizeof(tmpstr), "/dev/shm/tmpstagetac%i", map);
+    snprintf(tmpstr, sizeof(tmpstr), "tmp-stagetac/tmpstagetac%i", map);
 
     printf("\n\n# %s\n", maps[map].name);
 
@@ -136,7 +137,7 @@ int main(int argc, char *argv[])
   out(mbuffer);
 
   printf("\n\n\n");
-  out("gdal_translate -outsize 25%% 25%% -of JPEG tac.tif tac_small.jpeg");
+  out("gdal_translate -outsize 25%% 25%% -of JPEG tac.tif tac_small.jpg");
   // out("gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir tiles_tac -ps 512 512 -useDirForEachRow tac.tif");
 
   // printf("\n\n\n");

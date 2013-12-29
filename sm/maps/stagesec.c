@@ -65,19 +65,26 @@ int main(int argc, char *argv[])
   out("rm -fr merge/HI; mkdir -p merge/HI/QC"); // HI sec
   out("rm -fr merge/WC; mkdir -p merge/WC/QC"); // WAC
   out("rm -fr merge/WA; mkdir -p merge/WA/QC"); // WAC Alaska
-  out("rm -fr `ls /dev/shm/*|grep -v pulse`");
+  out("[[ -d tmp-stagesec ]] && rm -fr tmp-stagesec"); 
+  out("mkdir tmp-stagesec"); 
 
   int entries = sizeof(maps) / sizeof(maps[0]);
 
-  /* one image */
-  out("rm -fr sec-ak.tif sec-hi.tif sec-48.tif wac-48.tif wac-ak.tif sec-ak_small.tif sec-48_small.tif wac-48_small.tif wac-ak_small.tif tiles_sec/*");
+  out("[[ -f sec-ak.tif ]] && rm sec-ak.tif");
+  out("[[ -f sec-hi.tif ]] && rm sec-hi.tif");
+  out("[[ -f sec-48.tif ]] && rm sec-48.tif");
+  out("[[ -f wac-48.tif ]] && rm wac-48.tif");
+  out("[[ -f sec-ak_small.jpg ]] && rm sec-ak_small.jpg");
+  out("[[ -f sec-hi_small.jpg ]] && rm sec-hi_small.jpg");
+  out("[[ -f sec-48_small.jpg ]] && rm sec-48_small.jpg");
+  out("[[ -f wac-48_small.jpg ]] && rm wac-48_small.jpg");
 
 #pragma omp parallel for private(n_ptr, dir_ptr, failed, count, buffer, filestr, cmdstr) schedule(dynamic,1)
   for(map = 0; map < entries; map++)
     {
       n_ptr = maps[map].name; 
       // Establish a parallel safe tmp name
-      snprintf(filestr, sizeof(filestr), "/dev/shm/tmpstage%i", map);
+      snprintf(filestr, sizeof(filestr), "tmp-stagesec/tmpstagesec%i", map);
       // Blank the cmdstr
       snprintf(cmdstr, sizeof(cmdstr), "");
   
@@ -113,7 +120,7 @@ int main(int argc, char *argv[])
 		 filestr, filestr, filestr);
 	strcat(cmdstr, buffer);
 	snprintf(buffer, sizeof(buffer),
-		 "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs WGS84 %s[ab].tif /dev/shm/merge%s%s_w.tif;\n",
+		 "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs WGS84 %s[ab].tif tmp-stagesec/merge%s%s_w.tif;\n",
 		 filestr, maps[map].reg, n_ptr);
 	strcat(cmdstr, buffer);
       }
@@ -123,20 +130,20 @@ int main(int argc, char *argv[])
 		 dir_ptr, n_ptr, filestr);
 	strcat(cmdstr, buffer);
 	snprintf(buffer, sizeof(buffer), // This EPSG4326 step is needed for an unknown reason in order to make the lats and longs correct for HI.
-		 "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs EPSG:4326 %s.tif /dev/shm/merge%s%s_w.tif;\n",
+		 "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs EPSG:4326 %s.tif tmp-stagesec/merge%s%s_w.tif;\n",
 		 filestr, maps[map].reg, n_ptr);
 	strcat(cmdstr, buffer);
       }
  		
       if(0 != strcmp(maps[map].reg, "HI")) {
 	snprintf(buffer, sizeof(buffer),
-		 "gdal_translate -projwin %f %f %f %f /dev/shm/merge%s%s_w.tif merge/%s/%s_c.tif;\n",
+		 "gdal_translate -projwin %f %f %f %f tmp-stagesec/merge%s%s_w.tif merge/%s/%s_c.tif;\n",
 		 maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
 		 maps[map].reg, n_ptr, maps[map].reg, n_ptr);
-	strcat(cmdstr, buffer);
+ 	strcat(cmdstr, buffer);
       }else{
 	snprintf(buffer, sizeof(buffer),
-		 "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs WGS84 /dev/shm/merge%s%s_w.tif merge/%s/%s_c.tif;\n",
+		 "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs WGS84 tmp-stagesec/merge%s%s_w.tif merge/%s/%s_c.tif;\n",
 		 maps[map].reg, n_ptr, maps[map].reg, n_ptr);
 	strcat(cmdstr, buffer);
       }
@@ -144,10 +151,14 @@ int main(int argc, char *argv[])
       snprintf(buffer, sizeof(buffer), "gdal_translate -outsize 25%% 25%% -of JPEG merge/%s/%s_c.tif merge/%s/QC/%s_c.jpg;\n", maps[map].reg, n_ptr, maps[map].reg, n_ptr);
       strcat(cmdstr, buffer);
 
-      snprintf(buffer, sizeof(buffer), "rm /dev/shm/merge%s%s_w.tif;\n", maps[map].reg, n_ptr);
+      snprintf(buffer, sizeof(buffer), "rm tmp-stagesec/merge%s%s_w.tif;\n", maps[map].reg, n_ptr);
       strcat(cmdstr, buffer);
 
-      snprintf(buffer, sizeof(buffer), "rm %s[ab].tif;\n", filestr); 
+      snprintf(buffer, sizeof(buffer), "[[ -f %s.tif ]] && rm %s.tif;\n", filestr, filestr); 
+      strcat(cmdstr, buffer);
+      snprintf(buffer, sizeof(buffer), "[[ -f %sa.tif ]] && rm %sa.tif;\n", filestr, filestr); 
+      strcat(cmdstr, buffer);
+      snprintf(buffer, sizeof(buffer), "[[ -f %sb.tif ]] && rm %sb.tif;\n", filestr, filestr); 
       strcat(cmdstr, buffer);
 
       snprintf(buffer, sizeof(buffer), "merge/%s/QC/%s_c.jpg", maps[map].reg, n_ptr);
@@ -167,22 +178,30 @@ int main(int argc, char *argv[])
   
   printf("\n\n\n");
   /* What follows is stupid parallism */
-  snprintf(filestr, sizeof(filestr), "gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=4 -multi -r cubicspline -t_srs WGS84");
+  // snprintf(filestr, sizeof(filestr), "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=4 -multi -r cubicspline -t_srs WGS84");
+  snprintf(filestr, sizeof(filestr), "gdal_merge.py");
 #pragma omp parallel num_threads(4) private (buffer)
   {
     map = omp_get_thread_num();
     if (map==0){
-      snprintf(buffer, sizeof(buffer), "%s merge/AK/*_c.tif sec-ak.tif", filestr);
+    //   snprintf(buffer, sizeof(buffer), "%s merge/AK/*_c.tif sec-ak.tif", filestr);
+    // } else if (map==1){
+    //   snprintf(buffer, sizeof(buffer), "%s merge/LF/*_c.tif sec-48.tif", filestr);
+    // } else if (map==2){
+    //   snprintf(buffer, sizeof(buffer), "%s merge/WC/*_c.tif wac-48.tif", filestr);
+    // } else if (map==3){
+    //   snprintf(buffer, sizeof(buffer), "%s merge/WA/*_c.tif wac-ak.tif", filestr);
+      snprintf(buffer, sizeof(buffer), "%s merge/AK/*_c.tif -o sec-ak.tif", filestr);
     } else if (map==1){
-      snprintf(buffer, sizeof(buffer), "%s merge/LF/*_c.tif sec-48.tif", filestr);
+      snprintf(buffer, sizeof(buffer), "%s merge/LF/*_c.tif -o sec-48.tif", filestr);
     } else if (map==2){
-      snprintf(buffer, sizeof(buffer), "%s merge/WC/*_c.tif wac-48.tif", filestr);
+      snprintf(buffer, sizeof(buffer), "%s merge/WC/*_c.tif -o wac-48.tif", filestr);
     } else if (map==3){
-      snprintf(buffer, sizeof(buffer), "%s merge/WA/*_c.tif wac-ak.tif", filestr);
+      snprintf(buffer, sizeof(buffer), "%s merge/WA/*_c.tif -o wac-ak.tif", filestr);
     }
     out(buffer);
   }
-   
+
   printf("\n\n\n");
  
   out("cp merge/HI/*_c.tif sec-hi.tif");
@@ -191,45 +210,19 @@ int main(int argc, char *argv[])
   {
     map = omp_get_thread_num();
     if (map==0){
-      out("gdal_translate -outsize 25% 25% -of JPEG sec-ak.tif sec-ak_small.jpeg");
+      out("gdal_translate -outsize 25% 25% -of JPEG sec-ak.tif sec-ak_small.jpg");
     } else if (map==1){
-      out("gdal_translate -outsize 25% 25% -of JPEG sec-48.tif sec-48_small.jpeg");
+      out("gdal_translate -outsize 25% 25% -of JPEG sec-48.tif sec-48_small.jpg");
     } else if (map==2){
-      out("gdal_translate -outsize 25% 25% -of JPEG wac-48.tif wac-48_small.jpeg");
+      out("gdal_translate -outsize 25% 25% -of JPEG wac-48.tif wac-48_small.jpg");
     } else if (map==3){
-      out("gdal_translate -outsize 25% 25% -of JPEG wac-ak.tif wac-ak_small.jpeg");
+      out("gdal_translate -outsize 25% 25% -of JPEG wac-ak.tif wac-ak_small.jpg");
     } else if (map==4){
-      out("gdal_translate -outsize 25% 25% -of JPEG sec-hi.tif sec-hi_small.jpeg");
+      out("gdal_translate -outsize 25% 25% -of JPEG sec-hi.tif sec-hi_small.jpg");
     }
   }
    
-
-
-//   printf("\n\n\n");
-//   out("mkdir tiles_sec");
-//   out("mkdir /dev/shm/tiles_sec_a");
-//   out("mkdir /dev/shm/tiles_sec_b");
-// 
-// #pragma omp parallel num_threads(5)
-//   {
-//     map = omp_get_thread_num();
-//     if (map==0){
-//       out("gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir /dev/shm/tiles_sec_a -ps 512 512 -useDirForEachRow wac-48.tif");
-//     } else if (map==1){
-//       out("gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir /dev/shm/tiles_sec_a -ps 512 512 -useDirForEachRow wac-ak.tif");
-//     } else if (map==2){
-//       out("gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir /dev/shm/tiles_sec_b -ps 512 512 -useDirForEachRow sec-hi.tif");
-//     } else if (map==3){
-//       out("gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir /dev/shm/tiles_sec_b -ps 512 512 -useDirForEachRow sec-ak.tif");
-//     } else if (map==4){
-//       out("gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir /dev/shm/tiles_sec_b -ps 512 512 -useDirForEachRow sec-48.tif");
-//     }
-//   }
-//   
-//   printf("\n\n\n");
-//   out("mv /dev/shm/tiles_sec_a/0 tiles_sec/2");
-//   out("mv /dev/shm/tiles_sec_b/0 tiles_sec/0");
-  out("rm -fr `ls /dev/shm/*|grep -v pulse`");
+  out("[[ -d tmp-stagesec ]] && rm -fr tmp-stagesec"); 
   return 0;
 }
 

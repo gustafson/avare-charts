@@ -98,9 +98,10 @@ int main(int argc, char *argv[])
   }
 
   /* one image */
-  out("rm ifh.tif ifh_small.jpeg");
+  out("rm ifh.tif ifh_small.jpg");
   out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 merge/IFH/*_c.tif ifh.tif");
-  out("gdal_translate -outsize 25%% 25%% -of JPEG ifh.tif ifh_small.jpeg");
+  // out("gdal_merge.py merge/IFH/*_c.tif -o ifh.tif");
+  out("gdal_translate -outsize 25%% 25%% -of JPEG ifh.tif ifh_small.jpg");
   // out("gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir tiles_ifh -ps 512 512 -useDirForEachRow ifh.tif");
   // out("mv tiles_ifh/0 tiles_ifh/4");
 

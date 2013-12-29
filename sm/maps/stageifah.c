@@ -57,7 +57,8 @@ int main(int argc, char *argv[])
   if (argc==2){debug=1;}
 
   out("rm -fr merge/IFAH; mkdir merge/IFAH;");
-  // out("rm -fr tiles_ifah; mkdir tiles_ifah;");
+  out("[[ -d tmp-stageifah ]] && rm -fr tmp-stageifah"); 
+  out("mkdir tmp-stageifah"); 
 
   int entries = sizeof(maps) / sizeof(maps[0]);
 
@@ -66,7 +67,7 @@ int main(int argc, char *argv[])
     n_ptr = maps[map].name; 
 
     // Establish a parallel safe tmp name
-    snprintf(tmpstr, sizeof(tmpstr), "/dev/shm/tmpstageifah%i", map);
+    snprintf(tmpstr, sizeof(tmpstr), "tmp-stageifah/tmpstageifah%i", map);
     
     printf("\n\n# %s\n\n", maps[map].name);
     
@@ -85,14 +86,16 @@ int main(int argc, char *argv[])
       out(buffer);
 
       snprintf(buffer, sizeof(buffer),  
-	       //"gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -dstnodata '51 51 51' -r cubicspline -t_srs WGS84 -tr 0.001687838989790 0.001687838989790 %s.tif merge/%s/%s_c.tif",
-	       "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -dstnodata '51 51 51' -r cubicspline -t_srs WGS84 -tr 0.01687838989790 0.01687838989790 %s.tif merge/%s/%s_c.tif",
+	       "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs WGS84 -tr 0.002 0.002 %s.tif merge/%s/%s_%i_c.tif",
 	       tmpstr,
 	       maps[map].reg,
-	       n_ptr);
+	       n_ptr, map);
+      if (map==2){
+	strcat(buffer, " -te -180 43 -119.35 74.25");
+      }
       out(buffer);
       
-      snprintf(buffer, sizeof(buffer), "nearblack -color 0,0,0 -setmask %s.tif;\n", tmpstr);
+    snprintf(buffer, sizeof(buffer), "nearblack -color 0,0,0 -setmask merge/%s/%s_%i_c.tif;", maps[map].reg, n_ptr, map);
       out(buffer);
       
     }
@@ -104,14 +107,14 @@ int main(int argc, char *argv[])
   {
     map = omp_get_thread_num();
     if (map==0){
-      // out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.001687838989790 0.001687838989790 -te -180 40.225 -119.35 47.25 merge/IFAH/*_c.tif ifah_west.tif");
-      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.001687838989790 0.001687838989790 -te -180 40.225 -119.35 74.25 /dev/shm/tmpstageifah*tif ifah_west.tif");
+      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.002 0.002 -te -180 43 -119.35 74.25 merge/IFAH/*_c.tif ifah_west.tif");
+      out("gdal_translate -outsize 10% 10% -of JPEG ifah_west.tif ifah_west_small.jpg");
     } else if (map==1){
-      // out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.001687838989790 0.001687838989790 -te 170 44 180 62.25 merge/IFAH/*_c.tif ifah_east.tif");
-      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.001687838989790 0.001687838989790 -te 170 44 180 62.25 /dev/shm/tmpstageifah*tif ifah_east.tif");
+      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.002 0.002 -te 152.5 41.25 180 62.25 tmp-stageifah/tmpstageifah2.tif ifah_east.tif");
+      out("gdal_translate -outsize 10% 10% -of JPEG ifah_east.tif ifah_east_small.jpg");
     }
   }
 
-  out("rm /dev/shm/tmpstageifah*tif");
+  out("rm tmp-stageifah/tmpstageifah*tif");
   return 0;
 }

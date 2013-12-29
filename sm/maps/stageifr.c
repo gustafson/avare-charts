@@ -57,7 +57,8 @@ int main(int argc, char *argv[])
   if (argc==2){debug=1;}
 
   out("rm -fr merge/IF; mkdir merge/IF"); // IFR 48 
-  // out("rm -fr tiles_ifr; mkdir tiles_ifr"); // IFR 48 
+  out("[[ -d tmp-stageifr ]] && rm -fr tmp-stageifr");
+  out("mkdir tmp-stageifr");
 
   int entries = sizeof(maps) / sizeof(maps[0]);
 
@@ -66,7 +67,7 @@ int main(int argc, char *argv[])
     n_ptr = maps[map].name; 
 
     // Establish a parallel safe tmp name
-    snprintf(tmpstr, sizeof(tmpstr), "/dev/shm/tmpstageifr%i", map);
+    snprintf(tmpstr, sizeof(tmpstr), "tmp-stageifr/tmpstageifr%i", map);
 
     printf("\n\n# %s\n\n", maps[map].name);
 
@@ -85,7 +86,16 @@ int main(int argc, char *argv[])
       out(buffer);
 			
       snprintf(buffer, sizeof(buffer),  
-	       "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -dstnodata '51 51 51' -r cubicspline -t_srs WGS84 %s.tif merge/%s/%s_c.tif",
+	       "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -dstnodata '51 51 51' -r cubicspline -t_srs WGS84 %s.tif %s-100.tif",
+	       tmpstr, tmpstr);
+      out(buffer);
+
+      snprintf(buffer, sizeof(buffer), "mv %s-100.tif %s.tif", tmpstr, tmpstr);
+      out(buffer);
+
+
+      snprintf(buffer, sizeof(buffer),  
+	       "gdal_translate -outsize 50%% 50%% %s.tif merge/%s/%s_c.tif",
 	       tmpstr,
 	       maps[map].reg,
 	       n_ptr);
@@ -98,12 +108,14 @@ int main(int argc, char *argv[])
   }
 
   /* one image */
-  out("rm ifr.tif ifr_small.jpeg");
-  out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 merge/IF/*_c.tif ifr_full.tif");
-  out("gdal_translate -outsize 50%% 50%% ifr_full.tif ifr.tif");
-  out("gdal_translate -outsize 12.5%% 12.5%% -of JPEG ifr.tif ifr_small.jpeg");
+  out("rm ifr.tif ifr_small.jpg");
+  out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 merge/IF/*_c.tif ifr.tif");
+  // out("gdal_merge.py merge/IF/*_c.tif -o ifr.tif");
+  // out("gdal_translate -outsize 50%% 50%% ifr_full.tif ifr.tif");
+  out("gdal_translate -outsize 25%% 25%% -of JPEG ifr.tif ifr_small.jpg");
   // out("gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir tiles_ifr -ps 512 512 -useDirForEachRow ifr.tif");
   // out("mv tiles_ifr/0 tiles_ifr/3");
 
+  out("[[ -d tmp-stageifr ]] && rm -fr tmp-stageifr"); 
   return 0;
 }
