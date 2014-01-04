@@ -85,6 +85,7 @@ download-base-data:
 	# https://nfdc.faa.gov/webContent/dtpp/current.xml
 
 process-data:
+	./saa.sh 2013-12-12
 	./airport.pl > airport.csv
 	./runway.pl > runway.csv
 	./freq.pl > freq.csv
