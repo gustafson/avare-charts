@@ -4,7 +4,7 @@
 
 ## Do TAC separately since it takes the longest by a substantial margin
 J0=`qsub stagetac.pbs`
-J0=`qsub -W depend=afterok:${J1} pyramids-tac.pbs`
+J0=`qsub -W depend=afterok:${J0} pyramids-tac.pbs`
 
 ## Do the rest
 J1=`qsub stagesec.pbs`
