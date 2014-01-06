@@ -43,7 +43,7 @@ all:
 	@echo 'execute \"make fresh\" to clean out temp files'
 	@echo
 	@echo "  Change the dates in the download-base-data target of Makefile as applicable"
-	@echo "  Change the date in dlafd.pl if applicable (afd_12DEC2013.xml)"
+	@echo "  Change the date in dlafd.pl if applicable (afd_$$(cycledates.sh 56).xml on 56 Day cycle)"
 	@echo "  Change the dates in the download-ifr target of the Makefile as applicable"
 	@echo
 	@echo 'execute "make update" to update a prior build (saving download time)'
@@ -81,11 +81,14 @@ download-base-data:
 	wget https://nfdc.faa.gov/webContent/56DaySub/2013-12-12/FIX.zip && unzip FIX.zip && rm FIX.zip
 	wget https://nfdc.faa.gov/webContent/56DaySub/2013-12-12/NAV.zip && unzip NAV.zip && rm NAV.zip
 	## obstacles file
-	wget https://nfdc.faa.gov/tod/public/DOFS/DOF_131110.zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
-	# https://nfdc.faa.gov/webContent/dtpp/current.xml
+	## https://nfdc.faa.gov/tod/public/TOD_DOF.html
+	## wget https://nfdc.faa.gov/tod/public/DOFS/DOF_131110.zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
+	wget https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip DAILY_DOF.ZIP DOF.DAT && rm DAILY_DOF.ZIP
+	## 
+	./saa.sh 2013-12-12
 
 process-data:
-	./saa.sh 2013-12-12
+	./saa.pl > saa.csv
 	./airport.pl > airport.csv
 	./runway.pl > runway.csv
 	./freq.pl > freq.csv
@@ -98,6 +101,7 @@ plates:
 	mkdir plates
 	mkdir final
 	#./get_ads.sh 1313 # change cycle here  ## Don't need. They are in the plates already
+	wget https://nfdc.faa.gov/webContent/dtpp/current.xml && mv current.xml d-TPP_Metafile.xml
 	./plates_png.sh  ## FIXME MANUAL INTERVENTION: the DownloadPlates.pl attempts to redownload the base xml file with every state.  This is error prone due to FAA server timeouts
 	./afd.sh # change date here by fixing the date in dlafd.pl (afd_12DEC2013.xml)
 	./domins.sh 1313 # change cycle here

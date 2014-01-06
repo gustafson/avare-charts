@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #Copyright (c) 2014, Apps4av Inc. (apps4av@gmail.com) 
 #All rights reserved.
 #
@@ -9,10 +9,23 @@
 #
 #THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-rm -rf saa.csv aixm5.0.zip
-rm -rf saadir
-wget https://nfdc.faa.gov/webContent/56DaySub/$1/aixm5.0.zip 
-unzip aixm5.0.zip -d saadir
-unzip saadir/SAA-AIXM_5_Schema/SaaSubscriberFile.zip -d saadir
-unzip saadir/Saa_Sub_File.zip -d saadir
 
+
+if [[ $# -eq 0 ]]; then
+    echo argument required
+    exit 
+fi
+
+
+REF=`date -u -d 12/12/2013 +%s`
+TOD=`date -u +%s`
+
+if [[ $1 -eq 56 ]]; then
+    SREF=$(( ($TOD-$REF)/86400%56 ))
+    SREF=$((56-$SREF))
+    echo `date -d "today + $SREF days" +"%d%^b%Y"`
+elif [[ $1 -eq 28 ]]; then
+    SREF=$(( ($TOD-$REF)/86400%28 ))
+    SREF=$((28-$SREF))
+    echo `date -d "today + $SREF days" +"%d%^b%Y"`
+fi
