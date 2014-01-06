@@ -13,22 +13,22 @@
 #cp -ard ../usgs/sr/tiles/6 tiles
 
 zip -1 -q final/REL_NE.zip `sqlite3 maps.rel.db "select name from files where (latc >= 38) and (lonc >= -85) and (level != ' 4') and name like '%rel48w%';"`
-sqlite3 maps.rel.db    		    "update files set info='REL_NE' where (latc >= 38) and (lonc >= -85) and (level != ' 4') and name like '%rel48w%';"
+sqlite3 maps.rel.db    		    "update files set info='REL_NE' where (latc >= 38) and (lonc >= -85) and name like '%rel48w%';"
 
 zip -1 -q final/REL_NC.zip `sqlite3 maps.rel.db "select name from files where (latc >= 38) and (lonc <= -85) and (lonc >= -110) and (level != ' 4') and name like '%rel48w%';"`
-sqlite3 maps.rel.db 		    "update files set info='REL_NC' where (latc >= 38) and (lonc <= -85) and (lonc >= -110) and (level != ' 4') and name like '%rel48w%';"
+sqlite3 maps.rel.db 		    "update files set info='REL_NC' where (latc >= 38) and (lonc <= -85) and (lonc >= -110) and name like '%rel48w%';"
 
 zip -1 -q final/REL_NW.zip `sqlite3 maps.rel.db "select name from files where (latc >= 38) and (lonc <= -110) and (level != ' 4') and name like '%rel48w%';"`
-sqlite3 maps.rel.db 		    "update files set info='REL_NW' where (latc >= 38) and (lonc <= -110) and (level != ' 4') and name like '%rel48w%';"
+sqlite3 maps.rel.db 		    "update files set info='REL_NW' where (latc >= 38) and (lonc <= -110) and name like '%rel48w%';"
 
 zip -1 -q final/REL_SE.zip `sqlite3 maps.rel.db "select name from files where (latc <= 38) and (lonc >= -85) and (level != ' 4') and name like '%rel48w%';"`
-sqlite3 maps.rel.db 		    "update files set info='REL_SE' where (latc <= 38) and (lonc >= -85) and (level != ' 4') and name like '%rel48w%';"
+sqlite3 maps.rel.db 		    "update files set info='REL_SE' where (latc <= 38) and (lonc >= -85) and name like '%rel48w%';"
 
 zip -1 -q final/REL_SC.zip `sqlite3 maps.rel.db "select name from files where (latc <= 38) and (lonc <= -85) and (lonc >= -110) and (level != ' 4') and name like '%rel48w%';"`
-sqlite3 maps.rel.db 		    "update files set info='REL_SC' where (latc <= 38) and (lonc <= -85) and (lonc >= -110) and (level != ' 4') and name like '%rel48w%';"
+sqlite3 maps.rel.db 		    "update files set info='REL_SC' where (latc <= 38) and (lonc <= -85) and (lonc >= -110) and name like '%rel48w%';"
 
 zip -1 -q final/REL_SW.zip `sqlite3 maps.rel.db "select name from files where (latc <= 38) and (lonc <= -110) and (level != ' 4') and name like '%rel48w%';"`
-sqlite3 maps.rel.db 		    "update files set info='REL_SW' where (latc <= 38) and (lonc <= -110) and (level != ' 4') and name like '%rel48w%';"
+sqlite3 maps.rel.db 		    "update files set info='REL_SW' where (latc <= 38) and (lonc <= -110) and name like '%rel48w%';"
 
 zip -1 -q final/REL_AK.zip `sqlite3 maps.rel.db "select name from files where name like '%relakw%';"`
 sqlite3 maps.rel.db 		    "update files set info='REL_AK' where name like '%relakw%';"

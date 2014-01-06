@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
       out(buffer);
 
       snprintf(buffer, sizeof(buffer),
-	       "sqlite3 maps.%s.db \"update files set info='%s' where (latc <= %f) and (latc >= %f) and (lonc >= %f) and (lonc <= %f) and (level != ' 4') and name like '%%tiles/%s%%';\"",
+	       "sqlite3 maps.%s.db \"update files set info='%s' where (latc <= %f) and (latc >= %f) and (lonc >= %f) and (lonc <= %f) and name like '%%tiles/%s%%';\"",
 	       dirstr, n_ptr, maps[map].latu, maps[map].latd, maps[map].lonl, maps[map].lonr, dirstr);
       out(buffer);
 
@@ -67,5 +67,8 @@ int main(int argc, char *argv[])
 
   }
 	
+  snprintf(buffer, sizeof(buffer), "sqlite3 maps.%s.db \"update files set info='Hawaiian Islands' where name like '%%tiles/sec/hi%%';\"", dirstr);
+  out(buffer);
+
   return 0;
 }

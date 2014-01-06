@@ -13,22 +13,22 @@
 #cp -ard ../usgs/new/tiles/5 tiles
 
 zip -1 -q final/ELEV_NE.zip `sqlite3 maps.elv.db "select name from files where (latc >= 38) and (lonc >= -85) and (level != ' 4') and name like '%elev48w%';"`
-sqlite3 maps.elv.db    		    "update files set info='ELEV_NE' where (latc >= 38) and (lonc >= -85) and (level != ' 4') and name like '%elev48w%';"
+sqlite3 maps.elv.db    		    "update files set info='ELEV_NE' where (latc >= 38) and (lonc >= -85) and name like '%elev48w%';"
 
 zip -1 -q final/ELEV_NC.zip `sqlite3 maps.elv.db "select name from files where (latc >= 38) and (lonc <= -85) and (lonc >= -110) and (level != ' 4') and name like '%elev48w%';"`
-sqlite3 maps.elv.db 		    "update files set info='ELEV_NC' where (latc >= 38) and (lonc <= -85) and (lonc >= -110) and (level != ' 4') and name like '%elev48w%';"
+sqlite3 maps.elv.db 		    "update files set info='ELEV_NC' where (latc >= 38) and (lonc <= -85) and (lonc >= -110) and name like '%elev48w%';"
 
 zip -1 -q final/ELEV_NW.zip `sqlite3 maps.elv.db "select name from files where (latc >= 38) and (lonc <= -110) and (level != ' 4') and name like '%elev48w%';"`
-sqlite3 maps.elv.db 		    "update files set info='ELEV_NW' where (latc >= 38) and (lonc <= -110) and (level != ' 4') and name like '%elev48w%';"
+sqlite3 maps.elv.db 		    "update files set info='ELEV_NW' where (latc >= 38) and (lonc <= -110) and name like '%elev48w%';"
 
 zip -1 -q final/ELEV_SE.zip `sqlite3 maps.elv.db "select name from files where (latc <= 38) and (lonc >= -85) and (level != ' 4') and name like '%elev48w%';"`
-sqlite3 maps.elv.db 		    "update files set info='ELEV_SE' where (latc <= 38) and (lonc >= -85) and (level != ' 4') and name like '%elev48w%';"
+sqlite3 maps.elv.db 		    "update files set info='ELEV_SE' where (latc <= 38) and (lonc >= -85) and name like '%elev48w%';"
 
 zip -1 -q final/ELEV_SC.zip `sqlite3 maps.elv.db "select name from files where (latc <= 38) and (lonc <= -85) and (lonc >= -110) and (level != ' 4') and name like '%elev48w%';"`
-sqlite3 maps.elv.db 		    "update files set info='ELEV_SC' where (latc <= 38) and (lonc <= -85) and (lonc >= -110) and (level != ' 4') and name like '%elev48w%';"
+sqlite3 maps.elv.db 		    "update files set info='ELEV_SC' where (latc <= 38) and (lonc <= -85) and (lonc >= -110) and name like '%elev48w%';"
 
 zip -1 -q final/ELEV_SW.zip `sqlite3 maps.elv.db "select name from files where (latc <= 38) and (lonc <= -110) and (level != ' 4') and name like '%elev48w%';"`
-sqlite3 maps.elv.db 		    "update files set info='ELEV_SW' where (latc <= 38) and (lonc <= -110) and (level != ' 4') and name like '%elev48w%';"
+sqlite3 maps.elv.db 		    "update files set info='ELEV_SW' where (latc <= 38) and (lonc <= -110) and name like '%elev48w%';"
 
 zip -1 -q final/ELEV_AK.zip `sqlite3 maps.elv.db "select name from files where name like '%elevakw%';"`
 sqlite3 maps.elv.db 		    "update files set info='ELEV_AK' where name like '%elevakw%';"
