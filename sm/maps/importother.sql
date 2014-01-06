@@ -40,6 +40,9 @@ CREATE TABLE awos(LocationID Text, Type Text, Status Text, Latitude float,Longit
 
 .import awos.csv awos
 
+CREATE TABLE saa(designator TEXT,name TEXT,upperlimit TEXT,lowerlimit TEXT,beginposition TEXT,endposition TEXT,lat FLOAT,lon FLOAT,note TEXT);
+.import saa.csv saa
+
 .import canap.csv airports
 .import canrun.csv airportrunways
 .import canfreq.csv airportfreq
