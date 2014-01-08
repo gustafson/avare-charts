@@ -58,6 +58,7 @@ all:
 	@echo "  make download-base-data"
 	@echo "  make process-data"
 	@echo "  make zipit"
+	@echo "  make qualitycontrol"
 
 scratch: download-ifr download-vfr unzip stageall plates download-base-data process-data zipit
 update: download-ifr update-vfr unzip stageall plates download-base-data process-data zipit
@@ -82,8 +83,8 @@ download-base-data:
 	wget https://nfdc.faa.gov/webContent/56DaySub/2013-12-12/NAV.zip && unzip NAV.zip && rm NAV.zip
 	## obstacles file
 	## https://nfdc.faa.gov/tod/public/TOD_DOF.html
-	## wget https://nfdc.faa.gov/tod/public/DOFS/DOF_131110.zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
-	wget https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip DAILY_DOF.ZIP DOF.DAT && rm DAILY_DOF.ZIP
+	wget https://nfdc.faa.gov/tod/public/DOFS/DOF_140105.zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
+	## wget https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip DAILY_DOF.ZIP DOF.DAT && rm DAILY_DOF.ZIP
 	## 
 	./saa.sh 2013-12-12
 
@@ -100,11 +101,11 @@ process-data:
 plates:
 	mkdir plates
 	mkdir final
-	#./get_ads.sh 1313 # change cycle here  ## Don't need. They are in the plates already
-	wget https://nfdc.faa.gov/webContent/dtpp/current.xml && mv current.xml d-TPP_Metafile.xml
+	#./get_ads.sh 1401 # change cycle here  ## Don't need. They are in the plates already
+	wget --timestamping https://nfdc.faa.gov/webContent/dtpp/current.xml && mv current.xml d-TPP_Metafile.xml
 	./plates_png.sh  ## FIXME MANUAL INTERVENTION: the DownloadPlates.pl attempts to redownload the base xml file with every state.  This is error prone due to FAA server timeouts
 	./afd.sh # change date here by fixing the date in dlafd.pl (afd_12DEC2013.xml)
-	./domins.sh 1313 # change cycle here
+	./domins.sh 1401 # change cycle here
 
 download-vfr:
 	mkdir merge

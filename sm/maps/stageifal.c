@@ -135,5 +135,6 @@ int main(int argc, char *argv[])
   }
 
   out("rm tmp-stageifal/tmpstageifal*tif");
+  out("[[ -d tmp-stageifal ]] && rmdir tmp-stageifal");
   return 0;
 }

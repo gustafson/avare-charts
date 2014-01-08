@@ -142,6 +142,7 @@ int main(int argc, char *argv[])
 
   // printf("\n\n\n");
   // out("mv tiles_tac/0 tiles_tac/1");
+  out("[[ -d tmp-stagetac ]] && rmdir tmp-stagetac");
 
   return 0;
 }

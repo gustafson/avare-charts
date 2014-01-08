@@ -12,5 +12,5 @@ J2=`qsub stageifr.pbs`
 J3=`qsub stageifh.pbs`
 J4=`qsub stageifal.pbs`
 J5=`qsub stageifah.pbs`
-J6=`qsub -W depend=afterok:${J1} -W depend=afterok:${J2} -W depend=afterok:${J3} -W depend=afterok:${J4} -W depend=afterok:${J5} pyramids.pbs`
-J7=`qsub -W depend=afterok:${J0} -W depend=afterok:${J6} databases.pbs`
+J6=`qsub -W depend=afterok:${J1}:${J2}:${J3}:${J4}:${J5} pyramids.pbs`
+J7=`qsub -W depend=afterok:${J0}:${J6} databases.pbs`

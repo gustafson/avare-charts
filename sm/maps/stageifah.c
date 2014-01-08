@@ -116,5 +116,7 @@ int main(int argc, char *argv[])
   }
 
   out("rm tmp-stageifah/tmpstageifah*tif");
+  out("[[ -d tmp-stageifah ]] && rmdir tmp-stageifah"); 
+
   return 0;
 }
