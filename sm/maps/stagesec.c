@@ -178,26 +178,26 @@ int main(int argc, char *argv[])
   
   printf("\n\n\n");
   /* What follows is stupid parallism */
-  // snprintf(filestr, sizeof(filestr), "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=4 -multi -r cubicspline -t_srs WGS84");
-  snprintf(filestr, sizeof(filestr), "gdal_merge.py");
+  snprintf(filestr, sizeof(filestr), "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=4 -multi -r cubicspline -t_srs WGS84");
+  // snprintf(filestr, sizeof(filestr), "gdal_merge.py");
 #pragma omp parallel num_threads(4) private (buffer)
   {
     map = omp_get_thread_num();
     if (map==0){
-    //   snprintf(buffer, sizeof(buffer), "%s merge/AK/*_c.tif sec-ak.tif", filestr);
-    // } else if (map==1){
-    //   snprintf(buffer, sizeof(buffer), "%s merge/LF/*_c.tif sec-48.tif", filestr);
-    // } else if (map==2){
-    //   snprintf(buffer, sizeof(buffer), "%s merge/WC/*_c.tif wac-48.tif", filestr);
-    // } else if (map==3){
-    //   snprintf(buffer, sizeof(buffer), "%s merge/WA/*_c.tif wac-ak.tif", filestr);
-      snprintf(buffer, sizeof(buffer), "%s merge/AK/*_c.tif -o sec-ak.tif", filestr);
+      snprintf(buffer, sizeof(buffer), "%s merge/AK/*_c.tif sec-ak.tif", filestr);
     } else if (map==1){
-      snprintf(buffer, sizeof(buffer), "%s merge/LF/*_c.tif -o sec-48.tif", filestr);
+      snprintf(buffer, sizeof(buffer), "%s merge/LF/*_c.tif sec-48.tif", filestr);
     } else if (map==2){
-      snprintf(buffer, sizeof(buffer), "%s merge/WC/*_c.tif -o wac-48.tif", filestr);
+      snprintf(buffer, sizeof(buffer), "%s merge/WC/*_c.tif wac-48.tif", filestr);
     } else if (map==3){
-      snprintf(buffer, sizeof(buffer), "%s merge/WA/*_c.tif -o wac-ak.tif", filestr);
+      snprintf(buffer, sizeof(buffer), "%s merge/WA/*_c.tif wac-ak.tif", filestr);
+    //   snprintf(buffer, sizeof(buffer), "%s merge/AK/*_c.tif -o sec-ak.tif", filestr);
+    // } else if (map==1){
+    //   snprintf(buffer, sizeof(buffer), "%s merge/LF/*_c.tif -o sec-48.tif", filestr);
+    // } else if (map==2){
+    //   snprintf(buffer, sizeof(buffer), "%s merge/WC/*_c.tif -o wac-48.tif", filestr);
+    // } else if (map==3){
+    //   snprintf(buffer, sizeof(buffer), "%s merge/WA/*_c.tif -o wac-ak.tif", filestr);
     }
     out(buffer);
   }

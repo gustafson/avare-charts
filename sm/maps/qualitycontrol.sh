@@ -44,11 +44,19 @@ done
 
 for a in *.ref; do
     b=`basename $a .ref`
-    echo Comparing $b $a
+
+    ## Start with an empty error record
+    [[ -f ${b}.manualcheck ]] && rm ${b}.manualcheck 
+
+    ## echo Comparing $b $a
     ## Number of files should not change by more than 10%
-    paste $b $a |head -n2 | awk '
+    paste $b $a |head -n1 | awk '
 function abs(x){return ((x < 0.0) ? -x : x)}
 {if ((abs(1-$1/$2))>0.1) printf "Number of zipped files should not change by more than .1 but changed by %f\n", (abs(1-$1/$2))}' >> ${b}.manualcheck
+
+    paste $b $a |head -n2 |tail -n1 | awk '
+function abs(x){return ((x < 0.0) ? -x : x)}
+{if ((abs(1-$1/$2))>0.1) printf "Total files size should not change by more than .1 but changed by %f\n", (abs(1-$1/$2))}' >> ${b}.manualcheck
     
     if [[ `wc -w $a|cut -c1` -eq 3 ]]; then
 	## echo Number of airports should not by more than 2% >> ${b}.manualcheck
@@ -58,7 +66,13 @@ function abs(x){return ((x < 0.0) ? -x : x)}
     fi
 
     ## Erase empty files
-    [[ -s ${b}.manualcheck ]] || rm ${b}.manualcheck
+    if [[ -s ${b}.manualcheck ]]; then
+	echo
+	echo Inconsistency in ${b} 
+	cat ${b}.manualcheck
+    else
+	rm ${b}.manualcheck 
+    fi
 done
     
 
@@ -67,9 +81,18 @@ if [ "$files" != "0" ]; then
     echo 
     echo "Inconsistency Detected: Manual Check is Recommended."
     echo
+    echo "If acceptable, issue the following commands:"
+    echo "  pushd final"
+    echo "  rename .qc .qc.ref *qc"
+    echo "  zip -q -9 qualitycontrol.newref.zip *ref && mv qualitycontrol.newref.zip .."
+    echo "  rm *ref *manualcheck"
+    echo "  popd"
+    echo "  mv qualitycontrol.newref.zip qualitycontrol.zip"
+    echo
 else
     echo 
     echo "Apparent Success."
+    echo
     echo "  Move qualitycontrol.newref.zip to qualitycontrol.zip to update the result."
     echo "  Here is a command:"
     echo "     mv qualitycontrol.newref.zip qualitycontrol.zip"
