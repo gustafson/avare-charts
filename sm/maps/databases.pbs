@@ -103,12 +103,15 @@ function updatetiles {
 
 export -f updatetiles
 
-for dir in ifh ifr sec tac wac oth; do #elv rel 
+for dir in ifh ifr sec tac wac oth elv rel; do 
     echo $dir
+
+    rootdir=${CYCLE}
+    if [[ $dir == oth || $dir == elv || $dir == rel ]]; then rootdir=static; fi
 
     [[ -f /dev/shm/files.csv ]] && rm /dev/shm/files.csv
     
-    find tiles/${dir} -name "*.tif" -print | sed s/'.tif'// | sort | 
+    find tiles/${CYCLE}/${dir} -name "*.tif" -print | sed s/'.tif'// | sort | 
     xargs -P ${NP} -n 1 bash -c updatetiles 
     
     mv /dev/shm/files.csv files.csv

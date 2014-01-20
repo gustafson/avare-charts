@@ -68,7 +68,6 @@ fresh:
 	rm -rf afd 
 	rm -rf final
 	rm -rf merge
-	rm -fr tiles/{ifh,ifr,sec,tac,wac}
 	rm ads.txt APT.txt AWOS.txt FIX.txt TWR.txt
 	rm maps.el.db maps.eh.db maps.oth.db maps.sec.db maps.tac.db maps.wac.db
 	rm afd.csv airport.csv awos.csv dof.csv files.csv fix.csv freq.csv nav.csv runway.csv ## FIXME Canadian stuff left... update after any refresh
@@ -164,7 +163,7 @@ stageall:
 	gcc -march=native -O3 -Wall stagetac.c -o stagetac -fopenmp
 	## each pbs script could be run as a shell script but is 
 	## run through pbs for efficient resource management.
-	./stageall.sh
+	./stageall.sh 1401
 
 HIGHLEVEL=`sqlite3 maps.eh.db  "select name from files where (level = ' 4');"` \
 	`sqlite3 maps.el.db  "select name from files where (level = ' 4');"` \
