@@ -75,7 +75,7 @@ function updatetiles {
 	LEVEL=`echo $0 |cut -f5 -d/`
     fi
 
-    NONBLACK=`convert $0.tif -threshold 2% -format %[mean] info:-`
+    NONBLACK=`convert -quiet $0.tif -threshold 2% -format %[mean] info:-`
 
     if [[ ! $NONBLACK == 0 ]]; then
     ## tiles/elv  tiles/ifr  tiles/rel  tiles/sec  tiles/tac  tiles/wac
@@ -85,11 +85,11 @@ function updatetiles {
 	if [[ $TYPE = sec || $TYPE = tac || $TYPE = wac || $TYPE = oth || $TYPE = rel || $TYPE = elv ]]; then
 	    EXT=jpg;
 	    NAME=$0.$EXT;
-	    convert $0.tif -antialias -unsharp 0x3 -quality 50 ${NAME}
+	    convert -quiet $0.tif -antialias -unsharp 0x3 -quality 50 ${NAME}
 	else
 	    EXT=png;
 	    NAME=$0.$EXT;
-	    convert $0.tif -antialias -dither none -remap colors-ifr-nosharp-256.png ${NAME} && optipng ${NAME}
+	    convert -quiet $0.tif -antialias -dither none -remap colors-ifr-nosharp-256.png ${NAME} && optipng -quiet ${NAME}
 	fi
     else
 	EXT=jpg;
@@ -111,7 +111,7 @@ for dir in ifh ifr sec tac wac oth elv rel; do
 
     [[ -f /dev/shm/files.csv ]] && rm /dev/shm/files.csv
     
-    find tiles/${CYCLE}/${dir} -name "*.tif" -print | sed s/'.tif'// | sort | 
+    find tiles/${CYCLE}/${rootdir} -name "*.tif" -print | sed s/'.tif'// | sort | 
     xargs -P ${NP} -n 1 bash -c updatetiles 
     
     mv /dev/shm/files.csv files.csv
