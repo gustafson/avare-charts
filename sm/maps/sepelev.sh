@@ -12,6 +12,13 @@
  
 #cp -ard ../usgs/new/tiles/5 tiles
 
+
+for a in NE NC NW SE SC SW AK PR HI; do
+    if [[ -f final/ELEV_${a}.zip ]]; then
+	rm final/ELEV_${a}.zip; 
+    fi 
+done
+
 zip -1 -q final/ELEV_NE.zip `sqlite3 maps.elv.db "select name from files where (latc >= 38) and (lonc >= -85) and (level != ' 4') and name like '%elev48w%';"`
 sqlite3 maps.elv.db    		    "update files set info='ELEV_NE' where (latc >= 38) and (lonc >= -85) and name like '%elev48w%';"
 

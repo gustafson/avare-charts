@@ -179,13 +179,14 @@ HIGHLEVEL=`sqlite3 maps.eh.db  "select name from files where (level = ' 4');"` \
 zipit:
 	## FIXME must find out how to updated canap.csv canfreq.csv canrun.csv
 	if [ -a main.db ]; then rm main.db; fi;
+	if [ -a final/databases.zip ]; then rm final/databases.zip; fi;
 	sqlite3 main.db < importother.sql
 	gcc -march=native -O3 -Wall sepsec.c -o sepsec
 	gcc -march=native -O3 -Wall septac.c -o septac
-	./sepsec
-	./septac
-	./sepelus.sh
-	./sepehus.sh
+	./sepsec 1401
+	./septac 1401
+	./sepelus.sh 1401
+	./sepehus.sh 1401
 	./sepelev.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
 	./seprel.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
 	./sephelo.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
@@ -193,14 +194,14 @@ zipit:
 	##./sepgc.sh copy charts zips on servers as no expires
 	sqlite3 maps.eh.db "VACUUM;"
 	sqlite3 maps.el.db "VACUUM;"
-	sqlite3 maps.elv.db "VACUUM;"
-	sqlite3 maps.rel.db "VACUUM;"
-	sqlite3 maps.topo.db "VACUUM;"
 	sqlite3 maps.sec.db "VACUUM;"
 	sqlite3 maps.tac.db "VACUUM;"
 	sqlite3 maps.wac.db "VACUUM;"
 	sqlite3 maps.oth.db "VACUUM;"
 	sqlite3 main.db "VACUUM;"
+	# STATIC sqlite3 maps.elv.db "VACUUM;"
+	# STATIC sqlite3 maps.rel.db "VACUUM;"
+	# STATIC sqlite3 maps.topo.db "VACUUM;"
 	## FIXME must add maps.topo.db 
 	zip -9 -r final/databases.zip maps.*.db main.db $(HIGHLEVEL)
 

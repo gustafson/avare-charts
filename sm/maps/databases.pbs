@@ -1,5 +1,5 @@
 #!/bin/sh -login
-#PBS -l mem=14000mb
+#PBS -l mem=60000mb
 #PBS -l nodes=1:ppn=16
 #PBS -l walltime=1000:00:00
 #PBS -m abe 
@@ -57,9 +57,10 @@ if [[ -f ${PBS_NODEFILE} ]]; then
 
     NP=$(cat ${PBS_NODEFILE} | wc -l)
 else
-    NP=16
+    NP=32
 fi
 export OMP_NUM_THREADS=${NP}
+NP=32
 
 ###############################
 
@@ -67,8 +68,8 @@ export OMP_NUM_THREADS=${NP}
 
 function updatetiles {
     #echo $0
-    TYPE=`echo $0|cut -d/ -f2`
-    LEVEL=`echo $0 |cut -f4 -d/`
+    TYPE=`echo $0|cut -d/ -f3`
+    LEVEL=`echo $0 |cut -f5 -d/`
 
     ## This for alaska which has east/west split due to the dateline.
     if [[ ${LEVEL} == w || ${LEVEL} == e ]]; then
@@ -103,25 +104,25 @@ function updatetiles {
 
 export -f updatetiles
 
-for dir in ifh ifr sec tac wac oth elv rel; do 
-    echo $dir
+for dir in ifh ifr sec tac wac oth; do #elv rel
+    echo ${dir}
 
     rootdir=${CYCLE}
-    if [[ $dir == oth || $dir == elv || $dir == rel ]]; then rootdir=static; fi
+    if [[ ${dir} == oth || ${dir} == elv || ${dir} == rel ]]; then rootdir=static; fi
 
     [[ -f /dev/shm/files.csv ]] && rm /dev/shm/files.csv
     
-    find tiles/${CYCLE}/${rootdir} -name "*.tif" -print | sed s/'.tif'// | sort | 
+    find tiles/${rootdir}/${dir} -name "*.tif" -print | sed s/'.tif'// | sort | 
     xargs -P ${NP} -n 1 bash -c updatetiles 
     
     mv /dev/shm/files.csv files.csv
     
     [[ -f maps.${dir}.db ]] && rm maps.${dir}.db
     sqlite3 -init init.sql maps.${dir}.db < importfiles.sql
-
-    if [[ $dir == ifr ]]; then
-	mv maps.${dir}.db maps.el.db
-    elif [[ $dir == ifh ]]; then
-	mv maps.${dir}.db maps.eh.db
+    
+    if [[ ${dir} == ifr ]]; then
+    	mv maps.${dir}.db maps.el.db
+    elif [[ ${dir} == ifh ]]; then
+    	mv maps.${dir}.db maps.eh.db
     fi
 done
