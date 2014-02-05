@@ -26,23 +26,26 @@ for a in NE NC NW SE SC SW AK; do
 	rm final/ELUS_${a}.zip; 
     fi 
 done
-$CMD zip -1 -q final/ELUS_NE.zip `sqlite3 maps.el.db "select name from files where (latc >= 38) and (lonc >= -85) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
-$CMD sqlite3 maps.el.db    		    "update files set info='ELUS_NE' where (latc >= 38) and (lonc >= -85) and name like '%tiles/${CYCLE}/ifr/48%';"
 
-$CMD zip -1 -q final/ELUS_NC.zip `sqlite3 maps.el.db "select name from files where (latc >= 38) and (lonc <= -85) and (lonc >= -110) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
-$CMD sqlite3 maps.el.db 		    "update files set info='ELUS_NC' where (latc >= 38) and (lonc <= -85) and (lonc >= -110) and name like '%tiles/${CYCLE}/ifr/48%';"
+for LOC in ul ur ll lr; do 
+    $CMD zip -1 -q final/ELUS_NE.zip `sqlite3 maps.el.db "select name from files where (lat${LOC} >= 38) and (lon${LOC} >= -85) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
+    $CMD sqlite3 maps.el.db    		    "update files set info='ELUS_NE' where (latc >= 38) and (lonc >= -85) and name like '%tiles/${CYCLE}/ifr/48%';"
 
-$CMD zip -1 -q final/ELUS_NW.zip `sqlite3 maps.el.db "select name from files where (latc >= 38) and (lonc <= -110) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
-$CMD sqlite3 maps.el.db 		    "update files set info='ELUS_NW' where (latc >= 38) and (lonc <= -110) and name like '%tiles/${CYCLE}/ifr/48%';"
+    $CMD zip -1 -q final/ELUS_NC.zip `sqlite3 maps.el.db "select name from files where (lat${LOC} >= 38) and (lon${LOC} <= -85) and (lon${LOC} >= -110) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
+    $CMD sqlite3 maps.el.db 		    "update files set info='ELUS_NC' where (latc >= 38) and (lonc <= -85) and (lonc >= -110) and name like '%tiles/${CYCLE}/ifr/48%';"
 
-$CMD zip -1 -q final/ELUS_SE.zip `sqlite3 maps.el.db "select name from files where (latc <= 38) and (lonc >= -85) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
-$CMD sqlite3 maps.el.db 		    "update files set info='ELUS_SE' where (latc <= 38) and (lonc >= -85) and name like '%tiles/${CYCLE}/ifr/48%';"
+    $CMD zip -1 -q final/ELUS_NW.zip `sqlite3 maps.el.db "select name from files where (lat${LOC} >= 38) and (lon${LOC} <= -110) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
+    $CMD sqlite3 maps.el.db 		    "update files set info='ELUS_NW' where (latc >= 38) and (lonc <= -110) and name like '%tiles/${CYCLE}/ifr/48%';"
 
-$CMD zip -1 -q final/ELUS_SC.zip `sqlite3 maps.el.db "select name from files where (latc <= 38) and (lonc <= -85) and (lonc >= -110) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
-$CMD sqlite3 maps.el.db 		    "update files set info='ELUS_SC' where (latc <= 38) and (lonc <= -85) and (lonc >= -110) and name like '%tiles/${CYCLE}/ifr/48%';"
+    $CMD zip -1 -q final/ELUS_SE.zip `sqlite3 maps.el.db "select name from files where (lat${LOC} <= 38) and (lon${LOC} >= -85) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
+    $CMD sqlite3 maps.el.db 		    "update files set info='ELUS_SE' where (latc <= 38) and (lonc >= -85) and name like '%tiles/${CYCLE}/ifr/48%';"
 
-$CMD zip -1 -q final/ELUS_SW.zip `sqlite3 maps.el.db "select name from files where (latc <= 38) and (lonc <= -110) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
-$CMD sqlite3 maps.el.db 		    "update files set info='ELUS_SW' where (latc <= 38) and (lonc <= -110) and name like '%tiles/${CYCLE}/ifr/48%';"
+    $CMD zip -1 -q final/ELUS_SC.zip `sqlite3 maps.el.db "select name from files where (lat${LOC} <= 38) and (lon${LOC} <= -85) and (lon${LOC} >= -110) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
+    $CMD sqlite3 maps.el.db 		    "update files set info='ELUS_SC' where (latc <= 38) and (lonc <= -85) and (lonc >= -110) and name like '%tiles/${CYCLE}/ifr/48%';"
+
+    $CMD zip -1 -q final/ELUS_SW.zip `sqlite3 maps.el.db "select name from files where (lat${LOC} <= 38) and (lon${LOC} <= -110) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
+    $CMD sqlite3 maps.el.db 		    "update files set info='ELUS_SW' where (latc <= 38) and (lonc <= -110) and name like '%tiles/${CYCLE}/ifr/48%';"
+done
 
 $CMD zip -1 -q final/ELUS_AK.zip `sqlite3 maps.el.db "select name from files where (level != ' 4') and name like '%tiles/${CYCLE}/ifr/ak%';"`
 $CMD sqlite3 maps.el.db 		    "update files set info='ELUS_AK' where name like '%tiles/${CYCLE}/ifr/ak%';"

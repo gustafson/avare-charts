@@ -175,6 +175,7 @@ print "HTML cycle = $htmlcycle\n";
 
 ### USE THIS TO GET NEW LIST 
 my $cmd = "$wgetCmd $xmlFile $webServer$htmlcycle$MySlash$xmlDataDir$MySlash$xmlFile";
+print $cmd
 # ZK my $cmd = "$wgetCmd $xmlFile $webServer/1303$MySlash$xmlDataDir$MySlash$xmlFile";
 #my $cmd = "$wgetCmd $xmlFile http://mstewart.net/super8/grtgetallplates/d-TPP_Metafile.xml";
 

@@ -49,6 +49,13 @@ xargs -P ${NP} -n 1 optipng -quiet
 wait
 
 ##
+
+for a in NE NC NW SE SC SW EC AK PAC; do
+    if [[ -f final/AFD_${a}.zip ]]; then
+	rm final/AFD_${a}.zip; 
+    fi 
+done
+
 zip -r -i \*ne\*\*.png -1 -T -q final/AFD_NE.zip afd
 zip -r -i \*nc\*\*.png -1 -T -q final/AFD_NC.zip afd
 zip -r -i \*nw\*\*.png -1 -T -q final/AFD_NW.zip afd

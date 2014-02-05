@@ -43,8 +43,8 @@ all:
 	@echo 'execute \"make fresh\" to clean out temp files'
 	@echo
 	@echo "  Change the dates in the download-base-data target of Makefile as applicable"
-	@echo "  Change the date in dlafd.pl if applicable (afd_$$(cycledates.sh 56).xml on 56 Day cycle)"
 	@echo "  Change the dates in the download-ifr target of the Makefile as applicable"
+	@echo "  Change the date in dlafd.pl if applicable (afd_$$(cycledates.sh 56).xml on 56 Day cycle)"
 	@echo
 	@echo 'execute "make update" to update a prior build (saving download time)'
 	@echo 'execute "make scratch" to start from scratch'
@@ -64,8 +64,8 @@ scratch: download-ifr download-vfr unzip stageall plates download-base-data proc
 update: download-ifr update-vfr unzip stageall plates download-base-data process-data zipit
 
 fresh:
-	rm -rf plates
-	rm -rf afd 
+	rm -rf plates plates_[A-Z][A-Z]
+	rm -rf afd
 	rm -rf final
 	rm -rf merge
 	rm ads.txt APT.txt AWOS.txt FIX.txt TWR.txt
@@ -75,17 +75,16 @@ fresh:
 
 download-base-data:
 	# https://nfdc.faa.gov/fadds/subscriptionDownload.do?productId=548752
-	wget https://nfdc.faa.gov/webContent/56DaySub/2013-12-12/APT.zip && unzip APT.zip && rm APT.zip
-	wget https://nfdc.faa.gov/webContent/56DaySub/2013-12-12/AWOS.zip && unzip AWOS.zip && rm AWOS.zip
-	wget https://nfdc.faa.gov/webContent/56DaySub/2013-12-12/TWR.zip && unzip TWR.zip && rm TWR.zip
-	wget https://nfdc.faa.gov/webContent/56DaySub/2013-12-12/FIX.zip && unzip FIX.zip && rm FIX.zip
-	wget https://nfdc.faa.gov/webContent/56DaySub/2013-12-12/NAV.zip && unzip NAV.zip && rm NAV.zip
+	wget https://nfdc.faa.gov/webContent/56DaySub/2014-02-06/APT.zip && unzip APT.zip && rm APT.zip
+	wget https://nfdc.faa.gov/webContent/56DaySub/2014-02-06/AWOS.zip && unzip AWOS.zip && rm AWOS.zip
+	wget https://nfdc.faa.gov/webContent/56DaySub/2014-02-06/TWR.zip && unzip TWR.zip && rm TWR.zip
+	wget https://nfdc.faa.gov/webContent/56DaySub/2014-02-06/FIX.zip && unzip FIX.zip && rm FIX.zip
+	wget https://nfdc.faa.gov/webContent/56DaySub/2014-02-06/NAV.zip && unzip NAV.zip && rm NAV.zip
+	./saa.sh                                      2014-02-06
 	## obstacles file
 	## https://nfdc.faa.gov/tod/public/TOD_DOF.html
 	wget https://nfdc.faa.gov/tod/public/DOFS/DOF_140105.zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
 	## wget https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip DAILY_DOF.ZIP DOF.DAT && rm DAILY_DOF.ZIP
-	## 
-	./saa.sh 2013-12-12
 
 process-data:
 	./saa.pl > saa.csv
@@ -100,11 +99,11 @@ process-data:
 plates:
 	mkdir plates
 	mkdir final
-	#./get_ads.sh 1401 # change cycle here  ## Don't need. They are in the plates already
+	#./get_ads.sh 1402 # change cycle here  ## Don't need. They are in the plates already
 	wget --timestamping https://nfdc.faa.gov/webContent/dtpp/current.xml && mv current.xml d-TPP_Metafile.xml
 	./plates_png.sh  ## FIXME MANUAL INTERVENTION: the DownloadPlates.pl attempts to redownload the base xml file with every state.  This is error prone due to FAA server timeouts
 	./afd.sh # change date here by fixing the date in dlafd.pl (afd_12DEC2013.xml)
-	./domins.sh 1401 # change cycle here
+	./domins.sh 1402 # change cycle here
 
 download-vfr:
 	mkdir merge
@@ -130,9 +129,9 @@ download-ifr:
 	mkdir -p charts/ifh
 	mkdir -p charts/ifal
 	mkdir -p charts/ifah
-	./dlifr.sh 12-12-2013 #change date  #IFR low
-	./dlifh.sh 12-12-2013 #change date  #IFH high
-	./dlifa.sh 12-12-2013 #change date  #Alaska high and low
+	./dlifr.sh 02-06-2014 #change date  #IFR low
+	./dlifh.sh 02-06-2014 #change date  #IFH high
+	./dlifa.sh 02-06-2014 #change date  #Alaska high and low
 
 unzip:
 	cd charts/tac && rm -rf *.tif && unzip -j \*.zip \*.tif && \
@@ -163,17 +162,7 @@ stageall:
 	gcc -march=native -O3 -Wall stagetac.c -o stagetac -fopenmp
 	## each pbs script could be run as a shell script but is 
 	## run through pbs for efficient resource management.
-	./stageall.sh 1401
-
-HIGHLEVEL=`sqlite3 maps.eh.db  "select name from files where (level = ' 4');"` \
-	`sqlite3 maps.el.db  "select name from files where (level = ' 4');"` \
-	`sqlite3 maps.elv.db "select name from files where (level = ' 4');"` \
-	`sqlite3 maps.rel.db "select name from files where (level = ' 4');"` \
-	`sqlite3 maps.sec.db "select name from files where (level = ' 4');"` \
-	`sqlite3 maps.tac.db "select name from files where (level = ' 4');"` \
-	`sqlite3 maps.wac.db "select name from files where (level = ' 4');"` \
-	`sqlite3 maps.oth.db "select name from files where (level = ' 4');"` 
-#	`sqlite3 maps.topo.db "select name from files where (level = ' 4');"` \
+	./stageall.sh 1402
 
 
 zipit:
@@ -183,10 +172,10 @@ zipit:
 	sqlite3 main.db < importother.sql
 	gcc -march=native -O3 -Wall sepsec.c -o sepsec
 	gcc -march=native -O3 -Wall septac.c -o septac
-	./sepsec 1401
-	./septac 1401
-	./sepelus.sh 1401
-	./sepehus.sh 1401
+	./sepsec 1402
+	./septac 1402
+	./sepelus.sh 1402
+	./sepehus.sh 1402
 	./sepelev.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
 	./seprel.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
 	./sephelo.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
@@ -203,7 +192,7 @@ zipit:
 	# STATIC sqlite3 maps.rel.db "VACUUM;"
 	# STATIC sqlite3 maps.topo.db "VACUUM;"
 	## FIXME must add maps.topo.db 
-	zip -9 -r final/databases.zip maps.*.db main.db $(HIGHLEVEL)
+	zip -9 -r final/databases.zip maps.*.db main.db `find tiles/*/*/*/4 -type f|grep -v tif`
 
 qualitycontrol:
 	./qualitycontrol.sh

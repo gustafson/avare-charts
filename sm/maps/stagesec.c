@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
   
   printf("\n\n\n");
   /* What follows is stupid parallism */
-  snprintf(filestr, sizeof(filestr), "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=4 -multi -r cubicspline -t_srs WGS84");
+  snprintf(filestr, sizeof(filestr), "gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=4 -multi -r cubicspline -t_srs WGS84");
   // snprintf(filestr, sizeof(filestr), "gdal_merge.py");
 #pragma omp parallel num_threads(4) private (buffer)
   {
