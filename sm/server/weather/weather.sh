@@ -1,5 +1,5 @@
 #!/bin/bash
-#Copyright (c) 2012, Zubair Khan (governer@gmail.com) 
+#Copyright (c) 2012, Apps4av Inc. (apps4av@gmail.com) 
 #All rights reserved.
 #
 #Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -41,5 +41,6 @@ sqlite3 weather.db < import.sql
 
 rm -f /home/apps4av/mamba.dreamhosters.com/new/weather.zip
 zip /home/apps4av/mamba.dreamhosters.com/new/weather.zip weather.db
+
 rm -f *.gz *.csv *.xml *.db all
 

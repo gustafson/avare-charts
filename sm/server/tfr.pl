@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#Copyright (c) 2012, Zubair Khan (governer@gmail.com)
+#Copyright (c) 2012, Apps4av Inc. (apps4av@gmail.com)
 #All rights reserved.
 #
 #Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -175,7 +175,6 @@ my $parser = new XML::Parser (Handlers => {
 # get TFR list
 
 my $response = get('http://tfr.faa.gov/tfr2/list.html') or die;
-
 # extract links from it
 my $LX = new HTML::LinkExtor(\&cb, 'http://tfr.faa.gov/');
 $LX->parse($response);
