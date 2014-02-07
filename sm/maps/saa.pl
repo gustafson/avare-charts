@@ -24,24 +24,36 @@ my $upperlimit = "";
 my $upperlimitref = "";
 my $lowerlimit = "";
 my $lowerlimitref = "";
-my $beginposition = "";
-my $endposition = "";
-my $note = "";
+my $starttime = "";
+my $endtime = "";
+my $startdate = "";
+my $enddate = "";
 my $lat = 0;
 my $lon = 0;
+my $day = "";
+my $ftx = "";
+my $frx = "";
+my $timeref = "";
 my $numpos = 0;
 
 my $p_airspace = 0;
+my $p_rfcomm = 0;
+my $p_airspaceusage = 0;
 my $p_designator = 0;
 my $p_name = 0;
 my $p_upperlimit = 0;
 my $p_upperlimitref = 0;
 my $p_lowerlimit = 0;
 my $p_lowerlimitref = 0;
-my $p_beginposition = 0;
-my $p_endposition = 0;
+my $p_starttime = 0;
+my $p_endtime = 0;
+my $p_startdate = 0;
+my $p_enddate = 0;
 my $p_pos = 0;
-my $p_note = 0;
+my $p_day = 0;
+my $p_ftx = "";
+my $p_frx = "";
+my $p_timeref = 0;
 
 my $start = 0;
 
@@ -52,23 +64,35 @@ sub initnew {
     $upperlimitref = "";
     $lowerlimit = "";
     $lowerlimitref = "";
-    $beginposition = "";
-    $endposition = "";
+    $starttime = "";
+    $endtime = "";
+    $startdate = "";
+    $enddate = "";
+    $day = "";
+    $ftx = "";
+    $frx = "";
+    $timeref = "";
     $lat = 0;
     $lon = 0;
     $numpos = 0;
-    $note = "";
 
     $p_airspace = 0;
+    $p_rfcomm = 0;
+    $p_airspaceusage = 0;
     $p_designator = 0;
     $p_name = 0;
     $p_upperlimit = 0;
     $p_upperlimitref = 0;
     $p_lowerlimit = 0;
     $p_lowerlimitref = 0;
-    $p_beginposition = 0;
-    $p_endposition = 0;
-    $p_note = 0;
+    $p_starttime = 0;
+    $p_endtime = 0;
+    $p_startdate = 0;
+    $p_enddate = 0;
+    $p_day = 0;
+    $p_ftx = 0;
+    $p_frx = 0;
+    $p_timeref = 0;
 }
 
 
@@ -78,38 +102,62 @@ sub hdl_start{
 	if($elt eq 'Airspace') {
         $p_airspace = 1;
 	}
-    if($p_airspace == 0) {
-        return;
-    }
-	if($elt eq 'designator') {
-        $p_designator = 1;
+	if($elt eq 'AirspaceUsage') {
+        $p_airspaceusage = 1;
 	}
-    if($elt eq 'name') {
-        $p_name = 1;
+	if($elt eq 'RadioCommunicationChannel') {
+        $p_rfcomm = 1;
+	}
+    if($p_airspaceusage == 1) {
+        if($elt eq 'startTime') {
+            $p_starttime = 1;
+        }
+        if($elt eq 'endTime') {
+            $p_endtime = 1;
+        }
+        if($elt eq 'startDate') {
+            $p_startdate = 1;
+        }
+        if($elt eq 'endDate') {
+            $p_enddate = 1;
+        }
+        if($elt eq 'day') {
+            $p_day = 1;
+        }
+        if($elt eq 'timeReference') {
+            $p_timeref = 1;
+        }
     }
-    if($elt eq 'upperLimit') {
-        $p_upperlimit = 1;
+    if($p_airspace == 1) {
+        if($elt eq 'designator') {
+            $p_designator = 1;
+        }
+        if($elt eq 'name') {
+            $p_name = 1;
+        }
+        if($elt eq 'upperLimit') {
+            $p_upperlimit = 1;
+        }
+        if($elt eq 'lowerLimit') {
+            $p_lowerlimit = 1;
+        }
+        if($elt eq 'upperLimitReference') {
+            $p_upperlimitref = 1;
+        }
+        if($elt eq 'lowerLimitReference') {
+            $p_lowerlimitref = 1;
+        }
+        if($elt eq 'pos') {
+            $p_pos = 1;
+        }
     }
-    if($elt eq 'lowerLimit') {
-        $p_lowerlimit = 1;
-    }
-    if($elt eq 'upperLimitReference') {
-        $p_upperlimitref = 1;
-    }
-    if($elt eq 'lowerLimitReference') {
-        $p_lowerlimitref = 1;
-    }
-    if($elt eq 'beginPosition') {
-        $p_beginposition = 1;
-    }
-    if($elt eq 'endPosition') {
-        $p_endposition = 1;
-    }
-    if($elt eq 'pos') {
-        $p_pos = 1;
-    }
-    if($elt eq 'LinguisticNote') {
-        $p_note = 1;
+    if($p_rfcomm == 1) {
+        if($elt eq 'frequencyTransmission') {
+            $p_ftx = 1;
+        }
+        if($elt eq 'frequencyReception') {
+            $p_frx = 1;
+        }
     }
 }
    
@@ -119,38 +167,62 @@ sub hdl_end {
 	if($elt eq 'Airspace') {
         $p_airspace = 0;
 	}
-    if($p_airspace == 0) {
-        return;
-    }
-	if($elt eq 'designator') {
-        $p_designator = 0;
+	if($elt eq 'AirspaceUsage') {
+        $p_airspaceusage = 0;
 	}
-    if($elt eq 'name') {
-        $p_name = 0;
+	if($elt eq 'RadioCommunicationChannel') {
+        $p_rfcomm = 0;
+	}
+    if($p_airspace == 1) {
+        if($elt eq 'designator') {
+            $p_designator = 0;
+        }
+        if($elt eq 'name') {
+            $p_name = 0;
+        }
+        if($elt eq 'upperLimit') {
+            $p_upperlimit = 0;
+        }
+        if($elt eq 'lowerLimit') {
+            $p_lowerlimit = 0;
+        }
+        if($elt eq 'upperLimitReference') {
+            $p_upperlimitref = 0;
+        }
+        if($elt eq 'lowerLimitReference') {
+            $p_lowerlimitref = 0;
+        }
+        if($elt eq 'pos') {
+            $p_pos = 0;
+        }
     }
-    if($elt eq 'upperLimit') {
-        $p_upperlimit = 0;
+    if($p_airspaceusage == 1) {
+        if($elt eq 'startTime') {
+            $p_starttime = 0;
+        }
+        if($elt eq 'endTime') {
+            $p_endtime = 0;
+        }
+        if($elt eq 'startDate') {
+            $p_startdate = 0;
+        }
+        if($elt eq 'endDate') {
+            $p_enddate = 0;
+        }
+        if($elt eq 'day') {
+            $p_day = 0;
+        }
+        if($elt eq 'timeReference') {
+            $p_timeref = 0;
+        }
     }
-    if($elt eq 'lowerLimit') {
-        $p_lowerlimit = 0;
-    }
-    if($elt eq 'upperLimitReference') {
-        $p_upperlimitref = 0;
-    }
-    if($elt eq 'lowerLimitReference') {
-        $p_lowerlimitref = 0;
-    }
-    if($elt eq 'beginPosition') {
-        $p_beginposition = 0;
-    }
-    if($elt eq 'endPosition') {
-        $p_endposition = 0;
-    }
-    if($elt eq 'pos') {
-        $p_pos = 0;
-    }
-    if($elt eq 'LinguisticNote') {
-        $p_note = 0;
+    if($p_rfcomm == 1) {
+        if($elt eq 'frequencyTransmission') {
+            $p_ftx = 0;
+        }
+        if($elt eq 'frequencyReception') {
+            $p_frx = 0;
+        }
     }
 }
   
@@ -177,11 +249,29 @@ sub hdl_char {
     if($p_lowerlimitref != 0) {
         $lowerlimitref = $str;
     }
-    if($p_beginposition != 0) {
-        $beginposition = $str;
+    if($p_starttime != 0) {
+        $starttime = $str;
     }
-    if($p_endposition != 0) {
-        $endposition = $str;
+    if($p_endtime != 0) {
+        $endtime = $str;
+    }
+    if($p_startdate != 0) {
+        $startdate = $str;
+    }
+    if($p_enddate != 0) {
+        $enddate = $str;
+    }
+    if($p_day != 0) {
+        $day = $str;
+    }
+    if($p_ftx != 0) {
+        $ftx .= $str . " ";
+    }
+    if($p_frx != 0) {
+        $frx .= $str . " ";
+    }
+    if($p_timeref != 0) {
+        $timeref = $str;
     }
     if($p_pos != 0) {
         my @val = split(/ /, $str);
@@ -190,9 +280,6 @@ sub hdl_char {
             $lat += $val[1];
             $numpos++;
         }
-    }
-    if($p_note != 0) {
-        $note = $str;
     }
 }
   
@@ -215,7 +302,7 @@ while (my $file = readdir(DIR)) {
         $parser->parsefile($direct.$file);
         $lat = $lat / $numpos;
         $lon = $lon / $numpos;
-        print "$designator,$name,$upperlimit $upperlimitref,$lowerlimit $lowerlimitref,$beginposition,$endposition,$lat,$lon,$note\n";
+        print "$designator,$name,$upperlimit $upperlimitref,$lowerlimit $lowerlimitref,$starttime,$endtime,$timeref,$startdate,$enddate,$day,$ftx,$frx,$lat,$lon\n";
     }
 }
 
