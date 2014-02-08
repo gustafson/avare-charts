@@ -101,17 +101,17 @@ int main(int argc, char *argv[])
     }
   }
   
-  out("rm ifah_east.tif ifah_west.tif");
+  out("rm ifah-east.tif ifah-west.tif");
   
 #pragma omp parallel num_threads(2)
   {
     map = omp_get_thread_num();
     if (map==0){
-      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.002 0.002 -te -180 43 -119.35 74.25 merge/IFAH/*_c.tif ifah_west.tif");
-      out("gdal_translate -outsize 10% 10% -of JPEG ifah_west.tif ifah_west_small.jpg");
+      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.002 0.002 -te -180 43 -119.35 74.25 merge/IFAH/*_c.tif ifah-west.tif");
+      out("gdal_translate -outsize 10% 10% -of JPEG ifah-west.tif ifah-west_small.jpg");
     } else if (map==1){
-      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.002 0.002 -te 152.5 41.25 180 62.25 tmp-stageifah/tmpstageifah2.tif ifah_east.tif");
-      out("gdal_translate -outsize 10% 10% -of JPEG ifah_east.tif ifah_east_small.jpg");
+      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.002 0.002 -te 152.5 41.25 180 62.25 tmp-stageifah/tmpstageifah2.tif ifah-east.tif");
+      out("gdal_translate -outsize 10% 10% -of JPEG ifah-east.tif ifah-east_small.jpg");
     }
   }
 

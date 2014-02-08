@@ -101,10 +101,10 @@ int main(int argc, char *argv[])
 	out(buffer0);
       }else if(map==5){
 	strcpy(buffer1, buffer0);
-	strcat(buffer0, "_east.tif -te 172.5 48 180 56 ");
+	strcat(buffer0, "-east.tif -te 172.5 48 180 56 ");
 	out(buffer0);
 
-	snprintf(buffer0, sizeof(buffer0), "mv merge/%s/%s_c_east.tif ifal_east.tif", maps[map].reg, n_ptr);
+	snprintf(buffer0, sizeof(buffer0), "mv merge/%s/%s_c-east.tif ifal-east.tif", maps[map].reg, n_ptr);
 	out(buffer0);      
 
 	strcat(buffer1, ".tif -te -180 48.5 -133 56.5");
@@ -120,17 +120,17 @@ int main(int argc, char *argv[])
     }
   }
   
-  out("rm ifal_west.tif");
+  out("rm ifal-west.tif");
   
 #pragma omp parallel num_threads(2)
   {
     map = omp_get_thread_num();
     if (map==0){
-      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.001253199658703 0.001253199658703 -te -180 45.5 -121.25 72 merge/IFAL/*_c.tif ifal_west.tif");
-      out("gdal_translate -outsize 10% 10% -of JPEG ifal_west.tif ifal_west_small.jpg");
+      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.001253199658703 0.001253199658703 -te -180 45.5 -121.25 72 merge/IFAL/*_c.tif ifal-west.tif");
+      out("gdal_translate -outsize 10% 10% -of JPEG ifal-west.tif ifal-west_small.jpg");
     } else if (map==1){
-      // out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.001253199658703 0.001253199658703 -te 172.5 48 180 56 merge/IFAL/*_c.tif ifal_east.tif");
-      out("gdal_translate -outsize 10% 10% -of JPEG ifal_east.tif ifal_east_small.jpg");
+      // out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.001253199658703 0.001253199658703 -te 172.5 48 180 56 merge/IFAL/*_c.tif ifal-east.tif");
+      out("gdal_translate -outsize 10% 10% -of JPEG ifal-east.tif ifal-east_small.jpg");
     }
   }
 

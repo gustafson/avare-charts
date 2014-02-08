@@ -71,15 +71,11 @@ mkdir -p tiles/${CYCLE}/sec/hi
 mkdir -p tiles/${CYCLE}/wac/48
 mkdir -p tiles/${CYCLE}/wac/ak
 mkdir -p tiles/${CYCLE}/ifh/48
-mkdir -p tiles/${CYCLE}/ifh/ak/w
-mkdir -p tiles/${CYCLE}/ifh/ak/e
+mkdir -p tiles/${CYCLE}/ifh/ak
+mkdir -p tiles/${CYCLE}/ifh/ak-east
 mkdir -p tiles/${CYCLE}/ifr/48
-mkdir -p tiles/${CYCLE}/ifr/ak/w
-mkdir -p tiles/${CYCLE}/ifr/ak/e
-## mkdir -p tiles/${CYCLE}/tac/48
-## mkdir -p tiles/${CYCLE}/tac/an
-## mkdir -p tiles/${CYCLE}/tac/fa
-## mkdir -p tiles/${CYCLE}/tac/pr
+mkdir -p tiles/${CYCLE}/ifr/ak
+mkdir -p tiles/${CYCLE}/ifr/ak-east
 
 gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/sec/48 -levels 4 -ps 512 512 -useDirForEachRow sec-48.tif &
 gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/sec/ak -levels 4 -ps 512 512 -useDirForEachRow sec-ak.tif &
@@ -87,18 +83,19 @@ gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/sec/hi 
 gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/wac/48 -levels 4 -ps 512 512 -useDirForEachRow wac-48.tif &
 gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/wac/ak -levels 4 -ps 512 512 -useDirForEachRow wac-ak.tif &
 gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/ifh/48 -levels 4 -ps 512 512 -useDirForEachRow ifh.tif &
-gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/ifh/ak/w -levels 4 -ps 512 512 -useDirForEachRow ifah_west.tif &
-gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/ifh/ak/e -levels 4 -ps 512 512 -useDirForEachRow ifah_east.tif &
+gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/ifh/ak -levels 4 -ps 512 512 -useDirForEachRow ifah-west.tif &
+gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/ifh/ak-east -levels 4 -ps 512 512 -useDirForEachRow ifah-east.tif &
 gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/ifr/48 -levels 4 -ps 512 512 -useDirForEachRow ifr.tif &
-gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/ifr/ak/w -levels 4 -ps 512 512 -useDirForEachRow ifal_west.tif &
-gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/ifr/ak/e -levels 4 -ps 512 512 -useDirForEachRow ifal_east.tif &
-## gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/tac/48 -levels 4 -ps 512 512 -useDirForEachRow tac.tif &
-## gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/tac/an -levels 4 -ps 512 512 -useDirForEachRow merge/TC/AnchorageTAC.tif &
-## gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/tac/fa -levels 4 -ps 512 512 -useDirForEachRow merge/TC/FairbanksTAC.tif &
-## gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/tac/pr -levels 4 -ps 512 512 -useDirForEachRow merge/TC/PuertoRico-VITAC.tif &
+gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/ifr/ak -levels 4 -ps 512 512 -useDirForEachRow ifal-west.tif &
+gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/ifr/ak-east -levels 4 -ps 512 512 -useDirForEachRow ifal-east.tif &
 
 ## for job in `jobs -p`; do wait $job; done
 wait
+
+rsync -avP tiles/${CYCLE}/ifh/ak-east/ tiles/${CYCLE}/ifh/ak/ && rm -fr tiles/${CYCLE}/ifh/ak-east/
+rsync -avP tiles/${CYCLE}/ifr/ak-east/ tiles/${CYCLE}/ifh/ar/ && rm -fr tiles/${CYCLE}/ifr/ak-east/
+
+wait 
 
 [[ -d tiles/${CYCLE}/oth ]] && rm -fr tiles/${CYCLE}/oth
 
@@ -123,5 +120,4 @@ gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/oth/h5 
 gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/oth/h6 -levels 4 -ps 512 512 -useDirForEachRow other/HoustonHeli7.tif & 
 gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/oth/h7 -levels 4 -ps 512 512 -useDirForEachRow other/LosAngelesHeli9.tif & 
 gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir tiles/${CYCLE}/oth/h8 -levels 4 -ps 512 512 -useDirForEachRow other/NewYorkHeli10Front.tif & 
-#
 wait

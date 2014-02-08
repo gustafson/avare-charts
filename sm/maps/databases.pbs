@@ -71,11 +71,6 @@ function updatetiles {
     TYPE=`echo $0|cut -d/ -f3`
     LEVEL=`echo $0 |cut -f5 -d/`
 
-    ## This for alaska which has east/west split due to the dateline.
-    if [[ ${LEVEL} == w || ${LEVEL} == e ]]; then
-	LEVEL=`echo $0 |cut -f5 -d/`
-    fi
-
     NONBLACK=`convert -quiet $0.tif -threshold 2% -format %[mean] info:-`
 
     if [[ ! $NONBLACK == 0 ]]; then
@@ -97,14 +92,17 @@ function updatetiles {
 	NAME=$0.$EXT;
     fi	
 
-    POS="`python -W ignore coords.py $0.tif`"
+    POS="`python -W ignore coords.py $0.tif`" 
+    ## Four corners may be pulling too many tiles.  Check these files as an example
+    #tiles/1402/ifr/48/3/5/ifr_05_17.png
+    #tiles/1402/ifr/48/4/3/ifr_03_08.png
     echo "$NAME, $POS, $LEVEL" >> /dev/shm/files.csv
 }
 
 
 export -f updatetiles
 
-for dir in ifh ifr sec tac wac oth; do #elv rel
+for dir in ifh ifr sec tac wac oth; do #elv rel 
     echo ${dir}
 
     rootdir=${CYCLE}

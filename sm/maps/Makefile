@@ -40,6 +40,9 @@ all:
 	@echo
 	@echo "Build instructions for Avare charts"
 	@echo
+	@echo "Pull the latest code"
+	@echo "  git pull"
+	@echo
 	@echo 'execute \"make fresh\" to clean out temp files'
 	@echo
 	@echo "  Change the dates in the download-base-data target of Makefile as applicable"
