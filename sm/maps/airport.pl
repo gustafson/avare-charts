@@ -32,6 +32,7 @@ while (<FILE>) {
         $id   = ltrim( rtrim( substr( $_, 27,  4 ) ) );
         $type = ltrim( rtrim( substr( $_, 14,  12 ) ) );
         $name = ltrim( rtrim( substr( $_, 133, 50 ) ) );
+        $state = ltrim( rtrim( substr( $_, 91, 2 ) ) );
         
         $manager    = ltrim( rtrim( substr( $_, 355, 35 ) ) );
         $managertel = ltrim( rtrim( substr( $_, 507, 16 ) ) );
@@ -91,7 +92,7 @@ while (<FILE>) {
         $tel    = ltrim( rtrim( substr( $_, 762, 16 ) ) );
 
         print
-"$id,$lt,$ln,$type,$name,$use,$tel,$manager,$managertel,$elevation,$var,$patterna,$fuel,$custom,$beacon,$lightsched,$segcircle,$atct,$unicom,$ctaff,$fee\n";
+"$id,$lt,$ln,$type,$name,$use,$tel,$manager,$managertel,$elevation,$var,$patterna,$fuel,$custom,$beacon,$lightsched,$segcircle,$atct,$unicom,$ctaff,$fee,$state\n";
     }
 }
 close(FILE);
