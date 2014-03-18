@@ -43,7 +43,7 @@ all:
 	@echo "Pull the latest code"
 	@echo "  git pull"
 	@echo
-	@echo 'execute \"make fresh\" to clean out temp files'
+	@echo 'execute "make fresh" to clean out temp files'
 	@echo
 	@echo "  Change the dates in the download-base-data target of Makefile as applicable"
 	@echo "  Change the dates in the download-ifr target of the Makefile as applicable"
@@ -53,15 +53,17 @@ all:
 	@echo 'execute "make scratch" to start from scratch'
 	@echo
 	@echo "Due to FAA posting sequence, this may be the preferred order (all included in above)."
-	@echo "  make download-ifr"
-	@echo "  make update-vfr"
+	@echo "  make download-ifr #$$(cycledates.sh 56)"
+	@echo "  make update-vfr #$$(cycledates.sh 28)"
 	@echo "  make unzip"
 	@echo "  make stageall"
-	@echo "  make plates"
-	@echo "  make download-base-data"
-	@echo "  make process-data"
+	@echo "  make plates #$$(cycledates.sh 28)"
+	@echo "  make download-base-data #$$(cycledates.sh 56)"
+	@echo "  make process-data #$$(cycledates.sh 56)"
 	@echo "  make zipit"
 	@echo "  make qualitycontrol"
+
+CYCLE=1403
 
 scratch: download-ifr download-vfr unzip stageall plates download-base-data process-data zipit
 update: download-ifr update-vfr unzip stageall plates download-base-data process-data zipit
@@ -74,7 +76,8 @@ fresh:
 	rm ads.txt APT.txt AWOS.txt FIX.txt TWR.txt
 	rm maps.el.db maps.eh.db maps.oth.db maps.sec.db maps.tac.db maps.wac.db
 	rm afd.csv airport.csv awos.csv dof.csv files.csv fix.csv freq.csv nav.csv runway.csv ## FIXME Canadian stuff left... update after any refresh
-	rm sepsec septac stagesec stageifr stageifa stageifh stagetac *.tif *.jpeg *.xml
+	rm sepsec septac stagesec stageifr stageifa stageifh stagetac *.tif *.jpg *.xml
+	mkdir final
 
 download-base-data:
 	# https://nfdc.faa.gov/fadds/subscriptionDownload.do?productId=548752
@@ -86,7 +89,7 @@ download-base-data:
 	./saa.sh                                      2014-02-06
 	## obstacles file
 	## https://nfdc.faa.gov/tod/public/TOD_DOF.html
-	wget https://nfdc.faa.gov/tod/public/DOFS/DOF_140105.zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
+	wget https://nfdc.faa.gov/tod/public/DOFS/DOF_140302.zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
 	## wget https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip DAILY_DOF.ZIP DOF.DAT && rm DAILY_DOF.ZIP
 
 process-data:
@@ -101,14 +104,16 @@ process-data:
 
 plates:
 	mkdir plates
-	mkdir final
-	#./get_ads.sh 1402 # change cycle here  ## Don't need. They are in the plates already
-	wget --timestamping https://nfdc.faa.gov/webContent/dtpp/current.xml && mv current.xml d-TPP_Metafile.xml
+	wget -N http://155.178.201.160/d-tpp/$(CYCLE)/xml_data/d-TPP_Metafile.xml
+	wget -N http://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp && mv index.html d-tpp-index.html
+	#./get_ads.sh 1403 # change cycle here  ## Don't need. They are in the plates already
+	## wget -N https://nfdc.faa.gov/webContent/dtpp/current.xml && mv current.xml d-TPP_Metafile.xml
 	./plates_png.sh  ## FIXME MANUAL INTERVENTION: the DownloadPlates.pl attempts to redownload the base xml file with every state.  This is error prone due to FAA server timeouts
 	./afd.sh # change date here by fixing the date in dlafd.pl (afd_12DEC2013.xml)
-	./domins.sh 1402 # change cycle here
+	./domins.sh 1403 # change cycle here
 
 download-vfr:
+	echo Downloading vfr for cycle $(CYCLE)
 	mkdir merge
 	mkdir -p charts/wac  
 	mkdir -p charts/sec 
@@ -124,6 +129,7 @@ update-vfr:
 	./update_vfr_charts.sh ## New process gets only updates
 
 download-ifr:
+	echo Downloading ifr for cycle $(CYCLE)
 	if [[ -d charts/iff ]]; then rm -fr charts/iff; fi
 	if [[ -d charts/ifh ]]; then rm -fr charts/ifh; fi
 	if [[ -d charts/ifal ]]; then rm -fr charts/ifal; fi
@@ -165,7 +171,7 @@ stageall:
 	gcc -march=native -O3 -Wall stagetac.c -o stagetac -fopenmp
 	## each pbs script could be run as a shell script but is 
 	## run through pbs for efficient resource management.
-	./stageall.sh 1402
+	./stageall.sh 1403
 
 
 zipit:
@@ -175,10 +181,10 @@ zipit:
 	sqlite3 main.db < importother.sql
 	gcc -march=native -O3 -Wall sepsec.c -o sepsec
 	gcc -march=native -O3 -Wall septac.c -o septac
-	./sepsec 1402
-	./septac 1402
-	./sepelus.sh 1402
-	./sepehus.sh 1402
+	./sepsec 1403
+	./septac 1403
+	./sepelus.sh 1403
+	./sepehus.sh 1403
 	./sepelev.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
 	./seprel.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
 	./sephelo.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually

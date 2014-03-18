@@ -13,6 +13,7 @@
 
 export NP=32
 export DPI=248.3
+export DPI=300
 export DPI=150
 
 function download {
@@ -47,6 +48,7 @@ function download {
 }
 
 if [[ -d plates ]]; then rm -rf plates; fi
+mkdir plates
 download PR
 download DC 
 download AL

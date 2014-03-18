@@ -51,6 +51,7 @@ else
 
 my $webServer = "http://$ip_address/d-tpp/";
 my $tppIndex  = "http://$ip_address/index.asp?xml=aeronav/applications/d_tpp";
+my $tppIndex  = "http://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp";
 my $xmlFile   = "d-TPP_Metafile.xml";	
 my $outputDir = "plates";
 # Define wgetCmd here as null for global scoping, we'll set it below based on the Operating System
@@ -147,7 +148,7 @@ else
 #   Main
 ################################################################################
 #lets get timers and log file going.
-print "\n\n dounloadplates.pl $fileVer firing up. Here we go!\n";
+print "\n\n downloadplates.pl $fileVer firing up. Here we go!\n";
 my $iStartTime = (time);
 open(MyLogFile,  ">>logfile.txt") || die "Opening logfile.txt: $!";
 print "Beginning Script " . localtime(time) . "\n";
@@ -168,14 +169,16 @@ print MyLogFile "Getmins = $getmins\n";
 ##############
 #OK Now lets get the plate XML calatog from the FAA NACO site
 my $htmlcycle = GetCycleHTML();	           
+my $htmlcycle = "1403";	           
 print "HTML cycle = $htmlcycle\n";
+
 #exit ();
 
 #with the FAA hosing me on this XML catalog file, temp fix is to manually support it on my servers. ARGH!
 
 ### USE THIS TO GET NEW LIST 
-my $cmd = "$wgetCmd $xmlFile $webServer$htmlcycle$MySlash$xmlDataDir$MySlash$xmlFile";
-print $cmd
+## my $cmd = "$wgetCmd $xmlFile $webServer$htmlcycle$MySlash$xmlDataDir$MySlash$xmlFile";
+## print $cmd
 # ZK my $cmd = "$wgetCmd $xmlFile $webServer/1303$MySlash$xmlDataDir$MySlash$xmlFile";
 #my $cmd = "$wgetCmd $xmlFile http://mstewart.net/super8/grtgetallplates/d-TPP_Metafile.xml";
 

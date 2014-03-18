@@ -99,28 +99,56 @@ function updatetiles {
     echo "$NAME, $POS, $LEVEL" >> /dev/shm/files.csv
 }
 
+function canadaonly {
+    #echo $0
+    LEVEL=`echo $0 |cut -f5 -d/`
+    
+    POS="`python -W ignore coords.py $0.jpg`" 
+    ## Four corners may be pulling too many tiles.  Check these files as an example
+    #tiles/1402/ifr/48/3/5/ifr_05_17.png
+    #tiles/1402/ifr/48/4/3/ifr_03_08.png
+    echo "$NAME, $POS, $LEVEL" >> /dev/shm/files.csv
+}
 
 export -f updatetiles
+export -f canadaonly
 
-for dir in ifh ifr sec tac wac oth; do #elv rel 
+## for dir in ifh ifr sec tac wac oth; do #elv rel 
+##     echo ${dir}
+## 
+##     rootdir=${CYCLE}
+##     if [[ ${dir} == oth || ${dir} == elv || ${dir} == rel || ${dir} == topo ]]; then rootdir=static; fi
+## 
+##     [[ -f /dev/shm/files.csv ]] && rm /dev/shm/files.csv
+##     
+##     find tiles/${rootdir}/${dir} -name "*.tif" -print | sed s/'.tif'// | sort | 
+##     xargs -P ${NP} -n 1 bash -c updatetiles 
+##     
+##     mv /dev/shm/files.csv files.csv
+##     
+##     [[ -f maps.${dir}.db ]] && rm maps.${dir}.db
+##     sqlite3 -init init.sql maps.${dir}.db < importfiles.sql
+##     
+##     if [[ ${dir} == ifr ]]; then
+##     	mv maps.${dir}.db maps.el.db
+##     elif [[ ${dir} == ifh ]]; then
+##     	mv maps.${dir}.db maps.eh.db
+##     fi
+## done
+
+for dir in topo; do #elv rel 
     echo ${dir}
 
     rootdir=${CYCLE}
-    if [[ ${dir} == oth || ${dir} == elv || ${dir} == rel ]]; then rootdir=static; fi
-
+    if [[ ${dir} == oth || ${dir} == elv || ${dir} == rel || ${dir} == topo ]]; then rootdir=static; fi
+    
     [[ -f /dev/shm/files.csv ]] && rm /dev/shm/files.csv
     
-    find tiles/${rootdir}/${dir} -name "*.tif" -print | sed s/'.tif'// | sort | 
-    xargs -P ${NP} -n 1 bash -c updatetiles 
+    find tiles/${rootdir}/${dir} -name "*.jpg" -print | sed s/'.jpg'// | sort | 
+    xargs -P ${NP} -n 1 bash -c canadaonly 
     
     mv /dev/shm/files.csv files.csv
     
     [[ -f maps.${dir}.db ]] && rm maps.${dir}.db
     sqlite3 -init init.sql maps.${dir}.db < importfiles.sql
-    
-    if [[ ${dir} == ifr ]]; then
-    	mv maps.${dir}.db maps.el.db
-    elif [[ ${dir} == ifh ]]; then
-    	mv maps.${dir}.db maps.eh.db
-    fi
 done
