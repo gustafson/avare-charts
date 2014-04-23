@@ -16,5 +16,5 @@ cd charts/ifh
 
 for ch in 01 02 03 04 05 06 07 08 09 10 11
 do
-	wget http://aeronav.faa.gov/Enroute/${DT}/ENR_H$ch.zip
+    wget http://aeronav.faa.gov/enroute/${DT,,}/enr_h$ch.zip
 done

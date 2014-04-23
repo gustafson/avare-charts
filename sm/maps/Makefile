@@ -47,23 +47,23 @@ all:
 	@echo
 	@echo "  Change the dates in the download-base-data target of Makefile as applicable"
 	@echo "  Change the dates in the download-ifr target of the Makefile as applicable"
-	@echo "  Change the date in dlafd.pl if applicable (afd_$$(cycledates.sh 56).xml on 56 Day cycle)"
+	@echo "  Change the date in dlafd.pl if applicable (afd_$$(./cycledates.sh 56).xml on 56 Day cycle)"
 	@echo
 	@echo 'execute "make update" to update a prior build (saving download time)'
 	@echo 'execute "make scratch" to start from scratch'
 	@echo
 	@echo "Due to FAA posting sequence, this may be the preferred order (all included in above)."
-	@echo "  make download-ifr #$$(cycledates.sh 56)"
-	@echo "  make update-vfr #$$(cycledates.sh 28)"
+	@echo "  make download-ifr #$$(./cycledates.sh 56)"
+	@echo "  make update-vfr #$$(./cycledates.sh 28)"
 	@echo "  make unzip"
 	@echo "  make stageall"
-	@echo "  make plates #$$(cycledates.sh 28)"
-	@echo "  make download-base-data #$$(cycledates.sh 56)"
-	@echo "  make process-data #$$(cycledates.sh 56)"
+	@echo "  make plates #$$(./cycledates.sh 28)"
+	@echo "  make download-base-data #$$(./cycledates.sh 56)"
+	@echo "  make process-data #$$(./cycledates.sh 56)"
 	@echo "  make zipit"
 	@echo "  make qualitycontrol"
 
-CYCLE=1403
+CYCLE=$$(./cyclenumber.sh)
 
 scratch: download-ifr download-vfr unzip stageall plates download-base-data process-data zipit
 update: download-ifr update-vfr unzip stageall plates download-base-data process-data zipit
@@ -81,15 +81,15 @@ fresh:
 
 download-base-data:
 	# https://nfdc.faa.gov/fadds/subscriptionDownload.do?productId=548752
-	wget https://nfdc.faa.gov/webContent/56DaySub/2014-02-06/APT.zip && unzip APT.zip && rm APT.zip
-	wget https://nfdc.faa.gov/webContent/56DaySub/2014-02-06/AWOS.zip && unzip AWOS.zip && rm AWOS.zip
-	wget https://nfdc.faa.gov/webContent/56DaySub/2014-02-06/TWR.zip && unzip TWR.zip && rm TWR.zip
-	wget https://nfdc.faa.gov/webContent/56DaySub/2014-02-06/FIX.zip && unzip FIX.zip && rm FIX.zip
-	wget https://nfdc.faa.gov/webContent/56DaySub/2014-02-06/NAV.zip && unzip NAV.zip && rm NAV.zip
-	./saa.sh                                      2014-02-06
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/APT.zip && unzip APT.zip && rm APT.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWOS.zip && unzip AWOS.zip && rm AWOS.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/TWR.zip && unzip TWR.zip && rm TWR.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/FIX.zip && unzip FIX.zip && rm FIX.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/NAV.zip && unzip NAV.zip && rm NAV.zip
+	./saa.sh							     $$(./cycledates.sh 56 base)
 	## obstacles file
 	## https://nfdc.faa.gov/tod/public/TOD_DOF.html
-	wget https://nfdc.faa.gov/tod/public/DOFS/DOF_140302.zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
+	wget --no-check-certificate https://nfdc.faa.gov/tod/public/DOFS/DOF_140302.zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
 	## wget https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip DAILY_DOF.ZIP DOF.DAT && rm DAILY_DOF.ZIP
 
 process-data:
@@ -102,15 +102,15 @@ process-data:
 	./dof.pl > dof.csv
 	./awos.pl > awos.csv
 
-plates:
+plates: 
 	mkdir plates
 	wget -N http://155.178.201.160/d-tpp/$(CYCLE)/xml_data/d-TPP_Metafile.xml
-	wget -N http://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp && mv index.html d-tpp-index.html
-	#./get_ads.sh 1403 # change cycle here  ## Don't need. They are in the plates already
+	# wget -N http://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp && mv index.html d-tpp-index.html
+	#./get_ads.sh $(CYCLE) # change cycle here  ## Don't need. They are in the plates already
 	## wget -N https://nfdc.faa.gov/webContent/dtpp/current.xml && mv current.xml d-TPP_Metafile.xml
-	./plates_png.sh  ## FIXME MANUAL INTERVENTION: the DownloadPlates.pl attempts to redownload the base xml file with every state.  This is error prone due to FAA server timeouts
-	./afd.sh # change date here by fixing the date in dlafd.pl (afd_12DEC2013.xml)
-	./domins.sh 1403 # change cycle here
+	./plates_png.sh
+	./afd.sh 
+	./domins.sh $(CYCLE) # change cycle here
 
 download-vfr:
 	echo Downloading vfr for cycle $(CYCLE)
@@ -118,12 +118,13 @@ download-vfr:
 	mkdir -p charts/wac  
 	mkdir -p charts/sec 
 	mkdir -p charts/tac
+	mkdir -p charts/oth
 	cd charts/sec && \
-	perl ../../reapfiles.pl -f zip http://aeronav.faa.gov/index.asp?xml=aeronav/applications/VFR/chartlist_sect
-	cd charts/tac && \
-	perl ../../reapfiles.pl -f zip http://aeronav.faa.gov/index.asp?xml=aeronav/applications/VFR/chartlist_tac
-	cd charts/wac && \
-	perl ../../reapfiles.pl -f zip http://aeronav.faa.gov/index.asp?xml=aeronav/applications/VFR/chartlist_wac
+	perl ../../reapfiles.pl -f zip http://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/vfr/
+	rm *_P.zip *NFN.zip
+	mv *TAC*zip ../tac
+	mv C[CDEFGH]* ../wac
+	mv *Heli.zip ../oth
 
 update-vfr:
 	./update_vfr_charts.sh ## New process gets only updates
@@ -138,28 +139,37 @@ download-ifr:
 	mkdir -p charts/ifh
 	mkdir -p charts/ifal
 	mkdir -p charts/ifah
-	./dlifr.sh 02-06-2014 #change date  #IFR low
-	./dlifh.sh 02-06-2014 #change date  #IFH high
-	./dlifa.sh 02-06-2014 #change date  #Alaska high and low
+	./dlifr.sh $$(./cycledates.sh 56 ifr) #change date  #IFR low
+	./dlifh.sh $$(./cycledates.sh 56 ifr) #change date  #IFH high
+	./dlifa.sh $$(./cycledates.sh 56 ifr) #change date  #Alaska high and low
 
 unzip:
 	cd charts/tac && rm -rf *.tif && unzip -j \*.zip \*.tif && \
 	for file in *\ *; do \
-		mv "$$file" `echo $$file | sed 's/ //g'`;\
+	  mv "$$file" `echo $$file | sed 's/ //g'`;\
 	done && \
 	rm -f NewYorkTACVFRPlanningCharts*.tif
 	cd charts/wac && rm -f *.tif && unzip -j \*.zip \*.tif && \
 	for file in *\ *; do \
-		mv "$$file" `echo $$file | sed 's/ //g'`;\
+	  mv "$$file" `echo $$file | sed 's/ //g'`;\
 	done
 	cd charts/sec && rm -f *.tif && unzip -j \*.zip \*.tif && \
 	for file in *\ *; do \
-		mv "$$file" `echo $$file | sed 's/ //g'`;\
+	  mv "$$file" `echo $$file | sed 's/ //g'`;\
+	done
+	cd charts/oth && rm -f *.tif && unzip -j \*.zip \*.tif && \
+	for file in *\ *; do \
+	  mv "$$file" `echo $$file | sed 's/ //g'`;\
 	done
 	cd charts/ifh  && rm -f *.tif && unzip -j \*.zip \*.tif
 	cd charts/iff  && rm -f *.tif && unzip -j \*.zip \*.tif
 	cd charts/ifah && rm -f *.tif && unzip -j \*.zip \*.tif
 	cd charts/ifal && rm -f *.tif && unzip -j \*.zip \*.tif
+	cd charts/oth && rm -f *.tif && unzip -j \*.zip \*.tif && \
+	for file in *\ *; do \
+	  mv "$$file" `echo $$file | sed 's/ //g'`;\
+	done
+
 
 stageall:
 	if [[ ! -d merge ]]; then mkdir merge; fi
@@ -169,22 +179,24 @@ stageall:
 	gcc -march=native -O3 -Wall stageifal.c -o stageifal -fopenmp
 	gcc -march=native -O3 -Wall stageifah.c -o stageifah -fopenmp
 	gcc -march=native -O3 -Wall stagetac.c -o stagetac -fopenmp
+	## gcc -march=native -O3 -Wall stageheli.c -o stageheli -fopenmp
 	## each pbs script could be run as a shell script but is 
 	## run through pbs for efficient resource management.
-	./stageall.sh 1403
+	./stageall.sh $(CYCLE)
 
 
 zipit:
 	## FIXME must find out how to updated canap.csv canfreq.csv canrun.csv
+	echo "Zipping cycle " $(CYCLE)
 	if [ -a main.db ]; then rm main.db; fi;
 	if [ -a final/databases.zip ]; then rm final/databases.zip; fi;
 	sqlite3 main.db < importother.sql
 	gcc -march=native -O3 -Wall sepsec.c -o sepsec
 	gcc -march=native -O3 -Wall septac.c -o septac
-	./sepsec 1403
-	./septac 1403
-	./sepelus.sh 1403
-	./sepehus.sh 1403
+	./sepsec $(CYCLE)
+	./septac $(CYCLE)
+	./sepelus.sh $(CYCLE)
+	./sepehus.sh $(CYCLE)
 	./sepelev.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
 	./seprel.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
 	./sephelo.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
@@ -201,7 +213,7 @@ zipit:
 	# STATIC sqlite3 maps.rel.db "VACUUM;"
 	# STATIC sqlite3 maps.topo.db "VACUUM;"
 	## FIXME must add maps.topo.db 
-	zip -9 -r final/databases.zip maps.*.db main.db `find tiles/*/*/*/4 -type f|grep -v tif`
+	zip -9 -r final/databases.zip maps.*.db main.db `find tiles/*/*/*/4 -type f|grep -v tif|grep -v topo`
 
 qualitycontrol:
 	./qualitycontrol.sh

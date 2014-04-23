@@ -12,5 +12,5 @@
  
 cp -ard ../gc/tiles/8 tiles
 
-zip -1 -q final/GrandCanyon.zip `sqlite3 maps.db "select name from files where info=='GrandCanyon';"`
+zip -9 -q final/GrandCanyon.zip `sqlite3 maps.db "select name from files where info=='GrandCanyon';"`
 

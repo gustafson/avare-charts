@@ -1,5 +1,6 @@
 #!/bin/bash
 #Copyright (c) 2014, Apps4av Inc. (apps4av@gmail.com) 
+# Author: Peter A. Gustafson (peter.gustafson@wmich.edu)
 #All rights reserved.
 #
 #Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -16,16 +17,24 @@ if [[ $# -eq 0 ]]; then
     exit 
 fi
 
-
 REF=`date -u -d 12/12/2013 +%s`
-TOD=`date -u +%s`
+TODAY="4/1/2014"
+TODAY="today"
+TOD=`date -u -d ${TODAY} +%s`
 
 if [[ $1 -eq 56 ]]; then
     SREF=$(( ($TOD-$REF)/86400%56 ))
     SREF=$((56-$SREF))
-    echo `date -d "today + $SREF days" +"%d%^b%Y"`
 elif [[ $1 -eq 28 ]]; then
     SREF=$(( ($TOD-$REF)/86400%28 ))
     SREF=$((28-$SREF))
-    echo `date -d "today + $SREF days" +"%d%^b%Y"`
+fi
+
+
+if [[ $2 = ifr ]]; then
+    echo `date -d "$TODAY + $SREF days" +"%^m-%d-%Y"`
+elif [[ $2 = base ]]; then
+    echo `date -d "$TODAY + $SREF days" +"%Y-%^m-%d"`
+else
+    echo `date -d "$TODAY + $SREF days" +"%d%^b%Y"`
 fi

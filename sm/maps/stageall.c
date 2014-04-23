@@ -1,3 +1,5 @@
+#include "stageall.h"
+
 void out(char *buffer){
   int i=0;
   int count=0;

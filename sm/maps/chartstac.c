@@ -1,5 +1,5 @@
 Maps maps[] = {
-	{"AnchorageTAC", -152.0, -148, 61.65, 60.56667, "TS"}, //separate TAC
+	{"AnchorageTAC", -152.0, -148, 61.65, 60.56667, "TS"}, 
 	{"AtlantaTAC", -85.5, -83.6, 34.4, 33.0, "TC"},
 	{"Baltimore-WashingtonTAC", -78.6, -75.77, 39.8, 38.1667, "TC"},
 	{"BostonTAC", -72.3, -69.5, 42.9, 41.25, "TC"},
@@ -11,7 +11,7 @@ Maps maps[] = {
 	{"Dallas-FtWorthTAC", -98.5, -95.85, 33.67, 32.05, "TC"},
 	{"DenverTAC", -105.9, -103.73, 40.6, 39.25, "TC"},
 	{"DetroitTAC", -84.8, -82.66, 42.75, 41.42, "TC"},
-	{"FairbanksTAC", -150.6, -145.8, 65.25, 64.15, "TS"}, //
+	{"FairbanksTAC", -150.6, -145.8, 65.25, 64.15, "TS"}, 
 	{"HoustonTAC", -96.4, -94.5, 30.55, 29.1, "TC"},
 	{"KansasCityTAC", -96.0, -94, 40.0, 38.66, "TC"},
 	{"LasVegasTAC", -116.3, -113.85, 36.8, 35.667, "TC"},
@@ -25,7 +25,7 @@ Maps maps[] = {
 	{"PhiladelphiaTAC", -75.916667, -74.516667, 40.5, 39.38333, "TC"},
 	{"PhoenixTAC", -113.5, -111.16, 34.15, 32.75, "TC"},
 	{"PittsburghTAC", -81.0, -79.0, 41.05, 39.95, "TC"},
-	{"PuertoRico-VITAC", -67.75, -64.22, 18.76, 17.63, "TS"}, //
+	{"PuertoRico-VITAC", -67.75, -64.22, 18.76, 17.63, "TS"}, 
 	{"SaltLakeCityTAC", -113.2, -110.65, 41.5, 40.1, "TC"},
 	{"SanDiegoTAC", -117.9, -116.3, 33.6, 32.5, "TC"},
 	{"SanFranciscoTAC", -123.8, -121.36, 38.2, 36.9, "TC"},

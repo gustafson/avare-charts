@@ -1,6 +1,7 @@
 #!/bin/bash
-#Copyright (c) 2012, Zubair Khan (governer@gmail.com) 
-#Copyright (c) 2013, Peter Gustafson (peter.gustafson@wmich.edu)
+# Copyright (c) 2012-2014, Apps4av Inc. (apps4av@gmail.com) 
+# Author: Zubair Khan (governer@gmail.com)
+# Author: Peter A. Gustafson (peter.gustafson@wmich.edu)
 #All rights reserved.
 #
 #Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -16,6 +17,10 @@ export DPI=248.3
 export DPI=300
 export DPI=150
 
+CYCLE=`./cyclenumber.sh`
+
+sed s/1404/${CYCLE}/ DownloadPlates.pl > tmp_DownloadPlates.pl
+
 function download {
 
     echo Starting $1
@@ -23,14 +28,14 @@ function download {
     if [[ -d plates_$1 ]]; then
 	rsync -avP --del plates_$1/ plates/
     else
-	perl DownloadPlates.pl --states=$1
+	perl tmp_DownloadPlates.pl --states=$1 || exit $?
     fi
 
     ## Remove special characters from file names.  These mess up xargs below.
     rename "'" "" `find plates -name "*.pdf"`
     rename "," "" `find plates -name "*.pdf"`
 
-
+    [[ -d final ]] || mkdir final
     [[ -f final/$1.zip ]] && rm final/$1.zip
     find plates -name "*.pdf" | 
     xargs -P ${NP} -n 1 mogrify -dither none -antialias -density ${DPI} -depth 8 -quality 00 -background white -alpha remove -colors 15 -format png
@@ -49,6 +54,7 @@ function download {
 
 if [[ -d plates ]]; then rm -rf plates; fi
 mkdir plates
+
 download PR
 download DC 
 download AL

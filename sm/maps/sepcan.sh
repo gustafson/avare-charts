@@ -18,7 +18,7 @@ latd=40
 lonr=-56
 lonl=-64
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_020
@@ -27,7 +27,7 @@ latd=40
 lonr=-64
 lonl=-72
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_030
@@ -36,7 +36,7 @@ latd=40
 lonr=-72
 lonl=-80
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_040
@@ -45,7 +45,7 @@ latd=40
 lonr=-80
 lonl=-88
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_001
@@ -54,7 +54,7 @@ latd=44
 lonr=-48
 lonl=-56
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_011
@@ -63,7 +63,7 @@ latd=44
 lonr=-56
 lonl=-64
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_021
@@ -72,7 +72,7 @@ latd=44
 lonr=-64
 lonl=-72
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_031
@@ -81,7 +81,7 @@ latd=44
 lonr=-72
 lonl=-80
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_041
@@ -90,7 +90,7 @@ latd=44
 lonr=-80
 lonl=-88
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_002
@@ -99,7 +99,7 @@ latd=48
 lonr=-48
 lonl=-56
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_012
@@ -108,7 +108,7 @@ latd=48
 lonr=-56
 lonl=-64
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_022
@@ -117,7 +117,7 @@ latd=48
 lonr=-64
 lonl=-72
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_032
@@ -126,7 +126,7 @@ latd=48
 lonr=-72
 lonl=-80
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_042
@@ -135,7 +135,7 @@ latd=48
 lonr=-80
 lonl=-88
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_052
@@ -144,7 +144,7 @@ latd=48
 lonr=-88
 lonl=-96
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_062
@@ -153,7 +153,7 @@ latd=48
 lonr=-96
 lonl=-104
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_072
@@ -162,7 +162,7 @@ latd=48
 lonr=-104
 lonl=-112
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_082
@@ -171,7 +171,7 @@ latd=48
 lonr=-112
 lonl=-120
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_092
@@ -180,7 +180,7 @@ latd=48
 lonr=-120
 lonl=-128
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_102
@@ -189,7 +189,7 @@ latd=48
 lonr=-128
 lonl=-136
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_003
@@ -198,7 +198,7 @@ latd=52
 lonr=-48
 lonl=-56
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_013
@@ -207,7 +207,7 @@ latd=52
 lonr=-56
 lonl=-64
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_023
@@ -216,7 +216,7 @@ latd=52
 lonr=-64
 lonl=-72
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_033
@@ -225,7 +225,7 @@ latd=52
 lonr=-72
 lonl=-80
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_043
@@ -234,7 +234,7 @@ latd=52
 lonr=-80
 lonl=-88
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_053
@@ -243,7 +243,7 @@ latd=52
 lonr=-88
 lonl=-96
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_063
@@ -252,7 +252,7 @@ latd=52
 lonr=-96
 lonl=-104
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_073
@@ -261,7 +261,7 @@ latd=52
 lonr=-104
 lonl=-112
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_083
@@ -270,7 +270,7 @@ latd=52
 lonr=-112
 lonl=-120
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_093
@@ -279,7 +279,7 @@ latd=52
 lonr=-120
 lonl=-128
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_103
@@ -288,7 +288,7 @@ latd=52
 lonr=-128
 lonl=-136
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_014
@@ -297,7 +297,7 @@ latd=56
 lonr=-56
 lonl=-64
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_024
@@ -306,7 +306,7 @@ latd=56
 lonr=-64
 lonl=-72
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_034
@@ -315,7 +315,7 @@ latd=56
 lonr=-72
 lonl=-80
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_044
@@ -324,7 +324,7 @@ latd=56
 lonr=-80
 lonl=-88
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_054
@@ -333,7 +333,7 @@ latd=56
 lonr=-88
 lonl=-96
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_064
@@ -342,7 +342,7 @@ latd=56
 lonr=-96
 lonl=-104
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_074
@@ -351,7 +351,7 @@ latd=56
 lonr=-104
 lonl=-112
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_084
@@ -360,7 +360,7 @@ latd=56
 lonr=-112
 lonl=-120
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_094
@@ -369,7 +369,7 @@ latd=56
 lonr=-120
 lonl=-128
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_104
@@ -378,7 +378,7 @@ latd=56
 lonr=-128
 lonl=-136
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"
 
 name=CAN_114
@@ -387,5 +387,5 @@ latd=56
 lonr=-136
 lonl=-144
 
-zip -1 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
+zip -9 -q final/${name}.zip `sqlite3 maps.db "select name from files where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"`
 sqlite3 maps.db    		    "update files set info='${name}' where (latc<=${latu}) and (latc>=${latd}) and (lonc<=${lonr}) and (lonc>=${lonl});"

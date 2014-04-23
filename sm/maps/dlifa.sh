@@ -15,14 +15,14 @@ export DT=$1
 pushd charts/ifal
 for ch in 1 2 3 4; do
     ## Alaska low
-    wget http://aeronav.faa.gov/enroute/${DT}/ENR_AKL0$ch.zip
+    wget http://aeronav.faa.gov/enroute/${DT,,}/enr_akl0$ch.zip
 done
 popd
 
 pushd charts/ifah
 for ch in 1 2; do
 ## Alaska high
-    wget http://aeronav.faa.gov/enroute/${DT}/ENR_AKH0$ch.zip
+    wget http://aeronav.faa.gov/enroute/${DT,,}/enr_akh0$ch.zip
 done
 popd
 
@@ -30,8 +30,8 @@ pushd charts/ifal
 for ch in 1 2 ;
 do
     ## Hawaii Pacific
-    wget http://aeronav.faa.gov/enroute/${DT}/ENR_P0$ch.zip
-    ## IFR Areas
-    wget http://aeronav.faa.gov/enroute/${DT}/ENR_A0$ch.zip
+    wget http://aeronav.faa.gov/enroute/${DT,,}/enr_p0$ch.zip
+    ## ifr areas
+    wget http://aeronav.faa.gov/enroute/${DT,,}/enr_a0$ch.zip
 done
 popd

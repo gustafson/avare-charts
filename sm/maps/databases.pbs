@@ -62,6 +62,8 @@ fi
 export OMP_NUM_THREADS=${NP}
 NP=32
 
+echo CYCLE=${CYCLE}, TILES=${TILES}
+
 ###############################
 
 [[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
@@ -74,10 +76,6 @@ function updatetiles {
     NONBLACK=`convert -quiet $0.tif -threshold 2% -format %[mean] info:-`
 
     if [[ ! $NONBLACK == 0 ]]; then
-    ## tiles/elv  tiles/ifr  tiles/rel  tiles/sec  tiles/tac  tiles/wac
-	## EXT=jpg;
-	## NAME=$0.$EXT;
-	## convert $0.tif -unsharp 0x3 -quality 50 ${NAME}
 	if [[ $TYPE = sec || $TYPE = tac || $TYPE = wac || $TYPE = oth || $TYPE = rel || $TYPE = elv ]]; then
 	    EXT=jpg;
 	    NAME=$0.$EXT;
@@ -96,7 +94,7 @@ function updatetiles {
     ## Four corners may be pulling too many tiles.  Check these files as an example
     #tiles/1402/ifr/48/3/5/ifr_05_17.png
     #tiles/1402/ifr/48/4/3/ifr_03_08.png
-    echo "$NAME, $POS, $LEVEL" >> /dev/shm/files.csv
+    echo "$NAME, $POS, $LEVEL" >> /dev/shm/files-${TILES}.csv
 }
 
 function canadaonly {
@@ -107,48 +105,68 @@ function canadaonly {
     ## Four corners may be pulling too many tiles.  Check these files as an example
     #tiles/1402/ifr/48/3/5/ifr_05_17.png
     #tiles/1402/ifr/48/4/3/ifr_03_08.png
-    echo "$NAME, $POS, $LEVEL" >> /dev/shm/files.csv
+    echo "$NAME, $POS, $LEVEL" >> /dev/shm/files-${TILES}.csv
 }
 
 export -f updatetiles
 export -f canadaonly
 
-## for dir in ifh ifr sec tac wac oth; do #elv rel 
-##     echo ${dir}
-## 
-##     rootdir=${CYCLE}
-##     if [[ ${dir} == oth || ${dir} == elv || ${dir} == rel || ${dir} == topo ]]; then rootdir=static; fi
-## 
-##     [[ -f /dev/shm/files.csv ]] && rm /dev/shm/files.csv
-##     
-##     find tiles/${rootdir}/${dir} -name "*.tif" -print | sed s/'.tif'// | sort | 
-##     xargs -P ${NP} -n 1 bash -c updatetiles 
-##     
-##     mv /dev/shm/files.csv files.csv
-##     
-##     [[ -f maps.${dir}.db ]] && rm maps.${dir}.db
-##     sqlite3 -init init.sql maps.${dir}.db < importfiles.sql
-##     
-##     if [[ ${dir} == ifr ]]; then
-##     	mv maps.${dir}.db maps.el.db
-##     elif [[ ${dir} == ifh ]]; then
-##     	mv maps.${dir}.db maps.eh.db
-##     fi
-## done
+#TILES="ifh ifr sec tac wac oth"
 
-for dir in topo; do #elv rel 
+for dir in ${TILES}; do #elv rel 
     echo ${dir}
 
     rootdir=${CYCLE}
     if [[ ${dir} == oth || ${dir} == elv || ${dir} == rel || ${dir} == topo ]]; then rootdir=static; fi
-    
-    [[ -f /dev/shm/files.csv ]] && rm /dev/shm/files.csv
-    
-    find tiles/${rootdir}/${dir} -name "*.jpg" -print | sed s/'.jpg'// | sort | 
-    xargs -P ${NP} -n 1 bash -c canadaonly 
-    
-    mv /dev/shm/files.csv files.csv
-    
+
+    [[ -f /dev/shm/files-${TILES}.csv ]] && rm /dev/shm/files-${TILES}.csv
+
+    ## Copy the files into tmpfs to eliminate filesystem load
+    mkdir -p /dev/shm/tiles/${rootdir}/${dir}
+    rsync -avP --del tiles/${rootdir}/${dir}/ /dev/shm/tiles/${rootdir}/${dir}/
+
+    cp coords.py /dev/shm/.
+
+    pushd /dev/shm
+    find tiles/${rootdir}/${dir} -name "*.tif" -print | sed s/'.tif'// | sort | 
+    xargs -P ${NP} -n 1 bash -c updatetiles 
+
+    wait
+
+    ## Clean up
+    popd
+
+    ## Move tiles back
+    rsync -avP /dev/shm/tiles/${rootdir}/${dir}/ tiles/${rootdir}/${dir}/
+    rm -fr /dev/shm/tiles
+    rm /dev/shm/coords.py
+
+    ## Capture db file
+    mv /dev/shm/files-${TILES}.csv files-${TILES}.csv
     [[ -f maps.${dir}.db ]] && rm maps.${dir}.db
-    sqlite3 -init init.sql maps.${dir}.db < importfiles.sql
+    sed s/files.csv/files-${TILES}.csv/ importfiles.sql > tmp_importfiles.sql
+    sqlite3 -init init.sql maps.${dir}.db < tmp_importfiles.sql
+
+    if [[ ${dir} == ifr ]]; then
+    	mv maps.${dir}.db maps.el.db
+    elif [[ ${dir} == ifh ]]; then
+    	mv maps.${dir}.db maps.eh.db
+    fi
 done
+
+## for dir in topo; do #elv rel 
+##     echo ${dir}
+## 
+##     rootdir=${CYCLE}
+##     if [[ ${dir} == oth || ${dir} == elv || ${dir} == rel || ${dir} == topo ]]; then rootdir=static; fi
+##     
+##     [[ -f /dev/shm/files-${TILES}.csv ]] && rm /dev/shm/files-${TILES}.csv
+##     
+##     find tiles/${rootdir}/${dir} -name "*.jpg" -print | sed s/'.jpg'// | sort | 
+##     xargs -P ${NP} -n 1 bash -c canadaonly 
+##     
+##     mv /dev/shm/files-${TILES}.csv files-${TILES}.csv
+##     
+##     [[ -f maps.${dir}.db ]] && rm maps.${dir}.db
+##     sqlite3 -init init.sql maps.${dir}.db < importfiles.sql
+## done

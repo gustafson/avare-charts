@@ -1,6 +1,7 @@
 #!/bin/bash
-# Copyright (c) 2012, Zubair Khan (governer@gmail.com)
-# Copyright (c) 2013, Peter A. Gustafson (peter.gustafson@wmich.edu)
+# Copyright (c) 2012-2014, Apps4av Inc. (apps4av@gmail.com) 
+# Author: Zubair Khan (governer@gmail.com)
+# Author: Peter A. Gustafson (peter.gustafson@wmich.edu)
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,10 +31,13 @@
 
 NP=16
 
+CYCLE=`./cycledates.sh 56`
+
 rm -rf afd
 mkdir afd
 
-perl dlafd.pl
+sed s/06FEB2014/${CYCLE}/ dlafd.pl > tmp_dlafd.pl
+perl tmp_dlafd.pl
 
 ## DPI=240.9  #Android limited plates size 2400x
 DPI=150
