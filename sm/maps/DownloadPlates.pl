@@ -148,7 +148,7 @@ else
 #   Main
 ################################################################################
 #lets get timers and log file going.
-print "\n\n downloadplates.pl $fileVer firing up. Here we go!\n";
+print "\n\n DownloadPlates.pl $fileVer firing up. Here we go!\n";
 my $iStartTime = (time);
 open(MyLogFile,  ">>logfile.txt") || die "Opening logfile.txt: $!";
 print "Beginning Script " . localtime(time) . "\n";
@@ -169,7 +169,7 @@ print MyLogFile "Getmins = $getmins\n";
 ##############
 #OK Now lets get the plate XML calatog from the FAA NACO site
 my $htmlcycle = GetCycleHTML();	           
-my $htmlcycle = "1404";	           
+my $htmlcycle = "1405";
 print "HTML cycle = $htmlcycle\n";
 
 #exit ();
@@ -180,11 +180,11 @@ print "HTML cycle = $htmlcycle\n";
 ## my $cmd = "$wgetCmd $xmlFile $webServer$htmlcycle$MySlash$xmlDataDir$MySlash$xmlFile";
 ## print $cmd
 # ZK my $cmd = "$wgetCmd $xmlFile $webServer/1303$MySlash$xmlDataDir$MySlash$xmlFile";
-#my $cmd = "$wgetCmd $xmlFile http://mstewart.net/super8/grtgetallplates/d-TPP_Metafile.xml";
+## my $cmd = "$wgetCmd $xmlFile http://mstewart.net/super8/grtgetallplates/d-TPP_Metafile.xml";
 
 ### USE THIS TO NOT REDOWNLOAD
 my $cmd = "dir"; #I use this for testing only so I donthave to keep downloading the xml
-print "downloading from the FAA's NACO site $xmlFile for the cycle $htmlcycle\n";
+#print "downloading from the FAA's NACO site $xmlFile for the cycle $htmlcycle\n";
 print "$cmd\n";
 #print "downloading from mstewart.net the lastest $xmlFile he has. \n";
 #print "Please stand by.......\n";

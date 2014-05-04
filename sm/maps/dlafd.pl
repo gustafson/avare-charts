@@ -77,7 +77,7 @@ my $parser = new XML::Parser (Handlers => {
 
 my $response;
 
-my $cycle = "06FEB2014";
+my $cycle = "03APR2014";
 my $name = "afd_$cycle.xml";
 
 # Dates coincide with IFR charts every 56 days 

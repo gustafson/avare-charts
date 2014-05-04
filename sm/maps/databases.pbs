@@ -126,6 +126,7 @@ for dir in ${TILES}; do #elv rel
     rsync -avP --del tiles/${rootdir}/${dir}/ /dev/shm/tiles/${rootdir}/${dir}/
 
     cp coords.py /dev/shm/.
+    cp colors-ifr-nosharp-256.png /dev/shm/.
 
     pushd /dev/shm
     find tiles/${rootdir}/${dir} -name "*.tif" -print | sed s/'.tif'// | sort | 
@@ -140,6 +141,7 @@ for dir in ${TILES}; do #elv rel
     rsync -avP /dev/shm/tiles/${rootdir}/${dir}/ tiles/${rootdir}/${dir}/
     rm -fr /dev/shm/tiles
     rm /dev/shm/coords.py
+    rm /dev/shm/colors-ifr-nosharp-256.png
 
     ## Capture db file
     mv /dev/shm/files-${TILES}.csv files-${TILES}.csv

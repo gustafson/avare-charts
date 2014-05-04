@@ -36,7 +36,7 @@ CYCLE=`./cycledates.sh 56`
 rm -rf afd
 mkdir afd
 
-sed s/06FEB2014/${CYCLE}/ dlafd.pl > tmp_dlafd.pl
+sed s/03APR2014AAA/${CYCLE}/ dlafd.pl > tmp_dlafd.pl
 perl tmp_dlafd.pl
 
 ## DPI=240.9  #Android limited plates size 2400x

@@ -63,8 +63,6 @@ all:
 	@echo "  make zipit"
 	@echo "  make qualitycontrol"
 
-CYCLE=$$(./cyclenumber.sh)
-
 scratch: download-ifr download-vfr unzip stageall plates download-base-data process-data zipit
 update: download-ifr update-vfr unzip stageall plates download-base-data process-data zipit
 
@@ -73,10 +71,11 @@ fresh:
 	rm -rf afd
 	rm -rf final
 	rm -rf merge
-	rm ads.txt APT.txt AWOS.txt FIX.txt TWR.txt
+	rm ads.txt APT.txt AWOS.txt FIX.txt TWR.txt DOF.DAT
 	rm maps.el.db maps.eh.db maps.oth.db maps.sec.db maps.tac.db maps.wac.db
 	rm afd.csv airport.csv awos.csv dof.csv files.csv fix.csv freq.csv nav.csv runway.csv ## FIXME Canadian stuff left... update after any refresh
 	rm sepsec septac stagesec stageifr stageifa stageifh stagetac *.tif *.jpg *.xml
+	rm files*.csv logfile.txt *.log
 	mkdir final
 
 download-base-data:
@@ -89,7 +88,7 @@ download-base-data:
 	./saa.sh							     $$(./cycledates.sh 56 base)
 	## obstacles file
 	## https://nfdc.faa.gov/tod/public/TOD_DOF.html
-	wget --no-check-certificate https://nfdc.faa.gov/tod/public/DOFS/DOF_140302.zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
+	wget --no-check-certificate https://nfdc.faa.gov/tod/public/DOFS/DOF_$$(./cycledates.sh 56 dof).zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
 	## wget https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip DAILY_DOF.ZIP DOF.DAT && rm DAILY_DOF.ZIP
 
 process-data:
@@ -103,17 +102,16 @@ process-data:
 	./awos.pl > awos.csv
 
 plates: 
+	wget -N http://aeronav.faa.gov/d-tpp/$$(./cyclenumber.sh)/xml_data/d-TPP_Metafile.xml
+	## wget -N http://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp && mv index.html d-tpp-index.html
+	## wget -N --no-check-certificate https://nfdc.faa.gov/webContent/dtpp/current.xml && mv current.xml d-TPP_Metafile.xml
 	mkdir plates
-	wget -N http://155.178.201.160/d-tpp/$(CYCLE)/xml_data/d-TPP_Metafile.xml
-	# wget -N http://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp && mv index.html d-tpp-index.html
-	#./get_ads.sh $(CYCLE) # change cycle here  ## Don't need. They are in the plates already
-	## wget -N https://nfdc.faa.gov/webContent/dtpp/current.xml && mv current.xml d-TPP_Metafile.xml
 	./plates_png.sh
 	./afd.sh 
-	./domins.sh $(CYCLE) # change cycle here
+	./domins.sh $$(./cyclenumber.sh) # change cycle here
 
 download-vfr:
-	echo Downloading vfr for cycle $(CYCLE)
+	echo Downloading vfr for cycle $$(./cyclenumber.sh)
 	mkdir merge
 	mkdir -p charts/wac  
 	mkdir -p charts/sec 
@@ -123,14 +121,14 @@ download-vfr:
 	perl ../../reapfiles.pl -f zip http://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/vfr/
 	rm *_P.zip *NFN.zip
 	mv *TAC*zip ../tac
-	mv C[CDEFGH]* ../wac
+	mv C[CDEFGHJ]* ../wac
 	mv *Heli.zip ../oth
 
 update-vfr:
 	./update_vfr_charts.sh ## New process gets only updates
 
 download-ifr:
-	echo Downloading ifr for cycle $(CYCLE)
+	echo Downloading ifr for cycle $$(./cyclenumber.sh)
 	if [[ -d charts/iff ]]; then rm -fr charts/iff; fi
 	if [[ -d charts/ifh ]]; then rm -fr charts/ifh; fi
 	if [[ -d charts/ifal ]]; then rm -fr charts/ifal; fi
@@ -182,21 +180,21 @@ stageall:
 	## gcc -march=native -O3 -Wall stageheli.c -o stageheli -fopenmp
 	## each pbs script could be run as a shell script but is 
 	## run through pbs for efficient resource management.
-	./stageall.sh $(CYCLE)
+	./stageall.sh $$(./cyclenumber.sh)
 
 
 zipit:
 	## FIXME must find out how to updated canap.csv canfreq.csv canrun.csv
-	echo "Zipping cycle " $(CYCLE)
+	echo "Zipping cycle " $$(./cyclenumber.sh)
 	if [ -a main.db ]; then rm main.db; fi;
 	if [ -a final/databases.zip ]; then rm final/databases.zip; fi;
 	sqlite3 main.db < importother.sql
 	gcc -march=native -O3 -Wall sepsec.c -o sepsec
 	gcc -march=native -O3 -Wall septac.c -o septac
-	./sepsec $(CYCLE)
-	./septac $(CYCLE)
-	./sepelus.sh $(CYCLE)
-	./sepehus.sh $(CYCLE)
+	./sepsec $$(./cyclenumber.sh)
+	./septac $$(./cyclenumber.sh)
+	./sepelus.sh $$(./cyclenumber.sh)
+	./sepehus.sh $$(./cyclenumber.sh)
 	./sepelev.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
 	./seprel.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
 	./sephelo.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually

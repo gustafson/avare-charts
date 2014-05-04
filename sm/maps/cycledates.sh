@@ -17,24 +17,37 @@ if [[ $# -eq 0 ]]; then
     exit 
 fi
 
-REF=`date -u -d 12/12/2013 +%s`
-TODAY="4/1/2014"
+CYCLEDAYS=$1
+if [[ $2 = dof ]]; then
+    REF=`date -u -d 3/2/2014 +%s`
+    CYCLEDAYS=56
+else
+    REF=`date -u -d 12/12/2013 +%s`
+fi
+
+# TODAY="4/1/2014"
 TODAY="today"
 TOD=`date -u -d ${TODAY} +%s`
 
-if [[ $1 -eq 56 ]]; then
+if [[ ${CYCLEDAYS} -eq 56 ]]; then
     SREF=$(( ($TOD-$REF)/86400%56 ))
     SREF=$((56-$SREF))
-elif [[ $1 -eq 28 ]]; then
+elif [[ ${CYCLEDAYS} -eq 28 ]]; then
     SREF=$(( ($TOD-$REF)/86400%28 ))
     SREF=$((28-$SREF))
 fi
 
+## If more than a week in the future, pick the last date
+if [[ $SREF -gt 7 ]]; then
+    SREF=$(($SREF-${CYCLEDAYS}))
+fi
 
 if [[ $2 = ifr ]]; then
     echo `date -d "$TODAY + $SREF days" +"%^m-%d-%Y"`
 elif [[ $2 = base ]]; then
     echo `date -d "$TODAY + $SREF days" +"%Y-%^m-%d"`
+elif [[ $2 = dof ]]; then
+    echo `date -d "$TODAY + $SREF days" +"%y%^m%d"`
 else
     echo `date -d "$TODAY + $SREF days" +"%d%^b%Y"`
 fi

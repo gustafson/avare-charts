@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
   char *n_ptr;
   char *dir_ptr;
 
-  if (argc==2){debug=1;}
+  if (argc>=2){debug=1;}
 
   out("rm -fr merge/TC; mkdir merge/TC"); // TAC
   out("[[ -d tmp-stagetac ]] && rm -fr tmp-stagetac");
