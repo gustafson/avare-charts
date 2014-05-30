@@ -32,9 +32,9 @@ int main(int argc, char *argv[])
   char buffer[1024];
   char *n_ptr;
   int folder;
-  char *dirstr;
+  char *dirstr ="";
 
-  if (argc==3){debug=1;}
+  if (argc>=3){debug=1;}
   if (argc==1){
     printf ("Must pass cycle number.\n");
     return 1;
@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
 
   int entries = sizeof(maps) / sizeof(maps[0]);
   
+#pragma omp parallel for private (n_ptr, buffer, folder, dirstr)
   for(map = 0; map < entries; map++) {
     n_ptr = maps[map].name;
     if((0 == strcmp(maps[map].reg, "WC")) || 
@@ -65,35 +66,35 @@ int main(int argc, char *argv[])
 	       n_ptr, n_ptr);
       out(buffer);
 
-      // Create or update zip files based on all four corners.
-
-      // snprintf(buffer, sizeof(buffer),
-      // 	       "zip final/%s.zip -r -9 -T -q `sqlite3 maps.%s.db \"select name from files where (latc <= %f) and (latc >= %f) and (lonc >= %f) and (lonc <= %f) and (level != ' 4') and name like '%%tiles/%s/%s%%';\"`", 
-      // 	       n_ptr, dirstr, maps[map].latu, maps[map].latd, maps[map].lonl, maps[map].lonr, argv[1], dirstr);
-      // out(buffer);
+      // Create or update zip files based on all four corners and center.
 
       snprintf(buffer, sizeof(buffer),
-      	       "zip final/%s.zip -r -9 -T -q `sqlite3 maps.%s.db \"select name from files where (latul <= %f) and (latul >= %f) and (lonul >= %f) and (lonul <= %f) and (level != ' 4') and name like '%%tiles/%s/%s%%';\"`", 
+      	       "zip final/%s.zip -r -9 -T -q `sqlite3 -init init.sql maps.%s.db \"select name from files where (latc <= %f) and (latc >= %f) and (lonc >= %f) and (lonc <= %f) and (level != ' 4') and name like '%%tiles/%s/%s%%';\"`", 
       	       n_ptr, dirstr, maps[map].latu, maps[map].latd, maps[map].lonl, maps[map].lonr, argv[1], dirstr);
       out(buffer);
       
       snprintf(buffer, sizeof(buffer),
-      	       "zip final/%s.zip -r -9 -T -q `sqlite3 maps.%s.db \"select name from files where (latur <= %f) and (latur >= %f) and (lonur >= %f) and (lonur <= %f) and (level != ' 4') and name like '%%tiles/%s/%s%%';\"`", 
+      	       "zip final/%s.zip -r -9 -T -q `sqlite3 -init init.sql maps.%s.db \"select name from files where (latul <= %f) and (latul >= %f) and (lonul >= %f) and (lonul <= %f) and (level != ' 4') and name like '%%tiles/%s/%s%%';\"`", 
       	       n_ptr, dirstr, maps[map].latu, maps[map].latd, maps[map].lonl, maps[map].lonr, argv[1], dirstr);
       out(buffer);
       
       snprintf(buffer, sizeof(buffer),
-      	       "zip final/%s.zip -r -9 -T -q `sqlite3 maps.%s.db \"select name from files where (latll <= %f) and (latll >= %f) and (lonll >= %f) and (lonll <= %f) and (level != ' 4') and name like '%%tiles/%s/%s%%';\"`", 
+      	       "zip final/%s.zip -r -9 -T -q `sqlite3 -init init.sql maps.%s.db \"select name from files where (latur <= %f) and (latur >= %f) and (lonur >= %f) and (lonur <= %f) and (level != ' 4') and name like '%%tiles/%s/%s%%';\"`", 
       	       n_ptr, dirstr, maps[map].latu, maps[map].latd, maps[map].lonl, maps[map].lonr, argv[1], dirstr);
       out(buffer);
       
       snprintf(buffer, sizeof(buffer),
-      	       "zip final/%s.zip -r -9 -T -q `sqlite3 maps.%s.db \"select name from files where (latlr <= %f) and (latlr >= %f) and (lonlr >= %f) and (lonlr <= %f) and (level != ' 4') and name like '%%tiles/%s/%s%%';\"`", 
+      	       "zip final/%s.zip -r -9 -T -q `sqlite3 -init init.sql maps.%s.db \"select name from files where (latll <= %f) and (latll >= %f) and (lonll >= %f) and (lonll <= %f) and (level != ' 4') and name like '%%tiles/%s/%s%%';\"`", 
+      	       n_ptr, dirstr, maps[map].latu, maps[map].latd, maps[map].lonl, maps[map].lonr, argv[1], dirstr);
+      out(buffer);
+      
+      snprintf(buffer, sizeof(buffer),
+      	       "zip final/%s.zip -r -9 -T -q `sqlite3 -init init.sql maps.%s.db \"select name from files where (latlr <= %f) and (latlr >= %f) and (lonlr >= %f) and (lonlr <= %f) and (level != ' 4') and name like '%%tiles/%s/%s%%';\"`", 
       	       n_ptr, dirstr, maps[map].latu, maps[map].latd, maps[map].lonl, maps[map].lonr, argv[1], dirstr);
       out(buffer);
 
       snprintf(buffer, sizeof(buffer),
-      	       "sqlite3 maps.%s.db \"update files set info='%s' where (latc <= %f) and (latc >= %f) and (lonc >= %f) and (lonc <= %f) and name like '%%tiles/%s/%s%%';\"",
+      	       "sqlite3 -init init.sql maps.%s.db \"update files set info='%s' where (latc <= %f) and (latc >= %f) and (lonc >= %f) and (lonc <= %f) and name like '%%tiles/%s/%s%%';\"",
       	       dirstr, n_ptr, maps[map].latu, maps[map].latd, maps[map].lonl, maps[map].lonr, argv[1], dirstr);
       out(buffer);
       
@@ -101,7 +102,7 @@ int main(int argc, char *argv[])
 
   }
 	
-  snprintf(buffer, sizeof(buffer), "sqlite3 maps.%s.db \"update files set info='Hawaiian Islands' where name like '%%tiles/%s/sec/hi%%';\"", dirstr, argv[1]);
+  snprintf(buffer, sizeof(buffer), "sqlite3 -init init.sql maps.%s.db \"update files set info='Hawaiian Islands' where name like '%%tiles/%s/sec/hi%%';\"", dirstr, argv[1]);
   out(buffer);
 
   return 0;

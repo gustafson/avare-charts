@@ -61,7 +61,7 @@ else
 fi
 export OMP_NUM_THREADS=${NP}
 
-function retile(){
+function retileme(){
     /usr/bin/time -v -o ${3} gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir ${1} -levels 4 -ps 512 512 -useDirForEachRow ${2}
 }
 
@@ -76,10 +76,10 @@ if [[ ${TILES} = tac ]]; then
     mkdir -p tiles/${CYCLE}/tac/fa
     mkdir -p tiles/${CYCLE}/tac/pr
     wait
-    retile tiles/${CYCLE}/tac/48 tac.tif time.tac.tif.txt &
-    retile tiles/${CYCLE}/tac/an merge/TC/AnchorageTAC.tif time.AnchorageTAC.tif.txt &	
-    retile tiles/${CYCLE}/tac/fa merge/TC/FairbanksTAC.tif time.FairbanksTAC.tif.txt &	
-    retile tiles/${CYCLE}/tac/pr merge/TC/PuertoRico-VITAC.tif time.PuertoRico-VITAC.tif.txt &
+    retileme tiles/${CYCLE}/tac/48 tac.tif time.tac.tif.txt &
+    retileme tiles/${CYCLE}/tac/an merge/TC/AnchorageTAC.tif time.AnchorageTAC.tif.txt &	
+    retileme tiles/${CYCLE}/tac/fa merge/TC/FairbanksTAC.tif time.FairbanksTAC.tif.txt &	
+    retileme tiles/${CYCLE}/tac/pr merge/TC/PuertoRico-VITAC.tif time.PuertoRico-VITAC.tif.txt &
     wait
 
 elif [[ ${TILES} = sec ]]; then
@@ -88,9 +88,9 @@ elif [[ ${TILES} = sec ]]; then
     mkdir -p tiles/${CYCLE}/sec/ak
     mkdir -p tiles/${CYCLE}/sec/hi
     wait
-    retile tiles/${CYCLE}/sec/48 sec-48.tif time.sec-48.tif.txt &
-    retile tiles/${CYCLE}/sec/ak sec-ak.tif time.sec-ak.tif.txt &
-    retile tiles/${CYCLE}/sec/hi sec-hi.tif time.sec-hi.tif.txt &
+    retileme tiles/${CYCLE}/sec/48 sec-48.tif time.sec-48.tif.txt &
+    retileme tiles/${CYCLE}/sec/ak sec-ak.tif time.sec-ak.tif.txt &
+    retileme tiles/${CYCLE}/sec/hi sec-hi.tif time.sec-hi.tif.txt &
     wait
 
 elif [[ ${TILES} = wac ]]; then
@@ -98,8 +98,8 @@ elif [[ ${TILES} = wac ]]; then
     mkdir -p tiles/${CYCLE}/wac/48
     mkdir -p tiles/${CYCLE}/wac/ak
     wait
-    retile tiles/${CYCLE}/wac/48 retile wac-48.tif time.wac-48.tif.txt &
-    retile tiles/${CYCLE}/wac/ak retile wac-ak.tif time.wac-ak.tif.txt &
+    retileme tiles/${CYCLE}/wac/48 wac-48.tif time.wac-48.tif.txt &
+    retileme tiles/${CYCLE}/wac/ak wac-ak.tif time.wac-ak.tif.txt &
     wait
 
 elif [[ ${TILES} = ifr ]]; then
@@ -108,9 +108,9 @@ elif [[ ${TILES} = ifr ]]; then
     mkdir -p tiles/${CYCLE}/ifr/ak
     mkdir -p tiles/${CYCLE}/ifr/ak-east
     wait
-    retile tiles/${CYCLE}/ifr/48 ifr.tif time.ifr.tif.txt &
-    retile tiles/${CYCLE}/ifr/ak ifal-west.tif time.ifal-west.tif.txt &
-    retile tiles/${CYCLE}/ifr/ak-east ifal-east.tif time.ifal-east.tif.txt &
+    retileme tiles/${CYCLE}/ifr/48 ifr.tif time.ifr.tif.txt &
+    retileme tiles/${CYCLE}/ifr/ak ifal-west.tif time.ifal-west.tif.txt &
+    retileme tiles/${CYCLE}/ifr/ak-east ifal-east.tif time.ifal-east.tif.txt &
     wait
     rsync -avP tiles/${CYCLE}/ifr/ak-east/ tiles/${CYCLE}/ifr/ar/ && rm -fr tiles/${CYCLE}/ifr/ak-east/
     wait
@@ -121,9 +121,9 @@ elif [[ ${TILES} = ifh ]]; then
     mkdir -p tiles/${CYCLE}/ifh/ak
     mkdir -p tiles/${CYCLE}/ifh/ak-east
     wait
-    retile tiles/${CYCLE}/ifh/48 ifh.tif time.ifh.tif.txt &
-    retile tiles/${CYCLE}/ifh/ak ifah-west.tif time.ifah-west.tif.txt &
-    retile tiles/${CYCLE}/ifh/ak-east ifah-east.tif time.ifah-east.tif.txt &
+    retileme tiles/${CYCLE}/ifh/48 ifh.tif time.ifh.tif.txt &
+    retileme tiles/${CYCLE}/ifh/ak ifah-west.tif time.ifah-west.tif.txt &
+    retileme tiles/${CYCLE}/ifh/ak-east ifah-east.tif time.ifah-east.tif.txt &
     wait
     rsync -avP tiles/${CYCLE}/ifh/ak-east/ tiles/${CYCLE}/ifh/ak/ && rm -fr tiles/${CYCLE}/ifh/ak-east/
     wait
@@ -145,16 +145,16 @@ elif [[ ${TILES} = oth ]]; then
 ##     mkdir -p tiles/${CYCLE}/oth/h7
 ##     mkdir -p tiles/${CYCLE}/oth/h8
 ## 
-##     retile tiles/${CYCLE}/oth/gc other/GrandCanyon.tif time.GrandCanyon.tif.txt & 			
-##     retile tiles/${CYCLE}/oth/h0 other/BaltimoreWashingtonHeli9Front.tif time.BaltimoreWashingtonHeli9Front.tif.txt & 	
-##     retile tiles/${CYCLE}/oth/h1 other/BostonHeli6Front.tif time.BostonHeli6Front.tif.txt & 		
-##     retile tiles/${CYCLE}/oth/h2 other/ChicagoHeli6Front.tif time.ChicagoHeli6Front.tif.txt & 		
-##     retile tiles/${CYCLE}/oth/h3 other/Dallas-FtWorthHeli5Front.tif time.Dallas-FtWorthHeli5Front.tif.txt & 	
-##     retile tiles/${CYCLE}/oth/h4 other/DetroitHeli1.tif time.DetroitHeli1.tif.txt & 			
-##     retile tiles/${CYCLE}/oth/h5 other/GulfCoastHel-WAC27.tif time.GulfCoastHel-WAC27.tif.txt & 		
-##     retile tiles/${CYCLE}/oth/h6 other/HoustonHeli7.tif time.HoustonHeli7.tif.txt & 			
-##     retile tiles/${CYCLE}/oth/h7 other/LosAngelesHeli9.tif time.LosAngelesHeli9.tif.txt & 		
-##     retile tiles/${CYCLE}/oth/h8 other/NewYorkHeli10Front.tif time.NewYorkHeli10Front.tif.txt & 
+##     retileme tiles/${CYCLE}/oth/gc other/GrandCanyon.tif time.GrandCanyon.tif.txt & 			
+##     retileme tiles/${CYCLE}/oth/h0 other/BaltimoreWashingtonHeli9Front.tif time.BaltimoreWashingtonHeli9Front.tif.txt & 	
+##     retileme tiles/${CYCLE}/oth/h1 other/BostonHeli6Front.tif time.BostonHeli6Front.tif.txt & 		
+##     retileme tiles/${CYCLE}/oth/h2 other/ChicagoHeli6Front.tif time.ChicagoHeli6Front.tif.txt & 		
+##     retileme tiles/${CYCLE}/oth/h3 other/Dallas-FtWorthHeli5Front.tif time.Dallas-FtWorthHeli5Front.tif.txt & 	
+##     retileme tiles/${CYCLE}/oth/h4 other/DetroitHeli1.tif time.DetroitHeli1.tif.txt & 			
+##     retileme tiles/${CYCLE}/oth/h5 other/GulfCoastHel-WAC27.tif time.GulfCoastHel-WAC27.tif.txt & 		
+##     retileme tiles/${CYCLE}/oth/h6 other/HoustonHeli7.tif time.HoustonHeli7.tif.txt & 			
+##     retileme tiles/${CYCLE}/oth/h7 other/LosAngelesHeli9.tif time.LosAngelesHeli9.tif.txt & 		
+##     retileme tiles/${CYCLE}/oth/h8 other/NewYorkHeli10Front.tif time.NewYorkHeli10Front.tif.txt & 
 
 fi
 wait

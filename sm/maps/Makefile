@@ -103,8 +103,6 @@ process-data:
 
 plates: 
 	wget -N http://aeronav.faa.gov/d-tpp/$$(./cyclenumber.sh)/xml_data/d-TPP_Metafile.xml
-	## wget -N http://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp && mv index.html d-tpp-index.html
-	## wget -N --no-check-certificate https://nfdc.faa.gov/webContent/dtpp/current.xml && mv current.xml d-TPP_Metafile.xml
 	mkdir plates
 	./plates_png.sh
 	./afd.sh 
@@ -189,8 +187,8 @@ zipit:
 	if [ -a main.db ]; then rm main.db; fi;
 	if [ -a final/databases.zip ]; then rm final/databases.zip; fi;
 	sqlite3 main.db < importother.sql
-	gcc -march=native -O3 -Wall sepsec.c -o sepsec
-	gcc -march=native -O3 -Wall septac.c -o septac
+	gcc -march=native -O3 -Wall sepsec.c -o sepsec -fopenmp
+	gcc -march=native -O3 -Wall septac.c -o septac -fopenmp
 	./sepsec $$(./cyclenumber.sh)
 	./septac $$(./cyclenumber.sh)
 	./sepelus.sh $$(./cyclenumber.sh)
@@ -217,3 +215,13 @@ qualitycontrol:
 	./qualitycontrol.sh
 
 # Use gdalinfo -approx_stats to check tif files for success.
+
+
+retile: retile.c
+	# gcc retile.c -o retile16 -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -fopenmp -fopenmp -I/home/pi/gustafson/local/include/ImageMagick-6 -L/home/pi/gustafson/local/lib -lMagickWand-6.Q16
+	# gcc retile.c -o retile -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -fopenmp -fopenmp -I/home/pi/gustafson/local/include/ImageMagick-6 -L/home/pi/gustafson/local/lib -lMagickWand-6.Q16
+	gcc retile.c -o retile8 -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=8 -fopenmp -fopenmp -I/home/pi/gustafson/local/im8/include/ImageMagick-6 -L/home/pi/gustafson/local/im8/lib -lMagickWand-6.Q8
+	#export LD_LIBRARY_PATH="/home/pi/gustafson/local/im8/lib:$LD_LIBRARY_PATH"
+	gcc `pkg-config --cflags --libs MagickWand` -I ~/local/include/ImageMagick-6 retile.c -o retile  -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=8 -fopenmp
+
+.PHONY: retile

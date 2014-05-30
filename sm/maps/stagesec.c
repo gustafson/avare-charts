@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
   char filestr[128];
   char cmdstr[4096];
 
-  if (argc==2){debug=1;}
+  if (argc>=2){debug=1;}
 
   out("rm -fr merge/AK; mkdir -p merge/AK/QC"); // Alaska sec
   out("rm -fr merge/LF; mkdir -p merge/LF/QC"); // lower 48 sec

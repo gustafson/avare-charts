@@ -41,6 +41,9 @@ function unzipclean {
 }
 
 function update {
+    
+    UPDATED=
+    
     if [[ -d charts/$1 ]]; then
 	pushd charts/$1
 
@@ -52,6 +55,7 @@ function update {
 	    LOC=tac_files;
 	fi
 
+
 	for a in *zip; do 
 	    BASE=`echo $a | sed 's/.\{6\}$//'`
 	    OLD=`echo $a |sed s/$BASE//|cut -f1 -d.`
@@ -61,6 +65,7 @@ function update {
 	    wget -c http://aeronav.faa.gov/content/aeronav/${LOC}/${BASE}${NEW}.zip
 	    ls ${BASE}*zip
 	    if [[ -f ${BASE}${NEW}.zip ]]; then
+		UPDATED="${UPDATED} ${BASE}${NEW}.zip"
 	    	echo Removing ${BASE}${OLD}.zip 
 	    	rm ${BASE}${OLD}.zip
 	    fi
@@ -71,6 +76,8 @@ function update {
 	echo "update_vfr_charts.sh only works when the old zip files exist."
 	echo "If you are starting from scratch, uncomment the chart reapfiles.pl code in the Makefile."
     fi
+
+    echo Updated charts are `for a in $UPDATED; do echo $a;done`
 }
 
 update wac

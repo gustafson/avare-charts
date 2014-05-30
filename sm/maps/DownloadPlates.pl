@@ -169,7 +169,7 @@ print MyLogFile "Getmins = $getmins\n";
 ##############
 #OK Now lets get the plate XML calatog from the FAA NACO site
 my $htmlcycle = GetCycleHTML();	           
-my $htmlcycle = "1405";
+my $htmlcycle = "1404";
 print "HTML cycle = $htmlcycle\n";
 
 #exit ();
