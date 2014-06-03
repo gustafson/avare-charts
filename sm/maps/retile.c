@@ -228,8 +228,8 @@ int main(int argc, char *argv[])
     }
   }
   
-  if (argc>9){
-    debug=0;
+  if (argc>=11){
+    debug=1;
   }
 
   // Create a filename base
@@ -351,20 +351,19 @@ int main(int argc, char *argv[])
 	printf ("# Loading megatile size %ix%i+%i+%i\n", sbx, sby, xb*16*sx, yb*16*sy);
 
 	// Create and load a smaller megatile
-	char buffer[512];
-	char tmpfname[512];
+	char tmpfname[1024];
 	tmpnam (tmpfname);
-	sprintf (buffer, "gdal_translate -q -srcwin %i %i %i %i %s %s.tif", xb*16*sx, yb*16*sy, sbx, sby, infile, tmpfname);
-	out(buffer);
-	sprintf (buffer, "%s.tif", tmpfname);
-	status = MagickReadImage(wand_temp1,buffer);
+	sprintf (buffer1, "gdal_translate -q -srcwin %i %i %i %i %s %s.tif", xb*16*sx, yb*16*sy, sbx, sby, infile, tmpfname);
+	out(buffer1);
+	sprintf (buffer1, "%s.tif", tmpfname);
+	status = MagickReadImage(wand_temp1,buffer1);
 	if (status == MagickFalse){
 	  ThrowWanException(wand_temp1);
 	}
 	// wand_temp1 = MagickGetImageRegion(wand_input, sbx, sby, xb*16*sx, yb*16*sy);
 	
-	sprintf (buffer, "rm %s.tif", tmpfname);
-	out(buffer);
+	sprintf (buffer1, "rm %s.tif", tmpfname);
+	out(buffer1);
 	
 	int hy = MagickGetImageHeight(wand_temp1);
 	int hx = MagickGetImageWidth(wand_temp1);
@@ -448,16 +447,22 @@ int main(int argc, char *argv[])
 		  snprintf(buffer3, sizeof(buffer3), "png8:%s", buffer2);
 		  MagickWriteImage(wand_temp2,buffer3);
 		  
+		  char cmdstr[4096];
+		  snprintf (cmdstr, sizeof(cmdstr), "if [[ `identify -format %k %s` == 1 ]]; then rm %s; else ", buffer2, buffer2);
 		  if ( ispng == 0 ){
 		    // Repage and optimize.
-		    snprintf (buffer3, sizeof(buffer3), "mogrify +repage %s", buffer2);
-		    out (buffer3);
-		    snprintf (buffer3, sizeof(buffer3), "optipng -silent %s", buffer2);
-		    out (buffer3);
+		    snprintf (buffer3, sizeof(buffer3), "mogrify +repage %s;", buffer2);
+		    strcat (cmdstr, buffer3);
+		    snprintf (buffer3, sizeof(buffer3), "optipng -silent %s;", buffer2);
+		    strcat (cmdstr, buffer3);
 		  }else{
-		    snprintf (buffer3, sizeof(buffer3), "mogrify +repage -antialias -unsharp 0x3 -quality 50 %s", buffer2);
-		    out (buffer3);
+		    snprintf (buffer3, sizeof(buffer3), "mogrify +repage -antialias -unsharp 0x3 -quality 50 %s;", buffer2);
+		    strcat (cmdstr, buffer3);
 		  }
+		  
+		  snprintf (buffer3, sizeof(buffer3), "fi");
+		  strcat (cmdstr, buffer3);
+		  out (cmdstr);
 		}
 		tilecount++;
 	      }
