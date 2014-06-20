@@ -352,7 +352,7 @@ int main(int argc, char *argv[])
 
 	// Create and load a smaller megatile
 	char tmpfname[1024];
-	tmpnam (tmpfname);
+	sprintf (tmpfname,"%s%i%i%i%i", infile, xb*16*sx, yb*16*sy, sbx, sby);
 	sprintf (buffer1, "gdal_translate -q -srcwin %i %i %i %i %s %s.tif", xb*16*sx, yb*16*sy, sbx, sby, infile, tmpfname);
 	out(buffer1);
 	sprintf (buffer1, "%s.tif", tmpfname);
@@ -444,14 +444,18 @@ int main(int argc, char *argv[])
 		  int ispng = strncmp(ftype,"png",3);
 		  
 		  // Write png file first then convert if necessary
-		  snprintf(buffer3, sizeof(buffer3), "png8:%s", buffer2);
+		  // snprintf(buffer3, sizeof(buffer3), "png8:%s", buffer2);
+		  snprintf(buffer3, sizeof(buffer3), "png:%s", buffer2);
 		  MagickWriteImage(wand_temp2,buffer3);
 		  
 		  char cmdstr[4096];
 		  snprintf (cmdstr, sizeof(cmdstr), "if [[ `identify -format %k %s` == 1 ]]; then rm %s; else ", buffer2, buffer2);
+
 		  if ( ispng == 0 ){
 		    // Repage and optimize.
-		    snprintf (buffer3, sizeof(buffer3), "mogrify +repage %s;", buffer2);
+		    snprintf (buffer3, sizeof(buffer3), "convert +repage %s png8:%s.png;", buffer2, buffer2);
+		    strcat (cmdstr, buffer3);
+		    snprintf (buffer3, sizeof(buffer3), "mv %s.png %s;", buffer2, buffer2);
 		    strcat (cmdstr, buffer3);
 		    snprintf (buffer3, sizeof(buffer3), "optipng -silent %s;", buffer2);
 		    strcat (cmdstr, buffer3);
@@ -463,6 +467,7 @@ int main(int argc, char *argv[])
 		  snprintf (buffer3, sizeof(buffer3), "fi");
 		  strcat (cmdstr, buffer3);
 		  out (cmdstr);
+		  // printf ("%s", cmdstr);
 		}
 		tilecount++;
 	      }

@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 
   int entries = sizeof(maps) / sizeof(maps[0]);
 
-#pragma omp parallel for private (n_ptr, buffer)
+#pragma omp parallel for private (map, n_ptr, buffer)
   for(map = 0; map < entries; map++) {
     n_ptr = maps[map].name;
     dirstr = "tac";

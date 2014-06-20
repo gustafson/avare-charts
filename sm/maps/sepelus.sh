@@ -27,36 +27,36 @@ for a in NE NC NW SE SC SW AK; do
     fi 
 done
 
-for LOC in c; do ## ul ur ll lr c # Do center last.  It won't add any tiles but will correctly define the set for the tile.
-    SET=`sqlite3 maps.el.db "select name from files where (lat${LOC} >= 38) and (lon${LOC} >= -85) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
+for LOC in ul ur ll lr c; do ## ul ur ll lr c # Do center last.  It won't add any tiles but will correctly define the set for the tile.
+    SET=`sqlite3 maps.el.db "select name from files where (lat${LOC} >= 38) and (lon${LOC} >= -85) and (level != '4') and name like '%tiles/${CYCLE}/ifr/48%';"`
     $CMD zip -9 -q final/ELUS_NE.zip ${SET}
     $CMD sqlite3 maps.el.db "update files set info='ELUS_NE' where (lat${LOC} >= 38) and (lon${LOC} >= -85) and name like '%tiles/${CYCLE}/ifr/48%';"
 
-    SET=`sqlite3 maps.el.db "select name from files where (lat${LOC} >= 38) and (lon${LOC} <= -85) and (lon${LOC} >= -110) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
+    SET=`sqlite3 maps.el.db "select name from files where (lat${LOC} >= 38) and (lon${LOC} <= -85) and (lon${LOC} >= -110) and (level != '4') and name like '%tiles/${CYCLE}/ifr/48%';"`
     $CMD zip -9 -q final/ELUS_NC.zip ${SET}
     $CMD sqlite3 maps.el.db "update files set info='ELUS_NC' where (lat${LOC} >= 38) and (lon${LOC} <= -85) and (lon${LOC} >= -110) and name like '%tiles/${CYCLE}/ifr/48%';"
 
-    SET=`sqlite3 maps.el.db "select name from files where (lat${LOC} >= 38) and (lon${LOC} <= -110) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
+    SET=`sqlite3 maps.el.db "select name from files where (lat${LOC} >= 38) and (lon${LOC} <= -110) and (level != '4') and name like '%tiles/${CYCLE}/ifr/48%';"`
     $CMD zip -9 -q final/ELUS_NW.zip ${SET}
     $CMD sqlite3 maps.el.db 		    "update files set info='ELUS_NW' where (lat${LOC} >= 38) and (lon${LOC} <= -110) and name like '%tiles/${CYCLE}/ifr/48%';"
 
-    SET=`sqlite3 maps.el.db "select name from files where (lat${LOC} <= 38) and (lon${LOC} >= -85) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
+    SET=`sqlite3 maps.el.db "select name from files where (lat${LOC} <= 38) and (lon${LOC} >= -85) and (level != '4') and name like '%tiles/${CYCLE}/ifr/48%';"`
     $CMD zip -9 -q final/ELUS_SE.zip ${SET}
     $CMD sqlite3 maps.el.db 		    "update files set info='ELUS_SE' where (lat${LOC} <= 38) and (lon${LOC} >= -85) and name like '%tiles/${CYCLE}/ifr/48%';"
 
-    SET=`sqlite3 maps.el.db "select name from files where (lat${LOC} <= 38) and (lon${LOC} <= -85) and (lon${LOC} >= -110) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
+    SET=`sqlite3 maps.el.db "select name from files where (lat${LOC} <= 38) and (lon${LOC} <= -85) and (lon${LOC} >= -110) and (level != '4') and name like '%tiles/${CYCLE}/ifr/48%';"`
     $CMD zip -9 -q final/ELUS_SC.zip ${SET}
     $CMD sqlite3 maps.el.db 		    "update files set info='ELUS_SC' where (lat${LOC} <= 38) and (lon${LOC} <= -85) and (lon${LOC} >= -110) and name like '%tiles/${CYCLE}/ifr/48%';"
 
-    SET=`sqlite3 maps.el.db "select name from files where (lat${LOC} <= 38) and (lon${LOC} <= -110) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"`
+    SET=`sqlite3 maps.el.db "select name from files where (lat${LOC} <= 38) and (lon${LOC} <= -110) and (level != '4') and name like '%tiles/${CYCLE}/ifr/48%';"`
     $CMD zip -9 -q final/ELUS_SW.zip ${SET}
     $CMD sqlite3 maps.el.db 		    "update files set info='ELUS_SW' where (lat${LOC} <= 38) and (lon${LOC} <= -110) and name like '%tiles/${CYCLE}/ifr/48%';"
 done
 
-SET=`sqlite3 maps.el.db "select name from files where (level != ' 4') and name like '%tiles/${CYCLE}/ifr/ak%';"`
+SET=`sqlite3 maps.el.db "select name from files where (level != '4') and name like '%tiles/${CYCLE}/ifr/ak%';"`
 $CMD zip -9 -q final/ELUS_AK.zip ${SET}
 $CMD sqlite3 maps.el.db "update files set info='ELUS_AK' where name like '%tiles/${CYCLE}/ifr/ak%';"
 
 
 ## The four corner methods was pulling too many tiles.  This illustrates the problem.
-## sqlite3 maps.el.db "select name, latul, lonul, latc, lonc from files where ((latul >= 38) and (lonul >= -85)) and ((latul < 38) and (lonul < -85)) and (level != ' 4') and name like '%tiles/${CYCLE}/ifr/48%';"
+## sqlite3 maps.el.db "select name, latul, lonul, latc, lonc from files where ((latul >= 38) and (lonul >= -85)) and ((latul < 38) and (lonul < -85)) and (level != '4') and name like '%tiles/${CYCLE}/ifr/48%';"

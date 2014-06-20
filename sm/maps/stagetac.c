@@ -86,31 +86,29 @@ int main(int argc, char *argv[])
 	     "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -q -r cubicspline -t_srs WGS84 %s.tif %s_w.tif",
 	     tmpstr, tmpstr);
     out(buffer);
-
-    snprintf(buffer, sizeof(buffer),
-	     "gdal_translate -q -projwin %f %f %f %f  %s_w.tif %s.tif",
-	     maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
-	     tmpstr, tmpstr);
-    out(buffer);
-    
-    snprintf(buffer, sizeof(buffer),
-	     "rgb2pct.py -pct `ls charts/%s/%s*.tif|tail -n1` %s.tif merge/%s/%s.tif",
-	     dir_ptr, maps[1].name, tmpstr, "TC", n_ptr);  // Use Atlanta as base... otherwise gdalwarp/gdal_merge.py won't work with pct  Must use first image of the merge.
-    out(buffer);
 		
+    snprintf(buffer, sizeof(buffer),
+	     "gdal_translate -q -projwin %f %f %f %f  %s_w.tif merge/%s/%s.tif",
+	     maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
+	     tmpstr,
+	     "TC",
+	     n_ptr);
+    out(buffer);
+
     snprintf(buffer, sizeof(buffer), "rm -f %s.tif %s_w.tif", tmpstr, tmpstr);
     out(buffer);
+
   }
 
   printf("\n\n\n");
-  out("rm tac.tif");
+  // out("rm -fr tiles_tac tac.tif; mkdir tiles_tac");
   // printf("\n\n\n");
 
   int gdw=0;
   if (gdw){
-    sprintf(mbuffer, "gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r near -t_srs WGS84 ");
+    sprintf(mbuffer, "gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 ");
   }else{
-    sprintf(mbuffer, "gdal_merge.py -pct -o tac.tif ");
+    sprintf(mbuffer, "gdal_merge.py -o tac.tif ");
   }
   for(map = 0; map < entries; map++) {
     n_ptr = maps[map].name; 
@@ -139,7 +137,7 @@ int main(int argc, char *argv[])
   out(mbuffer);
 
   printf("\n\n\n");
-  out("gdal_translate -outsize 25%% 25%% tac.tif tac_small.tif");
+  out("gdal_translate -outsize 25%% 25%% -of JPEG tac.tif tac_small.jpg");
   // out("gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir tiles_tac -ps 512 512 -useDirForEachRow tac.tif");
 
   // printf("\n\n\n");

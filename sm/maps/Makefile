@@ -219,9 +219,9 @@ qualitycontrol:
 
 retile: retile.c
 	# gcc retile.c -o retile16 -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -fopenmp -fopenmp -I/home/pi/gustafson/local/include/ImageMagick-6 -L/home/pi/gustafson/local/lib -lMagickWand-6.Q16
-	# gcc retile.c -o retile -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -fopenmp -fopenmp -I/home/pi/gustafson/local/include/ImageMagick-6 -L/home/pi/gustafson/local/lib -lMagickWand-6.Q16
+	#gcc retile.c -o retile -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -fopenmp -fopenmp -I/home/pi/gustafson/local/include/ImageMagick-6 -L/home/pi/gustafson/local/lib -lMagickWand-6.Q16
 	gcc retile.c -o retile8 -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=8 -fopenmp -fopenmp -I/home/pi/gustafson/local/im8/include/ImageMagick-6 -L/home/pi/gustafson/local/im8/lib -lMagickWand-6.Q8
 	#export LD_LIBRARY_PATH="/home/pi/gustafson/local/im8/lib:$LD_LIBRARY_PATH"
-	gcc `pkg-config --cflags --libs MagickWand` -I ~/local/include/ImageMagick-6 retile.c -o retile  -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=8 -fopenmp
+	gcc `pkg-config --cflags --libs MagickWand` -I ~/local/include/ImageMagick-6 retile.c -o retile -fopenmp
 
 .PHONY: retile

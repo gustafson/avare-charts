@@ -58,8 +58,8 @@ int main(int argc, char *argv[])
     }else if (2 == folder) {
       dirstr="wac";
     }
-    if((0 == folder) || (2 == folder)) {
 
+    if((0 == folder) || (2 == folder)) {
       // Remove any existing zip files
       snprintf(buffer, sizeof(buffer),
 	       "if [[ -f final/%s.zip ]]; then rm final/%s.zip; fi",
@@ -100,10 +100,10 @@ int main(int argc, char *argv[])
       
     }
 
-  }
-	
   snprintf(buffer, sizeof(buffer), "sqlite3 -init init.sql maps.%s.db \"update files set info='Hawaiian Islands' where name like '%%tiles/%s/sec/hi%%';\"", dirstr, argv[1]);
   out(buffer);
 
+  }
+	
   return 0;
 }

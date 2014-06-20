@@ -14,6 +14,15 @@ if [[ $# -lt 1 ]]; then
     echo Cycle number argument required;
     exit
 fi
+
+ZIP=zip
+SQL=sqlite3
+
+if [[ $# -gt 1 ]]; then
+    echo Debug mode
+    ZIP="echo zip"
+    SQL="echo sqlite3"
+fi
     
 CYCLE=$1
 
@@ -23,25 +32,25 @@ for a in NE NC NW SE SC SW AK; do
     fi
 done
 
-for LOC in c; do #ul ur ll lr 
-    zip -9 -q final/EHUS_NE.zip `sqlite3 maps.eh.db "select name from files where (lat${LOC} >= 38) and (lon${LOC} >= -85) and (level != ' 4') and (level != ' 4') and name like '%tiles/${CYCLE}/ifh/48%';"`
-    sqlite3 maps.eh.db    		    "update files set info='EHUS_NE' where (lat${LOC} >= 38) and (lon${LOC} >= -85) and name like '%tiles/${CYCLE}/ifh/48%';"
+for LOC in ul ur ll lr c; do #
+    ${ZIP} -9 -q final/EHUS_NE.zip `${SQL} maps.eh.db "select name from files where (lat${LOC} >= 38) and (lon${LOC} >= -85) and (level != '4') and name like '%tiles/${CYCLE}/ifh/48%';"`
+    ${SQL} maps.eh.db    		    "update files set info='EHUS_NE' where (lat${LOC} >= 38) and (lon${LOC} >= -85) and name like '%tiles/${CYCLE}/ifh/48%';"
 
-    zip -9 -q final/EHUS_NC.zip `sqlite3 maps.eh.db "select name from files where (lat${LOC} >= 38) and (lon${LOC} <= -85) and (lon${LOC} >= -110) and (level != ' 4') and name like '%tiles/${CYCLE}/ifh/48%';"`
-    sqlite3 maps.eh.db 		    "update files set info='EHUS_NC' where (lat${LOC} >= 38) and (lon${LOC} <= -85) and (lon${LOC} >= -110) and name like '%tiles/${CYCLE}/ifh/48%';"
+    ${ZIP} -9 -q final/EHUS_NC.zip `${SQL} maps.eh.db "select name from files where (lat${LOC} >= 38) and (lon${LOC} <= -85) and (lon${LOC} >= -110) and (level != '4') and name like '%tiles/${CYCLE}/ifh/48%';"`
+    ${SQL} maps.eh.db 		    "update files set info='EHUS_NC' where (lat${LOC} >= 38) and (lon${LOC} <= -85) and (lon${LOC} >= -110) and name like '%tiles/${CYCLE}/ifh/48%';"
 
-    zip -9 -q final/EHUS_NW.zip `sqlite3 maps.eh.db "select name from files where (lat${LOC} >= 38) and (lon${LOC} <= -110) and (level != ' 4') and name like '%tiles/${CYCLE}/ifh/48%';"`
-    sqlite3 maps.eh.db 		    "update files set info='EHUS_NW' where (lat${LOC} >= 38) and (lon${LOC} <= -110) and name like '%tiles/${CYCLE}/ifh/48%';"
+    ${ZIP} -9 -q final/EHUS_NW.zip `${SQL} maps.eh.db "select name from files where (lat${LOC} >= 38) and (lon${LOC} <= -110) and (level != '4') and name like '%tiles/${CYCLE}/ifh/48%';"`
+    ${SQL} maps.eh.db 		    "update files set info='EHUS_NW' where (lat${LOC} >= 38) and (lon${LOC} <= -110) and name like '%tiles/${CYCLE}/ifh/48%';"
 
-    zip -9 -q final/EHUS_SE.zip `sqlite3 maps.eh.db "select name from files where (lat${LOC} <= 38) and (lon${LOC} >= -85) and (level != ' 4') and name like '%tiles/${CYCLE}/ifh/48%';"`
-    sqlite3 maps.eh.db 		    "update files set info='EHUS_SE' where (lat${LOC} <= 38) and (lon${LOC} >= -85) and name like '%tiles/${CYCLE}/ifh/48%';"
+    ${ZIP} -9 -q final/EHUS_SE.zip `${SQL} maps.eh.db "select name from files where (lat${LOC} <= 38) and (lon${LOC} >= -85) and (level != '4') and name like '%tiles/${CYCLE}/ifh/48%';"`
+    ${SQL} maps.eh.db 		    "update files set info='EHUS_SE' where (lat${LOC} <= 38) and (lon${LOC} >= -85) and name like '%tiles/${CYCLE}/ifh/48%';"
 
-    zip -9 -q final/EHUS_SC.zip `sqlite3 maps.eh.db "select name from files where (lat${LOC} <= 38) and (lon${LOC} <= -85) and (lon${LOC} >= -110) and (level != ' 4') and name like '%tiles/${CYCLE}/ifh/48%';"`
-    sqlite3 maps.eh.db 		    "update files set info='EHUS_SC' where (lat${LOC} <= 38) and (lon${LOC} <= -85) and (lon${LOC} >= -110) and name like '%tiles/${CYCLE}/ifh/48%';"
+    ${ZIP} -9 -q final/EHUS_SC.zip `${SQL} maps.eh.db "select name from files where (lat${LOC} <= 38) and (lon${LOC} <= -85) and (lon${LOC} >= -110) and (level != '4') and name like '%tiles/${CYCLE}/ifh/48%';"`
+    ${SQL} maps.eh.db 		    "update files set info='EHUS_SC' where (lat${LOC} <= 38) and (lon${LOC} <= -85) and (lon${LOC} >= -110) and name like '%tiles/${CYCLE}/ifh/48%';"
 
-    zip -9 -q final/EHUS_SW.zip `sqlite3 maps.eh.db "select name from files where (lat${LOC} <= 38) and (lon${LOC} <= -110) and (level != ' 4') and name like '%tiles/${CYCLE}/ifh/48%';"`
-    sqlite3 maps.eh.db 		    "update files set info='EHUS_SW' where (lat${LOC} <= 38) and (lon${LOC} <= -110) and name like '%tiles/${CYCLE}/ifh/48%';"
+    ${ZIP} -9 -q final/EHUS_SW.zip `${SQL} maps.eh.db "select name from files where (lat${LOC} <= 38) and (lon${LOC} <= -110) and (level != '4') and name like '%tiles/${CYCLE}/ifh/48%';"`
+    ${SQL} maps.eh.db 		    "update files set info='EHUS_SW' where (lat${LOC} <= 38) and (lon${LOC} <= -110) and name like '%tiles/${CYCLE}/ifh/48%';"
 done
 
-zip -9 -q final/EHUS_AK.zip `sqlite3 maps.eh.db "select name from files where (level != ' 4') and name like '%tiles/${CYCLE}/ifh/ak%';"`
-sqlite3 maps.eh.db 		    "update files set info='EHUS_AK' where name like '%tiles/${CYCLE}/ifh/ak%';"
+${ZIP} -9 -q final/EHUS_AK.zip `${SQL} maps.eh.db "select name from files where (level != '4') and name like '%tiles/${CYCLE}/ifh/ak%';"`
+${SQL} maps.eh.db 		    "update files set info='EHUS_AK' where name like '%tiles/${CYCLE}/ifh/ak%';"

@@ -100,27 +100,15 @@ int main(int argc, char *argv[])
       if(0 != strcmp(maps[map].reg, "HI")) {
 	// Expand to rgb
 	snprintf(buffer, sizeof(buffer),
-		 "gdal_translate -expand rgb `ls charts/%s/%s*.tif|tail -n2|head -n1` %sa.tif;\n",
-		 dir_ptr, n_ptr, filestr);
-	strcat(cmdstr, buffer);
-	snprintf(buffer, sizeof(buffer),
-		 "gdal_translate -expand rgb `ls charts/%s/%s*.tif|tail -n1` %sb.tif;\n",
+		 "gdal_translate -expand rgb `ls charts/%s/%s*.tif` %s.tif;\n",
 		 dir_ptr, n_ptr, filestr);
 	strcat(cmdstr, buffer);
 	// Put a mask near the edges so that no seams show on the tiles
 	snprintf(buffer, sizeof(buffer),
-		 "nearblack -color 0,0,0 -color 255,255,255 -setmask %sa.tif;\n", filestr);
+		 "nearblack -color 0,0,0 -color 255,255,255 -setmask %s.tif;\n", filestr);
 	strcat(cmdstr, buffer);
 	snprintf(buffer, sizeof(buffer),
-		 "nearblack -color 0,0,0 -color 255,255,255 -setmask %sb.tif;\n", filestr);
-	strcat(cmdstr, buffer);
-	// Check to see if the two images are identical
-	snprintf(buffer, sizeof(buffer),
-		 "[[ `diff %sa.tif %sb.tif` ]] || rm %sb.tif;\n",
-		 filestr, filestr, filestr);
-	strcat(cmdstr, buffer);
-	snprintf(buffer, sizeof(buffer),
-		 "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs WGS84 %s[ab].tif tmp-stagesec/merge%s%s_w.tif;\n",
+		 "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs WGS84 %s.tif tmp-stagesec/merge%s%s_w.tif;\n",
 		 filestr, maps[map].reg, n_ptr);
 	strcat(cmdstr, buffer);
       }
@@ -155,10 +143,6 @@ int main(int argc, char *argv[])
       strcat(cmdstr, buffer);
 
       snprintf(buffer, sizeof(buffer), "[[ -f %s.tif ]] && rm %s.tif;\n", filestr, filestr); 
-      strcat(cmdstr, buffer);
-      snprintf(buffer, sizeof(buffer), "[[ -f %sa.tif ]] && rm %sa.tif;\n", filestr, filestr); 
-      strcat(cmdstr, buffer);
-      snprintf(buffer, sizeof(buffer), "[[ -f %sb.tif ]] && rm %sb.tif;\n", filestr, filestr); 
       strcat(cmdstr, buffer);
 
       snprintf(buffer, sizeof(buffer), "merge/%s/QC/%s_c.jpg", maps[map].reg, n_ptr);

@@ -31,18 +31,22 @@
 pushd final
 
 echo Unzipping reference data
+rm *ref 2> /dev/null
+rm *qc 2> /dev/null
+rm *manualcheck 2> /dev/null
+
 unzip -q ../qualitycontrol.zip
 
-for a in *.zip; do
+for a in *zip.qc.ref; do
+    b=`basename $a .qc.ref`;
+
     ## Count files and total file size
-    unzip -l $a | tail -n1 |awk '{printf "%i\n%i\n", $2, $1}' > ${a}.qc
+    unzip -l $b | tail -n1 |awk '{printf "%i\n%i\n", $2, $1}' > ${b}.qc
 
     ## If it is plates, count airports.  Add one so that you never get divide by zero below.
-    unzip -l $a | grep plates | cut -c 31-40 | sort | uniq | wc -l |awk '{printf $1+1}' >> ${a}.qc
-done
+    unzip -l $b | grep plates | cut -c 31-40 | sort | uniq | wc -l |awk '{printf $1+1}' >> ${b}.qc
 
-
-for a in *.ref; do
+    ## Now change b
     b=`basename $a .ref`
 
     ## Start with an empty error record
@@ -52,17 +56,17 @@ for a in *.ref; do
     ## Number of files should not change by more than 10%
     paste $b $a |head -n1 | awk '
 function abs(x){return ((x < 0.0) ? -x : x)}
-{if ((abs(1-$1/$2))>0.1) printf "Number of zipped files should not change by more than .1 but changed by %f\n", (abs(1-$1/$2))}' >> ${b}.manualcheck
+{if ((abs($1/$2-1))>0.1) printf "Number of zipped files should not change by more than |10%| but changed from %i to %i which is %0.1f%\n", $2, $1, 100*($1/$2-1)}' >> ${b}.manualcheck
 
     paste $b $a |head -n2 |tail -n1 | awk '
 function abs(x){return ((x < 0.0) ? -x : x)}
-{if ((abs(1-$1/$2))>0.1) printf "Total files size should not change by more than .1 but changed by %f\n", (abs(1-$1/$2))}' >> ${b}.manualcheck
+{if ((abs($1/$2-1))>0.1) printf "Total files size should not change by more than |10%| but changed from %i to %i which is %0.1f%\n", $2, $1, 100*($1/$2-1)}' >> ${b}.manualcheck
     
     if [[ `wc -w $a|cut -c1` -eq 3 ]]; then
 	## echo Number of airports should not by more than 2% >> ${b}.manualcheck
 	paste $b $a |tail -n1 | awk '
 function abs(x){return ((x < 0.0) ? -x : x)}
-{if ((abs(1-$1/$2))>=0.02) printf "Number of airports should not change changed by more than 0.02 %f\n", (abs(1-$1/$2))}' >> ${b}.manualcheck
+{if ((abs($1/$2-1))>=0.02) printf "Number of airports should not change changed by more than |2%| but changed from %i to %i which is %0.1f%\n", $2, $1, 100*($1/$2-1)}' >> ${b}.manualcheck
     fi
 
     ## Erase empty files

@@ -11,6 +11,7 @@ void out(char *buffer){
     while(i){
       if (count<3){
 	printf("Attempt %i failed, reattempting:\n",count++);
+	printf("Attempted command: %s\n",buffer);
       }else{
 	return;
       }
