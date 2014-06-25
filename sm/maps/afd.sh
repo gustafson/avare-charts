@@ -37,7 +37,7 @@ rm -rf afd
 mkdir afd
 
 sed s/29MAY2014/${CYCLE}/ dlafd.pl > tmp_dlafd.pl
-perl tmp_dlafd.pl
+perl tmp_dlafd.pl || exit
 
 ## DPI=240.9  #Android limited plates size 2400x
 DPI=150

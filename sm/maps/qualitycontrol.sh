@@ -41,41 +41,47 @@ for a in *zip.qc.ref; do
     b=`basename $a .qc.ref`;
 
     ## Count files and total file size
-    unzip -l $b | tail -n1 |awk '{printf "%i\n%i\n", $2, $1}' > ${b}.qc
-
+    if [[ -f $b ]]; then
+	unzip -l $b | tail -n1 |awk '{printf "%i\n%i\n", $2, $1}' > ${b}.qc 
+	
     ## If it is plates, count airports.  Add one so that you never get divide by zero below.
-    unzip -l $b | grep plates | cut -c 31-40 | sort | uniq | wc -l |awk '{printf $1+1}' >> ${b}.qc
-
+	unzip -l $b | grep plates | cut -c 31-40 | sort | uniq | wc -l |awk '{printf $1+1}' >> ${b}.qc || echo $b >> missing.txt
+	
     ## Now change b
-    b=`basename $a .ref`
-
+	b=`basename $a .ref`
+	
     ## Start with an empty error record
-    [[ -f ${b}.manualcheck ]] && rm ${b}.manualcheck 
-
+	[[ -f ${b}.manualcheck ]] && rm ${b}.manualcheck 
+	
     ## echo Comparing $b $a
     ## Number of files should not change by more than 10%
-    paste $b $a |head -n1 | awk '
+	paste $b $a |head -n1 | awk '
 function abs(x){return ((x < 0.0) ? -x : x)}
 {if ((abs($1/$2-1))>0.1) printf "Number of zipped files should not change by more than |10%| but changed from %i to %i which is %0.1f%\n", $2, $1, 100*($1/$2-1)}' >> ${b}.manualcheck
-
-    paste $b $a |head -n2 |tail -n1 | awk '
+	
+	paste $b $a |head -n2 |tail -n1 | awk '
 function abs(x){return ((x < 0.0) ? -x : x)}
 {if ((abs($1/$2-1))>0.1) printf "Total files size should not change by more than |10%| but changed from %i to %i which is %0.1f%\n", $2, $1, 100*($1/$2-1)}' >> ${b}.manualcheck
-    
-    if [[ `wc -w $a|cut -c1` -eq 3 ]]; then
+	
+	if [[ `wc -w $a|cut -c1` -eq 3 ]]; then
 	## echo Number of airports should not by more than 2% >> ${b}.manualcheck
-	paste $b $a |tail -n1 | awk '
+	    paste $b $a |tail -n1 | awk '
 function abs(x){return ((x < 0.0) ? -x : x)}
 {if ((abs($1/$2-1))>=0.02) printf "Number of airports should not change changed by more than |2%| but changed from %i to %i which is %0.1f%\n", $2, $1, 100*($1/$2-1)}' >> ${b}.manualcheck
-    fi
-
+	fi
+	
     ## Erase empty files
-    if [[ -s ${b}.manualcheck ]]; then
-	echo
-	echo Inconsistency in ${b} 
-	cat ${b}.manualcheck
+	if [[ -s ${b}.manualcheck ]]; then
+	    echo
+	    echo Inconsistency in ${b} 
+	    cat ${b}.manualcheck
+	else
+	    rm ${b}.manualcheck 
+	fi
+
     else
-	rm ${b}.manualcheck 
+	echo File $b is missing 
+	echo File $b is missing >> ${b}.qc.manualcheck
     fi
 done
     

@@ -25,7 +25,7 @@ else
     REF=`date -u -d 12/12/2013 +%s`
 fi
 
-# TODAY="4/1/2014"
+#TODAY="7/15/2014"
 TODAY="today"
 TOD=`date -u -d ${TODAY} +%s`
 
@@ -37,16 +37,30 @@ elif [[ ${CYCLEDAYS} -eq 28 ]]; then
     SREF=$((28-$SREF))
 fi
 
-## If more than a week in the future, pick the last date
-if [[ $SREF -gt 7 ]]; then
+## If more than two weeks in the future, pick the last date
+if [[ $SREF -gt 14 ]]; then
     SREF=$(($SREF-${CYCLEDAYS}))
+fi
+
+if [[ $# -eq 3 ]]; then
+    ## For stageall.sh use only
+    if [[ $2 = ifr ]]; then
+	if [[ $SREF -le 0 ]]; then
+	    echo none
+	else
+	    echo ifr
+	fi
+    elif [[ $2 = vfr ]]; then
+	echo vfr
+    fi
+    exit 
 fi
 
 if [[ $2 = ifr ]]; then
     echo `date -d "$TODAY + $SREF days" +"%^m-%d-%Y"`
 elif [[ $2 = base ]]; then
     echo `date -d "$TODAY + $SREF days" +"%Y-%^m-%d"`
-elif [[ $2 = dof ]]; then
+elif [[ $2 = dof ]]; then  ## Obstacle file
     echo `date -d "$TODAY + $SREF days" +"%y%^m%d"`
 else
     echo `date -d "$TODAY + $SREF days" +"%d%^b%Y"`

@@ -27,11 +27,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-#export LD_LIBRARY_PATH=/usr/local/lib
-# Copy APT.txt TWR.txt, FIX.txt, NAV.txt, DOF.DAT
-# Set dates in afd.sh get_ads.sh
-
-
 ## ToDo for "normal" machines.
 ## 1) Update NP variable in scripts
 
@@ -45,10 +40,6 @@ all:
 	@echo
 	@echo 'execute "make fresh" to clean out temp files'
 	@echo
-	@echo "  Change the dates in the download-base-data target of Makefile as applicable"
-	@echo "  Change the dates in the download-ifr target of the Makefile as applicable"
-	@echo "  Change the date in dlafd.pl if applicable (afd_$$(./cycledates.sh 56).xml on 56 Day cycle)"
-	@echo
 	@echo 'execute "make update" to update a prior build (saving download time)'
 	@echo 'execute "make scratch" to start from scratch'
 	@echo
@@ -58,8 +49,9 @@ all:
 	@echo "  make unzip"
 	@echo "  make stageall"
 	@echo "  make plates #$$(./cycledates.sh 28)"
-	@echo "  make download-base-data #$$(./cycledates.sh 56)"
-	@echo "  make process-data #$$(./cycledates.sh 56)"
+	@echo "  make afd-mins #$$(./cycledates.sh 56)"
+	@echo "  make download-base-data #$$(./cycledates.sh base) $$(./cycledates.sh 56 dof)"
+	@echo "  make process-data #$$(./cycledates.sh base)"
 	@echo "  make zipit"
 	@echo "  make qualitycontrol"
 
@@ -67,19 +59,14 @@ scratch: download-ifr download-vfr unzip stageall plates download-base-data proc
 update: download-ifr update-vfr unzip stageall plates download-base-data process-data zipit
 
 fresh:
-	rm -rf plates plates_[A-Z][A-Z]
-	rm -rf afd
-	rm -rf final
-	rm -rf merge
-	rm ads.txt APT.txt AWOS.txt FIX.txt TWR.txt DOF.DAT
-	rm maps.el.db maps.eh.db maps.oth.db maps.sec.db maps.tac.db maps.wac.db
-	rm afd.csv airport.csv awos.csv dof.csv files.csv fix.csv freq.csv nav.csv runway.csv ## FIXME Canadian stuff left... update after any refresh
+	find final -type f|grep -v "CAN_\|REL_\|ELEV_"| xargs rm # \|ELUS_\|EHUS\|AFD_
+	rm -rf merge ads.txt
 	rm sepsec septac stagesec stageifr stageifa stageifh stagetac *.tif *.jpg *.xml
 	rm files*.csv logfile.txt *.log
-	mkdir final
 
 download-base-data:
 	# https://nfdc.faa.gov/fadds/subscriptionDownload.do?productId=548752
+	$$(rm APT.txt AWOS.txt FIX.txt TWR.txt DOF.DAT NAV.txt)
 	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/APT.zip && unzip APT.zip && rm APT.zip
 	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWOS.zip && unzip AWOS.zip && rm AWOS.zip
 	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/TWR.zip && unzip TWR.zip && rm TWR.zip
@@ -102,10 +89,17 @@ process-data:
 	./awos.pl > awos.csv
 
 plates: 
-	wget -N http://aeronav.faa.gov/d-tpp/$$(./cyclenumber.sh)/xml_data/d-TPP_Metafile.xml
+	# wget -N http://aeronav.faa.gov/d-tpp/$$(./cyclenumber.sh)/xml_data/d-TPP_Metafile.xml
+	[[ -f d-TPP_Metafile.xml ]] && rm d-TPP_Metafile.xml || echo
+	[[ -f d-TPP_Metafile.xml.zip.$$(./cyclenumber.sh) ]] && unzip d-TPP_Metafile.xml.zip.$$(./cyclenumber.sh)
+	rm -rf plates plates_[A-Z][A-Z]
 	mkdir plates
 	./plates_png.sh
-	./afd.sh 
+
+
+afd-mins:
+	[[ -f afd.csv ]] && rm afd.csv
+	./afd.sh
 	./domins.sh $$(./cyclenumber.sh) # change cycle here
 
 download-vfr:
@@ -178,7 +172,8 @@ stageall:
 	## gcc -march=native -O3 -Wall stageheli.c -o stageheli -fopenmp
 	## each pbs script could be run as a shell script but is 
 	## run through pbs for efficient resource management.
-	./stageall.sh $$(./cyclenumber.sh)
+	./stageall.sh $$(./cyclenumber.sh) $$(./cycledates.sh 28 vfr stageall)
+	./stageall.sh $$(./cyclenumber.sh) $$(./cycledates.sh 56 ifr stageall)
 
 
 zipit:
