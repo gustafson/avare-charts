@@ -6,8 +6,8 @@
 #PBS -V 
 #PBS -M peter.gustafson@wmich.edu
 #PBS -N pyramid
-#PBS -e z_pyramid.${PBS_JOBID}.e
-#PBS -o z_pyramid.${PBS_JOBID}.o
+#PBS -e z-logs/z.pyramid.${PBS_JOBID}.e
+#PBS -o z-logs/z.pyramid.${PBS_JOBID}.o
 
 #!/bin/bash
 # Copyright (c) 2013, Peter A. Gustafson (peter.gustafson@wmich.edu)

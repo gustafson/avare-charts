@@ -33,15 +33,6 @@
 #include<stdlib.h>
 #include<string.h>
 
-typedef struct {
-  char name[64];
-  double lonl;
-  double lonr;
-  double latu;
-  double latd;
-  char   reg[64];
-} Maps;
-
 int debug=0;
 #include "charts.c"
 #include "stageall.c"
@@ -100,8 +91,8 @@ int main(int argc, char *argv[])
       if(0 != strcmp(maps[map].reg, "HI")) {
 	// Expand to rgb
 	snprintf(buffer, sizeof(buffer),
-		 "gdal_translate -expand rgb `ls charts/%s/%s*.tif` %s.tif;\n",
-		 dir_ptr, n_ptr, filestr);
+		 "gdal_translate -expand rgb -srcwin %i %i %i %i charts/%s/%s*.tif %s.tif;\n",
+		 maps[map].x, maps[map].y, maps[map].dx, maps[map].dy, dir_ptr, n_ptr, filestr);
 	strcat(cmdstr, buffer);
 	// Put a mask near the edges so that no seams show on the tiles
 	snprintf(buffer, sizeof(buffer),
@@ -114,8 +105,8 @@ int main(int argc, char *argv[])
       }
       else {
 	snprintf(buffer, sizeof(buffer),
-		 "gdal_translate -expand rgb charts/%s/%s*.tif %s.tif;\n",
-		 dir_ptr, n_ptr, filestr);
+		 "gdal_translate -expand rgb -srcwin %i %i %i %i charts/%s/%s*.tif %s.tif;\n",
+		 maps[map].x, maps[map].y, maps[map].dx, maps[map].dy, dir_ptr, n_ptr, filestr);
 	strcat(cmdstr, buffer);
 	snprintf(buffer, sizeof(buffer), // This EPSG4326 step is needed for an unknown reason in order to make the lats and longs correct for HI.
 		 "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs EPSG:4326 %s.tif tmp-stagesec/merge%s%s_w.tif;\n",
@@ -145,7 +136,7 @@ int main(int argc, char *argv[])
       snprintf(buffer, sizeof(buffer), "[[ -f %s.tif ]] && rm %s.tif;\n", filestr, filestr); 
       strcat(cmdstr, buffer);
 
-      snprintf(buffer, sizeof(buffer), "merge/%s/QC/%s_c.jpg", maps[map].reg, n_ptr);
+      snprintf(buffer, sizeof(buffer), "merge/%s/%s_c.tif", maps[map].reg, n_ptr);
       failed = 1;
       count = 0;
       while (failed){

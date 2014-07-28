@@ -51,10 +51,11 @@ int main(int argc, char *argv[])
   int map;
   char buffer[512];
   char tmpstr[128];
+  char mbuffer[4096];
   char *n_ptr;
   char *dir_ptr;
 
-  if (argc==2){debug=1;}
+  if (argc>=2){debug=1;}
 
   out("rm -fr merge/IFH; mkdir merge/IFH;"); // IFRH 48 
   // out("rm -fr tiles_ifh; mkdir tiles_ifh;");
@@ -84,12 +85,15 @@ int main(int argc, char *argv[])
 	       tmpstr);
       out(buffer);
 			
+      sprintf(mbuffer, "[[ -f merge/%s/%s_c.tif ]] && rm merge/%s/%s_c.tif;\n", 
+	       maps[map].reg, n_ptr, maps[map].reg, n_ptr);
       snprintf(buffer, sizeof(buffer),  
 	       "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -dstnodata '51 51 51' -r cubicspline -t_srs WGS84 %s.tif merge/%s/%s_c.tif",
 	       tmpstr,
 	       maps[map].reg,
 	       n_ptr);
-      out(buffer);
+      strcat(mbuffer, buffer);
+      out(mbuffer);
     }
     
     snprintf(buffer, sizeof(buffer), "rm -f %s.tif", tmpstr);
@@ -100,10 +104,7 @@ int main(int argc, char *argv[])
   /* one image */
   out("rm ifh.tif ifh_small.jpg");
   out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 merge/IFH/*_c.tif ifh.tif");
-  // out("gdal_merge.py merge/IFH/*_c.tif -o ifh.tif");
   out("gdal_translate -outsize 25%% 25%% -of JPEG ifh.tif ifh_small.jpg");
-  // out("gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir tiles_ifh -ps 512 512 -useDirForEachRow ifh.tif");
-  // out("mv tiles_ifh/0 tiles_ifh/4");
 
   return 0;
 }

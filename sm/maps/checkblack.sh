@@ -1,6 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2012, Zubair Khan (governer@gmail.com)
-# Copyright (c) 2013, Peter A. Gustafson (peter.gustafson@wmich.edu)
+# Copyright (c) 2013-14, Peter A. Gustafson (peter.gustafson@wmich.edu)
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,11 +27,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-DATA=`convert $1 -threshold 1% -format %c histogram:info:`
+DATA=`convert -quiet $1 -threshold 1% -format %c histogram:info:`
 if [[ ! `echo $DATA |grep -i black` ]]; then
     echo 0.0
-    #echo $DATA #| cut -f1 -d: |tr '\n' ' '|awk '{print $1/($1+$2)}';
 else 
-    convert $1 -threshold 1% -format %c histogram:info: | cut -f1 -d: |tr '\n' ' '|awk '{print $1/($1+$2)}'
-    #echo $DATA #0.0
+    echo $DATA | sed s/": ( 0, 0, 0) #000000 black"//| sed s/": (255,255,255) #FFFFFF white"// | awk '{print $1/($1+$2)}'
 fi

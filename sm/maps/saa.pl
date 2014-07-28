@@ -302,7 +302,7 @@ while (my $file = readdir(DIR)) {
         $parser->parsefile($direct.$file);
         $lat = $lat / $numpos;
         $lon = $lon / $numpos;
-        print "$designator,$name,$upperlimit $upperlimitref,$lowerlimit $lowerlimitref,$starttime,$endtime,$timeref,$startdate,$enddate,$day,$ftx,$frx,$lat,$lon\n";
+        printf "%s,%s,%s %s,%s %s,%s,%s,%s,%s,%s,%s,%s,%s,%.4f,%.4f\n", $designator,$name,$upperlimit,$upperlimitref,$lowerlimit,$lowerlimitref,$starttime,$endtime,$timeref,$startdate,$enddate,$day,$ftx,$frx,$lat,$lon;
     }
 }
 

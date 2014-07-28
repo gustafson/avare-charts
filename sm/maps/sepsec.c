@@ -13,15 +13,6 @@ Redistribution and use in source and binary forms, with or without modification,
 #include <string.h>
 #include <stdlib.h>
 
-typedef struct {
-	char name[64];
-	double lonl;
-	double lonr;
-	double latu;
-	double latd;
-	char   reg[64];
-} Maps;
-
 int debug=0;
 #include "charts.c"
 #include "stageall.c"

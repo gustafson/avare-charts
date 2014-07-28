@@ -52,6 +52,7 @@ all:
 	@echo "  make afd-mins #$$(./cycledates.sh 56)"
 	@echo "  make download-base-data #$$(./cycledates.sh base) $$(./cycledates.sh 56 dof)"
 	@echo "  make process-data #$$(./cycledates.sh base)"
+	@echo "  make ziptiles"
 	@echo "  make zipit"
 	@echo "  make qualitycontrol"
 
@@ -90,8 +91,9 @@ process-data:
 
 plates: 
 	# wget -N http://aeronav.faa.gov/d-tpp/$$(./cyclenumber.sh)/xml_data/d-TPP_Metafile.xml
-	[[ -f d-TPP_Metafile.xml ]] && rm d-TPP_Metafile.xml || echo
-	[[ -f d-TPP_Metafile.xml.zip.$$(./cyclenumber.sh) ]] && unzip d-TPP_Metafile.xml.zip.$$(./cyclenumber.sh)
+	### Currently buying plate xml file so this isn't needed.
+	## [[ -f d-TPP_Metafile.xml ]] && rm d-TPP_Metafile.xml || echo
+	## [[ -f d-TPP_Metafile.xml.zip.$$(./cyclenumber.sh) ]] && unzip d-TPP_Metafile.xml.zip.$$(./cyclenumber.sh)
 	rm -rf plates plates_[A-Z][A-Z]
 	mkdir plates
 	./plates_png.sh
@@ -129,9 +131,9 @@ download-ifr:
 	mkdir -p charts/ifh
 	mkdir -p charts/ifal
 	mkdir -p charts/ifah
-	./dlifr.sh $$(./cycledates.sh 56 ifr) #change date  #IFR low
-	./dlifh.sh $$(./cycledates.sh 56 ifr) #change date  #IFH high
-	./dlifa.sh $$(./cycledates.sh 56 ifr) #change date  #Alaska high and low
+	./dlifr.sh $$(./cycledates.sh 56 ifr)
+	./dlifh.sh $$(./cycledates.sh 56 ifr)
+	./dlifa.sh $$(./cycledates.sh 56 ifr)
 
 unzip:
 	cd charts/tac && rm -rf *.tif && unzip -j \*.zip \*.tif && \
@@ -161,7 +163,7 @@ unzip:
 	done
 
 
-stageall:
+stageall: retile
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	gcc -march=native -O3 -Wall stagesec.c -o stagesec -fopenmp
 	gcc -march=native -O3 -Wall stageifr.c -o stageifr -fopenmp
@@ -175,13 +177,7 @@ stageall:
 	./stageall.sh $$(./cyclenumber.sh) $$(./cycledates.sh 28 vfr stageall)
 	./stageall.sh $$(./cyclenumber.sh) $$(./cycledates.sh 56 ifr stageall)
 
-
-zipit:
-	## FIXME must find out how to updated canap.csv canfreq.csv canrun.csv
-	echo "Zipping cycle " $$(./cyclenumber.sh)
-	if [ -a main.db ]; then rm main.db; fi;
-	if [ -a final/databases.zip ]; then rm final/databases.zip; fi;
-	sqlite3 main.db < importother.sql
+ziptiles:
 	gcc -march=native -O3 -Wall sepsec.c -o sepsec -fopenmp
 	gcc -march=native -O3 -Wall septac.c -o septac -fopenmp
 	./sepsec $$(./cyclenumber.sh)
@@ -193,6 +189,13 @@ zipit:
 	./sephelo.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
 	##./septopo.sh copy charts zips on servers as no expires
 	##./sepgc.sh copy charts zips on servers as no expires
+
+zipit:
+	## FIXME must find out how to updated canap.csv canfreq.csv canrun.csv
+	echo "Zipping cycle " $$(./cyclenumber.sh)
+	if [ -a main.db ]; then rm main.db; fi;
+	if [ -a final/databases.zip ]; then rm final/databases.zip; fi;
+	sqlite3 main.db < importother.sql
 	sqlite3 maps.eh.db "VACUUM;"
 	sqlite3 maps.el.db "VACUUM;"
 	sqlite3 maps.sec.db "VACUUM;"
@@ -204,13 +207,15 @@ zipit:
 	# STATIC sqlite3 maps.rel.db "VACUUM;"
 	# STATIC sqlite3 maps.topo.db "VACUUM;"
 	## FIXME must add maps.topo.db 
-	zip -9 -r final/databases.zip maps.*.db main.db `find tiles/*/*/*/4 -type f|grep -v tif|grep -v topo`
+	zip -9 -r final/databases.zip maps.*.db main.db `find tiles/{$$(./cyclenumber.sh),static}/*/*/4 -type f|grep -v tif|grep -v topo`
 
 qualitycontrol:
 	./qualitycontrol.sh
 
 # Use gdalinfo -approx_stats to check tif files for success.
 
+clean:
+	rm time.*txt *tif*sql
 
 retile: retile.c
 	# gcc retile.c -o retile16 -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -fopenmp -fopenmp -I/home/pi/gustafson/local/include/ImageMagick-6 -L/home/pi/gustafson/local/lib -lMagickWand-6.Q16

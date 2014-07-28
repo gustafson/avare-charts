@@ -136,12 +136,21 @@ int main(int argc, char *argv[])
   /* one image */
   out(mbuffer);
 
+
+  // Do alaska merge
+  if (gdw){
+    sprintf(mbuffer, "gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 merge/TC/{AnchorageTAC.tif,FairbanksTAC.tif} tac-ak.tif");
+  }else{
+    sprintf(mbuffer, "gdal_merge.py -o tac-ak.tif merge/TC/{AnchorageTAC.tif,FairbanksTAC.tif}");
+  }
+  out(mbuffer);
+
+
   printf("\n\n\n");
   out("gdal_translate -outsize 25%% 25%% -of JPEG tac.tif tac_small.jpg");
-  // out("gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir tiles_tac -ps 512 512 -useDirForEachRow tac.tif");
+  out("gdal_translate -outsize 25%% 25%% -of JPEG tac-ak.tif tac-ak_small.jpg");
 
   // printf("\n\n\n");
-  // out("mv tiles_tac/0 tiles_tac/1");
   out("[[ -d tmp-stagetac ]] && rmdir tmp-stagetac");
 
   return 0;

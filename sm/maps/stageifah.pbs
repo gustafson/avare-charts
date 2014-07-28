@@ -6,8 +6,8 @@
 #PBS -V 
 #PBS -M peter.gustafson@wmich.edu
 #PBS -N stageifah
-#PBS -e z_stageifah.${PBS_JOBID}.e
-#PBS -o z_stageifah.${PBS_JOBID}.o
+#PBS -e z-logs/z.stageifah.${PBS_JOBID}.e
+#PBS -o z-logs/z.stageifah.${PBS_JOBID}.o
 
 #!/bin/bash
 # Copyright (c) 2013, Peter A. Gustafson (peter.gustafson@wmich.edu)
