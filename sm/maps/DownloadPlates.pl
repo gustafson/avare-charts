@@ -50,6 +50,8 @@ else
 	}
 
 my $webServer = "http://$ip_address/d-tpp/";
+my $webServer = "http://eagle.ceas.wmich.edu/avare/plates/";
+
 my $tppIndex  = "http://$ip_address/index.asp?xml=aeronav/applications/d_tpp";
 my $tppIndex  = "http://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp";
 my $xmlFile   = "d-TPP_Metafile.xml";	

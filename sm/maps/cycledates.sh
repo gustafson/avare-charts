@@ -13,7 +13,7 @@
 
 
 if [[ $# -eq 0 ]]; then
-    echo argument required
+    echo Length of cycle required as argument \(28 or 56\)
     exit 
 fi
 

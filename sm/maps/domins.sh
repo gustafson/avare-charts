@@ -33,6 +33,7 @@ NP=16
 REGNS="AK EC1 EC2 EC3 NC1 NC2 NC3 NE1 NE2 NE3 NE4 NW1 PAC SC1 SC2 SC3 SC4 SC5 SE1 SE2 SE3 SE4 SW1 SW2 SW3 SW4"
 
 LINK=http://aeronav.faa.gov/d-tpp/$1
+LINK=http://eagle.ceas.wmich.edu/avare/plates/$1
 
 DPI=248.3 ## Ideal android limit 2400x
 DPI=150

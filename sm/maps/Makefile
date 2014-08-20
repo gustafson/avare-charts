@@ -49,7 +49,8 @@ all:
 	@echo "  make unzip"
 	@echo "  make stageall"
 	@echo "  make plates #$$(./cycledates.sh 28)"
-	@echo "  make afd-mins #$$(./cycledates.sh 56)"
+	@echo "  make mins #$$(./cycledates.sh 28)"
+	@echo "  make afd #$$(./cycledates.sh 56)"
 	@echo "  make download-base-data #$$(./cycledates.sh base) $$(./cycledates.sh 56 dof)"
 	@echo "  make process-data #$$(./cycledates.sh base)"
 	@echo "  make ziptiles"
@@ -89,7 +90,7 @@ process-data:
 	./dof.pl > dof.csv
 	./awos.pl > awos.csv
 
-plates: 
+plates: d-TPP_Metafile.xml
 	# wget -N http://aeronav.faa.gov/d-tpp/$$(./cyclenumber.sh)/xml_data/d-TPP_Metafile.xml
 	### Currently buying plate xml file so this isn't needed.
 	## [[ -f d-TPP_Metafile.xml ]] && rm d-TPP_Metafile.xml || echo
@@ -99,9 +100,11 @@ plates:
 	./plates_png.sh
 
 
-afd-mins:
+afd:
 	[[ -f afd.csv ]] && rm afd.csv
 	./afd.sh
+
+mins:
 	./domins.sh $$(./cyclenumber.sh) # change cycle here
 
 download-vfr:
@@ -203,11 +206,13 @@ zipit:
 	sqlite3 maps.wac.db "VACUUM;"
 	sqlite3 maps.oth.db "VACUUM;"
 	sqlite3 main.db "VACUUM;"
+	cp ~/CIFP/procedures.db .
+	sqlite3 procedures.db "VACUUM;"
 	# STATIC sqlite3 maps.elv.db "VACUUM;"
 	# STATIC sqlite3 maps.rel.db "VACUUM;"
 	# STATIC sqlite3 maps.topo.db "VACUUM;"
 	## FIXME must add maps.topo.db 
-	zip -9 -r final/databases.zip maps.*.db main.db `find tiles/{$$(./cyclenumber.sh),static}/*/*/4 -type f|grep -v tif|grep -v topo`
+	zip -9 -r final/databases.zip maps.*.db procedures.db main.db `find tiles/{$$(./cyclenumber.sh),static}/*/*/4 -type f|grep -v tif|grep -v topo`
 
 qualitycontrol:
 	./qualitycontrol.sh
