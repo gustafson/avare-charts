@@ -51,13 +51,12 @@ int main(int argc, char *argv[])
 
   if (argc>=2){debug=1;}
 
-  out("rm -fr merge/AK; mkdir -p merge/AK/QC"); // Alaska sec
-  out("rm -fr merge/LF; mkdir -p merge/LF/QC"); // lower 48 sec
-  out("rm -fr merge/HI; mkdir -p merge/HI/QC"); // HI sec
-  out("rm -fr merge/WC; mkdir -p merge/WC/QC"); // WAC
-  out("rm -fr merge/WA; mkdir -p merge/WA/QC"); // WAC Alaska
-  out("[[ -d tmp-stagesec ]] && rm -fr tmp-stagesec"); 
-  out("mkdir tmp-stagesec"); 
+  out("[[ -d merge/AK     ]] && rm -fr merge/AK; mkdir -p merge/AK/QC"); // Alaska sec
+  out("[[ -d merge/LF     ]] && rm -fr merge/LF; mkdir -p merge/LF/QC"); // lower 48 sec
+  out("[[ -d merge/HI     ]] && rm -fr merge/HI; mkdir -p merge/HI/QC"); // HI sec
+  out("[[ -d merge/WC     ]] && rm -fr merge/WC; mkdir -p merge/WC/QC"); // WAC
+  out("[[ -d merge/WA     ]] && rm -fr merge/WA; mkdir -p merge/WA/QC"); // WAC Alaska
+  out("[[ -d tmp-stagesec ]] && rm -fr tmp-stagesec; mkdir tmp-stagesec"); 
 
   int entries = sizeof(maps) / sizeof(maps[0]);
 

@@ -33,7 +33,6 @@ NP=16
 
 CYCLE=`./cycledates.sh 56`
 
-rm -rf afd
 mkdir afd
 
 sed s/29MAY2014/${CYCLE}/ dlafd.pl > tmp_dlafd.pl
@@ -60,12 +59,14 @@ for a in NE NC NW SE SC SW EC AK PAC; do
     fi 
 done
 
-zip -r -i \*ne\*\*.png -1 -T -q final/AFD_NE.zip afd
-zip -r -i \*nc\*\*.png -1 -T -q final/AFD_NC.zip afd
-zip -r -i \*nw\*\*.png -1 -T -q final/AFD_NW.zip afd
-zip -r -i \*se\*\*.png -1 -T -q final/AFD_SE.zip afd
-zip -r -i \*sc\*\*.png -1 -T -q final/AFD_SC.zip afd
-zip -r -i \*sw\*\*.png -1 -T -q final/AFD_SW.zip afd
-zip -r -i \*ec\*\*.png -1 -T -q final/AFD_EC.zip afd
-zip -r -i \*ak\*\*.png -1 -T -q final/AFD_AK.zip afd
-zip -r -i \*pac\*\*.png -1 -T -q final/AFD_PAC.zip afd
+zip -r -i \*ne\*\*.png -9 -T -q final/AFD_NE.zip afd
+zip -r -i \*nc\*\*.png -9 -T -q final/AFD_NC.zip afd
+zip -r -i \*nw\*\*.png -9 -T -q final/AFD_NW.zip afd
+zip -r -i \*se\*\*.png -9 -T -q final/AFD_SE.zip afd
+zip -r -i \*sc\*\*.png -9 -T -q final/AFD_SC.zip afd
+zip -r -i \*sw\*\*.png -9 -T -q final/AFD_SW.zip afd
+zip -r -i \*ec\*\*.png -9 -T -q final/AFD_EC.zip afd
+zip -r -i \*ak\*\*.png -9 -T -q final/AFD_AK.zip afd
+zip -r -i \*pac\*\*.png -9 -T -q final/AFD_PAC.zip afd
+
+rm -rf afd

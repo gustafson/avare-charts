@@ -55,10 +55,10 @@ int main(int argc, char *argv[])
   char *n_ptr;
   char *dir_ptr;
 
-  if (argc==2){debug=1;}
+  if (argc>=2){debug=1;}
 
   out("rm -fr merge/IFAL; mkdir merge/IFAL;");
-  out("[[ -d tmp-stageifal ]] && rm -fr tmp-stageifal");
+  out("[[ -d tmp-stageifal ]] && rm -fr tmp-stageifal || echo\n");
   out("mkdir tmp-stageifal");
 
   int entries = sizeof(maps) / sizeof(maps[0]);
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
       out(buffer0);
 
       snprintf(buffer0, sizeof(buffer0),  
-	       "[[ -f merge/%s/%s_c.tif ]] && rm merge/%s/%s_c.tif",
+	       "[[ -f merge/%s/%s_c.tif ]] && rm merge/%s/%s_c.tif || echo\n",
 	       maps[map].reg, n_ptr, maps[map].reg, n_ptr);
       out(buffer0);
 
@@ -135,6 +135,6 @@ int main(int argc, char *argv[])
   }
 
   out("rm tmp-stageifal/tmpstageifal*tif");
-  out("[[ -d tmp-stageifal ]] && rmdir tmp-stageifal");
+  out("[[ -d tmp-stageifal ]] && rmdir tmp-stageifal || echo ");
   return 0;
 }

@@ -91,3 +91,4 @@ zip -r -i "*.png" -1 -T -q alternates.zip minimums
 
 cd ..
 mv mins/alternates.zip final/
+echo mins done

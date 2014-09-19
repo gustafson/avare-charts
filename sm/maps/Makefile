@@ -50,7 +50,7 @@ all:
 	@echo "  make stageall"
 	@echo "  make plates #$$(./cycledates.sh 28)"
 	@echo "  make mins #$$(./cycledates.sh 28)"
-	@echo "  make afd #$$(./cycledates.sh 56)"
+	@echo "  make afd-data #$$(./cycledates.sh 56)"
 	@echo "  make download-base-data #$$(./cycledates.sh base) $$(./cycledates.sh 56 dof)"
 	@echo "  make process-data #$$(./cycledates.sh base)"
 	@echo "  make ziptiles"
@@ -100,7 +100,7 @@ plates: d-TPP_Metafile.xml
 	./plates_png.sh
 
 
-afd:
+afd-data:
 	[[ -f afd.csv ]] && rm afd.csv
 	./afd.sh
 
