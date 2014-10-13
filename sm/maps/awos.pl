@@ -67,7 +67,7 @@ while (<FILE>) {
             $lat_m = ltrim( rtrim( substr( $lat, 4, 2 ) ) ) / 60;
             $lat_s = ltrim( rtrim( substr( $lat, 7, 7 ) ) ) / 3600;
             $lat_l = substr( $lat, 0, 1 );
-            if ( $lat_l == "N" ) {
+            if ( $lat_l eq "N" ) {
                 $lt = ( $lat_d + $lat_m + $lat_s );
             }
             else {
@@ -85,7 +85,7 @@ while (<FILE>) {
             $lon_m = ltrim( rtrim( substr( $lon, 4, 2 ) ) ) / 60;
             $lon_s = ltrim( rtrim( substr( $lon, 7, 7 ) ) ) / 3600;
             $lon_l = substr( $lon, 14, 1 );
-            if ( $lon_l == "W" ) {
+            if ( $lon_l eq "W" ) {
                 $ln = -( $lon_d + $lon_m + $lon_s );
             }
             else {
