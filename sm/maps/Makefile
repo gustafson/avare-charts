@@ -68,12 +68,13 @@ fresh:
 
 download-base-data:
 	# https://nfdc.faa.gov/fadds/subscriptionDownload.do?productId=548752
-	$$(rm APT.txt AWOS.txt FIX.txt TWR.txt DOF.DAT NAV.txt)
+	$$(rm APT.txt AWOS.txt FIX.txt TWR.txt DOF.DAT NAV.txt AWY.txt)
 	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/APT.zip && unzip APT.zip && rm APT.zip
 	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWOS.zip && unzip AWOS.zip && rm AWOS.zip
 	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/TWR.zip && unzip TWR.zip && rm TWR.zip
 	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/FIX.zip && unzip FIX.zip && rm FIX.zip
 	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/NAV.zip && unzip NAV.zip && rm NAV.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWY.zip && unzip AWY.zip && rm AWY.zip
 	./saa.sh							     $$(./cycledates.sh 56 base)
 	## obstacles file
 	## https://nfdc.faa.gov/tod/public/TOD_DOF.html
@@ -89,6 +90,7 @@ process-data:
 	./nav.pl > nav.csv
 	./dof.pl > dof.csv
 	./awos.pl > awos.csv
+	./aw.pl > aw.csv
 
 plates: d-TPP_Metafile.xml
 	# wget -N http://aeronav.faa.gov/d-tpp/$$(./cyclenumber.sh)/xml_data/d-TPP_Metafile.xml
