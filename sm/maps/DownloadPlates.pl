@@ -33,21 +33,21 @@ use Socket;
 use FindBin qw($Bin);
 #use warnings;
 
- 
+
 my $ip_address;
 my $nacoaddr = "aeronav.faa.gov";
 my $xmlDataDir = "xml_data";
 #obtain the NACO ip address
 my $packed_ip = gethostbyname($nacoaddr);
 if (defined $packed_ip)
-	{
-		$ip_address = inet_ntoa($packed_ip);
-        	print "$nacoaddr found at $ip_address\n";
-	}
+{
+    $ip_address = inet_ntoa($packed_ip);
+    print "$nacoaddr found at $ip_address\n";
+}
 else
-	{
-		die "unable to get the NACO IP address from $nacoaddr $!"
-	}
+{
+    die "unable to get the NACO IP address from $nacoaddr $!"
+}
 
 my $webServer = "http://$ip_address/d-tpp/";
 my $webServer = "http://eagle.ceas.wmich.edu/avare/plates/";
@@ -57,7 +57,7 @@ my $tppIndex  = "http://www.faa.gov/air_traffic/flight_info/aeronav/digital_prod
 my $xmlFile   = "d-TPP_Metafile.xml";	
 my $outputDir = "plates";
 # Define wgetCmd here as null for global scoping, we'll set it below based on the Operating System
-my $wgetCmd   = "";
+my $wgetCmd   = "wget --no-check-certificate ";
 #my $wgetCmd   = "wget --tries=8 -T 30 --progress=bar:force -nv -O ";
 #my $wgetCmd   = "wget --tries=8 --progress=bar:force -nv -O ";
 
@@ -85,23 +85,23 @@ my $os = $^O;#return the OS name to work cross platform
 print "Running in: $os\n";
 #sent to me by John Ewing to get his Mac OS X 10.5.7 working 
 if ($os =~ "darwin")
-	{
-	$wgetCmd   = "curl --retry 8 --progress -v -o "; # For Mac OS X
-	} 
+{
+    $wgetCmd   = "curl --retry 8 --progress -v -o "; # For Mac OS X
+} 
 else 
-	{
-	$wgetCmd   = "wget --tries=8 --progress=bar:force -nv -O "; # For Windows, et al.
-	}
+{
+    $wgetCmd   = "wget --no-check-certificate --tries=8 --progress=bar:force -nv -O "; # For Windows, et al.
+}
 
 
 if ($os =~ "MSWin32")
-	{
-	$MySlash="\\";	# For Windows
-	}
+{
+    $MySlash="\\";	# For Windows
+}
 else
-	{
-	$MySlash="/";	# For other OS'
-	}
+{
+    $MySlash="/";	# For other OS'
+}
 
 GetOptions(
     'debug=s'    	=> \$debug,
@@ -114,35 +114,35 @@ GetOptions(
     'longfilenames=s'	=> \$longName,
     'statefolders=s'	=> \$statefolders
     )
-        or die "Incorrect usage! Please read the instructions.txt\n";
+    or die "Incorrect usage! Please read the instructions.txt\n";
 if( $help ) 
-	{
-    	print "Please see the instructions.txt file for usage\n";
-    	system ("instructions.txt");
-    	exit ();
-	} 
+{
+    print "Please see the instructions.txt file for usage\n";
+    system ("instructions.txt");
+    exit ();
+} 
 if ((!defined($states)) && (!defined($volumes)))
-	{
-		$states = "all";
-		#print "states set to =$states due to undefined\n";
-	}
+{
+    $states = "all";
+    #print "states set to =$states due to undefined\n";
+}
 if (defined($destination))
-	{
-		if (! -e $destination)
-			{
-				print "destination:$destination\n";
-				mkdir($destination) || die "unable to make destination directory $destination  $!";
-				print MyLogFile "created $destination\n";
-			}
-		$outputDir = "$destination$MySlash$outputDir$MySlash";
-		print "$outputDir\n";
-	}
+{
+    if (! -e $destination)
+    {
+	print "destination:$destination\n";
+	mkdir($destination) || die "unable to make destination directory $destination  $!";
+	print MyLogFile "created $destination\n";
+    }
+    $outputDir = "$destination$MySlash$outputDir$MySlash";
+    print "$outputDir\n";
+}
 else
-	{
-		$destination=$Bin;
-		$outputDir = "$destination$MySlash$outputDir$MySlash";
-		print "output dir: $outputDir\n";
-	}
+{
+    $destination=$Bin;
+    $outputDir = "$destination$MySlash$outputDir$MySlash";
+    print "output dir: $outputDir\n";
+}
 #print "$destination\n";
 #print "$outputDir\n";
 #exit ();
@@ -173,6 +173,9 @@ print MyLogFile "Getmins = $getmins\n";
 my $htmlcycle = GetCycleHTML();	           
 my $htmlcycle = "1404";
 print "HTML cycle = $htmlcycle\n";
+open(MyChangedFile,  ">>changedplates$htmlcycle.txt") || die "Opening logfile.txt: $!";
+
+
 
 #exit ();
 
@@ -195,197 +198,197 @@ print MyLogFile "downloading $xmlFile for the cycle $htmlcycle\n";
 if (-e $xmlFile) {
 }
 else {
-system ($cmd) && die "unable to get $xmlFile: $!";
-	die "Can't find file \"$xmlFile\"" 	  
-		unless -f $xmlFile;
+    system ($cmd) && die "unable to get $xmlFile: $!";
+    die "Can't find file \"$xmlFile\"" 	  
+	unless -f $xmlFile;
 }
 
 if (! -e $outputDir)
 {
-	mkdir($outputDir) || die "unable to make directory plates:  $!";
+    mkdir($outputDir) || die "unable to make directory plates:  $!";
 }
 #time to load the XML for the actual work effort	
-	print "loading XML file. This could take a few minutes.\n";
-	print "Please stand by........\n";
-    	my $xmlRef = XML::XPath->new(filename => $xmlFile);
-    
-	# parse the xml doc
-	my $tppSet		= $xmlRef->find('//digital_tpp') || die "couldn't find digital_tpp node:  $!";
-	#CheckXML ($tppSet);
-	my $iAirports	= 0;
-	my $iCharts		= 0;
-	my $iChanged	= 0;
-	my $iDeleted    = 0;
-	my $iDownloaded	= 0;
-	my $iMinCharts  = 0;
-	my $iAddedCharts= 0;
-	my $iChanged	= 0;
-	my $iAirportDirCreated =0;
-	
-	foreach my $tpp ($tppSet->get_nodelist)# here come the parsing of the XML part
-    	{
-		my $xmlcycle		= $tpp->find('@cycle');
-		print "html cycle=$htmlcycle and xml cycle=$xmlcycle\n";
-		if ( $htmlcycle =~ $xmlcycle)# just in case there is some problem with the cycles
+print "loading XML file. This could take a few minutes.\n";
+print "Please stand by........\n";
+my $xmlRef = XML::XPath->new(filename => $xmlFile);
+
+# parse the xml doc
+my $tppSet		= $xmlRef->find('//digital_tpp') || die "couldn't find digital_tpp node:  $!";
+#CheckXML ($tppSet);
+my $iAirports	= 0;
+my $iCharts		= 0;
+my $iDeleted    = 0;
+my $iDownloaded	= 0;
+my $iMinCharts  = 0;
+my $iAddedCharts= 0;
+my $iChanged	= 0;
+my $iAirportDirCreated =0;
+
+foreach my $tpp ($tppSet->get_nodelist)# here come the parsing of the XML part
+{
+    my $xmlcycle		= $tpp->find('@cycle');
+    print "html cycle=$htmlcycle and xml cycle=$xmlcycle\n";
+    if ( $htmlcycle =~ $xmlcycle)# just in case there is some problem with the cycles
+    {
+	#print "do nothing\n";
+    } 
+    else
+    {
+	#print MyLogFile "html cycle:$htmlcycle does not equal xml cycle:$xmlcycle  . Terminating script.\n";
+	#print "html cycle:$htmlcycle does not equal xml cycle:$xmlcycle  . Terminating script.\n";
+	print MyLogFile "html cycle:$htmlcycle does not equal xml cycle:$xmlcycle  . The XML CATALOG IS OUT OF DATE!!!!\n";
+	print MyLogFile "Im getting the files from cycle $htmlcycle but with an out of date catalog, im surely missing a few plates and changes. The files I got are current\n";
+	print "html cycle:$htmlcycle does not equal xml cycle:$xmlcycle  . The XML CATALOG IS OUT OF DATE!!!!\n";
+	print "Im getting the files from cycle $htmlcycle but they are NOT CURRENT!\n";
+	$xmlcycle = $htmlcycle;#just force it to get the current cycle with an out of date catalog and hope for the best.
+	print "xmlcycle now is $xmlcycle\n";
+	#exit ();
+    }			
+    my $fromDate	= $tpp->find('@from_edate');
+    my $toDate		= $tpp->find('@to_edate');
+    print "NACO XML cycle:  $xmlcycle\n";
+    print "from:   $fromDate\n";
+    print "to:     $toDate\n";
+    print MyLogFile "NACO XML cycle:  $xmlcycle\n";
+    print MyLogFile "from:   $fromDate\n";
+    print MyLogFile "to:     $toDate\n";
+    print MyLogFile "NACO XML file cycle:  $xmlcycle\n";
+    #exit ();
+    my $stateList = $tpp->find('state_code');
+    foreach my $state ($stateList->get_nodelist)
+    {
+	my $stateName = $state->find('@state_fullname')->string_value;
+	my $stateID = $state->find('@ID')->string_value;
+	if ($statefolders=~"yes")
+	{
+	    $statefolder = ($stateName . $MySlash);
+	    
+	}
+	else
+	{
+	    $statefolder = ("");
+	}	
+	print MyLogFile "stateName:$stateName state ID:$stateID\n" if $debug=~"yes";
+	my $cityList = $state->find('city_name');
+	foreach my $city ($cityList->get_nodelist)
+	{
+	    my $cityName = $city->find('@ID')->string_value;
+	    #$cityName =~ s/[ |\/|\\]/-/g;# convert spaces and slashes to dash
+	    $cityName =~ s/[ |\/|\\|\.]/-/g;# convert spaces, ., and slashes to dash 
+	    if ($statefolders=~"yes")
+	    {
+		#$statefolder = ($statefolder . $cityName .$MySlash);
+		$cityNameDir = ($cityName . $MySlash);			
+	    }
+	    else
+	    {
+		$cityNameDir = ("");
+	    } 
+	    my $volumeID = $city->find('@volume')->string_value;
+	    #print "volumeID = $volumeID\n";
+	    #if (($states =~ m/$stateID/i) || ($getall=~"yes") || ($volumes =~m/$volumeID/i))
+	    my $airportList = $city->find('airport_name');
+	    foreach my $airport ($airportList->get_nodelist)
+	    {
+		$iAirports++;
+		my $airportID = $airport->find('@apt_ident')->string_value;
+		my $icaoID    = $airport->find('@icao_ident')->string_value;
+		print "airport:  $airportID, $icaoID\n" if $debug=~"yes";
+		my $recordList = $airport->find('record');
+		foreach my $record ($recordList->get_nodelist)
 		{
-			#print "do nothing\n";
-			} 
-		else
-		{
-			#print MyLogFile "html cycle:$htmlcycle does not equal xml cycle:$xmlcycle  . Terminating script.\n";
-			#print "html cycle:$htmlcycle does not equal xml cycle:$xmlcycle  . Terminating script.\n";
-			print MyLogFile "html cycle:$htmlcycle does not equal xml cycle:$xmlcycle  . The XML CATALOG IS OUT OF DATE!!!!\n";
-			print MyLogFile "Im getting the files from cycle $htmlcycle but with an out of date catalog, im surely missing a few plates and changes. The files I got are current\n";
-			print "html cycle:$htmlcycle does not equal xml cycle:$xmlcycle  . The XML CATALOG IS OUT OF DATE!!!!\n";
-			print "Im getting the files from cycle $htmlcycle but they are NOT CURRENT!\n";
-			$xmlcycle = $htmlcycle;#just force it to get the current cycle with an out of date catalog and hope for the best.
-			print "xmlcycle now is $xmlcycle\n";
-			#exit ();
-		}			
-		my $fromDate	= $tpp->find('@from_edate');
-		my $toDate		= $tpp->find('@to_edate');
-		print "NACO XML cycle:  $xmlcycle\n";
-		print "from:   $fromDate\n";
-		print "to:     $toDate\n";
-		print MyLogFile "NACO XML cycle:  $xmlcycle\n";
-		print MyLogFile "from:   $fromDate\n";
-		print MyLogFile "to:     $toDate\n";
-		print MyLogFile "NACO XML file cycle:  $xmlcycle\n";
-		#exit ();
-		my $stateList = $tpp->find('state_code');
-		foreach my $state ($stateList->get_nodelist)
-		{
-			my $stateName = $state->find('@state_fullname')->string_value;
-			my $stateID = $state->find('@ID')->string_value;
-			if ($statefolders=~"yes")
+		    print MyLogFile "states: $states stateID:$stateID stateName:$stateID cityName:$cityName airportID:$airportID\n" if $debug=~"yes";
+		    $iCharts++;
+		    my $chartCode = $record->find('chart_code');
+		    my $chartName = $record->find('chart_name');
+		    $chartName =~ s/[ |\/|\\]/-/g;	# convert spaces and slashes to dash
+		    $chartName =~ s/[(|)]//g;		# remove parens
+		    if ($longName)
+		    {
+			$chartName=($stateID . $MyDash . $airportID . $MyDash .  $chartName);
+			print "chartname:$chartName\n" if $debug=~"yes";
+			
+		    }	
+		    my $pdfName   = $record->find('pdf_name');
+		    my $useraction= $record->find('useraction');
+		    # skip the takeoff minimum charts
+		    if (($chartCode =~ /^MIN$/) && ($getmins=~"no"))
+		    {
+			$iMinCharts++;
+			print MyLogFile "stateID:$stateID stateName:$stateName cityName:$cityName airportID: $airportID chartName:$chartName skipped due to mins \n" if $debug=~"yes";
+			print "skipping min chart: $stateName $airportID  $chartName\n";
+		    }
+		    else
+		    {
+			if ($useraction =~ /D/)
 			{
-				$statefolder = ($stateName . $MySlash);
-								
+			    $iDeleted++;
+			    print MyLogFile "would have deleted $airportID, $chartName, $pdfName, changed:$useraction \n" if $debug=~"yes";
+			    if (-e ($outputDir . $statefolder . $cityNameDir . $airportID . $MySlash . $chartName . ".pdf"))
+			    {
+				unlink($outputDir . $statefolder. $cityNameDir . $airportID . $MySlash . $chartName . ".pdf") || warn "unable to delete old chart file:$outputDir$MySlash$airportID$MySlash$chartName.pdf  $!";
+				print "$chartName existed and it was deleted based on the FAA catalog forcedupdate:$forceupdate\n";
+				print MyLogFile "$chartName existed and it was deleted based on the FAA catalog forcedupdate:$forceupdate\n" if $debug=~"yes";
+				print MyLogFile "deleted $outputDir$MySlash$airportID$MySlash$chartName .pdf\n" if $debug=~"yes";
+			    }
+			    #else #should have been there
+			    #{
+			    #print "Catalog said $airportID  $chartName.pdf was to be deleted but it was not found.\n";
+			    #print MyLogFile "Catalog said $airportID  $chartName.pdf was to be deleted but it was not found.\n";
+			    #}
 			}
-			else
+			#print MyLogFile "stateID:$stateID states:$states \n";
+			
+			elsif (($states =~ m/$stateID/i) || ($volumes =~m/$volumeID/i) || ($states =~ "all"))
 			{
-				$statefolder = ("");
-			}	
-			print MyLogFile "stateName:$stateName state ID:$stateID\n" if $debug=~"yes";
-			my $cityList = $state->find('city_name');
-			foreach my $city ($cityList->get_nodelist)
-			{
-				my $cityName = $city->find('@ID')->string_value;
-				#$cityName =~ s/[ |\/|\\]/-/g;# convert spaces and slashes to dash
-				$cityName =~ s/[ |\/|\\|\.]/-/g;# convert spaces, ., and slashes to dash 
-				if ($statefolders=~"yes")
+			    print MyLogFile "would have downloaded $airportID, $chartName, $pdfName, changed:$useraction \n" if $debug=~"yes";
+			    my $outputFile = $outputDir . $statefolder . $cityNameDir .$airportID . $MySlash . $chartName . ".pdf";
+			    if (($useraction =~ /[A|C]/ ) || ($forceupdate =~ "yes") || (! -e ($outputFile)) ) 
+			    {
+				if ($useraction =~ /C/)
 				{
-					#$statefolder = ($statefolder . $cityName .$MySlash);
-					$cityNameDir = ($cityName . $MySlash);			
+				    print MyChangedFile "${airportID}/${chartName}.pdf\n";
+				    $iChanged++;
+				}
+				if ($useraction =~ /A/)
+				{
+				    $iAddedCharts++;
+				}
+				
+				print "$airportID, $chartName, $pdfName, changed?  $useraction\n";
+				print MyLogFile "would have downloaded $airportID, $chartName, $pdfName, changed:$useraction \n" if $debug=~"yes";
+				if (! -e ($outputDir . $statefolder .  $airportID))
+				{
+				    mkdir ($outputDir . $statefolder); 
+				    mkdir ($outputDir . $statefolder . $cityNameDir);
+				    mkdir ($outputDir . $statefolder . $cityNameDir . $airportID);
+				    print ("$outputDir$statefolder$airportID\n");
+				    $iAirportDirCreated++;
+				    #print MyLogFile "Airport dir created $outputDir$MySlash$airportID count:$iAirportDirCreated\n" if $debug=~"yes";
+				}
+				#$cmd = $wgetCmd . $MySlash . $outputFile . $MySlash . $webServer . $xmlcycle . $MySlash . $pdfName;
+				$cmd = $wgetCmd . "\"" . $outputFile . "\" " . $webServer . $xmlcycle . "/" . $pdfName;
+				if (!($debug=~"yes"))
+				{
+				    #print MyLogFile "airport: $airportID Chartname: $chartName useraction:$useraction forceupdate:$forceupdate \n" if $debug=~"yes";
+				    system($cmd);
+				    $iDownloaded++;
+				    $filesize = ($filesize + (-s "$outputFile"));
 				}
 				else
 				{
-					$cityNameDir = ("");
-				} 
-				my $volumeID = $city->find('@volume')->string_value;
-				#print "volumeID = $volumeID\n";
-				#if (($states =~ m/$stateID/i) || ($getall=~"yes") || ($volumes =~m/$volumeID/i))
-				my $airportList = $city->find('airport_name');
-				foreach my $airport ($airportList->get_nodelist)
-				{
-					$iAirports++;
-					my $airportID = $airport->find('@apt_ident')->string_value;
-					my $icaoID    = $airport->find('@icao_ident')->string_value;
-					print "airport:  $airportID, $icaoID\n" if $debug=~"yes";
-					my $recordList = $airport->find('record');
-					foreach my $record ($recordList->get_nodelist)
-					{
-						print MyLogFile "states: $states stateID:$stateID stateName:$stateID cityName:$cityName airportID:$airportID\n" if $debug=~"yes";
-						$iCharts++;
-						my $chartCode = $record->find('chart_code');
-						my $chartName = $record->find('chart_name');
-						$chartName =~ s/[ |\/|\\]/-/g;	# convert spaces and slashes to dash
-						$chartName =~ s/[(|)]//g;		# remove parens
-						if ($longName)
-						{
-							$chartName=($stateID . $MyDash . $airportID . $MyDash .  $chartName);
-							print "chartname:$chartName\n" if $debug=~"yes";
-							
-						}	
-						my $pdfName   = $record->find('pdf_name');
-						my $useraction= $record->find('useraction');
-						# skip the takeoff minimum charts
-						if (($chartCode =~ /^MIN$/) && ($getmins=~"no"))
-						{
-							$iMinCharts++;
-							print MyLogFile "stateID:$stateID stateName:$stateName cityName:$cityName airportID: $airportID chartName:$chartName skipped due to mins \n" if $debug=~"yes";
-							print "skipping min chart: $stateName $airportID  $chartName\n";
-						}
-						else
-						{
-							if ($useraction =~ /D/)
-							{
-								$iDeleted++;
-								print MyLogFile "would have deleted $airportID, $chartName, $pdfName, changed:$useraction \n" if $debug=~"yes";
-								if (-e ($outputDir . $statefolder . $cityNameDir . $airportID . $MySlash . $chartName . ".pdf"))
-								{
-									unlink($outputDir . $statefolder. $cityNameDir . $airportID . $MySlash . $chartName . ".pdf") || warn "unable to delete old chart file:$outputDir$MySlash$airportID$MySlash$chartName.pdf  $!";
-									print "$chartName existed and it was deleted based on the FAA catalog forcedupdate:$forceupdate\n";
-									print MyLogFile "$chartName existed and it was deleted based on the FAA catalog forcedupdate:$forceupdate\n" if $debug=~"yes";
-									print MyLogFile "deleted $outputDir$MySlash$airportID$MySlash$chartName .pdf\n" if $debug=~"yes";
-								}
-								#else #should have been there
-								#{
-								#print "Catalog said $airportID  $chartName.pdf was to be deleted but it was not found.\n";
-								#print MyLogFile "Catalog said $airportID  $chartName.pdf was to be deleted but it was not found.\n";
-								#}
-							}
-							#print MyLogFile "stateID:$stateID states:$states \n";
-							
-							elsif (($states =~ m/$stateID/i) || ($volumes =~m/$volumeID/i) || ($states =~ "all"))
-							{
-								print MyLogFile "would have downloaded $airportID, $chartName, $pdfName, changed:$useraction \n" if $debug=~"yes";
-								my $outputFile = $outputDir . $statefolder . $cityNameDir .$airportID . $MySlash . $chartName . ".pdf";
-								if (($useraction =~ /[A|C]/ ) || ($forceupdate =~ "yes") || (! -e ($outputFile)) ) 
-								{
-									if ($useraction =~ /C/)
-									{
-										$iChanged++;
-									}
-									if ($useraction =~ /A/)
-									{
-										$iAddedCharts++;
-									}
-									
-									print "$airportID, $chartName, $pdfName, changed?  $useraction\n";
-									print MyLogFile "would have downloaded $airportID, $chartName, $pdfName, changed:$useraction \n" if $debug=~"yes";
-									if (! -e ($outputDir . $statefolder .  $airportID))
-									{
-										mkdir ($outputDir . $statefolder); 
-										mkdir ($outputDir . $statefolder . $cityNameDir);
-										mkdir ($outputDir . $statefolder . $cityNameDir . $airportID);
-										print ("$outputDir$statefolder$airportID\n");
-										$iAirportDirCreated++;
-										#print MyLogFile "Airport dir created $outputDir$MySlash$airportID count:$iAirportDirCreated\n" if $debug=~"yes";
-									}
-									#$cmd = $wgetCmd . $MySlash . $outputFile . $MySlash . $webServer . $xmlcycle . $MySlash . $pdfName;
-									$cmd = $wgetCmd . "\"" . $outputFile . "\" " . $webServer . $xmlcycle . "/" . $pdfName;
-									if (!($debug=~"yes"))
-									{
-										#print MyLogFile "airport: $airportID Chartname: $chartName useraction:$useraction forceupdate:$forceupdate \n" if $debug=~"yes";
-										system($cmd);
-										$iDownloaded++;
-										$filesize = ($filesize + (-s "$outputFile"));
-									}
-									else
-									{
-										print MyLogFile "command:$cmd\n";
-										print "$cmd\n";
-																				
-									}
-								}
-							}
-						}
-					}
+				    print MyLogFile "command:$cmd\n";
+				    print "$cmd\n";
+				    
 				}
+			    }
 			}
+		    }
 		}
-	}		
+	    }
+	}
+    }
+}		
 my $iEndTime = (time);
 my $RunTime = ($iEndTime-$iStartTime)/60;
 $filesize = $filesize/1024/1024;#get to megabytes
@@ -422,52 +425,52 @@ exit 0;
 #routine to get the cycle number from the FAA website	
 sub GetCycleHTML
 {
-	#was having issues with sget replacing the file. Have to delete.
-	if (-e $indexFile)
+    #was having issues with sget replacing the file. Have to delete.
+    if (-e $indexFile)
+    {
+	unlink($indexFile);
+	#print "$indexFile\n";
+    }
+    #my $cmd = $wgetCmd . " d-tpp-index.html " . $tppIndex;
+    my $cmd = $wgetCmd . " $indexFile " . $tppIndex;
+    print MyLogFile "$cmd\n" if $debug=~"yes";
+    system($cmd);
+    
+    my $htmlcycle = "";
+    
+    open(INFILE, "d-tpp-index.html") || die "unable to open d-tpp-index.html:  $!";
+    while (my $line = <INFILE>)
+    {
+	#print "$line\n";
+	if ($line =~ /\"><a href=\"\/digital_tpp.asp\?ver=(\d{4})/ )
 	{
-		unlink($indexFile);
-		#print "$indexFile\n";
+	    #print $line;
+	    $htmlcycle = $1;
 	}
-	#my $cmd = $wgetCmd . " d-tpp-index.html " . $tppIndex;
-	my $cmd = $wgetCmd . " $indexFile " . $tppIndex;
-	print MyLogFile "$cmd\n" if $debug=~"yes";
-	system($cmd);
-	
-	my $htmlcycle = "";
-	
-	open(INFILE, "d-tpp-index.html") || die "unable to open d-tpp-index.html:  $!";
-	while (my $line = <INFILE>)
-	{
-		#print "$line\n";
-		if ($line =~ /\"><a href=\"\/digital_tpp.asp\?ver=(\d{4})/ )
-		{
-			#print $line;
-			$htmlcycle = $1;
-		}
-	}
-	
-	close(INFILE);
-	#was having issues with sget replacing the file. Have to delete.
-	if (-e $indexFile)
-	{
-		unlink($indexFile);
-		print "$indexFile\n";
-	}
-	return $htmlcycle;
+    }
+    
+    close(INFILE);
+    #was having issues with sget replacing the file. Have to delete.
+    if (-e $indexFile)
+    {
+	unlink($indexFile);
+	print "$indexFile\n";
+    }
+    return $htmlcycle;
 }
 #not used yet
 sub CheckXML
 {
-	my $FileToCheck=shift;
-	print "$FileToCheck\n";
-	exit ();
+    my $FileToCheck=shift;
+    print "$FileToCheck\n";
+    exit ();
 }
-	
+
 ##################################################################
 #
 # This is old depricated stuff that I may have to use again some day
 #
 ##################################################################                                   
 
-	
+
 

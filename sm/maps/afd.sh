@@ -33,6 +33,7 @@ NP=16
 
 CYCLE=`./cycledates.sh 56`
 
+[[ -d afd ]] && rm -fr afd
 mkdir afd
 
 sed s/29MAY2014/${CYCLE}/ dlafd.pl > tmp_dlafd.pl
@@ -69,4 +70,4 @@ zip -r -i \*ec\*\*.png -9 -T -q final/AFD_EC.zip afd
 zip -r -i \*ak\*\*.png -9 -T -q final/AFD_AK.zip afd
 zip -r -i \*pac\*\*.png -9 -T -q final/AFD_PAC.zip afd
 
-rm -rf afd
+# rm -rf afd

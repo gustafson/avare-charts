@@ -25,35 +25,37 @@ function download {
 
     echo Starting $1
 
-    if [[ -d plates_$1 ]]; then
-	rsync -avP --del plates_$1/ plates/
-    else
-	perl tmp_DownloadPlates.pl --states=$1 || exit $?
-    fi
+    perl tmp_DownloadPlates.pl --states=$1 || exit $?
 
+    if [[ -d plates.archive/$CYCLE/plates_$1 ]]; then
+ 	rsync -avP --del plates.archive/$CYCLE/plates_$1/ plates/
+    else
+ 	perl tmp_DownloadPlates.pl --states=$1 || exit $?
+    fi
+    
     ## Remove special characters from file names.  These mess up xargs below.
     rename "'" "" `find plates -name "*.pdf"`
     rename "," "" `find plates -name "*.pdf"`
-
+    
     [[ -d final ]] || mkdir final
     [[ -f final/$1.zip ]] && rm final/$1.zip
     find plates -name "*.pdf" | 
     xargs -P ${NP} -n 1 mogrify -dither none -antialias -density ${DPI} -depth 8 -quality 00 -background white -alpha remove -colors 15 -format png
     wait
-
+    
     find plates -name "*.png"| xargs -P ${NP} -n 1 optipng -quiet
     wait
-
+    
     zip -r -i "*.png" -1 -T -q final/$1.zip plates
-    find plates -name "*png" | xargs rm
+    ## find plates -name "*png" | xargs rm
 
-    rsync -avPq plates/ plates_$1/
+    [[ -d plates.archive/$CYCLE ]] || mkdir -p plates.archive/$CYCLE
+    rsync -avPq plates/ plates.archive/$CYCLE/plates_$1/
     rm -fr plates
 
 }
 
 if [[ -d plates ]]; then rm -rf plates; fi
-mkdir plates
 
 download PR
 download DC 

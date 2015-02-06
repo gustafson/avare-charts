@@ -14,5 +14,5 @@ rm -rf saadir
 wget --no-check-certificate -N https://nfdc.faa.gov/webContent/56DaySub/$1/aixm5.0.zip 
 unzip aixm5.0.zip -d saadir
 unzip saadir/SAA-AIXM_5_Schema/SaaSubscriberFile.zip -d saadir
-unzip saadir/Saa_Sub_file.zip -d saadir
+unzip saadir/Saa_Sub_File.zip -d saadir
 
