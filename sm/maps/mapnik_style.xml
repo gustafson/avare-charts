@@ -1,24 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-#Copyright (c) 2012, Zubair Khan (governer@gmail.com)
-#All rights reserved.
-#
-#Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-#
-#    * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-#    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-#
-#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
---!>
- <Map background-color="#ffffff" srs="+proj=latlong +datum=WGS84">
+ <Map background-color="#ffffff">
 	<FontSet name="book-fonts">
 		<Font face-name="DejaVu Sans Book" />
 	</FontSet>
 	<Style name="layermain">
         <Rule>
 			<LineSymbolizer stroke="#0000FF" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
-			<TextSymbolizer name="[name]" fontset-name="book-fonts" size="14" fill="#000000" halo-radius="10" placement="line" />
+			<TextSymbolizer name="[name]" fontset-name="book-fonts" size="14" fill="#000000" halo-radius="1" placement="line" />
 		</Rule>
         <Rule>
             <Filter>[amenity] = 'restaurant' </Filter>
@@ -27,15 +15,15 @@
         <Rule>
             <Filter>[aeroway] = 'runway' </Filter>
 			<LineSymbolizer stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
-			<TextSymbolizer name="[ref]" fontset-name="book-fonts" size="20" fill="#000000" halo-radius="10" placement="line" />
+			<TextSymbolizer name="[ref]" fontset-name="book-fonts" size="20" fill="#000000" halo-radius="1" placement="line" />
 		</Rule>
         <Rule>
             <Filter>[aeroway] = 'taxiway' </Filter>
 			<LineSymbolizer stroke="#000000" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
-			<TextSymbolizer name="[ref]" fontset-name="book-fonts" size="20" fill="#000000" halo-radius="10" placement="line" />
+			<TextSymbolizer name="[ref]" fontset-name="book-fonts" size="20" fill="#000000" halo-radius="1" placement="line" />
 		</Rule>
 	</Style>
-	<Layer name="layermain" status="on" srs="+proj=latlong +datum=WGS84">
+	<Layer name="layermain" status="on">
 		<StyleName>layermain</StyleName>
 		<Datasource>
 			<Parameter name="type">osm</Parameter>
