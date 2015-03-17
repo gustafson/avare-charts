@@ -21,13 +21,13 @@ import shutil
 
 def todb(values,proc):
 	try:
-	    con = lite.connect('geoplates.db')
+	    con = lite.connect('areaplates.db')
 
 	    cur = con.cursor()  
 
-	    script = "CREATE TABLE IF NOT EXISTS geoplates(proc varchar(128), dx float, dy float, lon float, lat float);" 
-	    script += "DELETE FROM geoplates where proc='" + proc + "';";
-	    script += "INSERT INTO geoplates VALUES(" + values + ");";
+	    script = "CREATE TABLE IF NOT EXISTS areaplates(proc varchar(128), dx float, dy float, lon float, lat float);" 
+	    script += "DELETE FROM areaplates where proc='" + proc + "';";
+	    script += "INSERT INTO areaplates VALUES(" + values + ");";
 
 	    cur.executescript(script)
 
@@ -158,7 +158,7 @@ def do_one(airport,lonc,latc):
 	width = 0.015 / math.cos(latc / 57.3)
 	height = 0.015
 
-	# plates calculations
+	# chart calculations
 	latu=latc + height
 	latd=latc - height
 	lonl=lonc - width
@@ -193,16 +193,16 @@ def do_one(airport,lonc,latc):
 	m.zoom_to_box(transform.forward(bbox))
 
 	# Store in plates folder
-	if not os.path.exists("plates"):
-	    os.makedirs("plates")
+	if not os.path.exists("area"):
+	    os.makedirs("area")
 
-	if not os.path.exists("plates/" + airport):
-	    os.makedirs("plates/" + airport)
+	if not os.path.exists("area/" + airport):
+	    os.makedirs("area/" + airport)
 
     	# render the map to an image
     	im = Image(x,y)
     	render(m, im)
-    	im.save("plates/" + airport + "/" + map_output,'png8:z=9:t=0')
+    	im.save("area/" + airport + "/" + map_output,'png8:z=9:t=0')
 
 	# This for database
 	out = "'" + airport + "/" + map_output + "','" + str(dx) + "','" + str(dy) + "','" + str(lonl) + "','" + str(latu) + "'"
