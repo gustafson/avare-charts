@@ -25,9 +25,9 @@ def todb(values,proc):
 
 	    cur = con.cursor()  
 
-	    script = "CREATE TABLE IF NOT EXISTS areaplates(proc varchar(128), dx float, dy float, lon float, lat float);" 
-	    script += "DELETE FROM areaplates where proc='" + proc + "';";
-	    script += "INSERT INTO areaplates VALUES(" + values + ");";
+	    script = "CREATE TABLE IF NOT EXISTS geoplates(proc varchar(128), dx float, dy float, lon float, lat float);" 
+	    script += "DELETE FROM geoplates where proc='" + proc + "';";
+	    script += "INSERT INTO geoplates VALUES(" + values + ");";
 
 	    cur.executescript(script)
 
@@ -185,7 +185,7 @@ def do_one(airport,lonc,latc):
 	m.srs = outproj.params()
 
 	# bounded by
-	bbox=(Envelope(lonc - width, latc + height, lonc + width, latc - height))
+	bbox=(Envelope(lonl, latu, lonr, latd))
 
 	# our bound must be transformed
 	transform = ProjTransform(inproj,outproj)
