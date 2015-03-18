@@ -27,6 +27,23 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+
+
+# Canada
+num=0
+rm -rf area 
+mkdir area
+for input in `sqlite3 main.db "select LocationID,ARPLongitude,ARPLatitude from airports where Type like '%_airport' or State='CN'"`; do
+    echo $input;
+    ./streets.py $input &
+    num=$((num + 1));
+    if [ $num -eq 4 ] ; then wait ; num=0 ; fi;
+done
+files=`sqlite3 main.db "select LocationID from airports where Type like '%_airport' or State='CN'"`
+rm AreaCN.zip
+zip -r -9 AreaCN.zip `echo $files | sed 's/\([a-zA-Z0-9]*\)/area\/\1/g'`
+
+#USA
 STATES="PR AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY"
 
 num=0
