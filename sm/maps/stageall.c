@@ -13,6 +13,7 @@ void out(char *buffer){
 	printf("Attempt %i failed, reattempting: ",count++);
 	printf("Attempted command: %s\n",buffer);
 	printf("\n");
+	// sleep(3);
       }else{
 	printf("Attempt %i failed, Thus, last attempt failed. ",count++);
 	printf("Attempted command: %s\n",buffer);

@@ -52,8 +52,8 @@ all:
 	@echo "  make plates-png #$$(./cycledates.sh 28)"
 	@echo "  make mins-data #$$(./cycledates.sh 28)"
 	@echo "  make afd-data #$$(./cycledates.sh 56)"
-	@echo "  make download-base-data #$$(./cycledates.sh base) $$(./cycledates.sh 56 dof)"
-	@echo "  make process-data #$$(./cycledates.sh base)"
+	@echo "  make download-base-data #$$(./cycledates.sh 56 base) $$(./cycledates.sh 56 dof)"
+	@echo "  make process-data #$$(./cycledates.sh 56 base)"
 	@echo "  make procedures.db #$$(./cycledates.sh 28)"
 	@echo "  make geolist #$$(./cycledates.sh 28)"
 	@echo "  make ziptiles"
@@ -68,6 +68,7 @@ clean:
 	rm -rf merge ads.txt
 	rm sepsec septac stagesec stageifr stageifa stageifh stagetac *.tif *.jpg *.xml
 	rm files*.csv logfile.txt *.log
+	rm ifr-gps-currency*{kmz,json,txt}
 
 download-base-data:
 	$$(rm -f APT.txt AWOS.txt FIX.txt TWR.txt DOF.DAT NAV.txt aixm5.0.zip DAILY_DOF.ZIP)
@@ -101,9 +102,6 @@ plates-png:
 	### Currently buying plate xml file so this isn't needed.
 	## [[ -f d-TPP_Metafile.xml ]] && rm d-TPP_Metafile.xml || echo
 	[[ -f d-TPP_Metafile.xml.zip.$$(./cyclenumber.sh) ]] && unzip -o d-TPP_Metafile.xml.zip.$$(./cyclenumber.sh)
-	[[ -d plates ]] && rm -fr plates
-	## rm -rf plates_[A-Z][A-Z]
-	mkdir plates
 	./plates_png.sh
 
 afd-data:
@@ -146,35 +144,23 @@ download-ifr:
 	./dlifa.sh $$(./cycledates.sh 56 ifr)
 
 unzip:
-	cd charts/tac && rm -rf *.tif && unzip -j \*.zip \*.tif && \
-	for file in *\ *; do \
-	  mv "$$file" `echo $$file | sed 's/ //g'`;\
-	done && \
+	rm charts/*/*tif
+	cd charts/tac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	rm -f NewYorkTACVFRPlanningCharts*.tif
-	cd charts/wac && rm -f *.tif && unzip -j \*.zip \*.tif && \
-	for file in *\ *; do \
-	  mv "$$file" `echo $$file | sed 's/ //g'`;\
-	done
-	cd charts/sec && rm -f *.tif && unzip -j \*.zip \*.tif && \
-	for file in *\ *; do \
-	  mv "$$file" `echo $$file | sed 's/ //g'`;\
-	done
-	cd charts/oth && rm -f *.tif && unzip -j \*.zip \*.tif && \
-	for file in *\ *; do \
-	  mv "$$file" `echo $$file | sed 's/ //g'`;\
-	done
-	cd charts/ifh  && rm -f *.tif && unzip -j \*.zip \*.tif
-	cd charts/ifa  && rm -f *.tif && unzip -j \*.zip \*.tif
-	cd charts/iff  && rm -f *.tif && unzip -j \*.zip \*.tif
-	cd charts/ifah && rm -f *.tif && unzip -j \*.zip \*.tif
-	cd charts/ifal && rm -f *.tif && unzip -j \*.zip \*.tif
-	cd charts/oth && rm -f *.tif && unzip -j \*.zip \*.tif && \
-	for file in *\ *; do \
-	  mv "$$file" `echo $$file | sed 's/ //g'`;\
-	done
+	cd charts/wac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	cd charts/sec  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	cd charts/oth  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	cd charts/ifh  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	cd charts/ifa  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	cd charts/iff  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	cd charts/ifah && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	cd charts/ifal && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	rename " " "" charts/*/*tif
+	rename " " "" charts/*/*tif
+	rename " " "" charts/*/*tif
 
 
-stageall: retile
+stage-all: retile
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	gcc -march=native -O3 -Wall stagesec.c -o stagesec -fopenmp
 	gcc -march=native -O3 -Wall stagetac.c -o stagetac -fopenmp

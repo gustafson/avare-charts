@@ -35,6 +35,9 @@ if [[ ${CYCLEDAYS} -eq 56 ]]; then
 elif [[ ${CYCLEDAYS} -eq 28 ]]; then
     SREF=$(( ($TOD-$REF)/86400%28 ))
     SREF=$((28-$SREF))
+else
+    echo Length of cycle required as argument \(28 or 56\)
+    exit
 fi
 
 ## If more than three weeks in the future, pick the last date
