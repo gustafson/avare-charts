@@ -7,7 +7,6 @@
 ##
 
 if [[ $# -ne 1 ]] ; then NP=32; else NP=1; fi
-NP=16
 
 function svgtext(){
 cat << EOF
