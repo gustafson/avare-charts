@@ -38,6 +38,7 @@ rm *manualcheck 2> /dev/null
 unzip -q ../qualitycontrol.zip
 
 for a in *zip.qc.ref; do
+##for a in *zip; do  ## For adding new files to record -- use this an ignore errors
     b=`basename $a .qc.ref`;
 
     ## Count files and total file size

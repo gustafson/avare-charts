@@ -146,7 +146,6 @@ download-ifr:
 unzip:
 	rm charts/*/*tif
 	cd charts/tac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
-	rm -f NewYorkTACVFRPlanningCharts*.tif
 	cd charts/wac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	cd charts/sec  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	cd charts/oth  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
@@ -155,6 +154,9 @@ unzip:
 	cd charts/iff  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	cd charts/ifah && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	cd charts/ifal && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	#
+	rm charts/tac/*Planning*tif
+	rename " " "" charts/*/*tif
 	rename " " "" charts/*/*tif
 	rename " " "" charts/*/*tif
 	rename " " "" charts/*/*tif

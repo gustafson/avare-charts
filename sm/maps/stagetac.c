@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     // out(buffer);
 
     snprintf(buffer, sizeof(buffer),
-	     "gdal_translate -expand rgb `ls charts/%s/%s*.tif|tail -n1` %s.tif",
+	     "gdal_translate -expand rgb `ls charts/%s/%s*.tif|grep -vi planning | tail -n1` %s.tif",
 	     dir_ptr, n_ptr, tmpstr);
     out(buffer);
 
