@@ -52,6 +52,9 @@ int main(int argc, char *argv[])
   char buffer[512];
   char tmpstr[512];
   char mbuffer[4096];
+  char projstr[512];
+  snprintf(projstr, sizeof(projstr)," +proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over ");
+
   char *n_ptr;
   char *dir_ptr;
 
@@ -82,8 +85,8 @@ int main(int argc, char *argv[])
     out(buffer);
 
     snprintf(buffer, sizeof(buffer),
-	     "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -q -r cubicspline -t_srs WGS84 %s.tif %s_w.tif",
-	     tmpstr, tmpstr);
+	     "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -q -r cubicspline -t_srs WGS84 %s %s.tif %s_w.tif",
+	     projstr, tmpstr, tmpstr);
     out(buffer);
 		
     snprintf(buffer, sizeof(buffer),
@@ -105,7 +108,7 @@ int main(int argc, char *argv[])
 
   int gdw=0;
   if (gdw){
-    sprintf(mbuffer, "gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 ");
+    sprintf(mbuffer, "gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 %s", projstr);
   }else{
     sprintf(mbuffer, "gdal_merge.py -o tac.tif ");
   }
@@ -138,7 +141,7 @@ int main(int argc, char *argv[])
 
   // Do alaska merge
   if (gdw){
-    sprintf(mbuffer, "gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 merge/TC/{AnchorageTAC.tif,FairbanksTAC.tif} tac-ak.tif");
+    sprintf(mbuffer, "gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 %s merge/TC/{AnchorageTAC.tif,FairbanksTAC.tif} tac-ak.tif", projstr);
   }else{
     sprintf(mbuffer, "gdal_merge.py -o tac-ak.tif merge/TC/{AnchorageTAC.tif,FairbanksTAC.tif}");
   }

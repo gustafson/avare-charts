@@ -156,6 +156,7 @@ unzip:
 	cd charts/iff  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	cd charts/ifah && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	cd charts/ifal && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	# cd charts/heli && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	#
 	rm charts/tac/*Planning*tif
 	rename " " "" charts/*/*tif

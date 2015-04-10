@@ -51,7 +51,9 @@ int main(int argc, char *argv[])
   int map;
   char buffer0[512];
   char buffer1[512];
-  char tmpstr[128];
+  char tmpstr[512];
+  char projstr[512];
+  snprintf(projstr, sizeof(projstr)," +proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over ");
   char *n_ptr;
   char *dir_ptr;
 
@@ -92,8 +94,8 @@ int main(int argc, char *argv[])
       out(buffer0);
 
       snprintf(buffer0, sizeof(buffer0),  
-	       "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs WGS84 -tr 0.001253199658703 0.001253199658703 %s.tif merge/%s/%s_c",
-	       tmpstr,
+	       "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs WGS84 %s -tr 0.001253199658703 0.001253199658703 %s.tif merge/%s/%s_c",
+	       projstr, tmpstr,
 	       maps[map].reg,
 	       n_ptr);
       if (map==4){
@@ -126,10 +128,10 @@ int main(int argc, char *argv[])
   {
     map = omp_get_thread_num();
     if (map==0){
-      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.001253199658703 0.001253199658703 -te -180 45.5 -121.25 72 merge/IFAL/*_c.tif ifal-west.tif");
+      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84  +proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over -tr 0.001253199658703 0.001253199658703 -te -180 45.5 -121.25 72 merge/IFAL/*_c.tif ifal-west.tif");
       out("gdal_translate -outsize 10% 10% -of JPEG ifal-west.tif ifal-west_small.jpg");
     } else if (map==1){
-      // out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.001253199658703 0.001253199658703 -te 172.5 48 180 56 merge/IFAL/*_c.tif ifal-east.tif");
+      // out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84  +proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over -tr 0.001253199658703 0.001253199658703 -te 172.5 48 180 56 merge/IFAL/*_c.tif ifal-east.tif");
       out("gdal_translate -outsize 10% 10% -of JPEG ifal-east.tif ifal-east_small.jpg");
     }
   }

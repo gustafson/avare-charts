@@ -50,7 +50,9 @@ int main(int argc, char *argv[])
 {
   int map;
   char buffer[512];
-  char tmpstr[128];
+  char tmpstr[512];
+  char projstr[512];
+  snprintf(projstr, sizeof(projstr)," +proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over ");
   char *n_ptr;
   char *dir_ptr;
 
@@ -86,8 +88,8 @@ int main(int argc, char *argv[])
       out(buffer);
 
       snprintf(buffer, sizeof(buffer),  
-	       "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs WGS84 -tr 0.002 0.002 %s.tif merge/%s/%s_%i_c.tif",
-	       tmpstr,
+	       "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs WGS84 %s -tr 0.002 0.002 %s.tif merge/%s/%s_%i_c.tif",
+	       projstr, tmpstr,
 	       maps[map].reg,
 	       n_ptr, map);
       if (map==2){
@@ -107,10 +109,10 @@ int main(int argc, char *argv[])
   {
     map = omp_get_thread_num();
     if (map==0){
-      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.002 0.002 -te -180 43 -119.35 74.25 merge/IFAH/*_c.tif ifah-west.tif");
+      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 +proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over -tr 0.002 0.002 -te -180 43 -119.35 74.25 merge/IFAH/*_c.tif ifah-west.tif");
       out("gdal_translate -outsize 10% 10% -of JPEG ifah-west.tif ifah-west_small.jpg");
     } else if (map==1){
-      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 -tr 0.002 0.002 -te 152.5 41.25 180 62.25 tmp-stageifah/tmpstageifah2.tif ifah-east.tif");
+      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 +proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over -tr 0.002 0.002 -te 152.5 41.25 180 62.25 tmp-stageifah/tmpstageifah2.tif ifah-east.tif");
       out("gdal_translate -outsize 10% 10% -of JPEG ifah-east.tif ifah-east_small.jpg");
     }
   }
