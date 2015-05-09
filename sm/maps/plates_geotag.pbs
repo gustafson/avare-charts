@@ -8,6 +8,7 @@
 #PBS -N plates_geotag
 #PBS -e z-logs/z.plates_geotag.${PBS_JOBID}.e
 #PBS -o z-logs/z.plates_geotag.${PBS_JOBID}.o
+#PBS -t 1-16
 
 #!/bin/bash
 # Copyright (c) 2013, Peter A. Gustafson (peter.gustafson@wmich.edu)
@@ -63,6 +64,6 @@ export OMP_NUM_THREADS=${NP}
 
 ###############################
 [[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
-/usr/bin/time -v -o ${PBS_JOBNAME}.log -a ./plates_geotag.sh > ${PBS_JOBNAME}.log
+/usr/bin/time -v -o ${PBS_JOBNAME}.log -a ./plates_geotag.sh ${PBS_ARRAYID} > ${PBS_JOBNAME}.log
 wait
 ###############################
