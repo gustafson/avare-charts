@@ -30,7 +30,7 @@ my $startdate = "";
 my $enddate = "";
 my $lat = 0;
 my $lon = 0;
-my $day = "";
+my $note = "";
 my $ftx = "";
 my $frx = "";
 my $timeref = "";
@@ -50,7 +50,7 @@ my $p_endtime = 0;
 my $p_startdate = 0;
 my $p_enddate = 0;
 my $p_pos = 0;
-my $p_day = 0;
+my $p_note = 0;
 my $p_ftx = "";
 my $p_frx = "";
 my $p_timeref = 0;
@@ -68,7 +68,7 @@ sub initnew {
     $endtime = "";
     $startdate = "";
     $enddate = "";
-    $day = "";
+    $note = "";
     $ftx = "";
     $frx = "";
     $timeref = "";
@@ -89,7 +89,7 @@ sub initnew {
     $p_endtime = 0;
     $p_startdate = 0;
     $p_enddate = 0;
-    $p_day = 0;
+    $p_note = 0;
     $p_ftx = 0;
     $p_frx = 0;
     $p_timeref = 0;
@@ -121,9 +121,6 @@ sub hdl_start{
         if($elt eq 'endDate') {
             $p_enddate = 1;
         }
-        if($elt eq 'day') {
-            $p_day = 1;
-        }
         if($elt eq 'timeReference') {
             $p_timeref = 1;
         }
@@ -149,6 +146,9 @@ sub hdl_start{
         }
         if($elt eq 'pos') {
             $p_pos = 1;
+        }
+        if($elt eq 'note') {
+            $p_note = 1;
         }
     }
     if($p_rfcomm == 1) {
@@ -195,6 +195,9 @@ sub hdl_end {
         if($elt eq 'pos') {
             $p_pos = 0;
         }
+        if($elt eq 'note') {
+            $p_note = 0;
+        }
     }
     if($p_airspaceusage == 1) {
         if($elt eq 'startTime') {
@@ -208,9 +211,6 @@ sub hdl_end {
         }
         if($elt eq 'endDate') {
             $p_enddate = 0;
-        }
-        if($elt eq 'day') {
-            $p_day = 0;
         }
         if($elt eq 'timeReference') {
             $p_timeref = 0;
@@ -261,8 +261,8 @@ sub hdl_char {
     if($p_enddate != 0) {
         $enddate = $str;
     }
-    if($p_day != 0) {
-        $day = $str;
+    if($p_note != 0) {
+        $note = $str;
     }
     if($p_ftx != 0) {
         $ftx .= $str . " ";
@@ -302,7 +302,7 @@ while (my $file = readdir(DIR)) {
         $parser->parsefile($direct.$file);
         $lat = $lat / $numpos;
         $lon = $lon / $numpos;
-        printf "%s,%s,%s %s,%s %s,%s,%s,%s,%s,%s,%s,%s,%s,%.4f,%.4f\n", $designator,$name,$upperlimit,$upperlimitref,$lowerlimit,$lowerlimitref,$starttime,$endtime,$timeref,$startdate,$enddate,$day,$ftx,$frx,$lat,$lon;
+        printf "%s,%s,%s %s,%s %s,%s,%s,%s,%s,%s,%s,%s,%s,%.4f,%.4f\n", $designator,$name,$upperlimit,$upperlimitref,$lowerlimit,$lowerlimitref,$starttime,$endtime,$timeref,$startdate,$enddate,$note,$ftx,$frx,$lat,$lon;
     }
 }
 
