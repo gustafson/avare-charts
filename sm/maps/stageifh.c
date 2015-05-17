@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
   char tmpstr[512];
   char mbuffer[4096];
   char projstr[512];
-  snprintf(projstr, sizeof(projstr)," +proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over ");
+  snprintf(projstr, sizeof(projstr),"-t_srs '+proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over' ");
   char *n_ptr;
   char *dir_ptr;
 
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
     if((0 == strcmp(maps[map].reg, "IFH"))) {
 			
       snprintf(buffer, sizeof(buffer),
-	       "gdal_translate -outsize 100%% 100%% -srcwin %d %d %d %d charts/%s/%s.tif %s.tif",
+	       "gdal_translate -co TILED=YES -outsize 100%% 100%% -srcwin %d %d %d %d charts/%s/%s.tif %s.tif",
 	       maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
 	       dir_ptr,
 	       n_ptr,
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
       sprintf(mbuffer, "[[ -f merge/%s/%s_c.tif ]] && rm merge/%s/%s_c.tif;\n", 
 	       maps[map].reg, n_ptr, maps[map].reg, n_ptr);
       snprintf(buffer, sizeof(buffer),  
-	       "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -dstnodata '51 51 51' -r cubicspline -t_srs WGS84 %s %s.tif merge/%s/%s_c.tif;\n",
+	       "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -dstnodata '51 51 51' -r cubicspline %s %s.tif merge/%s/%s_c.tif;\n",
 	       projstr, tmpstr,
 	       maps[map].reg,
 	       n_ptr);
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 
   /* one image */
   out("for file in ifh.tif ifh_small.jpg; do [[ -f $file ]] && rm $file; done");
-  out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 +proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over merge/IFH/*_c.tif ifh.tif");
+  out("gdalwarp -co TILED=YES --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs '+proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over' merge/IFH/*_c.tif ifh.tif");
   out("gdal_translate -outsize 25%% 25%% -of JPEG ifh.tif ifh_small.jpg");
 
   out("[[ -d tmp-stageifh ]] && rm -fr tmp-stageifh;"); 

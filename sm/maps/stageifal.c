@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
   char buffer1[512];
   char tmpstr[512];
   char projstr[512];
-  snprintf(projstr, sizeof(projstr)," +proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over ");
+  snprintf(projstr, sizeof(projstr),"-t_srs '+proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over' ");
   char *n_ptr;
   char *dir_ptr;
 
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     if((0 == strcmp(maps[map].reg, "IFAL"))) {
       
       snprintf(buffer0, sizeof(buffer0),
-	       "gdal_translate -outsize 100%% 100%% -srcwin %d %d %d %d charts/%s/%s.tif %s.tif",
+	       "gdal_translate -co TILED=YES -outsize 100%% 100%% -srcwin %d %d %d %d charts/%s/%s.tif %s.tif",
 	       maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
 	       dir_ptr,
 	       n_ptr,
@@ -94,22 +94,22 @@ int main(int argc, char *argv[])
       out(buffer0);
 
       snprintf(buffer0, sizeof(buffer0),  
-	       "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs WGS84 %s -tr 0.001253199658703 0.001253199658703 %s.tif merge/%s/%s_c",
+	       "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline %s -tr 210.489577614561483 210.489577614561483 %s.tif merge/%s/%s_c",
 	       projstr, tmpstr,
 	       maps[map].reg,
 	       n_ptr);
       if (map==4){
-	strcat(buffer0, ".tif -te -180 63 -133 72");
+	strcat(buffer0, ".tif -te_srs WGS84 -te -180 63 -133 72");
 	out(buffer0);
       }else if(map==5){
 	strcpy(buffer1, buffer0);
-	strcat(buffer0, "-east.tif -te 172.5 48 180 56 ");
+	strcat(buffer0, "-east.tif -te_srs WGS84 -te 172.5 48 180 56 ");
 	out(buffer0);
 
 	snprintf(buffer0, sizeof(buffer0), "mv merge/%s/%s_c-east.tif ifal-east.tif", maps[map].reg, n_ptr);
 	out(buffer0);      
 
-	strcat(buffer1, ".tif -te -180 48.5 -133 56.5");
+	strcat(buffer1, ".tif -te_srs WGS84 -te -180 48.5 -133 56.5");
 	out(buffer1);
       }else{
 	strcat(buffer0, ".tif");
@@ -122,21 +122,21 @@ int main(int argc, char *argv[])
     }
   }
   
-  out("rm ifal-west.tif");
+  out("rm -fr ifal-west.tif");
   
 #pragma omp parallel num_threads(2)
   {
     map = omp_get_thread_num();
     if (map==0){
-      out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84  +proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over -tr 0.001253199658703 0.001253199658703 -te -180 45.5 -121.25 72 merge/IFAL/*_c.tif ifal-west.tif");
+      out("gdalwarp -co TILED=YES --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs '+proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over' -tr 210.489577614561483 210.489577614561483 -te_srs WGS84 -te -180 45.5 -121.25 72 merge/IFAL/*_c.tif ifal-west.tif");
       out("gdal_translate -outsize 10% 10% -of JPEG ifal-west.tif ifal-west_small.jpg");
     } else if (map==1){
-      // out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84  +proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over -tr 0.001253199658703 0.001253199658703 -te 172.5 48 180 56 merge/IFAL/*_c.tif ifal-east.tif");
+      // out("gdalwarp -co TILED=YES --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs '+proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over' -tr 210.489577614561483 210.489577614561483 -te_srs WGS84 -te 172.5 48 180 56 merge/IFAL/*_c.tif ifal-east.tif");
       out("gdal_translate -outsize 10% 10% -of JPEG ifal-east.tif ifal-east_small.jpg");
     }
   }
 
-  out("rm tmp-stageifal/tmpstageifal*tif");
+  out("rm -fr tmp-stageifal/tmpstageifal*tif");
   out("[[ -d tmp-stageifal ]] && rmdir tmp-stageifal || echo ");
   return 0;
 }

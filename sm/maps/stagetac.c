@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
   char tmpstr[512];
   char mbuffer[4096];
   char projstr[512];
-  snprintf(projstr, sizeof(projstr)," +proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over ");
+  snprintf(projstr, sizeof(projstr),"-t_srs '+proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over' ");
 
   char *n_ptr;
   char *dir_ptr;
@@ -61,7 +61,8 @@ int main(int argc, char *argv[])
   if (argc>=2){debug=1;}
 
   out("rm -fr merge/TC; mkdir merge/TC"); // TAC
-  out("rm -fr tmp-stagetac; mkdir tmp-stagetac");
+  out("rm -fr tmp-stagetac");
+  out("mkdir tmp-stagetac");
   int entries = sizeof(maps) / sizeof(maps[0]);
 
 #pragma omp parallel for private (n_ptr, dir_ptr, buffer, tmpstr)
@@ -80,17 +81,17 @@ int main(int argc, char *argv[])
     // out(buffer);
 
     snprintf(buffer, sizeof(buffer),
-	     "gdal_translate -expand rgb `ls charts/%s/%s*.tif|grep -vi planning | tail -n1` %s.tif",
+	     "gdal_translate -co TILED=YES -expand rgb `ls charts/%s/%s*.tif|grep -vi planning | tail -n1` %s.tif",
 	     dir_ptr, n_ptr, tmpstr);
     out(buffer);
 
     snprintf(buffer, sizeof(buffer),
-	     "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -q -r cubicspline -t_srs WGS84 %s %s.tif %s_w.tif",
+	     "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -q -r cubicspline %s %s.tif %s_w.tif",
 	     projstr, tmpstr, tmpstr);
     out(buffer);
 		
     snprintf(buffer, sizeof(buffer),
-	     "gdal_translate -q -projwin %f %f %f %f  %s_w.tif merge/%s/%s.tif",
+	     "gdal_translate -co TILED=YES -q -projwin_srs WGS84 -projwin %f %f %f %f  %s_w.tif merge/%s/%s.tif",
 	     maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
 	     tmpstr,
 	     "TC",
@@ -108,7 +109,7 @@ int main(int argc, char *argv[])
 
   int gdw=0;
   if (gdw){
-    sprintf(mbuffer, "gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 %s", projstr);
+    sprintf(mbuffer, "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline %s", projstr);
   }else{
     sprintf(mbuffer, "gdal_merge.py -o tac.tif ");
   }
@@ -141,7 +142,7 @@ int main(int argc, char *argv[])
 
   // Do alaska merge
   if (gdw){
-    sprintf(mbuffer, "gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 %s merge/TC/{AnchorageTAC.tif,FairbanksTAC.tif} tac-ak.tif", projstr);
+    sprintf(mbuffer, "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline %s merge/TC/{AnchorageTAC.tif,FairbanksTAC.tif} tac-ak.tif", projstr);
   }else{
     sprintf(mbuffer, "gdal_merge.py -o tac-ak.tif merge/TC/{AnchorageTAC.tif,FairbanksTAC.tif}");
   }

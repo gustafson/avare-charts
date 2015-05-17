@@ -49,27 +49,27 @@ int main(int argc, char *argv[])
   char filestr[512];
   char cmdstr[4096];
   char projstr[512];
-  snprintf(projstr, sizeof(projstr)," +proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over ");
+  snprintf(projstr, sizeof(projstr),"-t_srs '+proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over' ");
 
     if (argc>=2){debug=1;}
 
-  out("[[ -d merge/AK     ]] && rm -fr merge/AK; mkdir -p merge/AK/QC"); // Alaska sec
-  out("[[ -d merge/LF     ]] && rm -fr merge/LF; mkdir -p merge/LF/QC"); // lower 48 sec
-  out("[[ -d merge/HI     ]] && rm -fr merge/HI; mkdir -p merge/HI/QC"); // HI sec
-  out("[[ -d merge/WC     ]] && rm -fr merge/WC; mkdir -p merge/WC/QC"); // WAC
-  out("[[ -d merge/WA     ]] && rm -fr merge/WA; mkdir -p merge/WA/QC"); // WAC Alaska
-  out("[[ -d tmp-stagesec ]] && rm -fr tmp-stagesec; mkdir tmp-stagesec"); 
+  out("rm -fr merge/AK; mkdir -p merge/AK/QC"); // Alaska sec
+  out("rm -fr merge/LF; mkdir -p merge/LF/QC"); // lower 48 sec
+  out("rm -fr merge/HI; mkdir -p merge/HI/QC"); // HI sec
+  out("rm -fr merge/WC; mkdir -p merge/WC/QC"); // WAC
+  out("rm -fr merge/WA; mkdir -p merge/WA/QC"); // WAC Alaska
+  out("rm -fr tmp-stagesec; mkdir tmp-stagesec"); 
 
   int entries = sizeof(maps) / sizeof(maps[0]);
 
-  out("[[ -f sec-ak.tif ]] && rm sec-ak.tif");
-  out("[[ -f sec-hi.tif ]] && rm sec-hi.tif");
-  out("[[ -f sec-48.tif ]] && rm sec-48.tif");
-  out("[[ -f wac-48.tif ]] && rm wac-48.tif");
-  out("[[ -f sec-ak_small.jpg ]] && rm sec-ak_small.jpg");
-  out("[[ -f sec-hi_small.jpg ]] && rm sec-hi_small.jpg");
-  out("[[ -f sec-48_small.jpg ]] && rm sec-48_small.jpg");
-  out("[[ -f wac-48_small.jpg ]] && rm wac-48_small.jpg");
+  out("rm -f sec-ak.tif");
+  out("rm -f sec-hi.tif");
+  out("rm -f sec-48.tif");
+  out("rm -f wac-48.tif");
+  out("rm -f sec-ak_small.jpg");
+  out("rm -f sec-hi_small.jpg");
+  out("rm -f sec-48_small.jpg");
+  out("rm -f wac-48_small.jpg");
 
 #pragma omp parallel for private(n_ptr, dir_ptr, failed, count, buffer, filestr, cmdstr) schedule(dynamic,1)
   for(map = 0; map < entries; map++)
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
       if(0 != strcmp(maps[map].reg, "HI")) {
 	// Expand to rgb
 	snprintf(buffer, sizeof(buffer),
-		 "gdal_translate -expand rgb -srcwin %i %i %i %i charts/%s/%s*.tif %s.tif;\n",
+		 "gdal_translate -co TILED=YES -expand rgb -srcwin %i %i %i %i charts/%s/%s*.tif %s.tif;\n",
 		 maps[map].x, maps[map].y, maps[map].dx, maps[map].dy, dir_ptr, n_ptr, filestr);
 	strcat(cmdstr, buffer);
 	// Put a mask near the edges so that no seams show on the tiles
@@ -100,30 +100,31 @@ int main(int argc, char *argv[])
 		 "nearblack -color 0,0,0 -color 255,255,255 -setmask %s.tif;\n", filestr);
 	strcat(cmdstr, buffer);
 	snprintf(buffer, sizeof(buffer),
-		 "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs WGS84 %s %s.tif tmp-stagesec/merge%s%s_w.tif;\n",
+		 "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline %s %s.tif tmp-stagesec/merge%s%s_w.tif;\n",
 		 projstr, filestr, maps[map].reg, n_ptr);
 	strcat(cmdstr, buffer);
       }
       else {
 	snprintf(buffer, sizeof(buffer),
-		 "gdal_translate -expand rgb -srcwin %i %i %i %i charts/%s/%s*.tif %s.tif;\n",
+		 "gdal_translate -co TILED=YES -expand rgb -srcwin %i %i %i %i charts/%s/%s*.tif %s.tif;\n",
 		 maps[map].x, maps[map].y, maps[map].dx, maps[map].dy, dir_ptr, n_ptr, filestr);
 	strcat(cmdstr, buffer);
 	snprintf(buffer, sizeof(buffer), // This EPSG4326 step is needed for an unknown reason in order to make the lats and longs correct for HI.
-		 "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs EPSG:4326 %s %s.tif tmp-stagesec/merge%s%s_w.tif;\n",
+		 // "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs EPSG:4326 %s %s.tif tmp-stagesec/merge%s%s_w.tif;\n",
+		 "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline %s %s.tif tmp-stagesec/merge%s%s_w.tif;\n",
 		 projstr, filestr, maps[map].reg, n_ptr);
 	strcat(cmdstr, buffer);
       }
  		
       if(0 != strcmp(maps[map].reg, "HI")) {
 	snprintf(buffer, sizeof(buffer),
-		 "gdal_translate -projwin %f %f %f %f tmp-stagesec/merge%s%s_w.tif merge/%s/%s_c.tif;\n",
+		 "gdal_translate -co TILED=YES -projwin_srs WGS84 -projwin %f %f %f %f tmp-stagesec/merge%s%s_w.tif merge/%s/%s_c.tif;\n",
 		 maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
 		 maps[map].reg, n_ptr, maps[map].reg, n_ptr);
  	strcat(cmdstr, buffer);
       }else{
 	snprintf(buffer, sizeof(buffer),
-		 "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs WGS84 %s tmp-stagesec/merge%s%s_w.tif merge/%s/%s_c.tif;\n",
+		 "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline %s tmp-stagesec/merge%s%s_w.tif merge/%s/%s_c.tif;\n",
 		 projstr, maps[map].reg, n_ptr, maps[map].reg, n_ptr);
 	strcat(cmdstr, buffer);
       }
@@ -131,7 +132,7 @@ int main(int argc, char *argv[])
       snprintf(buffer, sizeof(buffer), "gdal_translate -outsize 25%% 25%% -of JPEG merge/%s/%s_c.tif merge/%s/QC/%s_c.jpg;\n", maps[map].reg, n_ptr, maps[map].reg, n_ptr);
       strcat(cmdstr, buffer);
 
-      snprintf(buffer, sizeof(buffer), "rm tmp-stagesec/merge%s%s_w.tif;\n", maps[map].reg, n_ptr);
+      snprintf(buffer, sizeof(buffer), "rm -f tmp-stagesec/merge%s%s_w.tif;\n", maps[map].reg, n_ptr);
       strcat(cmdstr, buffer);
 
       snprintf(buffer, sizeof(buffer), "[[ -f %s.tif ]] && rm %s.tif;\n", filestr, filestr); 
@@ -154,7 +155,7 @@ int main(int argc, char *argv[])
   
   printf("\n\n\n");
   /* What follows is stupid parallism */
-  snprintf(filestr, sizeof(filestr), "gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=4 -multi -r cubicspline -t_srs WGS84 %s", projstr);
+  snprintf(filestr, sizeof(filestr), "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=4 -multi -r cubicspline %s", projstr);
   // snprintf(filestr, sizeof(filestr), "gdal_merge.py");
 #pragma omp parallel num_threads(4) private (buffer)
   {

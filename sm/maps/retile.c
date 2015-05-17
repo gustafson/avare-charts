@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
 	// Create and load a smaller megatile
 	char tmpfname[1024];
 	sprintf (tmpfname,"%s%i%i%i%i", infile, xb*16*sx, yb*16*sy, sbx, sby);
-	sprintf (buffer1, "gdal_translate -q -srcwin %i %i %i %i %s %s.tif", xb*16*sx, yb*16*sy, sbx, sby, infile, tmpfname);
+	sprintf (buffer1, "gdal_translate -co TILED=YES -q -srcwin %i %i %i %i %s %s.tif", xb*16*sx, yb*16*sy, sbx, sby, infile, tmpfname);
 	out(buffer1);
 	sprintf (buffer1, "%s.tif", tmpfname);
 	status = MagickReadImage(wand_temp1,buffer1);
@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
 	}
 	// wand_temp1 = MagickGetImageRegion(wand_input, sbx, sby, xb*16*sx, yb*16*sy);
 	
-	sprintf (buffer1, "rm %s.tif", tmpfname);
+	sprintf (buffer1, "rm -f %s.tif", tmpfname);
 	out(buffer1);
 	
 	int hy = MagickGetImageHeight(wand_temp1);
@@ -449,7 +449,7 @@ int main(int argc, char *argv[])
 		  MagickWriteImage(wand_temp2,buffer3);
 		  
 		  char cmdstr[4096];
-		  snprintf (cmdstr, sizeof(cmdstr), "if [[ `identify -format %k %s` == 1 ]]; then rm %s; else ", buffer2, buffer2);
+		  snprintf (cmdstr, sizeof(cmdstr), "if [[ `identify -format %k %s` == 1 ]]; then rm -f %s; else ", buffer2, buffer2);
 
 		  if ( ispng == 0 ){
 		    // Repage and optimize.
