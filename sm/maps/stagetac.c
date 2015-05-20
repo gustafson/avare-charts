@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 {
   int map;
   char buffer[512];
-  char tmpstr[512];
+  char filestr[512];
   char mbuffer[4096];
   char projstr[512];
   snprintf(projstr, sizeof(projstr),"-t_srs '+proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over' ");
@@ -60,17 +60,21 @@ int main(int argc, char *argv[])
 
   if (argc>=2){debug=1;}
 
-  out("rm -fr merge/TC; mkdir merge/TC"); // TAC
-  out("rm -fr tmp-stagetac");
-  out("mkdir tmp-stagetac");
+  out("rm -fr merge/TAC");
+  out("mkdir -p merge/TAC/run"); // TAC
+  out("mkdir -p merge/TAC/T1"); // TAC
+  out("mkdir -p merge/TAC/T2"); // TAC
+  out("mkdir -p merge/TAC/T3"); // TAC
+  out("mkdir -p merge/TAC/T4"); // TAC
+  out("mkdir -p merge/TAC/T5"); // TAC
   int entries = sizeof(maps) / sizeof(maps[0]);
 
-#pragma omp parallel for private (n_ptr, dir_ptr, buffer, tmpstr)
+#pragma omp parallel for private (n_ptr, dir_ptr, buffer, filestr)
   for(map = 0; map < entries; map++) {
     n_ptr = maps[map].name; 
 
     // Establish a parallel safe tmp name
-    snprintf(tmpstr, sizeof(tmpstr), "tmp-stagetac/tmpstagetac%i", map);
+    snprintf(filestr, sizeof(filestr), "merge/TAC/%s/%s", maps[map].reg, maps[map].name);
 
     printf("\n\n# %s\n", maps[map].name);
 
@@ -81,80 +85,74 @@ int main(int argc, char *argv[])
     // out(buffer);
 
     snprintf(buffer, sizeof(buffer),
-	     "gdal_translate -co TILED=YES -expand rgb `ls charts/%s/%s*.tif|grep -vi planning | tail -n1` %s.tif",
-	     dir_ptr, n_ptr, tmpstr);
+	     "gdal_translate -of vrt -co TILED=YES -a_nodata '0 0 0' -expand rgb `ls charts/%s/%s*.tif|grep -vi planning | tail -n1` %s_1.vrt",
+	     dir_ptr, n_ptr, filestr);
     out(buffer);
 
-    snprintf(buffer, sizeof(buffer),
-	     "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -q -r cubicspline %s %s.tif %s_w.tif",
-	     projstr, tmpstr, tmpstr);
+    snprintf(buffer, sizeof(buffer), "gdalwarp -of vrt -dstnodata '0 0 0' %s %s_1.vrt %s_2.vrt", projstr, filestr, filestr);
     out(buffer);
 		
-    snprintf(buffer, sizeof(buffer),
-	     "gdal_translate -co TILED=YES -q -projwin_srs WGS84 -projwin %f %f %f %f  %s_w.tif merge/%s/%s.tif",
-	     maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
-	     tmpstr,
-	     "TC",
-	     n_ptr);
-    out(buffer);
-
-    snprintf(buffer, sizeof(buffer), "rm -f %s.tif %s_w.tif", tmpstr, tmpstr);
-    out(buffer);
-
-  }
-
-  printf("\n\n\n");
-  // out("rm -fr tiles_tac tac.tif; mkdir tiles_tac");
-  // printf("\n\n\n");
-
-  int gdw=0;
-  if (gdw){
-    sprintf(mbuffer, "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline %s", projstr);
-  }else{
-    sprintf(mbuffer, "gdal_merge.py -o tac.tif ");
-  }
-  for(map = 0; map < entries; map++) {
-    n_ptr = maps[map].name; 
-
-    if(0 == strcmp(maps[map].reg, "TS")) {
-      // Don't include the separate TACs (in Alaska and Puerto Rico) in the continental US chart
-      // snprintf(buffer, sizeof(buffer),
-      // 	       "gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir tiles_tac -ps 512 512 -useDirForEachRow merge/TC/%s.tif", n_ptr);
-      // printf("#retiling %s\n", n_ptr);
-      // out(buffer);
-    }
-    else {
-      snprintf(buffer, sizeof(buffer), "merge/TC/%s.tif ", n_ptr);
-      strcat(mbuffer, buffer);
+    if (strcmp(maps[map].reg,"run")!=0){
+      snprintf(buffer, sizeof(buffer),
+	       "gdal_translate -of vrt -q -projwin_srs WGS84 -projwin %f %f %f %f %s_2.vrt %s_3.vrt",
+	       maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
+	       filestr, filestr);
+      out(buffer);
+    } else {
+      // Put a mask near the edges so that no seams show on the tiles
+      snprintf(buffer, sizeof(buffer),
+	       // Note the reversed order 2, 1 is appropriate
+	       "gdalbuildvrt -addalpha -srcnodata '0 0 0' -srcnodata '255 255 255' %s_3.vrt  %s_2.vrt;\n", filestr, filestr);
+      out(buffer);     
     }
   }
 
-  // Use this if using gdalwarp above, otherwise no
-  if (gdw){
-    snprintf(buffer, sizeof(buffer), " tac.tif ");
-    strcat(mbuffer, buffer);
-  }
-
-  printf("\n\n\n");
-  /* one image */
-  out(mbuffer);
-
-
-  // Do alaska merge
-  if (gdw){
-    sprintf(mbuffer, "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline %s merge/TC/{AnchorageTAC.tif,FairbanksTAC.tif} tac-ak.tif", projstr);
-  }else{
-    sprintf(mbuffer, "gdal_merge.py -o tac-ak.tif merge/TC/{AnchorageTAC.tif,FairbanksTAC.tif}");
-  }
-  out(mbuffer);
-
-
-  printf("\n\n\n");
-  out("gdal_translate -outsize 25%% 25%% -of JPEG tac.tif tac_small.jpg");
-  out("gdal_translate -outsize 25%% 25%% -of JPEG tac-ak.tif tac-ak_small.jpg");
-
-  // printf("\n\n\n");
-  out("rm -fr tmp-stagetac");
-
+//   int gdw=0;
+//   if (gdw){
+//     sprintf(mbuffer, "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline %s", projstr);
+//   }else{
+//     sprintf(mbuffer, "gdal_merge.py -o tac.tif ");
+//   }
+//   for(map = 0; map < entries; map++) {
+//     n_ptr = maps[map].name; 
+// 
+//     if(0 == strcmp(maps[map].reg, "TS")) {
+//       // Don't include the separate TACs (in Alaska and Puerto Rico) in the continental US chart
+//       // snprintf(buffer, sizeof(buffer),
+//       // 	       "gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir tiles_tac -ps 512 512 -useDirForEachRow merge/TC/%s.tif", n_ptr);
+//       // printf("#retiling %s\n", n_ptr);
+//       // out(buffer);
+//     }
+//     else {
+//       snprintf(buffer, sizeof(buffer), "merge/TC/%s.tif ", n_ptr);
+//       strcat(mbuffer, buffer);
+//     }
+//   }
+// 
+//   // Use this if using gdalwarp above, otherwise no
+//   if (gdw){
+//     snprintf(buffer, sizeof(buffer), " tac.tif ");
+//     strcat(mbuffer, buffer);
+//   }
+// 
+//   printf("\n\n\n");
+//   /* one image */
+//   out(mbuffer);
+// 
+// 
+//   // Do alaska merge
+//   if (gdw){
+//     sprintf(mbuffer, "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline %s merge/TC/{AnchorageTAC.tif,FairbanksTAC.tif} tac-ak.tif", projstr);
+//   }else{
+//     sprintf(mbuffer, "gdal_merge.py -o tac-ak.tif merge/TC/{AnchorageTAC.tif,FairbanksTAC.tif}");
+//   }
+//   out(mbuffer);
+  out ("\n\n\n");
+  
+  out ("pushd merge/TAC/run; gdalbuildvrt -resolution highest tacgroup_1_3.vrt -overwrite ../T1/*_3.vrt; popd");
+  out ("pushd merge/TAC/run; gdalbuildvrt -resolution highest tacgroup_2_3.vrt -overwrite ../T2/*_3.vrt; popd");
+  out ("pushd merge/TAC/run; gdalbuildvrt -resolution highest tacgroup_3_3.vrt -overwrite ../T3/*_3.vrt; popd");
+  out ("pushd merge/TAC/run; gdalbuildvrt -resolution highest tacgroup_4_3.vrt -overwrite ../T4/*_3.vrt; popd");
+  out ("pushd merge/TAC/run; gdalbuildvrt -resolution highest tacgroup_5_3.vrt -overwrite ../T5/*_3.vrt; popd");
   return 0;
 }
