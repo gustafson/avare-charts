@@ -1,6 +1,6 @@
 #!/bin/sh -login
-#PBS -l mem=60000mb
-#PBS -l nodes=1:ppn=11
+#PBS -l mem=120000mb
+#PBS -l nodes=1:ppn=16
 #PBS -l walltime=1000:00:00
 #PBS -m abe 
 #PBS -V 
@@ -58,7 +58,7 @@ if [[ ${PBS_NODEFILE} ]]; then
 
     NP=$PBS_NUM_PPN
 else
-    NP=11
+    NP=16
 fi
 export OMP_NUM_THREADS=${NP}
 
@@ -72,7 +72,7 @@ function retileme(){
     mkdir -p ${DIR}
     
     ## /usr/bin/time -v -o ${3} gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir ${1} -levels 4 -ps 512 512 -useDirForEachRow ${2}
-    /usr/bin/time -v -o ${TIMEFILE} ./retile ${IMG} ${CORNERS} ${DIR} ${TYPE} 8 ${PBS_ARRAYID}
+    /usr/bin/time -v -o ${TIMEFILE} ./retile ${IMG} ${CORNERS} ${DIR} ${TYPE} 8 ${PBS_ARRAYID} > ${IMG}.${PBS_ARRAYID}.sql
 }
 
 ###############################
