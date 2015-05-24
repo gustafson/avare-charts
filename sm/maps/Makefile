@@ -222,7 +222,7 @@ zipit:
 	# STATIC sqlite3 maps.rel.db "VACUUM;"
 	# STATIC sqlite3 maps.topo.db "VACUUM;"
 	## FIXME must add maps.topo.db 
-	zip -9 -r final/databases.zip maps.*.db procedures.db main.db `find tiles/{$$(./cyclenumber.sh),static}/*/*/4 -type f|grep -v tif|grep -v topo`
+	zip -9 -r final/databases.zip maps.*.db procedures.db main.db `find tiles/{$$(./cyclenumber.sh),static}/*/*/4 -type f|grep -v tif|grep -v topo|grep -v "\/all\/"`
 
 geolist:
 	./plates_list.sh

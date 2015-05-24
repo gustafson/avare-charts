@@ -72,6 +72,9 @@ function retileme(){
     mkdir -p ${DIR}
     
     ## /usr/bin/time -v -o ${3} gdal_retile.py -r cubicspline -co COMPRESS=LZW -targetDir ${1} -levels 4 -ps 512 512 -useDirForEachRow ${2}
+    echo Command being executed is:
+    echo "/usr/bin/time -v -o ${TIMEFILE} ./retile ${IMG} ${CORNERS} ${DIR} ${TYPE} 8 ${PBS_ARRAYID} > ${IMG}.${PBS_ARRAYID}.sql"
+
     /usr/bin/time -v -o ${TIMEFILE} ./retile ${IMG} ${CORNERS} ${DIR} ${TYPE} 8 ${PBS_ARRAYID} > ${IMG}.${PBS_ARRAYID}.sql
 }
 
@@ -118,6 +121,10 @@ elif [[ ${TILES} = ifh ]]; then
     rsync -avP tiles/${CYCLE}/ifh/ak-east/ tiles/${CYCLE}/ifh/ak/ && rm -fr tiles/${CYCLE}/ifh/ak-east/
     wait
 
+elif [[ ${TILES} = ifa ]]; then
+
+    retileme png tiles/${CYCLE}/ifa/48 ifa.tif time.ifa.tif.${PBS_ARRAYID}.txt &
+    wait
 
 elif [[ ${TILES} = oth ]]; then
 
