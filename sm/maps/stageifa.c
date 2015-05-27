@@ -35,15 +35,15 @@
 
 typedef struct {
   char name[64];
-  int x;
-  int y;
-  int sizex;
-  int sizey;
-  char reg[64];
+  double lonl;
+  double lonr;
+  double latu;
+  double latd;
+  char   reg[64];
 } Maps;
 
 int debug=0;
-#include "chartsifr.c"
+#include "chartsifa.c"
 #include "stageall.c"
 
 int main(int argc, char *argv[])
@@ -58,8 +58,7 @@ int main(int argc, char *argv[])
 
   if (argc>=2){debug=1;}
 
-  out("rm -fr merge/IF; mkdir merge/IF"); // IFR 48 
-
+  out("rm -fr merge/IFA; mkdir merge/IFA"); // IFA
   int entries = sizeof(maps) / sizeof(maps[0]);
 
 #pragma omp parallel for private (n_ptr, dir_ptr, buffer, tmpstr)
@@ -67,39 +66,22 @@ int main(int argc, char *argv[])
     n_ptr = maps[map].name; 
 
     // Establish a parallel safe tmp name
-    snprintf(tmpstr, sizeof(tmpstr), "merge/IF/%s", maps[map].name);
+    snprintf(tmpstr, sizeof(tmpstr), "merge/IFA/%s", maps[map].name);
 
-    printf("\n\n# %s\n\n", maps[map].name);
+    printf("\n\n# %s\n", maps[map].name);
 
-    if(0 == strcmp(maps[map].reg, "IF")) {
-      dir_ptr = "iff";
-    }
+    dir_ptr = "ifa";
 
-    if((0 == strcmp(maps[map].reg, "IF"))) {
-			
-      // snprintf(buffer, sizeof(buffer),
-      // 	       "gdal_translate -of vrt -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt\n",
-      // 	       maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
-      // 	       dir_ptr, n_ptr, tmpstr);
-      // out(buffer);
+    snprintf(buffer, sizeof(buffer),
+	     "gdalwarp -of vrt %s charts/%s/%s.tif %s.vrt",
+	     projstr, dir_ptr, n_ptr, tmpstr);
+    out(buffer);
 
-      snprintf(buffer, sizeof(buffer),
-	       "gdal_translate -of vrt -a_nodata '51 51 51' -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt\n",
-	       maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
-	       dir_ptr, n_ptr, tmpstr);
-      out(buffer);
-
-      snprintf(buffer, sizeof(buffer),  
-	       "gdalwarp -of vrt -dstnodata '51 51 51' %s %s_1.vrt %s_2.vrt\n",
-	       projstr, tmpstr, tmpstr);
-      out(buffer);
-
-    }
-    
   }
 
   /* one image */
   out("\n\n\n# Merge all");
-  out("gdalbuildvrt -resolution highest ifr.vrt -overwrite merge/IF/*_2.vrt\n");
+  out("gdalbuildvrt -resolution highest ifa.vrt -overwrite merge/IFA/*.vrt\n");
+
   return 0;
 }

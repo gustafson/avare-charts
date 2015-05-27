@@ -1,0 +1,128 @@
+#!/bin/sh -login
+#PBS -l mem=120gb:k20
+#PBS -l nodes=1:ppn=16
+#PBS -l walltime=24:00:00
+#PBS -m abe 
+#PBS -V 
+#PBS -M peter.gustafson@wmich.edu
+#PBS -N retile
+#PBS -e z-logs/z.${PBS_JOBID}.e_${PBS_JOBNAME}
+#PBS -o z-logs/z.${PBS_JOBID}.o_${PBS_JOBNAME}
+#PBS -t 1-30%3
+
+#!/bin/bash
+# Copyright (c) 2013, Peter A. Gustafson (peter.gustafson@wmich.edu)
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in
+#   the documentation and/or other materials provided with the
+#   distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+# WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+if [[ ${PBS_NODEFILE} ]]; then
+    echo ------------------------------------------------------
+    NODE=`sort ${PBS_NODEFILE} | uniq`
+    HOST=`echo ${PBS_O_HOST} |cut -f1 -d.`
+    echo Job is running on node ${NODE} from host ${HOST}
+    echo ------------------------------------------------------
+    echo PBS: qsub was run on ${PBS_O_HOST}
+    echo PBS: originating queue is ${PBS_O_QUEUE}
+    echo PBS: executing queue is ${PBS_QUEUE}
+    echo PBS: working directory is ${PBS_O_WORKDIR}
+    echo PBS: execution mode is ${PBS_ENVIRONMENT}
+    echo PBS: job identifier is ${PBS_JOBID}
+    echo PBS: job name is ${PBS_JOBNAME}
+    echo PBS: node file is ${PBS_NODEFILE}
+    echo PBS: current home directory is ${PBS_O_HOME}
+    echo PBS: PATH = ${PBS_O_PATH}
+    echo ------------------------------------------------------
+
+    NP=$(cat ${PBS_NODEFILE} | wc -l)
+    ## export MAGICK_TEMPORARY_PATH=/scratch
+    export TMPDIR=/scratch
+else
+    NP=16
+    export TMPDIR=/data/home/pi/gustafson
+fi
+
+export OMP_NUM_THREADS=${NP}
+## export OMP_NUM_THREADS=1
+
+[[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
+CYCLE=$(./cyclenumber.sh)
+
+OPTIONS1="-t Title -w openlayers -c MUAVLLC --no-kml --resume -r lanczos --processes ${NP}"
+OPTIONS2="-t Title -w openlayers -c MUAVLLC --no-kml --resume -r lanczos"
+TIME1="/usr/bin/time -v -o"
+TIME2="/usr/bin/time -v --append -o"
+ARRAY=`echo ${PBS_JOBID} | sed -e s/"\[..\]"/"\[\]"/g -e "s/.cs.wmich.edu//g"`
+
+
+if [[ ${PBS_ARRAYID} -le 26 ]]; then
+    ${TIME1} time.tac.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} $(ls merge/TAC/run/*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/${CYCLE}/tac/all
+    ${TIME2} time.tac.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} $(ls merge/TAC/run/*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/${CYCLE}/tac/all
+    
+elif [[ ${PBS_ARRAYID} -ge 27 && ${PBS_ARRAYID} -le 40 ]]; then
+    NUM=$((${PBS_ARRAYID}-26))
+    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py ${OPTIONS2} $(ls merge/IFA/*.vrt|sed -n ${NUM}p) tiles/${CYCLE}/ifa/all
+    ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} $(ls merge/IFA/*.vrt|sed -n ${NUM}p) tiles/${CYCLE}/ifa/all
+
+elif [[ ${PBS_ARRAYID} -eq 41 ]]; then
+    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} -z 10  sec-48.vrt tiles/${CYCLE}/sec/all
+    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} -z 10  sec-48.vrt tiles/${CYCLE}/sec/all
+
+elif [[ ${PBS_ARRAYID} -eq 42 ]]; then
+    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} -z 1-9 sec-48.vrt tiles/${CYCLE}/sec/all
+    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} -z 1-9 sec-48.vrt tiles/${CYCLE}/sec/all
+
+elif [[ ${PBS_ARRAYID} -eq 43 ]]; then
+    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} -z 1-9 sec-ak.vrt tiles/${CYCLE}/sec/all
+    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} -z 1-9 sec-ak.vrt tiles/${CYCLE}/sec/all
+
+elif [[ ${PBS_ARRAYID} -eq 44 ]]; then
+    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} -z 10  sec-ak.vrt tiles/${CYCLE}/sec/all
+    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} -z 10  sec-ak.vrt tiles/${CYCLE}/sec/all
+
+elif [[ ${PBS_ARRAYID} -eq 45 ]]; then
+    ${TIME1} time.wac.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} wac.vrt tiles/${CYCLE}/wac/all
+    ${TIME2} time.wac.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} wac.vrt tiles/${CYCLE}/wac/all
+
+elif [[ ${PBS_ARRAYID} -eq 46 ]]; then
+    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} sec-hi.vrt tiles/${CYCLE}/sec/all
+    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} sec-hi.vrt tiles/${CYCLE}/sec/all
+
+elif [[ ${PBS_ARRAYID} -eq 47 ]]; then
+    ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} ifr.vrt tiles/${CYCLE}/ifr/all
+    ${TIME2} time.ifr.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} ifr.vrt tiles/${CYCLE}/ifr/all
+
+elif [[ ${PBS_ARRAYID} -eq 48 ]]; then
+    ${TIME1} time.ifh.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} ifh.vrt tiles/${CYCLE}/ifh/all
+    ${TIME2} time.ifh.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} ifh.vrt tiles/${CYCLE}/ifh/all
+
+elif [[ ${PBS_ARRAYID} -eq 49 ]]; then
+    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} ifa.vrt tiles/${CYCLE}/ifa/all
+    ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} ifa.vrt tiles/${CYCLE}/ifa/all
+
+else
+    find tiles/$(./cyclenumber.sh)/*/all -name "*png"|xargs -n 1 -P 16 optipng -preserve -quiet
+    
+fi

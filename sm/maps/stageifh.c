@@ -51,16 +51,14 @@ int main(int argc, char *argv[])
   int map;
   char buffer[512];
   char tmpstr[512];
-  char mbuffer[4096];
   char projstr[512];
-  snprintf(projstr, sizeof(projstr),"-t_srs '+proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over' ");
+  snprintf(projstr, sizeof(projstr), "-t_srs 'EPSG:900913' ");
   char *n_ptr;
   char *dir_ptr;
 
   if (argc>=2){debug=1;}
 
-  out("[[ -d merge/IFH ]] && rm -fr merge/IFH; mkdir -p merge/IFH/QC");
-  out("[[ -d tmp-stageifh ]] && rm -fr tmp-stageifh; mkdir tmp-stageifh"); 
+  out("[[ -d merge/IFH ]] && rm -fr merge/IFH; mkdir -p merge/IFH");
 
   int entries = sizeof(maps) / sizeof(maps[0]);
 
@@ -69,7 +67,7 @@ int main(int argc, char *argv[])
     n_ptr = maps[map].name; 
 
     // Establish a parallel safe tmp name
-    snprintf(tmpstr, sizeof(tmpstr), "tmp-stageifh/tmpstageifh%i", map);
+    snprintf(tmpstr, sizeof(tmpstr), "merge/IFH/%s", maps[map].name);
 
     printf("\n\n# %s\n\n", maps[map].name);
 
@@ -80,38 +78,23 @@ int main(int argc, char *argv[])
     if((0 == strcmp(maps[map].reg, "IFH"))) {
 			
       snprintf(buffer, sizeof(buffer),
-	       "gdal_translate -co TILED=YES -outsize 100%% 100%% -srcwin %d %d %d %d charts/%s/%s.tif %s.tif",
+	       "gdal_translate -of vrt -a_nodata '51 51 51' -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
 	       maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
-	       dir_ptr,
-	       n_ptr,
-	       tmpstr);
+	       dir_ptr, n_ptr, tmpstr);
       out(buffer);
 			
-      sprintf(mbuffer, "[[ -f merge/%s/%s_c.tif ]] && rm merge/%s/%s_c.tif;\n", 
-	       maps[map].reg, n_ptr, maps[map].reg, n_ptr);
       snprintf(buffer, sizeof(buffer),  
-	       "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -dstnodata '51 51 51' -r cubicspline %s %s.tif merge/%s/%s_c.tif;\n",
-	       projstr, tmpstr,
-	       maps[map].reg,
-	       n_ptr);
-      strcat(mbuffer, buffer);
+	       "gdalwarp -of vrt -dstnodata '51 51 51' %s %s_1.vrt %s_2.vrt\n",
+	       projstr, tmpstr, tmpstr);
+      out(buffer);
 
-      snprintf(buffer, sizeof(buffer), "gdal_translate -outsize 25%% 25%% -of JPEG merge/%s/%s_c.tif merge/%s/QC/%s_c.jpg;\n", maps[map].reg, n_ptr, maps[map].reg, n_ptr);
-      strcat(mbuffer, buffer);
-      out(mbuffer);
     }
     
-    snprintf(buffer, sizeof(buffer), "rm -f %s.tif", tmpstr);
-    out(buffer);
-
   }
 
   /* one image */
-  out("for file in ifh.tif ifh_small.jpg; do [[ -f $file ]] && rm $file; done");
-  out("gdalwarp -co TILED=YES --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs '+proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over' merge/IFH/*_c.tif ifh.tif");
-  out("gdal_translate -outsize 25%% 25%% -of JPEG ifh.tif ifh_small.jpg");
-
-  out("[[ -d tmp-stageifh ]] && rm -fr tmp-stageifh;"); 
+  out("\n\n\n# Merge all");
+  out("gdalbuildvrt -resolution highest ifh.vrt -overwrite merge/IFH/*_2.vrt\n");
 
   return 0;
 }

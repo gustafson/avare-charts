@@ -53,16 +53,13 @@ int main(int argc, char *argv[])
   char buffer1[512];
   char tmpstr[512];
   char projstr[512];
-  snprintf(projstr, sizeof(projstr),"-t_srs '+proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over' ");
+  snprintf(projstr, sizeof(projstr), "-t_srs 'EPSG:900913' ");
   char *n_ptr;
   char *dir_ptr;
 
   if (argc>=2){debug=1;}
 
   out("rm -fr merge/IFAL; mkdir merge/IFAL;");
-  out("[[ -d tmp-stageifal ]] && rm -fr tmp-stageifal || echo\n");
-  out("mkdir tmp-stageifal");
-
   int entries = sizeof(maps) / sizeof(maps[0]);
 
 #pragma omp parallel for private (n_ptr, dir_ptr, buffer0, tmpstr)
@@ -70,7 +67,7 @@ int main(int argc, char *argv[])
     n_ptr = maps[map].name; 
 
     // Establish a parallel safe tmp name
-    snprintf(tmpstr, sizeof(tmpstr), "tmp-stageifal/tmpstageifal%i", map);
+    snprintf(tmpstr, sizeof(tmpstr), "merge/IF/%s", maps[map].name);
     
     printf("\n\n# %s\n\n", maps[map].name);
     
@@ -81,23 +78,17 @@ int main(int argc, char *argv[])
     if((0 == strcmp(maps[map].reg, "IFAL"))) {
       
       snprintf(buffer0, sizeof(buffer0),
-	       "gdal_translate -co TILED=YES -outsize 100%% 100%% -srcwin %d %d %d %d charts/%s/%s.tif %s.tif",
+	       "gdal_translate -of vrt -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
 	       maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
 	       dir_ptr,
 	       n_ptr,
 	       tmpstr);
       out(buffer0);
-
+      
+      // START WORKING HERE
       snprintf(buffer0, sizeof(buffer0),  
-	       "[[ -f merge/%s/%s_c.tif ]] && rm merge/%s/%s_c.tif || echo\n",
-	       maps[map].reg, n_ptr, maps[map].reg, n_ptr);
-      out(buffer0);
-
-      snprintf(buffer0, sizeof(buffer0),  
-	       "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline %s -tr 210.489577614561483 210.489577614561483 %s.tif merge/%s/%s_c",
-	       projstr, tmpstr,
-	       maps[map].reg,
-	       n_ptr);
+	       "gdalwarp -of vrt %s_1.vrt merge/%s/%s_c",
+	       tmpstr, tmpstr);
       if (map==4){
 	strcat(buffer0, ".tif -te_srs WGS84 -te -180 63 -133 72");
 	out(buffer0);
