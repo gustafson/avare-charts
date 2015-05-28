@@ -122,7 +122,9 @@ elif [[ ${PBS_ARRAYID} -eq 49 ]]; then
     ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} ifa.vrt tiles/${CYCLE}/ifa/all
     ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} ifa.vrt tiles/${CYCLE}/ifa/all
 
-else
-    find tiles/$(./cyclenumber.sh)/*/all -name "*png"|xargs -n 1 -P 16 optipng -preserve -quiet
-    
+elif [[ ${PBS_ARRAYID} -ge 50 && ${PBS_ARRAYID} -le 65 ]]; then
+
+    NUM=$((${PBS_ARRAYID}-50))
+    ## find tiles/$(./cyclenumber.sh)/*/all -name "*png"| sed -n ${NUM}~${NP}p | xargs -n 1 -P ${NP} optipng -preserve -quiet
+    find tiles/$(./cyclenumber.sh)/*/all -name "*png"| sed -n ${NUM}~${NP}p | xargs -n 1 -P ${NP} mogrify -format jpg -quality 85
 fi
