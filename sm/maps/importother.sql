@@ -46,6 +46,4 @@ CREATE TABLE saa(designator TEXT,name TEXT,upperlimit TEXT,lowerlimit TEXT,begin
 CREATE TABLE airways(name Text, sequence Text, Latitude float, Longitude float);
 .import aw.csv airways
 
-.import canap.csv airports
-.import canrun.csv airportrunways
-.import canfreq.csv airportfreq
+.import ourairports.csv airports
