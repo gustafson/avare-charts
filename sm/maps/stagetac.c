@@ -53,8 +53,7 @@ int main(int argc, char *argv[])
   char filestr[512];
   char mbuffer[4096];
   char projstr[512];
-  snprintf(projstr, sizeof(projstr),"-t_srs '+proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over' ");
-
+  snprintf(projstr, sizeof(projstr), "-t_srs 'EPSG:900913' ");
   char *n_ptr;
   char *dir_ptr;
 
@@ -85,7 +84,7 @@ int main(int argc, char *argv[])
     // out(buffer);
 
     snprintf(buffer, sizeof(buffer),
-	     "gdal_translate -of vrt -co TILED=YES -a_nodata '0 0 0' -expand rgb `ls charts/%s/%s*.tif|grep -vi planning | tail -n1` %s_1.vrt",
+	     "gdal_translate -of vrt -a_nodata '0 0 0' -expand rgb `ls charts/%s/%s*.tif|grep -vi planning | tail -n1` %s_1.vrt",
 	     dir_ptr, n_ptr, filestr);
     out(buffer);
 

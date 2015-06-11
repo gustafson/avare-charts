@@ -1,5 +1,5 @@
 #!/bin/sh -login
-#PBS -l mem=120gb:k20
+#PBS -l mem=120gb
 #PBS -l nodes=1:ppn=16
 #PBS -l walltime=24:00:00
 #PBS -m abe 
@@ -70,61 +70,79 @@ export OMP_NUM_THREADS=${NP}
 [[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
 CYCLE=$(./cyclenumber.sh)
 
-OPTIONS1="-t Title -w openlayers -c MUAVLLC --no-kml --resume -r lanczos --processes ${NP}"
-OPTIONS2="-t Title -w openlayers -c MUAVLLC --no-kml --resume -r lanczos"
+OPTIONS1="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos --processes ${NP}"
+OPTIONS2="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos"
 TIME1="/usr/bin/time -v -o"
 TIME2="/usr/bin/time -v --append -o"
 ARRAY=`echo ${PBS_JOBID} | sed -e s/"\[..\]"/"\[\]"/g -e "s/.cs.wmich.edu//g"`
 
 
 if [[ ${PBS_ARRAYID} -le 26 ]]; then
-    ${TIME1} time.tac.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} $(ls merge/TAC/run/*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/${CYCLE}/tac/all
-    ${TIME2} time.tac.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} $(ls merge/TAC/run/*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/${CYCLE}/tac/all
+    ${TIME1} time.tac.txt ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} $(ls merge/TAC/run/*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/${CYCLE}/1
+    ${TIME2} time.tac.txt ./gdal2tiles_512_mysingle.py -t "VFR Terminal Area" ${OPTIONS2} $(ls merge/TAC/run/*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/${CYCLE}/1
     
 elif [[ ${PBS_ARRAYID} -ge 27 && ${PBS_ARRAYID} -le 40 ]]; then
     NUM=$((${PBS_ARRAYID}-26))
-    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py ${OPTIONS2} $(ls merge/IFA/*.vrt|sed -n ${NUM}p) tiles/${CYCLE}/ifa/all
-    ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} $(ls merge/IFA/*.vrt|sed -n ${NUM}p) tiles/${CYCLE}/ifa/all
+    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS2} $(ls merge/IFA/*.vrt|sed -n ${NUM}p) tiles/${CYCLE}/5
+    ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py -t "IFR Area" ${OPTIONS2} $(ls merge/IFA/*.vrt|sed -n ${NUM}p) tiles/${CYCLE}/5
 
 elif [[ ${PBS_ARRAYID} -eq 41 ]]; then
-    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} -z 10  sec-48.vrt tiles/${CYCLE}/sec/all
-    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} -z 10  sec-48.vrt tiles/${CYCLE}/sec/all
+    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -z 10  sec-48.vrt tiles/${CYCLE}/0
+    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py -t "VFR Sectional" ${OPTIONS2} -z 10  sec-48.vrt tiles/${CYCLE}/0
 
 elif [[ ${PBS_ARRAYID} -eq 42 ]]; then
-    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} -z 1-9 sec-48.vrt tiles/${CYCLE}/sec/all
-    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} -z 1-9 sec-48.vrt tiles/${CYCLE}/sec/all
+    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -z 1-9 sec-48.vrt tiles/${CYCLE}/0
+    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py -t "VFR Sectional" ${OPTIONS2} -z 1-9 sec-48.vrt tiles/${CYCLE}/0
 
 elif [[ ${PBS_ARRAYID} -eq 43 ]]; then
-    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} -z 1-9 sec-ak.vrt tiles/${CYCLE}/sec/all
-    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} -z 1-9 sec-ak.vrt tiles/${CYCLE}/sec/all
+    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -z 1-9 sec-ak.vrt tiles/${CYCLE}/0
+    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py -t "VFR Sectional" ${OPTIONS2} -z 1-9 sec-ak.vrt tiles/${CYCLE}/0
 
 elif [[ ${PBS_ARRAYID} -eq 44 ]]; then
-    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} -z 10  sec-ak.vrt tiles/${CYCLE}/sec/all
-    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} -z 10  sec-ak.vrt tiles/${CYCLE}/sec/all
+    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -z 10  sec-ak.vrt tiles/${CYCLE}/0
+    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py -t "VFR Sectional" ${OPTIONS2} -z 10  sec-ak.vrt tiles/${CYCLE}/0
 
 elif [[ ${PBS_ARRAYID} -eq 45 ]]; then
-    ${TIME1} time.wac.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} wac.vrt tiles/${CYCLE}/wac/all
-    ${TIME2} time.wac.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} wac.vrt tiles/${CYCLE}/wac/all
+    ${TIME1} time.wac.txt ./gdal2tiles_512_parallel.py -t "VFR World" ${OPTIONS1} wac.vrt tiles/${CYCLE}/2
+    ${TIME2} time.wac.txt ./gdal2tiles_512_mysingle.py -t "VFR World" ${OPTIONS2} wac.vrt tiles/${CYCLE}/2
 
 elif [[ ${PBS_ARRAYID} -eq 46 ]]; then
-    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} sec-hi.vrt tiles/${CYCLE}/sec/all
-    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} sec-hi.vrt tiles/${CYCLE}/sec/all
+    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} sec-hi.vrt tiles/${CYCLE}/0
+    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py -t "VFR Sectional" ${OPTIONS2} sec-hi.vrt tiles/${CYCLE}/0
 
 elif [[ ${PBS_ARRAYID} -eq 47 ]]; then
-    ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} ifr.vrt tiles/${CYCLE}/ifr/all
-    ${TIME2} time.ifr.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} ifr.vrt tiles/${CYCLE}/ifr/all
+    ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} ifr.vrt tiles/${CYCLE}/3
+    ${TIME2} time.ifr.txt ./gdal2tiles_512_mysingle.py -t "IFR Enroute Low" ${OPTIONS2} ifr.vrt tiles/${CYCLE}/3
 
 elif [[ ${PBS_ARRAYID} -eq 48 ]]; then
-    ${TIME1} time.ifh.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} ifh.vrt tiles/${CYCLE}/ifh/all
-    ${TIME2} time.ifh.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} ifh.vrt tiles/${CYCLE}/ifh/all
+    ${TIME1} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} ifh.vrt tiles/${CYCLE}/4
+    ${TIME2} time.ifh.txt ./gdal2tiles_512_mysingle.py -t "IFR Enroute High" ${OPTIONS2} ifh.vrt tiles/${CYCLE}/4
+ 
+## elif [[ ${PBS_ARRAYID} -eq 49 ]]; then
+##     ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} ifa.vrt tiles/${CYCLE}/5
+##     ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py -t "IFR Area" ${OPTIONS2} ifa.vrt tiles/${CYCLE}/5
+## 
+elif [[ ${PBS_ARRAYID} -ge 49 && ${PBS_ARRAYID} -le 57 ]]; then
+    NUM=$((${PBS_ARRAYID}-48))
+    ${TIME1} time.heli.txt ./gdal2tiles_512_parallel.py -t "Heli-Other" ${OPTIONS1} $(ls merge/heli/*4.vrt|sed -n ${NUM}p) tiles/${CYCLE}/9
+    ${TIME2} time.heli.txt ./gdal2tiles_512_mysingle.py -t "Heli-Other" ${OPTIONS2} $(ls merge/heli/*4.vrt|sed -n ${NUM}p) tiles/${CYCLE}/9
 
-elif [[ ${PBS_ARRAYID} -eq 49 ]]; then
-    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py ${OPTIONS1} ifa.vrt tiles/${CYCLE}/ifa/all
-    ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py ${OPTIONS2} ifa.vrt tiles/${CYCLE}/ifa/all
+elif [[ ${PBS_ARRAYID} -ge 58 && ${PBS_ARRAYID} -le 65 ]]; then
 
-elif [[ ${PBS_ARRAYID} -ge 50 && ${PBS_ARRAYID} -le 65 ]]; then
+    NUM=$((${PBS_ARRAYID}-57))
+    NUMJOBS=8
+    ## find tiles/$(./cyclenumber.sh)/[0-9] -name "*png"| sed -n ${NUM}~${NP}p | xargs -n 1 -P ${NP} optipng -preserve -quiet
+    find tiles/$(./cyclenumber.sh)/9 -name "*png"| sed -n ${NUM}~${NUMJOBS}p | xargs -n 1 -P ${NP} mogrify -format jpg -quality 85
 
-    NUM=$((${PBS_ARRAYID}-50))
-    ## find tiles/$(./cyclenumber.sh)/*/all -name "*png"| sed -n ${NUM}~${NP}p | xargs -n 1 -P ${NP} optipng -preserve -quiet
-    find tiles/$(./cyclenumber.sh)/*/all -name "*png"| sed -n ${NUM}~${NP}p | xargs -n 1 -P ${NP} mogrify -format jpg -quality 85
 fi
+
+## 0 Sectional
+## 1 TAC
+## 2 WAC
+## 3 IFR Low
+## 4 IFR High
+## 5 IFR Area
+## 6 Terrain
+## 7 Shaded Relief
+## 8 Topographic
+## 9 Heli/Other

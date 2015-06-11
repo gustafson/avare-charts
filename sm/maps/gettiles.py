@@ -77,23 +77,44 @@ def main(argv):
     lon2 = float(argv[2])
     lat2 = float(argv[3])
     cycle = argv[4]
-    chart = argv[5][7:10]
-    img = argv[6]
-    for zoom in range (0,12):
+    chart = argv[5]
+    ftype = "png"
+    
+    if chart=="sec":
+        chart = 0
+        ftype = "jpg"
+    elif chart=="tac":
+        chart = 1
+        ftype = "jpg"
+    elif chart=="wac":
+        chart = 2
+        ftype = "jpg"
+    elif chart=="ifr":
+        chart = 3
+    elif chart=="ifh":
+        chart = 4
+    elif chart=="ifa":
+        chart = 5
+    elif chart=="heli":
+        chart = 9
+    else:
+        print "Chart type not among current list"
+        return 1
+    for zoom in range (0,14):
         m1 = LatLonToMeters(lat1, lon1)
         p1 = MetersToPixels(m1, zoom)
         t1 = PixelsToTile(p1)
         m2 = LatLonToMeters(lat2, lon2)
         p2 = MetersToPixels(m2, zoom)
         t2 = PixelsToTile(p2)
-        mystr2 = "tiles/%s/" % cycle + chart + "/all/%i" % zoom 
+        mystr2 = "tiles/%s/%i/%i" % (cycle, chart, zoom) 
         ## print "%i %i %i" % (zoom, t1[0], t2[0])
         ## print "%i %i %i" % (zoom, t2[1], t1[1])
         for i in range (t1[0], t2[0]+1):
             for j in range (t2[1], t1[1]+1):
                 mystr3 = "%s/%s" % (i,j)
                 fname = "%s/%s." % (mystr2,mystr3)
-                fname += img
+                fname += ftype
                 if (os.path.isfile(fname)):
                     print fname
 

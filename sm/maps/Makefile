@@ -228,6 +228,18 @@ zipit:
 	## FIXME must add maps.topo.db 
 	zip -9 -r final/databases.zip maps.*.db procedures.db main.db `find tiles/{$$(./cyclenumber.sh),static}/[a-z]*/*/4 -type f|grep -v tif|grep -v topo|grep -v "\/all\/"`
 
+zipittest:
+	## FIXME must find out how to updated canap.csv canfreq.csv canrun.csv
+	echo "Zipping cycle " $$(./cyclenumber.sh)
+	if [ -a main.db ]; then rm main.db; fi;
+	if [ -a final/databases.zip ]; then rm final/databases.zip; fi;
+	sqlite3 main.db < importother.sql
+	sqlite3 main.db "VACUUM;"
+	cp ~/CIFP/procedures.db .
+	sqlite3 procedures.db "VACUUM;"
+	zip -9 -r final/databases.zip procedures.db main.db 
+
+
 geolist:
 	./plates_list.sh
 	perl plate_list.pl > list_plates.txt
