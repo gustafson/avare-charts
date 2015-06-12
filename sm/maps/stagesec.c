@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
   char filestr[512];
   char cmdstr[4096];
   char projstr[512];
-  snprintf(projstr, sizeof(projstr),"-t_srs '+proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over' ");
+  snprintf(projstr, sizeof(projstr), "-t_srs 'EPSG:900913' ");
 
     if (argc>=2){debug=1;}
 
@@ -89,77 +89,32 @@ int main(int argc, char *argv[])
 	dir_ptr = "sec";
       }
  
-      // if(0 != strcmp(maps[map].reg, "HI")) {
-	// Expand to rgb
-	snprintf(buffer, sizeof(buffer),
-		 "gdal_translate -of vrt -co TILED=YES -expand rgb -srcwin %i %i %i %i charts/%s/%s*.tif %s_1.vrt;\n",
-		 maps[map].x, maps[map].y, maps[map].dx, maps[map].dy, dir_ptr, n_ptr, filestr);
-	strcat(cmdstr, buffer);
-	// Put a mask near the edges so that no seams show on the tiles
-	snprintf(buffer, sizeof(buffer),
-		 // Note the reversed order 2, 1 is appropriate
-		 "gdalbuildvrt -addalpha -srcnodata '0 0 0' -srcnodata '255 255 255' %s_2.vrt  %s_1.vrt;\n", filestr, filestr);
-	strcat(cmdstr, buffer);
-	snprintf(buffer, sizeof(buffer),
-		 "gdalwarp -of vrt -co TILED=YES --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline %s %s_2.vrt %s_3.vrt;\n",
-		 projstr, filestr, filestr, filestr);
-	strcat(cmdstr, buffer);
-      // }
-      // else {
-      // 	snprintf(buffer, sizeof(buffer),
-      // 		 "gdal_translate -of vrt -co TILED=YES -expand rgb -srcwin %i %i %i %i charts/%s/%s*.tif %s_1.vrt;\n",
-      // 		 maps[map].x, maps[map].y, maps[map].dx, maps[map].dy, dir_ptr, n_ptr, filestr);
-      // 	strcat(cmdstr, buffer);
-      // 	snprintf(buffer, sizeof(buffer), // This EPSG4326 step is needed for an unknown reason in order to make the lats and longs correct for HI.
-      // 		 // "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline -t_srs EPSG:4326 %s %s.tif tmp-stagesec/merge%s%s_w.tif;\n",
-      // 		 "gdalwarp -of vrt -co TILED=YES --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline %s %s_1.vrt %s_3.vrt;\n",
-      // 		 projstr, filestr, filestr);
-      // 	strcat(cmdstr, buffer);
-      // }
- 		
-      // if(0 != strcmp(maps[map].reg, "HI")) {
-	snprintf(buffer, sizeof(buffer),
-		 "gdal_translate -of vrt -co TILED=YES -projwin_srs WGS84 -projwin %f %f %f %f %s_3.vrt %s_c.vrt;\n",
-		 maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
-		 filestr, filestr);
- 	strcat(cmdstr, buffer);
-      // }else{
-      // 	snprintf(buffer, sizeof(buffer),
-      // 		 "gdalwarp -of vrt -co TILED=YES --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline %s %s_3.vrt %s_c.vrt;\n",
-      // 		 projstr, filestr, filestr);
-      // 	strcat(cmdstr, buffer);
-      // }
-
-      // snprintf(buffer, sizeof(buffer), "gdal_translate -outsize 25%% 25%% -of JPEG merge/%s/%s_c.vrt merge/%s/QC/%s_c.jpg;\n", maps[map].reg, n_ptr, maps[map].reg, n_ptr);
-      // strcat(cmdstr, buffer);
-
-      // snprintf(buffer, sizeof(buffer), "rm -f tmp-stagesec/merge%s%s_w.tif;\n", maps[map].reg, n_ptr);
-      // strcat(cmdstr, buffer);
-
-      // snprintf(buffer, sizeof(buffer), "[[ -f %s.tif ]] && rm %s.tif;\n", filestr, filestr); 
-      // strcat(cmdstr, buffer);
-
-      // snprintf(buffer, sizeof(buffer), "merge/%s/%s_c.tif", maps[map].reg, n_ptr);
+      snprintf(buffer, sizeof(buffer),
+	       "gdal_translate -of vrt -expand rgb -srcwin %i %i %i %i charts/%s/%s*.tif %s_1.vrt;\n",
+	       maps[map].x, maps[map].y, maps[map].dx, maps[map].dy, dir_ptr, n_ptr, filestr);
+      strcat(cmdstr, buffer);
+      // Put a mask near the edges so that no seams show on the tiles
+      snprintf(buffer, sizeof(buffer),
+	       // Note the reversed order 2, 1 is appropriate
+	       "gdalbuildvrt -addalpha -srcnodata '0 0 0' -srcnodata '255 255 255' %s_2.vrt  %s_1.vrt;\n", filestr, filestr);
+      strcat(cmdstr, buffer);
+      snprintf(buffer, sizeof(buffer),
+	       "gdalwarp -of vrt --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline %s %s_2.vrt %s_3.vrt;\n",
+	       projstr, filestr, filestr, filestr);
+      strcat(cmdstr, buffer);
+      snprintf(buffer, sizeof(buffer),
+	       "gdal_translate -of vrt -projwin_srs WGS84 -projwin %f %f %f %f %s_3.vrt %s_c.vrt;\n",
+	       maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
+	       filestr, filestr);
+      strcat(cmdstr, buffer);
       failed = 1;
       count = 0;
-      // while (failed){
-      	out (cmdstr);
-      	// failed = checkblack (buffer);
-      	// if (count++>3) {
-      	//   failed=0;
-      	//   printf ("# More than three attempts\n");
-      	//   printf ("# Run Manually\n");
-      	//   printf (cmdstr);
-      	// }
-	//}
+      out (cmdstr);
     }
   
   printf("\n\n\n");
-  /* What follows is stupid parallism */
-  // snprintf(filestr, sizeof(filestr), "gdalwarp -of vrt -co TILED=YES --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=4 -multi -r cubicspline %s", projstr);
 
   snprintf(filestr, sizeof(filestr), "gdalbuildvrt -resolution highest -overwrite");
-  // snprintf(filestr, sizeof(filestr), "gdal_merge.py");
 #pragma omp parallel num_threads(2) private (buffer)
   {
     map = omp_get_thread_num();
@@ -172,26 +127,6 @@ int main(int argc, char *argv[])
   }
 
   printf("\n\n\n");
- 
-  // out("mv merge/HI/*_c.vrt sec-hi.vrt");
-
-// #pragma omp parallel num_threads(5)
-//   {
-//     map = omp_get_thread_num();
-//     if (map==0){
-//       out("gdal_translate -outsize 25% 25% -of JPEG sec-ak.vrt sec-ak_small.jpg");
-//     } else if (map==1){
-//       out("gdal_translate -outsize 25% 25% -of JPEG sec-48.vrt sec-48_small.jpg");
-//     } else if (map==2){
-//       out("gdal_translate -outsize 25% 25% -of JPEG wac-48.vrt wac-48_small.jpg");
-//     } else if (map==3){
-//       out("gdal_translate -outsize 25% 25% -of JPEG wac-ak.vrt wac-ak_small.jpg");
-//     } else if (map==4){
-//       out("gdal_translate -outsize 25% 25% -of JPEG sec-hi.vrt sec-hi_small.jpg");
-//     }
-//   }
-//    
-//   out("[[ -d tmp-stagesec ]] && rm -fr tmp-stagesec"); 
   return 0;
 }
 

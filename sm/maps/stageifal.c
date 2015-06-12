@@ -1,32 +1,32 @@
 /*
-# Copyright (c) 2012, Zubair Khan (governer@gmail.com)
-# Copyright (c) 2013, Peter A. Gustafson (peter.gustafson@wmich.edu)
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-#
-# * Redistributions of source code must retain the above copyright
-#   notice, this list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright
-#   notice, this list of conditions and the following disclaimer in
-#   the documentation and/or other materials provided with the
-#   distribution.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-# HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
-# WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
+  # Copyright (c) 2012, Zubair Khan (governer@gmail.com)
+  # Copyright (c) 2013, Peter A. Gustafson (peter.gustafson@wmich.edu)
+  # All rights reserved.
+  #
+  # Redistribution and use in source and binary forms, with or without
+  # modification, are permitted provided that the following conditions
+  # are met:
+  #
+  # * Redistributions of source code must retain the above copyright
+  #   notice, this list of conditions and the following disclaimer.
+  # * Redistributions in binary form must reproduce the above copyright
+  #   notice, this list of conditions and the following disclaimer in
+  #   the documentation and/or other materials provided with the
+  #   distribution.
+  #
+  # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  # LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  # A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  # HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  # INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+  # BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+  # OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+  # AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+  # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+  # WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  # POSSIBILITY OF SUCH DAMAGE.
+  #
 */
 
 #include<stdio.h>
@@ -59,15 +59,14 @@ int main(int argc, char *argv[])
 
   if (argc>=2){debug=1;}
 
-  out("rm -fr merge/IFAL; mkdir merge/IFAL;");
+  out("rm -fr merge/ifr/ENR_AK*; mkdir -p merge/ifr;");
   int entries = sizeof(maps) / sizeof(maps[0]);
 
-#pragma omp parallel for private (n_ptr, dir_ptr, buffer0, tmpstr)
   for(map = 0; map < entries; map++) {
     n_ptr = maps[map].name; 
 
     // Establish a parallel safe tmp name
-    snprintf(tmpstr, sizeof(tmpstr), "merge/IF/%s", maps[map].name);
+    snprintf(tmpstr, sizeof(tmpstr), "merge/ifr/%s", maps[map].name);
     
     printf("\n\n# %s\n\n", maps[map].name);
     
@@ -87,47 +86,37 @@ int main(int argc, char *argv[])
       
       // START WORKING HERE
       snprintf(buffer0, sizeof(buffer0),  
-	       "gdalwarp -of vrt %s_1.vrt merge/%s/%s_c",
-	       tmpstr, tmpstr);
+	       "gdalwarp -of vrt -dstnodata '51 51 51' %s %s_1.vrt %s_2",
+	       projstr, tmpstr, tmpstr);
       if (map==4){
-	strcat(buffer0, ".tif -te_srs WGS84 -te -180 63 -133 72");
+	strcat(buffer0, ".vrt -te_srs WGS84 -te -180 63 -133 72");
 	out(buffer0);
       }else if(map==5){
 	strcpy(buffer1, buffer0);
-	strcat(buffer0, "-east.tif -te_srs WGS84 -te 172.5 48 180 56 ");
+	strcat(buffer0, "-east.vrt -te_srs WGS84 -te 172.5 48 180 56 ");
 	out(buffer0);
 
-	snprintf(buffer0, sizeof(buffer0), "mv merge/%s/%s_c-east.tif ifal-east.tif", maps[map].reg, n_ptr);
-	out(buffer0);      
-
-	strcat(buffer1, ".tif -te_srs WGS84 -te -180 48.5 -133 56.5");
+	strcat(buffer1, "-west_2.vrt -te_srs WGS84 -te -180 48.5 -133 56.5");
 	out(buffer1);
       }else{
-	strcat(buffer0, ".tif");
+	strcat(buffer0, ".vrt");
 	out(buffer0);
       }
 
-      snprintf(buffer0, sizeof(buffer0), "nearblack -color 0,0,0 -setmask merge/%s/%s_c.tif;\n", maps[map].reg, n_ptr);
-      out(buffer0);      
+      // snprintf(buffer0, sizeof(buffer0), "nearblack -color 0,0,0 -setmask %s_2.vrt;\n", tmpstr);
+      // out(buffer0);      
 
     }
   }
-  
-  out("rm -fr ifal-west.tif");
-  
-#pragma omp parallel num_threads(2)
-  {
-    map = omp_get_thread_num();
-    if (map==0){
-      out("gdalwarp -co TILED=YES --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs '+proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over' -tr 210.489577614561483 210.489577614561483 -te_srs WGS84 -te -180 45.5 -121.25 72 merge/IFAL/*_c.tif ifal-west.tif");
-      out("gdal_translate -outsize 10% 10% -of JPEG ifal-west.tif ifal-west_small.jpg");
-    } else if (map==1){
-      // out("gdalwarp -co TILED=YES --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs '+proj=merc +a=6378137 +b=6378137 +lat_t s=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_def +over' -tr 210.489577614561483 210.489577614561483 -te_srs WGS84 -te 172.5 48 180 56 merge/IFAL/*_c.tif ifal-east.tif");
-      out("gdal_translate -outsize 10% 10% -of JPEG ifal-east.tif ifal-east_small.jpg");
-    }
-  }
+  // snprintf(buffer0, sizeof(buffer0), "gdalwarp -of vrt %s -te_srs WGS84 -te -180 45.5 -121.25 72 merge/ifr/*_2.vrt merge/ifr/ifal-west.vrt", projstr);
+  // out(buffer0);
+  snprintf(buffer0, sizeof(buffer0), "pushd merge/ifr; gdalbuildvrt -resolution highest ifal-west.vrt -overwrite *_2.vrt; popd");
+  out(buffer0);
+  snprintf(buffer0, sizeof(buffer0), "mv merge/ifr/ENR_AKL02W_2-east.vrt merge/ifr/ifal-east.vrt");
+  out(buffer0);
 
-  out("rm -fr tmp-stageifal/tmpstageifal*tif");
-  out("[[ -d tmp-stageifal ]] && rmdir tmp-stageifal || echo ");
+  /* one image */
+  out("\n\n\n# Merge all including alaska west and enroute low 48");
+  out("gdalbuildvrt -resolution highest ifr.vrt -overwrite merge/ifr/*_2.vrt");
   return 0;
 }

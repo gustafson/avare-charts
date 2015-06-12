@@ -131,9 +131,14 @@ elif [[ ${PBS_ARRAYID} -ge 58 && ${PBS_ARRAYID} -le 65 ]]; then
 
     NUM=$((${PBS_ARRAYID}-57))
     NUMJOBS=8
-    ## find tiles/$(./cyclenumber.sh)/[0-9] -name "*png"| sed -n ${NUM}~${NP}p | xargs -n 1 -P ${NP} optipng -preserve -quiet
-    find tiles/$(./cyclenumber.sh)/9 -name "*png"| sed -n ${NUM}~${NUMJOBS}p | xargs -n 1 -P ${NP} mogrify -format jpg -quality 85
+    ## [0-2]
+    ## [3-5]
+    ## find tiles/$(./cyclenumber.sh)/[0-2] -name "*png"| sed -n ${NUM}~${NUMJOBS}p | xargs -n 1 -P ${NP} mogrify -unsharp 3x3 -format jpg -quality 75
+    ## find tiles/$(./cyclenumber.sh)/[3-5] -name "*png"| sed -n ${NUM}~${NP}p | xargs -n 1 -P ${NP} mogrify -format png8
+    find tiles/$(./cyclenumber.sh)/[3-5] -name "*png"| sed -n ${NUM}~${NP}p | xargs -n 1 -P ${NP} optipng
 
+elif [[ ${PBS_ARRAYID} -eq 66 ]]; then
+    rename png8 png `find tiles/$(./cyclenumber.sh)/[3-5] -name "*png8"`
 fi
 
 ## 0 Sectional
