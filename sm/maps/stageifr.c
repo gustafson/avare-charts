@@ -55,6 +55,7 @@ int main(int argc, char *argv[])
   snprintf(projstr, sizeof(projstr), "-t_srs 'EPSG:900913' ");
   char *n_ptr;
   char *dir_ptr;
+  char *order_ptr;
 
   if (argc>=2){debug=1;}
 
@@ -62,38 +63,41 @@ int main(int argc, char *argv[])
 
   int entries = sizeof(maps) / sizeof(maps[0]);
 
-#pragma omp parallel for private (n_ptr, dir_ptr, buffer, tmpstr)
   for(map = 0; map < entries; map++) {
     n_ptr = maps[map].name; 
-
-    // Establish a parallel safe tmp name
-    snprintf(tmpstr, sizeof(tmpstr), "merge/ifr/%s", maps[map].name);
 
     printf("\n\n# %s\n\n", maps[map].name);
 
     if(0 == strcmp(maps[map].reg, "IF")) {
       dir_ptr = "iff";
+      order_ptr = "0";
+    } else if(0 == strcmp(maps[map].reg, "IFAL")) {
+      dir_ptr = "ifal";
+      order_ptr = "1";
+    } else {
+      dir_ptr = "empty";
+      order_ptr = "2";
     }
+    
+    // Establish a parallel safe tmp name
+    snprintf(tmpstr, sizeof(tmpstr), "merge/ifr/%s%s", order_ptr, maps[map].name);
+    
+    snprintf(buffer, sizeof(buffer),
+	     "gdal_translate -of vrt -a_nodata '51 51 51' -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
+	     maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
+	     dir_ptr, n_ptr, tmpstr);
+    out(buffer);
 
-    if((0 == strcmp(maps[map].reg, "IF"))) {
-			
-      snprintf(buffer, sizeof(buffer),
-	       "gdal_translate -of vrt -a_nodata '51 51 51' -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
-	       maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
-	       dir_ptr, n_ptr, tmpstr);
-      out(buffer);
-
-      snprintf(buffer, sizeof(buffer),  
-	       "gdalwarp -of vrt -dstnodata '51 51 51' %s %s_1.vrt %s_2.vrt",
-	       projstr, tmpstr, tmpstr);
-      out(buffer);
-
-    }
+    snprintf(buffer, sizeof(buffer),  
+	     "gdalwarp -of vrt -dstnodata '51 51 51' %s %s_1.vrt %s_2.vrt",
+	     projstr, tmpstr, tmpstr);
+    out(buffer);
     
   }
 
   /* one image */
   out("\n\n\n# Merge all");
   out("gdalbuildvrt -resolution highest ifr.vrt -overwrite merge/ifr/*_2.vrt");
+  out("gdalbuildvrt -resolution highest ifr_ak.vrt -overwrite merge/ifr/{1ENR_AKL01_2.vrt,1ENR_AKL02C_2.vrt,1ENR_AKL02W_2.vrt,1ENR_AKL03_2.vrt,1ENR_AKL04_2.vrt}");
   return 0;
 }

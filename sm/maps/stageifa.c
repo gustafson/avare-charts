@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 
   if (argc>=2){debug=1;}
 
-  out("rm -fr merge/IFA; mkdir merge/IFA"); // IFA
+  out("rm -fr merge/ifa; mkdir merge/ifa"); // ifa
   int entries = sizeof(maps) / sizeof(maps[0]);
 
 #pragma omp parallel for private (n_ptr, dir_ptr, buffer, tmpstr)
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     n_ptr = maps[map].name; 
 
     // Establish a parallel safe tmp name
-    snprintf(tmpstr, sizeof(tmpstr), "merge/IFA/%s", maps[map].name);
+    snprintf(tmpstr, sizeof(tmpstr), "merge/ifa/%s", maps[map].name);
 
     printf("\n\n# %s\n", maps[map].name);
 
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 
   /* one image */
   out("\n\n\n# Merge all");
-  out("gdalbuildvrt -resolution highest ifa.vrt -overwrite merge/IFA/*.vrt\n");
+  out("gdalbuildvrt -resolution highest ifa.vrt -overwrite merge/ifa/*.vrt\n");
 
   return 0;
 }

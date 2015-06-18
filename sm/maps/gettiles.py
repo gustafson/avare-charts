@@ -3,44 +3,6 @@
 
 import sys
 import os.path
-## ## import getopt
-## ## from gdal2tiles_512_mysingle import *
-## # norm = 2
-## from gdal2tiles import *
-## # norm = 1
-## ## print 'Number of arguments:', len(sys.argv), 'arguments.'
-## ## print 'Argument List:', str(sys.argv)
-## 
-## def main(argv):
-##     if len(argv)>2:
-##         #tmp =  GlobalGeodetic(GlobalMercator()).LonLatToTile(float(argv[0]),float(argv[1]),int(argv[4]))
-## #        tmp += GlobalGeodetic(GlobalMercator()).LonLatToTile(float(argv[2]),float(argv[3]),int(argv[4]))
-## #        tmp =  GlobalGeodetic(GlobalMercator()).LonLatToTile(float(argv[2]),float(argv[3]),int(argv[4]))
-## #        tmp += GlobalGeodetic(GlobalMercator()).LonLatToTile(float(argv[0]),float(argv[1]),int(argv[4]))
-## #        mystr1 = "#%i,%i,%i,%i " % tmp
-## #        mystr2 = "tiles/%s/sec/all/" % argv[5]
-## #        mystr2 += argv[4]
-## #        for i in range (tmp[0], tmp[2]):
-## #            for j in range (tmp[3], tmp[1]):
-## #                mystr3 = "%s/%s" % (i,j)
-## #                print "%s/%s.png" % (mystr2,mystr3)
-##         # print "%g %g" % (float(argv[0]),float(argv[1]))
-##         # print "%g %g" % GlobalMercator().LatLonToMeters(float(argv[0]),float(argv[1]))
-##         gm = GlobalGeodetic()
-##         tmp = gm.LonLatToTile(float(argv[0]),float(argv[1]),int(argv[4]))
-##         print "%g %g %g %g" % gm.TileBounds(tmp[0],tmp[1],int(argv[4]))
-##         print "%g %g" % gm.LonLatToPixels(tmp[0],tmp[1],int(argv[4]))
-##         print "%g %g" % tmp
-##         ## print "%g %g %g %g" % gm.TileLatLonBounds(tmp[0],tmp[1],int(argv[4]))
-##         print "%g" % gm.Resolution(int(argv[4]))
-##         
-## if __name__ == "__main__":
-##     main(sys.argv[1:])
-## 
-## 
-## 
-## 
-## 
 
 import math
 tileSize = 512
@@ -76,44 +38,89 @@ def main(argv):
     lat1 = float(argv[1])
     lon2 = float(argv[2])
     lat2 = float(argv[3])
+    m1 = [lon1, lat1]
+    m2 = [lon2, lat2]
     cycle = argv[4]
     chart = argv[5]
+    spec =  argv[6]
     ftype = "png"
+    maxzoom=14
     
+    if spec=="latlon":
+        m1 = LatLonToMeters(lat1, lon1)
+        m2 = LatLonToMeters(lat2, lon2)
+        
     if chart=="sec":
         chart = 0
         ftype = "jpg"
+        maxzoom=10
     elif chart=="tac":
         chart = 1
         ftype = "jpg"
+        maxzoom=11
     elif chart=="wac":
         chart = 2
         ftype = "jpg"
+        maxzoom=9
     elif chart=="ifr":
         chart = 3
+        maxzoom=10
     elif chart=="ifh":
         chart = 4
+        maxzoom=9
     elif chart=="ifa":
         chart = 5
+        maxzoom=11
+    elif chart=="rel":
+        chart = 7
+        ftype = "jpg"
+        #cycle = "static"
+        maxzoom=9
+    elif chart=="topo":
+        chart = 8
+        ftype = "jpg"
+        #cycle = "static"
+        maxzoom=10
     elif chart=="heli":
+        chart = 9
+        maxzoom=13
+    elif chart=="deletesec":
+        chart = 0
+        ftype = "png"
+    elif chart=="deletetac":
+        chart = 1
+    elif chart=="deletewac":
+        chart = 2
+    elif chart=="deleteifr":
+        chart = 3
+    elif chart=="deleteifh":
+        chart = 4
+    elif chart=="deleteifa":
+        chart = 5
+    elif chart=="deleterel":
+        chart = 7
+        #cycle = "static"
+    elif chart=="deletetopo":
+        chart = 8
+        #cycle = "static"
+    elif chart=="deleteheli":
         chart = 9
     else:
         print "Chart type not among current list"
         return 1
-    for zoom in range (0,14):
-        m1 = LatLonToMeters(lat1, lon1)
+    if (maxzoom<14):
+        maxzoom = maxzoom+1
+        
+    for zoom in range (0,maxzoom):
         p1 = MetersToPixels(m1, zoom)
         t1 = PixelsToTile(p1)
-        m2 = LatLonToMeters(lat2, lon2)
         p2 = MetersToPixels(m2, zoom)
         t2 = PixelsToTile(p2)
         mystr2 = "tiles/%s/%i/%i" % (cycle, chart, zoom) 
-        ## print "%i %i %i" % (zoom, t1[0], t2[0])
-        ## print "%i %i %i" % (zoom, t2[1], t1[1])
         for i in range (t1[0], t2[0]+1):
             for j in range (t2[1], t1[1]+1):
                 mystr3 = "%s/%s" % (i,j)
-                fname = "%s/%s." % (mystr2,mystr3)
+                fname  = "%s/%s." % (mystr2,mystr3)
                 fname += ftype
                 if (os.path.isfile(fname)):
                     print fname

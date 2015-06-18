@@ -1,7 +1,7 @@
 #!/bin/sh -login
 #PBS -l mem=120gb
 #PBS -l nodes=1:ppn=16
-#PBS -l walltime=24:00:00
+#PBS -l walltime=1000:00:00
 #PBS -m abe 
 #PBS -V 
 #PBS -M peter.gustafson@wmich.edu
@@ -78,67 +78,57 @@ ARRAY=`echo ${PBS_JOBID} | sed -e s/"\[..\]"/"\[\]"/g -e "s/.cs.wmich.edu//g"`
 
 
 if [[ ${PBS_ARRAYID} -le 26 ]]; then
-    ${TIME1} time.tac.txt ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} $(ls merge/TAC/run/*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/${CYCLE}/1
-    ${TIME2} time.tac.txt ./gdal2tiles_512_mysingle.py -t "VFR Terminal Area" ${OPTIONS2} $(ls merge/TAC/run/*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/${CYCLE}/1
+    ${TIME1} time.tac.txt ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} $(ls merge/tac/run*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/${CYCLE}/1
+    ${TIME2} time.tac.txt ./gdal2tiles_512_mysingle.py -t "VFR Terminal Area" ${OPTIONS2} $(ls merge/tac/run*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/${CYCLE}/1
     
-elif [[ ${PBS_ARRAYID} -ge 27 && ${PBS_ARRAYID} -le 40 ]]; then
+elif [[ ${PBS_ARRAYID} -eq 27 ]]; then
     NUM=$((${PBS_ARRAYID}-26))
-    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS2} $(ls merge/IFA/*.vrt|sed -n ${NUM}p) tiles/${CYCLE}/5
-    ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py -t "IFR Area" ${OPTIONS2} $(ls merge/IFA/*.vrt|sed -n ${NUM}p) tiles/${CYCLE}/5
+    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS2} ifa.vrt tiles/${CYCLE}/5
+    ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py -t "IFR Area" ${OPTIONS2} ifa.vrt tiles/${CYCLE}/5
 
 elif [[ ${PBS_ARRAYID} -eq 41 ]]; then
-    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -z 10  sec-48.vrt tiles/${CYCLE}/0
-    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py -t "VFR Sectional" ${OPTIONS2} -z 10  sec-48.vrt tiles/${CYCLE}/0
+    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} sec.vrt tiles/${CYCLE}/0
+    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py -t "VFR Sectional" ${OPTIONS2} sec.vrt tiles/${CYCLE}/0
 
 elif [[ ${PBS_ARRAYID} -eq 42 ]]; then
-    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -z 1-9 sec-48.vrt tiles/${CYCLE}/0
-    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py -t "VFR Sectional" ${OPTIONS2} -z 1-9 sec-48.vrt tiles/${CYCLE}/0
-
-elif [[ ${PBS_ARRAYID} -eq 43 ]]; then
-    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -z 1-9 sec-ak.vrt tiles/${CYCLE}/0
-    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py -t "VFR Sectional" ${OPTIONS2} -z 1-9 sec-ak.vrt tiles/${CYCLE}/0
-
-elif [[ ${PBS_ARRAYID} -eq 44 ]]; then
-    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -z 10  sec-ak.vrt tiles/${CYCLE}/0
-    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py -t "VFR Sectional" ${OPTIONS2} -z 10  sec-ak.vrt tiles/${CYCLE}/0
-
-elif [[ ${PBS_ARRAYID} -eq 45 ]]; then
     ${TIME1} time.wac.txt ./gdal2tiles_512_parallel.py -t "VFR World" ${OPTIONS1} wac.vrt tiles/${CYCLE}/2
     ${TIME2} time.wac.txt ./gdal2tiles_512_mysingle.py -t "VFR World" ${OPTIONS2} wac.vrt tiles/${CYCLE}/2
 
-elif [[ ${PBS_ARRAYID} -eq 46 ]]; then
+elif [[ ${PBS_ARRAYID} -eq 43 ]]; then
     ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} sec-hi.vrt tiles/${CYCLE}/0
     ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py -t "VFR Sectional" ${OPTIONS2} sec-hi.vrt tiles/${CYCLE}/0
 
-elif [[ ${PBS_ARRAYID} -eq 47 ]]; then
+elif [[ ${PBS_ARRAYID} -eq 44 ]]; then
     ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} ifr.vrt tiles/${CYCLE}/3
     ${TIME2} time.ifr.txt ./gdal2tiles_512_mysingle.py -t "IFR Enroute Low" ${OPTIONS2} ifr.vrt tiles/${CYCLE}/3
 
-elif [[ ${PBS_ARRAYID} -eq 48 ]]; then
+elif [[ ${PBS_ARRAYID} -eq 45 ]]; then
     ${TIME1} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} ifh.vrt tiles/${CYCLE}/4
     ${TIME2} time.ifh.txt ./gdal2tiles_512_mysingle.py -t "IFR Enroute High" ${OPTIONS2} ifh.vrt tiles/${CYCLE}/4
  
-## elif [[ ${PBS_ARRAYID} -eq 49 ]]; then
-##     ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} ifa.vrt tiles/${CYCLE}/5
-##     ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py -t "IFR Area" ${OPTIONS2} ifa.vrt tiles/${CYCLE}/5
-## 
-elif [[ ${PBS_ARRAYID} -ge 49 && ${PBS_ARRAYID} -le 57 ]]; then
-    NUM=$((${PBS_ARRAYID}-48))
+elif [[ ${PBS_ARRAYID} -ge 46 && ${PBS_ARRAYID} -le 54 ]]; then
+    NUM=$((${PBS_ARRAYID}-45))
     ${TIME1} time.heli.txt ./gdal2tiles_512_parallel.py -t "Heli-Other" ${OPTIONS1} $(ls merge/heli/*4.vrt|sed -n ${NUM}p) tiles/${CYCLE}/9
     ${TIME2} time.heli.txt ./gdal2tiles_512_mysingle.py -t "Heli-Other" ${OPTIONS2} $(ls merge/heli/*4.vrt|sed -n ${NUM}p) tiles/${CYCLE}/9
 
-elif [[ ${PBS_ARRAYID} -ge 58 && ${PBS_ARRAYID} -le 65 ]]; then
+elif [[ ${PBS_ARRAYID} -ge 55 && ${PBS_ARRAYID} -le 55 ]]; then
 
-    NUM=$((${PBS_ARRAYID}-57))
-    NUMJOBS=8
+    function topng8(){
+	convert $0 png8:${0}.png8.png
+	mv ${0}.png8.png ${0}
+	optipng -quiet ${0}
+    }
+    export -f topng8
+    
+    NUM=$((${PBS_ARRAYID}-54))
+    NUMJOBS=1
     ## [0-2]
     ## [3-5]
     ## find tiles/$(./cyclenumber.sh)/[0-2] -name "*png"| sed -n ${NUM}~${NUMJOBS}p | xargs -n 1 -P ${NP} mogrify -unsharp 3x3 -format jpg -quality 75
-    ## find tiles/$(./cyclenumber.sh)/[3-5] -name "*png"| sed -n ${NUM}~${NP}p | xargs -n 1 -P ${NP} mogrify -format png8
-    find tiles/$(./cyclenumber.sh)/[3-5] -name "*png"| sed -n ${NUM}~${NP}p | xargs -n 1 -P ${NP} optipng
-
-elif [[ ${PBS_ARRAYID} -eq 66 ]]; then
-    rename png8 png `find tiles/$(./cyclenumber.sh)/[3-5] -name "*png8"`
+    find tiles/$(./cyclenumber.sh)/3 -name "*png"| xargs -n 1 -P ${NP} bash -c topng8
+    ## find tiles/$(./cyclenumber.sh)/[3-5] -name "*png8"| sed -n ${NUM}~${NP}p | xargs -n 1 -P ${NP} bash -c topng8
+    ## rename png png.orig `find tiles/$(./cyclenumber.sh)/[3-5] -name "*png"`
+    ## rename png8 png8 `find tiles/$(./cyclenumber.sh)/[3-5] -name "*png8"`
 fi
 
 ## 0 Sectional

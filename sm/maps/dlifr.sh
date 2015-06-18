@@ -1,5 +1,6 @@
 #!/bin/bash
 #Copyright (c) 2012, Zubair Khan (governer@gmail.com) 
+#Copyright (c) 2015, Peter A. Gustafson (peter.gustafson@wmich.edu)
 #All rights reserved.
 #
 #Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -13,19 +14,43 @@
 export DT=$1
 
 pushd charts/iff
-
-for ch in 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 
-do
-	wget http://aeronav.faa.gov/enroute/${DT,,}/enr_l$ch.zip
+for ch in 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36;do
+    wget http://aeronav.faa.gov/enroute/${DT,,}/enr_l$ch.zip
 done
-
 popd
 
+## IFR low Alaska
+pushd charts/ifal
+for ch in 1 2 3 4; do
+    ## Alaska low
+    wget http://aeronav.faa.gov/enroute/${DT,,}/enr_akl0$ch.zip
+done
+popd
+
+pushd charts/ifal
+for ch in 1 2; do
+    ## Hawaii Pacific
+    wget http://aeronav.faa.gov/enroute/${DT,,}/enr_p0$ch.zip
+done
+popd
+
+## IFR area
 pushd charts/ifa
 for ch in 1 2; do
-## IFR area
     wget http://aeronav.faa.gov/enroute/${DT,,}/enr_a0$ch.zip
 done
 popd
 
+## IFR 48 High
+pushd charts/ifh;
+for ch in 01 02 03 04 05 06 07 08 09 10 11; do
+    wget http://aeronav.faa.gov/enroute/${DT,,}/enr_h$ch.zip
+done
+popd
 
+## Alaska high
+pushd charts/ifah
+for ch in 1 2; do
+    wget http://aeronav.faa.gov/enroute/${DT,,}/enr_akh0$ch.zip
+done
+popd

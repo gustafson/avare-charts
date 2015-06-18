@@ -55,7 +55,6 @@ all:
 	@echo "  make download-base-data #$$(./cycledates.sh 56 base) $$(./cycledates.sh 56 dof)"
 	@echo "  make process-data #$$(./cycledates.sh 56 base)"
 	@echo "  make procedures.db #$$(./cycledates.sh 28)"
-	@echo "  make canada #$$(./cycledates.sh 28)"
 	@echo "  make geolist #$$(./cycledates.sh 28)"
 	@echo "  make ziptiles"
 	@echo "  make zipit"
@@ -77,14 +76,14 @@ download-base-data:
 	## https://nfdc.faa.gov/tod/public/TOD_DOF.html
 	## wget --no-check-certificate https://nfdc.faa.gov/tod/public/DOFS/DOF_$$(./cycledates.sh 56 dof).zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
 	echo "USING Daily DOF file rather than 56 day cycle.  This is, on average, more current than the 56 day cycle."
-	wget --no-check-certificate https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip -o DAILY_DOF.ZIP DOF.DAT && rm DAILY_DOF.ZIP
+	wget --no-check-certificate https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip DAILY_DOF.ZIP DOF.DAT && rm DAILY_DOF.ZIP
 	# https://nfdc.faa.gov/fadds/subscriptionDownload.do?productId=548752
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/APT.zip && unzip -o APT.zip && rm APT.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWOS.zip && unzip -o AWOS.zip && rm AWOS.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/TWR.zip && unzip -o TWR.zip && rm TWR.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/FIX.zip && unzip -o FIX.zip && rm FIX.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/NAV.zip && unzip -o NAV.zip && rm NAV.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWY.zip && unzip -o AWY.zip && rm AWY.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/APT.zip && unzip APT.zip && rm APT.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWOS.zip && unzip AWOS.zip && rm AWOS.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/TWR.zip && unzip TWR.zip && rm TWR.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/FIX.zip && unzip FIX.zip && rm FIX.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/NAV.zip && unzip NAV.zip && rm NAV.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWY.zip && unzip AWY.zip && rm AWY.zip
 	./saa.sh							     $$(./cycledates.sh 56 base)
 
 process-data:
@@ -131,26 +130,23 @@ update-vfr:
 
 download-ifr:
 	echo Downloading ifr for cycle $$(./cyclenumber.sh)
-	mkdir charts/keep
-	if [[ -d charts/iff ]]; then mv charts/iff charts/keep/iff; fi
-	if [[ -d charts/ifh ]]; then mv charts/ifh charts/keep/iff; fi
-	if [[ -d charts/ifal ]]; then mv charts/ifal charts/keep/iff; fi
-	if [[ -d charts/ifa ]]; then mv charts/ifa charts/keep/iff; fi
+	if [[ -d charts/iff ]]; then rm -fr charts/iff; fi
+	if [[ -d charts/ifh ]]; then rm -fr charts/ifh; fi
+	if [[ -d charts/ifal ]]; then rm -fr charts/ifal; fi
+	if [[ -d charts/ifa ]]; then rm -fr charts/ifa; fi
 	mkdir -p charts/iff
 	mkdir -p charts/ifh
 	mkdir -p charts/ifa
 	mkdir -p charts/ifal
 	mkdir -p charts/ifah
 	./dlifr.sh $$(./cycledates.sh 56 ifr)
-	./dlifh.sh $$(./cycledates.sh 56 ifr)
-	./dlifa.sh $$(./cycledates.sh 56 ifr)
 
 unzip:
 	rm charts/*/*tif
 	cd charts/tac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	cd charts/wac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	cd charts/sec  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
-	## cd charts/oth  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	cd charts/heli && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	cd charts/ifh  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	cd charts/ifa  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	cd charts/iff  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
@@ -172,8 +168,7 @@ stage-all: retile
 	gcc -march=native -O3 -Wall stagefly.c -o stagefly -fopenmp
 	gcc -march=native -O3 -Wall stageifr.c -o stageifr -fopenmp
 	gcc -march=native -O3 -Wall stageifh.c -o stageifh -fopenmp
-	### stageifa.c lost -- will use shell script instead
-	## gcc -march=native -O3 -Wall stageifa.c -o stageifa -fopenmp
+	gcc -march=native -O3 -Wall stageifa.c -o stageifa -fopenmp
 	gcc -march=native -O3 -Wall stageifal.c -o stageifal -fopenmp
 	gcc -march=native -O3 -Wall stageifah.c -o stageifah -fopenmp
 	## gcc -march=native -O3 -Wall stageheli.c -o stageheli -fopenmp
@@ -200,9 +195,9 @@ ziptiles:
 	./sepifa.sh $$(./cyclenumber.sh)
 	./sepelus.sh $$(./cyclenumber.sh)
 	./sepehus.sh $$(./cyclenumber.sh)
-	##./sepelev.sh ## 
-	##./seprel.sh ## 
-	##./sephelo.sh ## 
+	./sepelev.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
+	./seprel.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
+	./sephelo.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
 	##./septopo.sh copy charts zips on servers as no expires
 	##./sepgc.sh copy charts zips on servers as no expires
 
@@ -226,7 +221,7 @@ zipit:
 	# STATIC sqlite3 maps.rel.db "VACUUM;"
 	# STATIC sqlite3 maps.topo.db "VACUUM;"
 	## FIXME must add maps.topo.db 
-	zip -9 -r final/databases.zip maps.*.db procedures.db main.db `find tiles/{$$(./cyclenumber.sh),static}/[a-z]*/*/4 -type f|grep -v tif|grep -v topo|grep -v "\/all\/"`
+	zip -9 -r final/databases.zip maps.*.db procedures.db main.db `find tiles/{$$(./cyclenumber.sh),static}/*/*/4 -type f|grep -v tif|grep -v topo|grep -v "\/all\/"`
 
 zipittest:
 	## FIXME must find out how to updated canap.csv canfreq.csv canrun.csv
@@ -247,10 +242,6 @@ geolist:
 
 procedures.db:
 	echo This is currently done outside of the avare working directory
-
-canada:
-	./ourairports.sh
-	./canada_ad.sh
 
 qualitycontrol:
 	./qualitycontrol.sh

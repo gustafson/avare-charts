@@ -83,15 +83,22 @@ function update {
 	    let END/=-86400
 
 	    echo $a $BEGIN $END | awk '{printf ("%36s has been valid for %3s days and expires in %3s days\n", $1, $2, $3)}'
-
+	       
 	    ## Remove the last six characters?
 	    BASE=`echo $a | sed 's/.\{6\}$//'`
-	    OLD=`echo $a |sed s/$BASE//|cut -f1 -d.`	    
+	    OLD=`echo $a |sed s/$BASE//|cut -f1 -d.`
+
+	    if [[ $BEGIN -lt 10 || $END -lt 28 ]]; then
+		CLEAR=`echo $a | sed 's/.\{7\}$//' | sed s/_//g`
+		CLEAR=${CLEAR:0:5}
+		echo "delete merge/$1/*${CLEAR}*_c.vrt" >> /dev/shm/expired.txt
+	    fi
+
 	    if [[ $END -lt 28 ]]; then
 		let NEW=$OLD+1
 		let EXP=$OLD-1
 		echo $BASE $OLD $NEW
-		
+	
 		wget -c http://aeronav.faa.gov/content/aeronav/${LOC}/${BASE}${NEW}.zip
 		if [[ -f ${BASE}${NEW}.zip ]]; then
 	    	    UPDATED="${UPDATED} ${BASE}${NEW}.zip"

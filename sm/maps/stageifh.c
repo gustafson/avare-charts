@@ -58,43 +58,46 @@ int main(int argc, char *argv[])
 
   if (argc>=2){debug=1;}
 
-  out("[[ -d merge/IFH ]] && rm -fr merge/IFH; mkdir -p merge/IFH");
+  out("rm -fr merge/ifh; mkdir -p merge/ifh");
 
   int entries = sizeof(maps) / sizeof(maps[0]);
 
-#pragma omp parallel for private (n_ptr, dir_ptr, buffer, tmpstr)
   for(map = 0; map < entries; map++) {
     n_ptr = maps[map].name; 
-
-    // Establish a parallel safe tmp name
-    snprintf(tmpstr, sizeof(tmpstr), "merge/IFH/%s", maps[map].name);
 
     printf("\n\n# %s\n\n", maps[map].name);
 
     if(0 == strcmp(maps[map].reg, "IFH")) {
       dir_ptr = "ifh";
+    }else if(0 == strcmp(maps[map].reg, "IFAH")) {
+      dir_ptr = "ifah";
+    }else{
+      dir_ptr = "empty";
     }
 
-    if((0 == strcmp(maps[map].reg, "IFH"))) {
+    // Establish a parallel safe tmp name
+    snprintf(tmpstr, sizeof(tmpstr), "merge/ifh/%02i%s", map, maps[map].name);
+    
+    if((0 == strcmp(maps[map].reg, "IFH"))||
+       (0 == strcmp(maps[map].reg, "IFAH"))) {
 			
       snprintf(buffer, sizeof(buffer),
 	       "gdal_translate -of vrt -a_nodata '51 51 51' -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
 	       maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
 	       dir_ptr, n_ptr, tmpstr);
       out(buffer);
-			
+      
       snprintf(buffer, sizeof(buffer),  
-	       "gdalwarp -of vrt -dstnodata '51 51 51' %s %s_1.vrt %s_2.vrt\n",
-	       projstr, tmpstr, tmpstr);
+      	       "gdalwarp -of vrt -dstnodata '51 51 51' %s %s_1.vrt %s_2.vrt\n",
+      	       projstr, tmpstr, tmpstr);
       out(buffer);
 
     }
-    
   }
-
+  
   /* one image */
   out("\n\n\n# Merge all");
-  out("gdalbuildvrt -resolution highest ifh.vrt -overwrite merge/IFH/*_2.vrt\n");
+  out("gdalbuildvrt -resolution highest ifh.vrt -overwrite merge/ifh/*_2.vrt\n");
 
   return 0;
 }

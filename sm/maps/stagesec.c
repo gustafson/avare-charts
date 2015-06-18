@@ -42,8 +42,6 @@ int main(int argc, char *argv[])
   int map;
   char *n_ptr;
   char *dir_ptr;
-  int failed;
-  int count;
 
   char buffer[512];
   char filestr[512];
@@ -53,30 +51,13 @@ int main(int argc, char *argv[])
 
     if (argc>=2){debug=1;}
 
-  out("rm -fr merge/AK; mkdir -p merge/AK/QC"); // Alaska sec
-  out("rm -fr merge/LF; mkdir -p merge/LF/QC"); // lower 48 sec
-  out("rm -fr merge/HI; mkdir -p merge/HI/QC"); // HI sec
-  out("rm -fr merge/WC; mkdir -p merge/WC/QC"); // WAC
-  out("rm -fr merge/WA; mkdir -p merge/WA/QC"); // WAC Alaska
-  out("rm -fr tmp-stagesec; mkdir tmp-stagesec"); 
-
+  out("rm -fr merge/sec; mkdir -p merge/sec"); // Alaska sec
+  out("rm -fr merge/wac; mkdir -p merge/wac"); // WAC Alaska
   int entries = sizeof(maps) / sizeof(maps[0]);
 
-  out("rm -f sec-ak.tif");
-  out("rm -f sec-hi.tif");
-  out("rm -f sec-48.tif");
-  out("rm -f wac-48.tif");
-  out("rm -f sec-ak_small.jpg");
-  out("rm -f sec-hi_small.jpg");
-  out("rm -f sec-48_small.jpg");
-  out("rm -f wac-48_small.jpg");
-
-#pragma omp parallel for private(n_ptr, dir_ptr, failed, count, buffer, filestr, cmdstr) schedule(dynamic,1)
   for(map = 0; map < entries; map++)
     {
       n_ptr = maps[map].name; 
-      // Establish a parallel safe tmp name
-      snprintf(filestr, sizeof(filestr), "merge/%s/%s", maps[map].reg, maps[map].name);
       // Blank the cmdstr
       snprintf(cmdstr, sizeof(cmdstr), "");
   
@@ -88,6 +69,8 @@ int main(int argc, char *argv[])
       else {
 	dir_ptr = "sec";
       }
+      // Establish a parallel safe tmp name
+      snprintf(filestr, sizeof(filestr), "merge/%s/%02i%s", dir_ptr, map, maps[map].name);
  
       snprintf(buffer, sizeof(buffer),
 	       "gdal_translate -of vrt -expand rgb -srcwin %i %i %i %i charts/%s/%s*.tif %s_1.vrt;\n",
@@ -99,33 +82,30 @@ int main(int argc, char *argv[])
 	       "gdalbuildvrt -addalpha -srcnodata '0 0 0' -srcnodata '255 255 255' %s_2.vrt  %s_1.vrt;\n", filestr, filestr);
       strcat(cmdstr, buffer);
       snprintf(buffer, sizeof(buffer),
-	       "gdalwarp -of vrt --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -r cubicspline %s %s_2.vrt %s_3.vrt;\n",
-	       projstr, filestr, filestr, filestr);
+	       "gdalwarp -of vrt %s %s_2.vrt %s_3.vrt;\n",
+	       projstr, filestr, filestr);
       strcat(cmdstr, buffer);
       snprintf(buffer, sizeof(buffer),
 	       "gdal_translate -of vrt -projwin_srs WGS84 -projwin %f %f %f %f %s_3.vrt %s_c.vrt;\n",
 	       maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
 	       filestr, filestr);
       strcat(cmdstr, buffer);
-      failed = 1;
-      count = 0;
       out (cmdstr);
     }
   
   printf("\n\n\n");
 
   snprintf(filestr, sizeof(filestr), "gdalbuildvrt -resolution highest -overwrite");
-#pragma omp parallel num_threads(2) private (buffer)
-  {
-    map = omp_get_thread_num();
-    if (map==0){
-      snprintf(buffer, sizeof(buffer), "%s sec-all.vrt merge/LF/*_c.vrt merge/AK/*_c.vrt merge/HI/*_c.vrt ", filestr);
-    } else if (map==1){
-      snprintf(buffer, sizeof(buffer), "%s wac-all.vrt merge/WC/*_c.vrt merge/WA/*_c.vrt", filestr);
+  for(map = 0; map < 2; map++)
+    {
+      if (map==0){
+	snprintf(buffer, sizeof(buffer), "%s sec.vrt merge/sec/*_c.vrt", filestr);
+      } else if (map==1){
+	snprintf(buffer, sizeof(buffer), "%s wac.vrt merge/wac/*_c.vrt", filestr);
+      }
+      out(buffer);
     }
-    out(buffer);
-  }
-
+  
   printf("\n\n\n");
   return 0;
 }

@@ -85,35 +85,14 @@ int main(int argc, char *argv[])
       out(buffer0);
       
       // START WORKING HERE
-      snprintf(buffer0, sizeof(buffer0),  
-	       "gdalwarp -of vrt -dstnodata '51 51 51' %s %s_1.vrt %s_2",
-	       projstr, tmpstr, tmpstr);
-      if (map==4){
-	strcat(buffer0, ".vrt -te_srs WGS84 -te -180 63 -133 72");
-	out(buffer0);
-      }else if(map==5){
-	strcpy(buffer1, buffer0);
-	strcat(buffer0, "-east.vrt -te_srs WGS84 -te 172.5 48 180 56 ");
-	out(buffer0);
-
-	strcat(buffer1, "-west_2.vrt -te_srs WGS84 -te -180 48.5 -133 56.5");
-	out(buffer1);
-      }else{
-	strcat(buffer0, ".vrt");
-	out(buffer0);
-      }
+      snprintf(buffer0, sizeof(buffer0), "gdalwarp -of vrt -dstnodata '51 51 51' %s %s_1.vrt %s_2.vrt", projstr, tmpstr, tmpstr);
+      out(buffer0);
 
       // snprintf(buffer0, sizeof(buffer0), "nearblack -color 0,0,0 -setmask %s_2.vrt;\n", tmpstr);
       // out(buffer0);      
 
     }
   }
-  // snprintf(buffer0, sizeof(buffer0), "gdalwarp -of vrt %s -te_srs WGS84 -te -180 45.5 -121.25 72 merge/ifr/*_2.vrt merge/ifr/ifal-west.vrt", projstr);
-  // out(buffer0);
-  snprintf(buffer0, sizeof(buffer0), "pushd merge/ifr; gdalbuildvrt -resolution highest ifal-west.vrt -overwrite *_2.vrt; popd");
-  out(buffer0);
-  snprintf(buffer0, sizeof(buffer0), "mv merge/ifr/ENR_AKL02W_2-east.vrt merge/ifr/ifal-east.vrt");
-  out(buffer0);
 
   /* one image */
   out("\n\n\n# Merge all including alaska west and enroute low 48");

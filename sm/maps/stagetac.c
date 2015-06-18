@@ -59,13 +59,8 @@ int main(int argc, char *argv[])
 
   if (argc>=2){debug=1;}
 
-  out("rm -fr merge/TAC");
-  out("mkdir -p merge/TAC/run"); // TAC
-  out("mkdir -p merge/TAC/T1"); // TAC
-  out("mkdir -p merge/TAC/T2"); // TAC
-  out("mkdir -p merge/TAC/T3"); // TAC
-  out("mkdir -p merge/TAC/T4"); // TAC
-  out("mkdir -p merge/TAC/T5"); // TAC
+  out("rm -fr merge/tac");
+  out("mkdir -p merge/tac"); // TAC
   int entries = sizeof(maps) / sizeof(maps[0]);
 
 #pragma omp parallel for private (n_ptr, dir_ptr, buffer, filestr)
@@ -73,7 +68,7 @@ int main(int argc, char *argv[])
     n_ptr = maps[map].name; 
 
     // Establish a parallel safe tmp name
-    snprintf(filestr, sizeof(filestr), "merge/TAC/%s/%s", maps[map].reg, maps[map].name);
+    snprintf(filestr, sizeof(filestr), "merge/tac/%s%s", maps[map].reg, maps[map].name);
 
     printf("\n\n# %s\n", maps[map].name);
 
@@ -93,7 +88,7 @@ int main(int argc, char *argv[])
 		
     if (strcmp(maps[map].reg,"run")!=0){
       snprintf(buffer, sizeof(buffer),
-	       "gdal_translate -of vrt -q -projwin_srs WGS84 -projwin %f %f %f %f %s_2.vrt %s_3.vrt",
+	       "gdal_translate -of vrt -q -projwin_srs WGS84 -projwin %f %f %f %f %s_2.vrt %s_c.vrt",
 	       maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
 	       filestr, filestr);
       out(buffer);
@@ -101,7 +96,7 @@ int main(int argc, char *argv[])
       // Put a mask near the edges so that no seams show on the tiles
       snprintf(buffer, sizeof(buffer),
 	       // Note the reversed order 2, 1 is appropriate
-	       "gdalbuildvrt -addalpha -srcnodata '0 0 0' -srcnodata '255 255 255' %s_3.vrt  %s_2.vrt;\n", filestr, filestr);
+	       "gdalbuildvrt -addalpha -srcnodata '0 0 0' -srcnodata '255 255 255' %s_c.vrt  %s_2.vrt;\n", filestr, filestr);
       out(buffer);     
     }
   }
@@ -148,10 +143,10 @@ int main(int argc, char *argv[])
 //   out(mbuffer);
   out ("\n\n\n");
   
-  out ("pushd merge/TAC/run; gdalbuildvrt -resolution highest tacgroup_1_3.vrt -overwrite ../T1/*_3.vrt; popd");
-  out ("pushd merge/TAC/run; gdalbuildvrt -resolution highest tacgroup_2_3.vrt -overwrite ../T2/*_3.vrt; popd");
-  out ("pushd merge/TAC/run; gdalbuildvrt -resolution highest tacgroup_3_3.vrt -overwrite ../T3/*_3.vrt; popd");
-  out ("pushd merge/TAC/run; gdalbuildvrt -resolution highest tacgroup_4_3.vrt -overwrite ../T4/*_3.vrt; popd");
-  out ("pushd merge/TAC/run; gdalbuildvrt -resolution highest tacgroup_5_3.vrt -overwrite ../T5/*_3.vrt; popd");
+  out ("pushd merge/tac; gdalbuildvrt -resolution highest runtacgroup_1_c.vrt -overwrite T1*_c.vrt; popd");
+  out ("pushd merge/tac; gdalbuildvrt -resolution highest runtacgroup_2_c.vrt -overwrite T2*_c.vrt; popd");
+  out ("pushd merge/tac; gdalbuildvrt -resolution highest runtacgroup_c_c.vrt -overwrite T3*_c.vrt; popd");
+  out ("pushd merge/tac; gdalbuildvrt -resolution highest runtacgroup_4_c.vrt -overwrite T4*_c.vrt; popd");
+  out ("pushd merge/tac; gdalbuildvrt -resolution highest runtacgroup_5_c.vrt -overwrite T5*_c.vrt; popd");
   return 0;
 }
