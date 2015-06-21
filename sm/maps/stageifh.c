@@ -57,8 +57,7 @@ int main(int argc, char *argv[])
 
   if (argc>=2){debug=1;}
 
-  out("[[ -d merge/IFH ]] && rm -fr merge/IFH; mkdir -p merge/IFH/QC");
-  out("[[ -d tmp-stageifh ]] && rm -fr tmp-stageifh; mkdir tmp-stageifh"); 
+  out("[[ -d merge/IFH ]] && rm -fr merge/IFH; mkdir -p merge/IFH");
 
   int entries = sizeof(maps) / sizeof(maps[0]);
 
@@ -67,7 +66,7 @@ int main(int argc, char *argv[])
     n_ptr = maps[map].name; 
 
     // Establish a parallel safe tmp name
-    snprintf(tmpstr, sizeof(tmpstr), "tmp-stageifh/tmpstageifh%i", map);
+    snprintf(tmpstr, sizeof(tmpstr), "merge/IFH/%s-trim", maps[map].name);
 
     printf("\n\n# %s\n\n", maps[map].name);
 
@@ -78,38 +77,33 @@ int main(int argc, char *argv[])
     if((0 == strcmp(maps[map].reg, "IFH"))) {
 			
       snprintf(buffer, sizeof(buffer),
-	       "gdal_translate -outsize 100%% 100%% -srcwin %d %d %d %d charts/%s/%s.tif %s.tif",
+	       "gdal_translate -of vrt -outsize 100%% 100%% -srcwin %d %d %d %d charts/%s/%s.tif %s.vrt",
 	       maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
 	       dir_ptr,
 	       n_ptr,
 	       tmpstr);
       out(buffer);
 			
-      sprintf(mbuffer, "[[ -f merge/%s/%s_c.tif ]] && rm merge/%s/%s_c.tif;\n", 
+      sprintf(mbuffer, "[[ -f merge/%s/%s_c.vrt ]] && rm merge/%s/%s_c.vrt;\n", 
 	       maps[map].reg, n_ptr, maps[map].reg, n_ptr);
       snprintf(buffer, sizeof(buffer),  
-	       "gdalwarp --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -dstnodata '51 51 51' -r cubicspline -t_srs WGS84 %s.tif merge/%s/%s_c.tif;\n",
+	       "gdalwarp -of vrt --config GDAL_CACHEMAX 4096 -wm 2048 -wo NUM_THREADS=2 -multi -dstnodata '51 51 51' -r lanczos -t_srs WGS84 %s.vrt merge/%s/%s_c.vrt;\n",
 	       tmpstr,
 	       maps[map].reg,
 	       n_ptr);
       strcat(mbuffer, buffer);
 
-      snprintf(buffer, sizeof(buffer), "gdal_translate -outsize 25%% 25%% -of JPEG merge/%s/%s_c.tif merge/%s/QC/%s_c.jpg;\n", maps[map].reg, n_ptr, maps[map].reg, n_ptr);
-      strcat(mbuffer, buffer);
+//      snprintf(buffer, sizeof(buffer), "gdal_translate -outsize 25%% 25%% -of JPEG merge/%s/%s_c.tif merge/%s/QC/%s_c.jpg;\n", maps[map].reg, n_ptr, maps[map].reg, n_ptr);
+//      strcat(mbuffer, buffer);
       out(mbuffer);
     }
     
-    snprintf(buffer, sizeof(buffer), "rm -f %s.tif", tmpstr);
-    out(buffer);
-
   }
 
   /* one image */
   out("for file in ifh.tif ifh_small.jpg; do [[ -f $file ]] && rm $file; done");
-  out("gdalwarp --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline -t_srs WGS84 merge/IFH/*_c.tif ifh.tif");
+  out("gdalwarp -co TILED=YES --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r lanczos -t_srs WGS84 merge/IFH/*_c.vrt ifh.tif");
   out("gdal_translate -outsize 25%% 25%% -of JPEG ifh.tif ifh_small.jpg");
-
-  out("[[ -d tmp-stageifh ]] && rm -fr tmp-stageifh;"); 
 
   return 0;
 }

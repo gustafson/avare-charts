@@ -55,6 +55,7 @@ all:
 	@echo "  make download-base-data #$$(./cycledates.sh 56 base) $$(./cycledates.sh 56 dof)"
 	@echo "  make process-data #$$(./cycledates.sh 56 base)"
 	@echo "  make procedures.db #$$(./cycledates.sh 28)"
+	@echo "  make canada #$$(./cycledates.sh 28)"
 	@echo "  make geolist #$$(./cycledates.sh 28)"
 	@echo "  make ziptiles"
 	@echo "  make zipit"
@@ -130,10 +131,11 @@ update-vfr:
 
 download-ifr:
 	echo Downloading ifr for cycle $$(./cyclenumber.sh)
-	if [[ -d charts/iff ]]; then rm -fr charts/iff; fi
-	if [[ -d charts/ifh ]]; then rm -fr charts/ifh; fi
-	if [[ -d charts/ifal ]]; then rm -fr charts/ifal; fi
-	if [[ -d charts/ifa ]]; then rm -fr charts/ifa; fi
+	mkdir charts/keep
+	if [[ -d charts/iff ]]; then mv charts/iff charts/keep/iff; fi
+	if [[ -d charts/ifh ]]; then mv charts/ifh charts/keep/iff; fi
+	if [[ -d charts/ifal ]]; then mv charts/ifal charts/keep/iff; fi
+	if [[ -d charts/ifa ]]; then mv charts/ifa charts/keep/iff; fi
 	mkdir -p charts/iff
 	mkdir -p charts/ifh
 	mkdir -p charts/ifa
@@ -148,7 +150,7 @@ unzip:
 	cd charts/tac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	cd charts/wac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	cd charts/sec  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
-	cd charts/oth  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	## cd charts/oth  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	cd charts/ifh  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	cd charts/ifa  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
 	cd charts/iff  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
@@ -231,6 +233,10 @@ geolist:
 
 procedures.db:
 	echo This is currently done outside of the avare working directory
+
+canada:
+	./ourairports.sh
+	./canada_ad.sh
 
 qualitycontrol:
 	./qualitycontrol.sh

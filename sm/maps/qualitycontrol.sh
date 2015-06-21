@@ -28,7 +28,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+CYCLE=`./cyclenumber.sh`
 pushd final
+
+for a in *zip; do
+    ../zip.py `basename ${a} .zip` ${CYCLE};
+done
+
 
 echo Unzipping reference data
 rm *ref 2> /dev/null
