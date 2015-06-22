@@ -51,7 +51,6 @@ int main(int argc, char *argv[])
   int map;
   char buffer[512];
   char filestr[512];
-  char mbuffer[4096];
   char projstr[512];
   snprintf(projstr, sizeof(projstr), "-t_srs 'EPSG:900913' ");
   char *n_ptr;
@@ -63,7 +62,6 @@ int main(int argc, char *argv[])
   out("mkdir -p merge/tac"); // TAC
   int entries = sizeof(maps) / sizeof(maps[0]);
 
-#pragma omp parallel for private (n_ptr, dir_ptr, buffer, filestr)
   for(map = 0; map < entries; map++) {
     n_ptr = maps[map].name; 
 
@@ -73,10 +71,6 @@ int main(int argc, char *argv[])
     printf("\n\n# %s\n", maps[map].name);
 
     dir_ptr = "tac";
-    // snprintf(buffer, sizeof(buffer),
-    // 	     "cp `ls charts/%s/%s*.tif|tail -n1` %s",
-    // 	     dir_ptr, n_ptr, tmpstr);
-    // out(buffer);
 
     snprintf(buffer, sizeof(buffer),
 	     "gdal_translate -of vrt -a_nodata '0 0 0' -expand rgb `ls charts/%s/%s*.tif|grep -vi planning | tail -n1` %s_1.vrt",
@@ -88,7 +82,7 @@ int main(int argc, char *argv[])
 		
     if (strcmp(maps[map].reg,"run")!=0){
       snprintf(buffer, sizeof(buffer),
-	       "gdal_translate -of vrt -q -projwin_srs WGS84 -projwin %f %f %f %f %s_2.vrt %s_c.vrt",
+	       "gdal_translate -of vrt -a_nodata '0 0 0' -q -projwin_srs WGS84 -projwin %f %f %f %f %s_2.vrt %s_c.vrt",
 	       maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
 	       filestr, filestr);
       out(buffer);
@@ -101,52 +95,13 @@ int main(int argc, char *argv[])
     }
   }
 
-//   int gdw=0;
-//   if (gdw){
-//     sprintf(mbuffer, "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline %s", projstr);
-//   }else{
-//     sprintf(mbuffer, "gdal_merge.py -o tac.tif ");
-//   }
-//   for(map = 0; map < entries; map++) {
-//     n_ptr = maps[map].name; 
-// 
-//     if(0 == strcmp(maps[map].reg, "TS")) {
-//       // Don't include the separate TACs (in Alaska and Puerto Rico) in the continental US chart
-//       // snprintf(buffer, sizeof(buffer),
-//       // 	       "gdal_retile.py -r cubicspline -co COMPRESS=DEFLATE -co ZLEVEL=6 -levels 4 -targetDir tiles_tac -ps 512 512 -useDirForEachRow merge/TC/%s.tif", n_ptr);
-//       // printf("#retiling %s\n", n_ptr);
-//       // out(buffer);
-//     }
-//     else {
-//       snprintf(buffer, sizeof(buffer), "merge/TC/%s.tif ", n_ptr);
-//       strcat(mbuffer, buffer);
-//     }
-//   }
-// 
-//   // Use this if using gdalwarp above, otherwise no
-//   if (gdw){
-//     snprintf(buffer, sizeof(buffer), " tac.tif ");
-//     strcat(mbuffer, buffer);
-//   }
-// 
-//   printf("\n\n\n");
-//   /* one image */
-//   out(mbuffer);
-// 
-// 
-//   // Do alaska merge
-//   if (gdw){
-//     sprintf(mbuffer, "gdalwarp -co TILED=YES --config GDAL_CACHEMAX 16384 -wm 2048 -wo NUM_THREADS=ALL_CPUS -multi -r cubicspline %s merge/TC/{AnchorageTAC.tif,FairbanksTAC.tif} tac-ak.tif", projstr);
-//   }else{
-//     sprintf(mbuffer, "gdal_merge.py -o tac-ak.tif merge/TC/{AnchorageTAC.tif,FairbanksTAC.tif}");
-//   }
-//   out(mbuffer);
   out ("\n\n\n");
   
-  out ("pushd merge/tac; gdalbuildvrt -resolution highest runtacgroup_1_c.vrt -overwrite T1*_c.vrt; popd");
-  out ("pushd merge/tac; gdalbuildvrt -resolution highest runtacgroup_2_c.vrt -overwrite T2*_c.vrt; popd");
-  out ("pushd merge/tac; gdalbuildvrt -resolution highest runtacgroup_c_c.vrt -overwrite T3*_c.vrt; popd");
-  out ("pushd merge/tac; gdalbuildvrt -resolution highest runtacgroup_4_c.vrt -overwrite T4*_c.vrt; popd");
-  out ("pushd merge/tac; gdalbuildvrt -resolution highest runtacgroup_5_c.vrt -overwrite T5*_c.vrt; popd");
+//  out ("pushd merge/tac; gdalbuildvrt -r lanczos -srcnodata '0 0 0' -vrtnodata '0 0 0' -resolution highest runtacgroup_1_c.vrt -overwrite T1*_c.vrt; popd");
+//  out ("pushd merge/tac; gdalbuildvrt -r lanczos -srcnodata '0 0 0' -vrtnodata '0 0 0' -resolution highest runtacgroup_2_c.vrt -overwrite T2*_c.vrt; popd");
+//  out ("pushd merge/tac; gdalbuildvrt -r lanczos -srcnodata '0 0 0' -vrtnodata '0 0 0' -resolution highest runtacgroup_c_c.vrt -overwrite T3*_c.vrt; popd");
+//  out ("pushd merge/tac; gdalbuildvrt -r lanczos -srcnodata '0 0 0' -vrtnodata '0 0 0' -resolution highest runtacgroup_4_c.vrt -overwrite T4*_c.vrt; popd");
+//  out ("pushd merge/tac; gdalbuildvrt -r lanczos -srcnodata '0 0 0' -vrtnodata '0 0 0' -resolution highest runtacgroup_5_c.vrt -overwrite T5*_c.vrt; popd");
+  out ("gdalbuildvrt -r lanczos -srcnodata '0 0 0' -vrtnodata '0 0 0' -resolution highest tac.vrt -overwrite merge/tac/run*c.vrt");
   return 0;
 }

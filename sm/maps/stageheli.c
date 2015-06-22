@@ -133,8 +133,12 @@ int main(int argc, char *argv[])
   	   "gdalbuildvrt -resolution highest -srcnodata \"250\" merge/heli/Chicago_4.vrt -overwrite merge/heli/Chicago_3.vrt merge/heli/ChicagoOHareInset_3.vrt");
   out(buffer);
 
+  // snprintf(buffer, sizeof(buffer),
+  // 	   "gdalbuildvrt -resolution highest merge/heli/Houston_4.vrt -overwrite merge/heli/USGulfCoast*3.vrt merge/heli/Houston*3.vrt");
+  // out(buffer);
+
   snprintf(buffer, sizeof(buffer),
-  	   "gdalbuildvrt -resolution highest merge/heli/Houston_4.vrt -overwrite merge/heli/USGulfCoast*3.vrt merge/heli/Houston*3.vrt");
+  	   "gdalbuildvrt -resolution highest merge/heli/Houston_4.vrt -overwrite merge/heli/Houston*3.vrt");
   out(buffer);
 
   out("\n\n\n");
