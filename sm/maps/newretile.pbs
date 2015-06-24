@@ -1,6 +1,6 @@
 #!/bin/sh -login
-#PBS -l mem=120gb
-#PBS -l nodes=1:ppn=16
+#PBS -l mem=30gb
+#PBS -l nodes=1:ppn=8
 #PBS -l walltime=1000:00:00
 #PBS -m abe 
 #PBS -V 
@@ -8,7 +8,7 @@
 #PBS -N retile
 #PBS -e z-logs/z.${PBS_JOBID}.e_${PBS_JOBNAME}
 #PBS -o z-logs/z.${PBS_JOBID}.o_${PBS_JOBNAME}
-#PBS -t 1-30%3
+#PBS -t 1-30
 
 #!/bin/bash
 # Copyright (c) 2013, Peter A. Gustafson (peter.gustafson@wmich.edu)
@@ -106,12 +106,17 @@ elif [[ ${PBS_ARRAYID} -eq 45 ]]; then
     ${TIME1} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} ifh.vrt tiles/${CYCLE}/4
     ${TIME2} time.ifh.txt ./gdal2tiles_512_mysingle.py -t "IFR Enroute High" ${OPTIONS2} ifh.vrt tiles/${CYCLE}/4
  
-elif [[ ${PBS_ARRAYID} -ge 46 && ${PBS_ARRAYID} -le 54 ]]; then
-    NUM=$((${PBS_ARRAYID}-45))
-    ${TIME1} time.heli.txt ./gdal2tiles_512_parallel.py -t "Heli-Other" ${OPTIONS1} $(ls merge/heli/*4.vrt|sed -n ${NUM}p) tiles/${CYCLE}/9
-    ${TIME2} time.heli.txt ./gdal2tiles_512_mysingle.py -t "Heli-Other" ${OPTIONS2} $(ls merge/heli/*4.vrt|sed -n ${NUM}p) tiles/${CYCLE}/9
+## elif [[ ${PBS_ARRAYID} -ge 46 && ${PBS_ARRAYID} -le 54 ]]; then
+##     NUM=$((${PBS_ARRAYID}-45))
+##     ${TIME1} time.heli.txt ./gdal2tiles_512_parallel.py -t "Heli-Other" ${OPTIONS1} $(ls merge/heli/*4.vrt|sed -n ${NUM}p) tiles/${CYCLE}/9
+##     ${TIME2} time.heli.txt ./gdal2tiles_512_mysingle.py -t "Heli-Other" ${OPTIONS2} $(ls merge/heli/*4.vrt|sed -n ${NUM}p) tiles/${CYCLE}/9
 
-elif [[ ${PBS_ARRAYID} -ge 55 && ${PBS_ARRAYID} -le 55 ]]; then
+
+elif [[ ${PBS_ARRAYID} -eq 46 ]]; then
+    ${TIME1} time.heli.txt ./gdal2tiles_512_parallel.py -t "Helicoptor Route Chart" ${OPTIONS1} heli.vrt tiles/${CYCLE}/9
+    ${TIME2} time.heli.txt ./gdal2tiles_512_mysingle.py -t "Helicoptor Route Chart" ${OPTIONS2} heli.vrt tiles/${CYCLE}/9
+
+elif [[ ${PBS_ARRAYID} -ge 55 && ${PBS_ARRAYID} -le 62 ]]; then
 
     function topng8(){
 	convert $0 png8:${0}.png8.png
@@ -121,12 +126,14 @@ elif [[ ${PBS_ARRAYID} -ge 55 && ${PBS_ARRAYID} -le 55 ]]; then
     export -f topng8
     
     NUM=$((${PBS_ARRAYID}-54))
-    NUMJOBS=1
+    NUMJOBS=8
     ## [0-2]
     ## [3-5]
-    find tiles/$(./cyclenumber.sh)/[0-2] -name "*png"| sed -n ${NUM}~${NUMJOBS}p | xargs -n 1 -P ${NP} mogrify -unsharp 3x3 -format jpg -quality 75
+    # find tiles/$(./cyclenumber.sh)/[0-2] -name "*png"| sed -n ${NUM}~${NUMJOBS}p | xargs mogrify -unsharp 3x3 -format jpg -quality 75
     ## find tiles/$(./cyclenumber.sh)/3 -name "*png"| xargs -n 1 -P ${NP} bash -c topng8
-    ## find tiles/$(./cyclenumber.sh)/[3-5] -name "*png8"| sed -n ${NUM}~${NP}p | xargs -n 1 -P ${NP} bash -c topng8
+    ## find tiles/$(./cyclenumber.sh)/[9] -name "*png"| sed -n ${NUM}~${NUMJOBS}p | xargs mogrify -format png8
+    ## find tiles/$(./cyclenumber.sh)/[9] -name "*png"| sed -n ${NUM}~${NUMJOBS}p | xargs mogrify -unsharp 3x3 -format jpg -quality 75
+    find tiles/$(./cyclenumber.sh)/[9] -name "*png8"| sed -n ${NUM}~${NUMJOBS}p | xargs optipng -quiet
     ## rename png png.orig `find tiles/$(./cyclenumber.sh)/[3-5] -name "*png"`
     ## rename png8 png8 `find tiles/$(./cyclenumber.sh)/[3-5] -name "*png8"`
 fi

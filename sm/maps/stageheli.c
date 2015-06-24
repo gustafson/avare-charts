@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     } else if (!strncmp(maps[map].name,"BostonDowntown",15)){
       snprintf(buffer, sizeof(buffer),
 	       "gdal_translate -of vrt -expand rgb -srcwin 1550 295 7400 8240 `ls charts/heli/%s*.tif|head -n1` %s_1.vrt", n_ptr, tmpstr);
-    } else if (!strncmp(maps[map].name,"Boston",6)){ // BostonDowntown come before BostonHEL
+    } else if (!strncmp(maps[map].name,"Boston",6)){ // BostonDowntown comes before BostonHEL
       snprintf(buffer, sizeof(buffer),
 	       "gdal_translate -of vrt -expand rgb `ls charts/heli/%s*.tif|tail -n1` %s_1.vrt", n_ptr, tmpstr);
     } else if (!strncmp(maps[map].name,"DowntownManhattan",15)){
@@ -94,62 +94,70 @@ int main(int argc, char *argv[])
     out(buffer);
 
     snprintf(buffer, sizeof(buffer),
-	     "gdalwarp -of vrt -dstnodata '0 0 0' %s %s_1.vrt %s_2.vrt",
+	     "gdalwarp  -r lanczos -of vrt -dstnodata '0 0 0' %s %s_1.vrt %s_2.vrt",
 	     projstr, tmpstr, tmpstr);
     out(buffer);
 		
-    if (!strncmp(maps[map].name,"ChicagoOHareInset",15) ||
-	!strncmp(maps[map].name,"Houston",6) ||
-	!strncmp(maps[map].name,"BostonDowntown",15) ||
-	!strncmp(maps[map].name,"DowntownManhattan",15)){
-      snprintf(buffer, sizeof(buffer), "mv %s_2.vrt %s_3.vrt", tmpstr, tmpstr);
-	       
-    } else {
-      snprintf(buffer, sizeof(buffer),
-	       "gdal_translate -of vrt -q -projwin_srs WGS84 -projwin %f %f %f %f  %s_2.vrt %s_3.vrt",
-	       maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd, tmpstr, tmpstr);
-    }      
-    out(buffer);
+//    if (!strncmp(maps[map].name,"ChicagoOHareInset",15) ||
+//	!strncmp(maps[map].name,"Houston",6) ||
+//	!strncmp(maps[map].name,"BostonDowntown",15) ||
+//	!strncmp(maps[map].name,"DowntownManhattan",15)){
+//      snprintf(buffer, sizeof(buffer), "mv %s_2.vrt %s_3.vrt", tmpstr, tmpstr);
+//	       
+//    } else {
+//      snprintf(buffer, sizeof(buffer),
+//	       "gdal_translate -of vrt -q -projwin_srs WGS84 -projwin %f %f %f %f  %s_2.vrt %s_3.vrt",
+//	       maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd, tmpstr, tmpstr);
+//    }      
+//    out(buffer);
   }
 
 
-  snprintf(buffer, sizeof(buffer),
-  	   "rename _3 _4 `ls merge/heli/*_3.vrt|grep -vi \"Baltimore\\|Boston\\|Chicago\\|York\\|LosAngeles\\|DowntownManhattan\\|EasternLongIsland\\|Houston\\|USGulf\\|Washington\\|inset\\|downtown\"`");
-  out(buffer);
+//   snprintf(buffer, sizeof(buffer),
+//   	   "rename _3 _4 `ls merge/heli/*_3.vrt|grep -vi \"Baltimore\\|Boston\\|Chicago\\|York\\|LosAngeles\\|DowntownManhattan\\|EasternLongIsland\\|Houston\\|USGulf\\|Washington\\|inset\\|downtown\"`");
+//   out(buffer);
 
 
 
   // We'll have to deal with the special areas of New York and Boston later
   out("\n\n\n");
+//   snprintf(buffer, sizeof(buffer),
+//   	   "gdalbuildvrt -resolution highest -srcnodata \"250\" merge/heli/BaltimoreWashington_4.vrt -overwrite merge/heli/Baltimore_3.vrt merge/heli/Washington_3.vrt");
+//   out(buffer);
+// 
+//   snprintf(buffer, sizeof(buffer),
+//   	   "gdalbuildvrt -resolution highest -srcnodata \"250\" merge/heli/Boston_4.vrt -overwrite merge/heli/Boston_3.vrt merge/heli/BostonDowntown_3.vrt");
+//   out(buffer);
+// 
+//   snprintf(buffer, sizeof(buffer),
+//   	   "gdalbuildvrt -resolution highest -srcnodata \"250\" merge/heli/Chicago_4.vrt -overwrite merge/heli/Chicago_3.vrt merge/heli/ChicagoOHareInset_3.vrt");
+//   out(buffer);
+// 
+//   // snprintf(buffer, sizeof(buffer),
+//   // 	   "gdalbuildvrt -resolution highest merge/heli/Houston_4.vrt -overwrite merge/heli/USGulfCoast*3.vrt merge/heli/Houston*3.vrt");
+//   // out(buffer);
+// 
   snprintf(buffer, sizeof(buffer),
-  	   "gdalbuildvrt -resolution highest -srcnodata \"250\" merge/heli/BaltimoreWashington_4.vrt -overwrite merge/heli/Baltimore_3.vrt merge/heli/Washington_3.vrt");
+	   "gdalbuildvrt -resolution highest merge/heli/Houston_3.vrt -overwrite merge/heli/Houston*2.vrt");
+  out(buffer);
+ 
+  snprintf(buffer, sizeof(buffer),
+   	   "gdalbuildvrt -resolution highest -srcnodata \"250\" merge/heli/LosAngeles_3.vrt -overwrite merge/heli/LosAngeles*_2.vrt");
+  out(buffer);
+ 
+//  snprintf(buffer, sizeof(buffer),
+//   	   "gdalbuildvrt -resolution highest -srcnodata \"250\" merge/heli/NewYork_4.vrt -overwrite merge/heli/EasternLongIsland*3.vrt merge/heli/NewYork_3.vrt merge/heli/DowntownManhattan*3.vrt ");
+//  out(buffer);
+
+  snprintf(buffer, sizeof(buffer),
+     	   "gdalbuildvrt -resolution highest -srcnodata \"250\" merge/heli/NewYork_3.vrt -overwrite merge/heli/EasternLongIsland*2.vrt merge/heli/NewYork_2.vrt");
   out(buffer);
 
-  snprintf(buffer, sizeof(buffer),
-  	   "gdalbuildvrt -resolution highest -srcnodata \"250\" merge/heli/Boston_4.vrt -overwrite merge/heli/Boston_3.vrt merge/heli/BostonDowntown_3.vrt");
-  out(buffer);
 
   snprintf(buffer, sizeof(buffer),
-  	   "gdalbuildvrt -resolution highest -srcnodata \"250\" merge/heli/Chicago_4.vrt -overwrite merge/heli/Chicago_3.vrt merge/heli/ChicagoOHareInset_3.vrt");
+   	   "gdalbuildvrt -r lanczos -resolution highest -srcnodata \"250\" heli.vrt -overwrite merge/heli/*2.vrt");
   out(buffer);
-
-  // snprintf(buffer, sizeof(buffer),
-  // 	   "gdalbuildvrt -resolution highest merge/heli/Houston_4.vrt -overwrite merge/heli/USGulfCoast*3.vrt merge/heli/Houston*3.vrt");
-  // out(buffer);
-
-  snprintf(buffer, sizeof(buffer),
-  	   "gdalbuildvrt -resolution highest merge/heli/Houston_4.vrt -overwrite merge/heli/Houston*3.vrt");
-  out(buffer);
-
-  out("\n\n\n");
-  snprintf(buffer, sizeof(buffer),
-  	   "gdalbuildvrt -resolution highest -srcnodata \"250\" merge/heli/LosAngeles_4.vrt -overwrite merge/heli/LosAngeles*_3.vrt");
-  out(buffer);
-
-  snprintf(buffer, sizeof(buffer),
-  	   "gdalbuildvrt -resolution highest -srcnodata \"250\" merge/heli/NewYork_4.vrt -overwrite merge/heli/EasternLongIsland*3.vrt merge/heli/NewYork_3.vrt merge/heli/DowntownManhattan*3.vrt ");
-  out(buffer);
-
+  
 
   return 0;
 }

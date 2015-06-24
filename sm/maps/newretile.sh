@@ -20,26 +20,6 @@ CYCLE=$(cyclenumber.sh)
 CYCLE=1507
 
 
-function topng8(){
-    echo $0
-    convert $0 png8:${0}.png8.png
-    mv ${0}.png8.png ${0}
-    optipng -quiet ${0}
-}
-export -f topng8
-
-#find tiles/$(./cyclenumber.sh)/5 -name "*png"|xargs -n 1 -P 16 bash -c topng8
-#find tiles/$(./cyclenumber.sh)/3 -name "*png"|xargs -n 1 -P 16 optipng -preserve -quiet
-
-## ./gettiles.py -180.00 75.00 -125.00 50.00 1507 ifr |xargs identify 2>&1 >> temp.txt
-## ./gettiles.py  -85.00 50.15  -40.00 38.00 1507 ifr |xargs identify 2>&1 >> temp.txt
-## ./gettiles.py -110.00 50.15  -85.00 38.00 1507 ifr |xargs identify 2>&1 >> temp.txt 
-## ./gettiles.py -131.21 50.15 -110.00 38.00 1507 ifr |xargs identify 2>&1 >> temp.txt
-## ./gettiles.py  -85.00 38.00  -40.00 23.13 1507 ifr |xargs identify 2>&1 >> temp.txt
-## ./gettiles.py -110.00 38.00  -85.00 23.13 1507 ifr |xargs identify 2>&1 >> temp.txt
-## ./gettiles.py -131.21 38.00 -110.00 23.13 1507 ifr |xargs identify 2>&1 >> temp.txt
-
-
 ## The following compresses only the files that are remade
 
 ## ./gettiles.py -180.00 75.00 -125.00 50.00 ${CYCLE} ifr |xargs -n 1 -P 16 bash -c topng8
@@ -58,3 +38,8 @@ export -f topng8
 ## ./gettiles.py -110.00 38.00  -85.00 23.13 ${CYCLE} ifh |xargs -n 1 -P 16 bash -c topng8
 ## ./gettiles.py -131.21 38.00 -110.00 23.13 ${CYCLE} ifh |xargs -n 1 -P 16 bash -c topng8
 
+
+
+## find [345] -name "*png"| xargs rename .png .png.orig
+## find [345] -name "*png8"| xargs rename .png8 .png
+## find [345] -name "*png"|xargs -n1 -P16 optipng
