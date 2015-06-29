@@ -32,6 +32,7 @@ CYCLE=`./cyclenumber.sh`
 pushd final
 
 for a in *zip; do
+    b=`basename $a .zip`; zip -d $a $b
     ../zip.py `basename ${a} .zip` ${CYCLE};
 done
 
