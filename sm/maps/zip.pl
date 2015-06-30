@@ -1,6 +1,5 @@
-#!/usr/bin/python
-
-#Copyright (c) 2015, Apps4av Inc. (apps4av@gmail.com) 
+#!/usr/bin/perl
+#Copyright (c) 2016, Apps4Av Inc. 
 #All rights reserved.
 #
 #Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -10,30 +9,30 @@
 #
 #THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
 # author zkhan
 
-# Adds manifest to all zip files
-# Run as: python zip.py NewYork 1507
-# Where NewYork is a zip file NewYork.zip
-import zipfile
-import sys
+use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
 
-# Read the zip file to append to it
-zf=zipfile.ZipFile(sys.argv[1] + '.zip', mode='a')
+# Add manifest to zip file
+my $zip = Archive::Zip->new();
 
-# This is the version number like 1507
-data=sys.argv[2]
+$zip->read($ARGV[0] . ".zip") == AZ_OK or die "read error\n";
 
-# List all files separated by newline
-for info in zf.infolist():
-        data = data + '\n' + info.filename
+# Remove existing manifest
+$zip->removeMember($ARGV[0]);
 
-# Write the manifest tile thats of format
-#version
-#list of files
-try:
-    zf.writestr(sys.argv[1], data)
-finally:
-    zf.close()
+# Add version
+my $contents = "$ARGV[1]\n";
+
+# Make file content
+foreach my $member ($zip->memberNames()) {
+    $contents .= $member . "\n";
+}
+
+# Put in manifest
+my $f = $zip->addString($contents, $ARGV[0]);
+$f->desiredCompressionMethod(COMPRESSION_DEFLATED);
+
+# Overwrite
+$zip->overwrite() == AZ_OK or die "write error\n";
 
