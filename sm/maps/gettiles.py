@@ -71,6 +71,9 @@ def main(argv):
     elif chart=="ifa":
         chart = 5
         maxzoom=11
+    elif chart=="elev":
+        chart = 6
+        maxzoom=9
     elif chart=="rel":
         chart = 7
         ftype = "jpg"
@@ -84,9 +87,9 @@ def main(argv):
     elif chart=="heli":
         chart = 9
         maxzoom=13
+## Note delete always chooses pngs because the jpg will just be replaced anyway        
     elif chart=="deletesec":
         chart = 0
-        ftype = "png"
     elif chart=="deletetac":
         chart = 1
     elif chart=="deletewac":
@@ -97,6 +100,8 @@ def main(argv):
         chart = 4
     elif chart=="deleteifa":
         chart = 5
+    elif chart=="deleteelev":
+        chart = 6
     elif chart=="deleterel":
         chart = 7
         #cycle = "static"

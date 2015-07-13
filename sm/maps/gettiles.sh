@@ -6,6 +6,7 @@ function mygroup(){
 
 export -f mygroup
 CYCLE=$(cyclenumber.sh)
+CYCLE=1507
 
 ## THIS WILL DELETE SEC TILES BY CHART
 ## for img in `ls merge/sec/*Seattle*_c.vrt`; do
@@ -35,29 +36,6 @@ CYCLE=$(cyclenumber.sh)
 ##     rm `mygroup ${img} deleteifh`
 ## done
 ## wait
-
-
-
-## ## VFR Tiles
-## for img in `ls charts/sec/*SEC*.tif charts/wac/*WAC*.tif charts/tac/*TAC*.tif|grep -vi inset`; do
-##     if [[ $img == *"TAC"* ]]; then
-## 	img=`echo $img |sed s/TAC_/TAC/`
-## 	TYPE=tac;
-## 	BASE=final/`echo $img | cut -d\/ -f3 | sed 's/.\{9\}$//'`TAC.zip
-##     elif [[ $img == *"WAC"* ]]; then
-## 	TYPE=wac;
-## 	BASE=final/`echo $img | cut -d\/ -f3 | sed 's/.\{9\}$//'`.zip
-##     elif [[ $img == *"SEC"* ]]; then
-## 	TYPE=sec;
-## 	BASE=final/`echo $img | cut -d\/ -f3 | sed 's/.\{9\}$//'`.zip
-##     fi
-## 
-##     echo $BASE
-##     rm -f $BASE
-##     echo zip -9 --quiet $BASE `mygroup ${img} ${TYPE}` 
-## done
-## wait
-
 
 echo starting vfr
 for img in `ls merge/sec/*_c.vrt`; do
@@ -110,49 +88,61 @@ rm -f final/EHUS_SW.zip; zip -9 --quiet final/EHUS_SW.zip $(./gettiles.py -131.2
 wait
 echo done ifr
 
-echo starting relief
-cp ../usgs/sr/REL_{AK,HI,PR}.zip final/.
-rm -f final/REL_NE.zip; zip -9 --quiet final/REL_NE.zip $(./gettiles.py  -85.00 50.15  -40.00 38.00 ${CYCLE} rel latlon) &
-rm -f final/REL_NC.zip; zip -9 --quiet final/REL_NC.zip $(./gettiles.py -110.00 50.15  -85.00 38.00 ${CYCLE} rel latlon) &
-rm -f final/REL_NW.zip; zip -9 --quiet final/REL_NW.zip $(./gettiles.py -131.21 50.15 -110.00 38.00 ${CYCLE} rel latlon) &
-rm -f final/REL_SE.zip; zip -9 --quiet final/REL_SE.zip $(./gettiles.py  -85.00 38.00  -40.00 23.13 ${CYCLE} rel latlon) &
-rm -f final/REL_SC.zip; zip -9 --quiet final/REL_SC.zip $(./gettiles.py -110.00 38.00  -85.00 23.13 ${CYCLE} rel latlon) &
-rm -f final/REL_SW.zip; zip -9 --quiet final/REL_SW.zip $(./gettiles.py -131.21 38.00 -110.00 23.13 ${CYCLE} rel latlon) &
-wait
-echo done relief
+## SHADED RELIEF ## echo starting relief
+## SHADED RELIEF ## cp ../usgs/sr/REL_{AK,HI,PR}.zip final/.
+## SHADED RELIEF ## rm -f final/REL_NE.zip; zip -9 --quiet final/REL_NE.zip $(./gettiles.py  -85.00 50.15  -40.00 38.00 ${CYCLE} rel latlon) &
+## SHADED RELIEF ## rm -f final/REL_NC.zip; zip -9 --quiet final/REL_NC.zip $(./gettiles.py -110.00 50.15  -85.00 38.00 ${CYCLE} rel latlon) &
+## SHADED RELIEF ## rm -f final/REL_NW.zip; zip -9 --quiet final/REL_NW.zip $(./gettiles.py -131.21 50.15 -110.00 38.00 ${CYCLE} rel latlon) &
+## SHADED RELIEF ## rm -f final/REL_SE.zip; zip -9 --quiet final/REL_SE.zip $(./gettiles.py  -85.00 38.00  -40.00 23.13 ${CYCLE} rel latlon) &
+## SHADED RELIEF ## rm -f final/REL_SC.zip; zip -9 --quiet final/REL_SC.zip $(./gettiles.py -110.00 38.00  -85.00 23.13 ${CYCLE} rel latlon) &
+## SHADED RELIEF ## rm -f final/REL_SW.zip; zip -9 --quiet final/REL_SW.zip $(./gettiles.py -131.21 38.00 -110.00 23.13 ${CYCLE} rel latlon) &
+## SHADED RELIEF ## wait
+## SHADED RELIEF ## echo done relief
 
-echo starting heli
-## Heli
-for img in `ls merge/heli/*2.vrt|grep -v North|grep -v South|grep -v East|grep -v West|grep -v NewYork_2` merge/heli/*3.vrt; do
-    IMG=`echo $img | cut -d\/ -f3 | sed 's/.\{6\}$//'`
-    if [[ ${IMG:0:11} == GrandCanyon ]]; then
-	IMBASE=${IMG:0:11};
-    else
-	IMBASE=${IMG}Heli
-    fi
-    BASE=final/${IMBASE}.zip
-    rm -f $BASE
-    FILE=`find merge/heli/${IMG}*|grep 3`
-    if [[ -f ${FILE} ]]; then
-	#echo `ls merge/heli/${IMG}*3.vrt`
-	zip -9 --quiet $BASE $(./gettiles.py `./extract_corners.sh merge/heli/${IMG}*3.vrt` ${CYCLE} heli meters) &
-    else
-	#echo `ls merge/heli/${IMG}*2.vrt`
-	zip -9 --quiet $BASE $(./gettiles.py `./extract_corners.sh merge/heli/${IMG}*2.vrt` ${CYCLE} heli meters) &
-    fi
-done
-wait
-echo done heli
+## TERRAIN ## echo starting terrain
+## TERRAIN ## cp ../elevation/ELEV_{AK,HI,PR}.zip final/.
+## TERRAIN ## rm -f final/ELEV_NE.zip; zip -9 final/ELEV_NE.zip $(./gettiles.py  -85.00 50.15  -40.00 38.00 ${CYCLE} elev latlon) &  ## --quiet 
+## TERRAIN ## rm -f final/ELEV_NC.zip; zip -9 final/ELEV_NC.zip $(./gettiles.py -110.00 50.15  -85.00 38.00 ${CYCLE} elev latlon) &  ## --quiet 
+## TERRAIN ## rm -f final/ELEV_NW.zip; zip -9 final/ELEV_NW.zip $(./gettiles.py -131.21 50.15 -110.00 38.00 ${CYCLE} elev latlon) &  ## --quiet 
+## TERRAIN ## rm -f final/ELEV_SE.zip; zip -9 final/ELEV_SE.zip $(./gettiles.py  -85.00 38.00  -40.00 23.13 ${CYCLE} elev latlon) &  ## --quiet 
+## TERRAIN ## rm -f final/ELEV_SC.zip; zip -9 final/ELEV_SC.zip $(./gettiles.py -110.00 38.00  -85.00 23.13 ${CYCLE} elev latlon) &  ## --quiet 
+## TERRAIN ## rm -f final/ELEV_SW.zip; zip -9 final/ELEV_SW.zip $(./gettiles.py -131.21 38.00 -110.00 23.13 ${CYCLE} elev latlon) &  ## --quiet 
+## TERRAIN ## wait
+## TERRAIN ## echo done terrain
+
+## HELI ## echo starting heli
+## HELI ## ## Heli
+## HELI ## for img in `ls merge/heli/*2.vrt|grep -v North|grep -v South|grep -v East|grep -v West|grep -v NewYork_2` merge/heli/*3.vrt; do
+## HELI ##     IMG=`echo $img | cut -d\/ -f3 | sed 's/.\{6\}$//'`
+## HELI ##     if [[ ${IMG:0:11} == GrandCanyon ]]; then
+## HELI ## 	IMBASE=${IMG:0:11};
+## HELI ##     else
+## HELI ## 	IMBASE=${IMG}Heli
+## HELI ##     fi
+## HELI ##     BASE=final/${IMBASE}.zip
+## HELI ##     rm -f $BASE
+## HELI ##     FILE=`find merge/heli/${IMG}*|grep 3`
+## HELI ##     if [[ -f ${FILE} ]]; then
+## HELI ## 	#echo `ls merge/heli/${IMG}*3.vrt`
+## HELI ## 	zip -9 --quiet $BASE $(./gettiles.py `./extract_corners.sh merge/heli/${IMG}*3.vrt` ${CYCLE} heli meters) &
+## HELI ##     else
+## HELI ## 	#echo `ls merge/heli/${IMG}*2.vrt`
+## HELI ## 	zip -9 --quiet $BASE $(./gettiles.py `./extract_corners.sh merge/heli/${IMG}*2.vrt` ${CYCLE} heli meters) &
+## HELI ##     fi
+## HELI ## done
+## HELI ## wait
+## HELI ## echo done heli
 
 
 make zipittest
-zip -9 --quiet final/databases.zip `./gettiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} sec latlon|grep "tiles/..../0/7"`
-zip -9 --quiet final/databases.zip `./gettiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} tac latlon|grep "tiles/..../1/8"`
-zip -9 --quiet final/databases.zip `./gettiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} wac latlon|grep "tiles/..../2/6"`
-zip -9 --quiet final/databases.zip `./gettiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} ifr latlon|grep "tiles/..../3/7"`
-zip -9 --quiet final/databases.zip `./gettiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} ifh latlon|grep "tiles/..../4/6"`
-zip -9 --quiet final/databases.zip `./gettiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} ifa latlon|grep "tiles/..../5/8"`
-zip -9 --quiet final/databases.zip `./gettiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} rel latlon|grep "tiles/..../7/6"`
+zip -9 final/databases.zip `./gettiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} sec latlon|grep "tiles/..../0/7"`   ## --quiet 
+zip -9 final/databases.zip `./gettiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} tac latlon|grep "tiles/..../1/8"`	  ## --quiet 
+zip -9 final/databases.zip `./gettiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} wac latlon|grep "tiles/..../2/6"`	  ## --quiet 
+zip -9 final/databases.zip `./gettiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} ifr latlon|grep "tiles/..../3/7"`	  ## --quiet 
+zip -9 final/databases.zip `./gettiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} ifh latlon|grep "tiles/..../4/6"`	  ## --quiet 
+zip -9 final/databases.zip `./gettiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} ifa latlon|grep "tiles/..../5/8"`	  ## --quiet 
+zip -9 final/databases.zip `./gettiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} elev latlon|grep "tiles/..../6/6"`  ## --quiet 
+zip -9 final/databases.zip `./gettiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} rel latlon|grep "tiles/..../7/6"`	  ## --quiet 
 echo done databases
 
 ## THIS is canadian topo
@@ -163,8 +153,3 @@ echo done databases
 ## done
 ## wait
 
-pushd final
-for a in *zip; do
-    ../zip.py `basename ${a} .zip` ${CYCLE};
-done
-    

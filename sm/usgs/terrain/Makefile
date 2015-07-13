@@ -12,16 +12,20 @@
 
 
 
-## Source is http://nationalmap.gov/small_scale/atlasftp.html#srco48i
+## Source http://catalog.data.gov/dataset/usgs-small-scale-dataset-100-meter-resolution-elevation-of-alaska-201212-tiff
 
 prepare:
-	## gdal_translate -of vrt -srcwin 24000 0 25810 20920 srcoaki0100a.tif srcoaki0100a_1.vrt 
-	## gdalwarp -of vrt -t_srs 'EPSG:900913' srcoaki0100a_1.vrt srcoaki0100a_2.vrt 
-	gdalwarp -of vrt -t_srs 'EPSG:900913' srcoaki0100a.tif   srcoaki0100a_2.vrt 
-	gdalwarp -of vrt -t_srs 'EPSG:900913' srcohii0100a.tif 	 srcohii0100a_2.vrt
-	gdalwarp -of vrt -t_srs 'EPSG:900913' srcopri0100a.tif 	 srcopri0100a_2.vrt
-	gdalwarp -of vrt -t_srs 'EPSG:900913' srco48i0100a.tif 	 srco48i0100a_2.vrt
-	gdalbuildvrt -resolution highest -overwrite relief.vrt srco48i0100a_2.vrt srcoaki0100a_2.vrt srcohii0100a_2.vrt srcopri0100a_2.vrt
+	## gdal_translate -of vrt -srcwin 24000 0 25810 20920 elevaki0100a.tif elevaki0100a_1.vrt 
+	## gdalwarp -of vrt -t_srs 'EPSG:900913' elevaki0100a_1.vrt elevaki0100a_2.vrt 
+	gdal_translate -of vrt -ot Byte -scale -100 6175 0 251 elevaki0100a.tif elevaki0100a_1.vrt 
+	gdal_translate -of vrt -ot Byte -scale -100 6175 0 251 elevhii0100a.tif elevhii0100a_1.vrt
+	gdal_translate -of vrt -ot Byte -scale -100 6175 0 251 elevpri0100a.tif elevpri0100a_1.vrt
+	gdal_translate -of vrt -ot Byte -scale -100 6175 0 251 elev48i0100a.tif elev48i0100a_1.vrt
+	gdalwarp -of vrt -t_srs 'EPSG:900913' elevaki0100a_1.vrt elevaki0100a_2.vrt
+	gdalwarp -of vrt -t_srs 'EPSG:900913' elevhii0100a_1.vrt elevhii0100a_2.vrt
+	gdalwarp -of vrt -t_srs 'EPSG:900913' elevpri0100a_1.vrt elevpri0100a_2.vrt
+	gdalwarp -of vrt -t_srs 'EPSG:900913' elev48i0100a_1.vrt elev48i0100a_2.vrt
+	gdalbuildvrt -resolution highest -overwrite relief.vrt elev48i0100a_2.vrt elevaki0100a_2.vrt elevhii0100a_2.vrt elevpri0100a_2.vrt
 
 sep:
-	qsub retile.pbs
+	qsub retiles.pbs

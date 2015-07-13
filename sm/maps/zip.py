@@ -19,31 +19,8 @@
 import zipfile
 import sys
 
-
-
-
-
-zin = zipfile.ZipFile ('archive.zip', 'r')
-zout = zipfile.ZipFile ('archve_new.zip', 'w')
-for item in zin.infolist():
-        buffer = zin.read(item.filename)
-        if (item.filename[-4:] != '.exe'):
-                zout.writestr(item, buffer)
-
-zout.close()
-zin.close()
-
-
-
-
-
-
-
-
-
 # Read the zip file to append to it
 zf=zipfile.ZipFile(sys.argv[1] + '.zip', mode='a')
-zf2=zipfile.ZipFile(sys.argv[1] + '_new.zip', mode='a')
 
 # This is the version number like 1507
 data=sys.argv[2]
@@ -57,7 +34,6 @@ for info in zf.infolist():
 #version
 #list of files
 try:
-    zf2.writestr(sys.argv[1], data)
+    zf.writestr(sys.argv[1], data)
 finally:
-    zf2.close()
     zf.close()
