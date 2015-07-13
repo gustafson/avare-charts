@@ -28,7 +28,6 @@
 ## http://gis.ess.washington.edu/data/raster/GlobalData/TPCgeotiff/index.html
 
 prepare:
+	./generate_tiles.sh
 	gdalbuildvrt -resolution highest -overwrite tpc.vrt *_1.vrt
-
-sep:
-	qsub retiles.pbs
+	qsub generate_tiles.pbs

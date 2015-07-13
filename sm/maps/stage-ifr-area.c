@@ -61,7 +61,6 @@ int main(int argc, char *argv[])
   out("rm -fr merge/ifa; mkdir merge/ifa"); // ifa
   int entries = sizeof(maps) / sizeof(maps[0]);
 
-#pragma omp parallel for private (n_ptr, dir_ptr, buffer, tmpstr)
   for(map = 0; map < entries; map++) {
     n_ptr = maps[map].name; 
 

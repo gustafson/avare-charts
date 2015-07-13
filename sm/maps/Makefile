@@ -66,7 +66,7 @@ update: download-ifr update-vfr unzip stage-all plates download-base-data proces
 clean:
 	find final -type f|grep -v "CAN_\|REL_\|ELEV_"| xargs rm # \|ELUS_\|EHUS\|AFD_
 	rm -rf merge ads.txt
-	rm sepsec septac stagesec stageifr stageifa stageifh stagetac *.tif *.jpg *.xml
+	rm sepsec septac stage-vfr-sec stage-ifr-low stage-ifr-area stage-ifr-high stage-vfr-tac *.tif *.jpg *.xml
 	rm files*.csv logfile.txt *.log
 	rm ifr-gps-currency*{kmz,json,txt}
 
@@ -163,29 +163,26 @@ unzip:
 
 stage-all: retile
 	if [[ ! -d merge ]]; then mkdir merge; fi
-	gcc -march=native -O3 -Wall stagesec.c -o stagesec -fopenmp
-	gcc -march=native -O3 -Wall stagetac.c -o stagetac -fopenmp
-	gcc -march=native -O3 -Wall stagefly.c -o stagefly -fopenmp
-	gcc -march=native -O3 -Wall stageifr.c -o stageifr -fopenmp
-	gcc -march=native -O3 -Wall stageifh.c -o stageifh -fopenmp
-	gcc -march=native -O3 -Wall stageifa.c -o stageifa -fopenmp
-	gcc -march=native -O3 -Wall stageifal.c -o stageifal -fopenmp
-	gcc -march=native -O3 -Wall stageifah.c -o stageifah -fopenmp
-	## gcc -march=native -O3 -Wall stageheli.c -o stageheli -fopenmp
-	## each pbs script could be run as a shell script but is 
-	## run through pbs for efficient resource management.
-	./stageall.sh $$(./cyclenumber.sh) $$(./cycledates.sh 28 vfr stageall)
-	./stageall.sh $$(./cyclenumber.sh) $$(./cycledates.sh 56 ifr stageall)
+	## gcc -march=native -O3 -Wall stagefly.c -o stagefly
+	## gcc -march=native -O3 -Wall stage-vfr-heli.c -o stage-vfr-heli
+	gcc -march=native -O3 -Wall stage-vfr-sec.c -o stage-vfr-sec
+	gcc -march=native -O3 -Wall stage-vfr-tac.c -o stage-vfr-tac
+	gcc -march=native -O3 -Wall stage-ifr-low.c -o stage-ifr-low
+	gcc -march=native -O3 -Wall stage-ifr-high.c -o stage-ifr-high
+	gcc -march=native -O3 -Wall stage-ifr-area.c -o stage-ifr-area
+	./stage-vfr-sec
+	./stage-vfr-tac
+	./stage-ifr-low
+	./stage-ifr-high
+	./stage-ifr-area
 
 stage-vfr: retile
 	./update_ifr_tiles_db.sh
 	if [[ ! -d merge ]]; then mkdir merge; fi
-	gcc -march=native -O3 -Wall stagesec.c -o stagesec -fopenmp
-	gcc -march=native -O3 -Wall stagetac.c -o stagetac -fopenmp
-	## gcc -march=native -O3 -Wall stageheli.c -o stageheli -fopenmp
-	## each pbs script could be run as a shell script but is 
-	## run through pbs for efficient resource management.
-	./stageall.sh $$(./cyclenumber.sh) $$(./cycledates.sh 28 vfr stageall)
+	gcc -march=native -O3 -Wall stage-vfr-sec.c -o stage-vfr-sec
+	gcc -march=native -O3 -Wall stage-vfr-tac.c -o stage-vfr-tac
+	./stage-vfr-sec
+	./stage-vfr-tac
 
 ziptiles:
 	gcc -march=native -O3 -Wall sepsec.c -o sepsec -fopenmp

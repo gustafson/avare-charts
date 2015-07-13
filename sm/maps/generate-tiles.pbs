@@ -1,0 +1,152 @@
+#!/bin/sh -login
+#PBS -l mem=60gb
+#PBS -l nodes=1:ppn=16
+#PBS -l walltime=1000:00:00
+#PBS -m abe 
+#PBS -V 
+#PBS -N ChartTiling
+#PBS -e z-logs/z.${PBS_JOBID}.e_${PBS_JOBNAME}
+#PBS -o z-logs/z.${PBS_JOBID}.o_${PBS_JOBNAME}
+#PBS -t 1-6%3
+
+#!/bin/bash
+# Copyright (c) 2015, Peter A. Gustafson (peter.gustafson@wmich.edu)
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in
+#   the documentation and/or other materials provided with the
+#   distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+# WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+if [[ ${PBS_NODEFILE} ]]; then
+    echo ------------------------------------------------------
+    NODE=`sort ${PBS_NODEFILE} | uniq`
+    HOST=`echo ${PBS_O_HOST} |cut -f1 -d.`
+    echo Job is running on node ${NODE} from host ${HOST}
+    echo ------------------------------------------------------
+    echo PBS: qsub was run on ${PBS_O_HOST}
+    echo PBS: originating queue is ${PBS_O_QUEUE}
+    echo PBS: executing queue is ${PBS_QUEUE}
+    echo PBS: working directory is ${PBS_O_WORKDIR}
+    echo PBS: execution mode is ${PBS_ENVIRONMENT}
+    echo PBS: job identifier is ${PBS_JOBID}
+    echo PBS: job name is ${PBS_JOBNAME}
+    echo PBS: node file is ${PBS_NODEFILE}
+    echo PBS: current home directory is ${PBS_O_HOME}
+    echo PBS: PATH = ${PBS_O_PATH}
+    echo ------------------------------------------------------
+
+    NP=$(cat ${PBS_NODEFILE} | wc -l)
+    ## export MAGICK_TEMPORARY_PATH=/scratch
+    export TMPDIR=/scratch
+else
+    NP=16
+    export TMPDIR=/data/home/pi/gustafson
+fi
+
+[[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
+CYCLE=$(./cyclenumber.sh)
+
+OPTIONS1="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos --processes ${NP}"
+OPTIONS2="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos"
+TIME1="/usr/bin/time -v -o"
+TIME2="/usr/bin/time -v --append -o"
+ARRAY=`echo ${PBS_JOBID} | sed -e s/"\[..\]"/"\[\]"/g -e "s/.cs.wmich.edu//g"`
+
+
+## Would be faster for TAC but isn't really needed... it skips the overview tiles
+##if [[ ${PBS_ARRAYID} -le 26 ]]; then
+##    ${TIME1} time.tac.txt ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} $(ls merge/tac/run*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/${CYCLE}/1
+##    ${TIME2} time.tac.txt ./gdal2tiles_512_mysingle.py -t "VFR Terminal Area" ${OPTIONS2} $(ls merge/tac/run*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/${CYCLE}/1
+
+if [[ ${PBS_ARRAYID} -eq 1 ]]; then
+    ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} ifr.vrt tiles/${CYCLE}/3
+    ${TIME2} time.ifr.txt ./gdal2tiles_512_mysingle.py -t "IFR Enroute Low" ${OPTIONS2} ifr.vrt tiles/${CYCLE}/3
+    find tiles/${CYCLE}/3 -name "*png"| xargs mogrify -format png8
+    find tiles/${CYCLE}/3 -name "*png8"| xargs rename png8 png
+    
+elif [[ ${PBS_ARRAYID} -eq 2 ]]; then
+    ${TIME1} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} ifh.vrt tiles/${CYCLE}/4
+    ${TIME2} time.ifh.txt ./gdal2tiles_512_mysingle.py -t "IFR Enroute High" ${OPTIONS2} ifh.vrt tiles/${CYCLE}/4
+    find tiles/${CYCLE}/4 -name "*png"| xargs mogrify -format png8
+    find tiles/${CYCLE}/4 -name "*png8"| xargs rename png8 png
+
+elif [[ ${PBS_ARRAYID} -eq 3 ]]; then
+    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS2} ifa.vrt tiles/${CYCLE}/5
+    ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py -t "IFR Area" ${OPTIONS2} ifa.vrt tiles/${CYCLE}/5
+    find tiles/${CYCLE}/5 -name "*png"| xargs mogrify -format png8
+    find tiles/${CYCLE}/5 -name "*png8"| xargs rename png8 png
+ 
+elif [[ ${PBS_ARRAYID} -eq 4 ]]; then
+    ${TIME1} time.tac.txt ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} tac.vrt tiles/${CYCLE}/1
+    ${TIME2} time.tac.txt ./gdal2tiles_512_mysingle.py -t "VFR Terminal Area" ${OPTIONS2} tac.vrt tiles/${CYCLE}/1
+    find tiles/${CYCLE}/1 -name "*png"| xargs mogrify -unsharp 3x3 -format jpg -quality 75
+
+elif [[ ${PBS_ARRAYID} -eq 5 ]]; then
+    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} sec.vrt tiles/${CYCLE}/0
+    ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py -t "VFR Sectional" ${OPTIONS2} sec.vrt tiles/${CYCLE}/0
+    find tiles/${CYCLE}/0 -name "*png"| xargs mogrify -unsharp 3x3 -format jpg -quality 75
+    
+elif [[ ${PBS_ARRAYID} -eq 6 ]]; then
+    ${TIME1} time.wac.txt ./gdal2tiles_512_parallel.py -t "VFR World" ${OPTIONS1} wac.vrt tiles/${CYCLE}/2
+    ${TIME2} time.wac.txt ./gdal2tiles_512_mysingle.py -t "VFR World" ${OPTIONS2} wac.vrt tiles/${CYCLE}/2
+    find tiles/${CYCLE}/2 -name "*png"| xargs mogrify -unsharp 3x3 -format jpg -quality 75
+    
+## HELI ON CHANGE ONLY ## elif [[ ${PBS_ARRAYID} -eq 7 ]]; then
+## HELI ON CHANGE ONLY ##     ${TIME1} time.heli.txt ./gdal2tiles_512_parallel.py -t "Helicoptor Route Chart" ${OPTIONS1} heli.vrt tiles/${CYCLE}/9
+## HELI ON CHANGE ONLY ##     ${TIME2} time.heli.txt ./gdal2tiles_512_mysingle.py -t "Helicoptor Route Chart" ${OPTIONS2} heli.vrt tiles/${CYCLE}/9
+## HELI ON CHANGE ONLY ##     find tiles/${CYCLE}/0 -name "*png"| xargs mogrify -unsharp 3x3 -format jpg -quality 75
+    
+## OLDER OPTIMIZATION METHOD ## elif [[ ${PBS_ARRAYID} -ge 34 && ${PBS_ARRAYID} -le 41 ]]; then
+## OLDER OPTIMIZATION METHOD ## 
+## OLDER OPTIMIZATION METHOD ##     function topng8(){
+## OLDER OPTIMIZATION METHOD ## 	convert $0 png8:${0}.png8.png
+## OLDER OPTIMIZATION METHOD ## 	mv ${0}.png8.png ${0}
+## OLDER OPTIMIZATION METHOD ## 	optipng -quiet ${0}
+## OLDER OPTIMIZATION METHOD ##     }
+## OLDER OPTIMIZATION METHOD ##     export -f topng8
+## OLDER OPTIMIZATION METHOD ##     
+## OLDER OPTIMIZATION METHOD ##     NUM=$((${PBS_ARRAYID}-34))
+## OLDER OPTIMIZATION METHOD ##     NUMJOBS=8
+## OLDER OPTIMIZATION METHOD ##     ## [0-2]
+## OLDER OPTIMIZATION METHOD ##     ## [3-5]
+## OLDER OPTIMIZATION METHOD ##     ## find tiles/$(./cyclenumber.sh)/[0-2] -name "*png"| sed -n ${NUM}~${NUMJOBS}p | xargs mogrify -unsharp 3x3 -format jpg -quality 75
+## OLDER OPTIMIZATION METHOD ##     ## find tiles/$(./cyclenumber.sh)/[3-5] -name "*png"| sed -n ${NUM}~${NUMJOBS}p | xargs mogrify -format png8
+## OLDER OPTIMIZATION METHOD ##     ## find tiles/$(./cyclenumber.sh)/[3-5] -name "*png"| xargs -n 1 -P ${NP} bash -c topng8
+## OLDER OPTIMIZATION METHOD ##     ## find tiles/$(./cyclenumber.sh)/[9] -name "*png"| sed -n ${NUM}~${NUMJOBS}p | xargs mogrify -format png8
+## OLDER OPTIMIZATION METHOD ##     ## find tiles/$(./cyclenumber.sh)/[9] -name "*png"| sed -n ${NUM}~${NUMJOBS}p | xargs mogrify -unsharp 3x3 -format jpg -quality 75
+## OLDER OPTIMIZATION METHOD ##     ## find tiles/$(./cyclenumber.sh)/[9] -name "*png8"| sed -n ${NUM}~${NUMJOBS}p | xargs optipng -quiet
+## OLDER OPTIMIZATION METHOD ##     ## rename png png.orig `find tiles/$(./cyclenumber.sh)/[3-5] -name "*png"`
+## OLDER OPTIMIZATION METHOD ##     ## rename png8 png8 `find tiles/$(./cyclenumber.sh)/[3-5] -name "*png8"`
+fi
+
+## 0 Sectional
+## 1 TAC
+## 2 WAC
+## 3 IFR Low
+## 4 IFR High
+## 5 IFR Area
+## 6 Terrain
+## 7 Shaded Relief
+## 8 Topographic
+## 9 Heli/Other
+## 10 Tactical Pilotage Chart/World

@@ -6,7 +6,6 @@ function mygroup(){
 
 export -f mygroup
 CYCLE=$(cyclenumber.sh)
-CYCLE=1507
 
 ## THIS WILL DELETE SEC TILES BY CHART
 ## for img in `ls merge/sec/*Seattle*_c.vrt`; do

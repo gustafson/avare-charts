@@ -17,8 +17,6 @@
 ## find . -name "*png" | xargs -n1 -P64 bash -c rmemptypng
 
 CYCLE=$(cyclenumber.sh)
-CYCLE=1507
-
 
 ## The following compresses only the files that are remade
 
