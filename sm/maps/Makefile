@@ -1,5 +1,5 @@
 # Copyright (c) 2012, Zubair Khan (governer@gmail.com)
-# Copyright (c) 2013, Peter A. Gustafson (peter.gustafson@wmich.edu)
+# Copyright (c) 2013-2015, Peter A. Gustafson (peter.gustafson@wmich.edu)
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -175,14 +175,16 @@ stage-all: retile
 	./stage-ifr-low
 	./stage-ifr-high
 	./stage-ifr-area
+	qsub generate-tiles.pbs
 
 stage-vfr: retile
-	./update_ifr_tiles_db.sh
+	./update_ifr_tiles.sh
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	gcc -march=native -O3 -Wall stage-vfr-sec.c -o stage-vfr-sec
 	gcc -march=native -O3 -Wall stage-vfr-tac.c -o stage-vfr-tac
 	./stage-vfr-sec
 	./stage-vfr-tac
+	qsub -t 4-6 generate-tiles.pbs
 
 ziptiles:
 	gcc -march=native -O3 -Wall sepsec.c -o sepsec -fopenmp
@@ -198,7 +200,7 @@ ziptiles:
 	##./septopo.sh copy charts zips on servers as no expires
 	##./sepgc.sh copy charts zips on servers as no expires
 
-zipit:
+zipit-oldprojection:
 	## FIXME must find out how to updated canap.csv canfreq.csv canrun.csv
 	echo "Zipping cycle " $$(./cyclenumber.sh)
 	if [ -a main.db ]; then rm main.db; fi;
@@ -220,7 +222,7 @@ zipit:
 	## FIXME must add maps.topo.db 
 	zip -9 -r final/databases.zip maps.*.db procedures.db main.db `find tiles/{$$(./cyclenumber.sh),static}/[a-z]*/*/4 -type f|grep -v tif|	grep -v topo"`
 
-zipittest:
+zipit:
 	## FIXME must find out how to updated canap.csv canfreq.csv canrun.csv
 	echo "Zipping cycle " $$(./cyclenumber.sh)
 	if [ -a main.db ]; then rm main.db; fi;
@@ -230,7 +232,6 @@ zipittest:
 	cp ~/CIFP/procedures.db .
 	sqlite3 procedures.db "VACUUM;"
 	zip -9 -r final/databases.zip procedures.db main.db 
-
 
 geolist:
 	./plates_list.sh
