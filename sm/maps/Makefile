@@ -171,7 +171,8 @@ stage-all: retile
 	gcc -march=native -O3 -Wall stagefly.c -o stagefly -fopenmp
 	gcc -march=native -O3 -Wall stageifr.c -o stageifr -fopenmp
 	gcc -march=native -O3 -Wall stageifh.c -o stageifh -fopenmp
-	gcc -march=native -O3 -Wall stageifa.c -o stageifa -fopenmp
+	### stageifa.c lost -- will use shell script instead
+	## gcc -march=native -O3 -Wall stageifa.c -o stageifa -fopenmp
 	gcc -march=native -O3 -Wall stageifal.c -o stageifal -fopenmp
 	gcc -march=native -O3 -Wall stageifah.c -o stageifah -fopenmp
 	## gcc -march=native -O3 -Wall stageheli.c -o stageheli -fopenmp
