@@ -87,7 +87,7 @@ find ${MYDIR1}/tiles/1507/10 -name "*png"| xargs mogrify -unsharp 3x3 -format jp
 ## 4 IFR High
 ## 5 IFR Area
 ## 6 Terrain
-## 7 Terrain
+## 7 Shaded Relief
 ## 8 Topographic
 ## 9 Heli/Other
 ## 10 TPC

@@ -87,50 +87,68 @@ rm -f final/EHUS_SW.zip; zip -9 --quiet final/EHUS_SW.zip $(./gettiles.py -131.2
 wait
 echo done ifr
 
-## SHADED RELIEF ## echo starting relief
-## SHADED RELIEF ## cp ../usgs/sr/REL_{AK,HI,PR}.zip final/.
-## SHADED RELIEF ## rm -f final/REL_NE.zip; zip -9 --quiet final/REL_NE.zip $(./gettiles.py  -85.00 50.15  -40.00 38.00 ${CYCLE} rel latlon) &
-## SHADED RELIEF ## rm -f final/REL_NC.zip; zip -9 --quiet final/REL_NC.zip $(./gettiles.py -110.00 50.15  -85.00 38.00 ${CYCLE} rel latlon) &
-## SHADED RELIEF ## rm -f final/REL_NW.zip; zip -9 --quiet final/REL_NW.zip $(./gettiles.py -131.21 50.15 -110.00 38.00 ${CYCLE} rel latlon) &
-## SHADED RELIEF ## rm -f final/REL_SE.zip; zip -9 --quiet final/REL_SE.zip $(./gettiles.py  -85.00 38.00  -40.00 23.13 ${CYCLE} rel latlon) &
-## SHADED RELIEF ## rm -f final/REL_SC.zip; zip -9 --quiet final/REL_SC.zip $(./gettiles.py -110.00 38.00  -85.00 23.13 ${CYCLE} rel latlon) &
-## SHADED RELIEF ## rm -f final/REL_SW.zip; zip -9 --quiet final/REL_SW.zip $(./gettiles.py -131.21 38.00 -110.00 23.13 ${CYCLE} rel latlon) &
-## SHADED RELIEF ## wait
-## SHADED RELIEF ## echo done relief
+echo starting relief
+## DANGEROUS SHORT TERM FIX ## pushd ../usgs/sr/
+## DANGEROUS SHORT TERM FIX ## for a in REL_{AK,HI,PR}.zip; do
+## DANGEROUS SHORT TERM FIX ##     unzip $a
+## DANGEROUS SHORT TERM FIX ##     mv tiles/1* tiles/${CYCLE}
+## DANGEROUS SHORT TERM FIX ##     rm $a
+## DANGEROUS SHORT TERM FIX ##     zip -9 $a `find tiles/${CYCLE} -name "*jpg"`
+## DANGEROUS SHORT TERM FIX ##     rm -r tiles
+## DANGEROUS SHORT TERM FIX ## done
+## DANGEROUS SHORT TERM FIX ## popd
+## DANGEROUS SHORT TERM FIX ## cp ../usgs/sr/REL_{AK,HI,PR}.zip final/.
+rm -f final/REL_NE.zip; zip -9 --quiet final/REL_NE.zip $(./gettiles.py  -85.00 50.15  -40.00 38.00 ${CYCLE} rel latlon) &
+rm -f final/REL_NC.zip; zip -9 --quiet final/REL_NC.zip $(./gettiles.py -110.00 50.15  -85.00 38.00 ${CYCLE} rel latlon) &
+rm -f final/REL_NW.zip; zip -9 --quiet final/REL_NW.zip $(./gettiles.py -131.21 50.15 -110.00 38.00 ${CYCLE} rel latlon) &
+rm -f final/REL_SE.zip; zip -9 --quiet final/REL_SE.zip $(./gettiles.py  -85.00 38.00  -40.00 23.13 ${CYCLE} rel latlon) &
+rm -f final/REL_SC.zip; zip -9 --quiet final/REL_SC.zip $(./gettiles.py -110.00 38.00  -85.00 23.13 ${CYCLE} rel latlon) &
+rm -f final/REL_SW.zip; zip -9 --quiet final/REL_SW.zip $(./gettiles.py -131.21 38.00 -110.00 23.13 ${CYCLE} rel latlon) &
+wait
+echo done relief
 
-## TERRAIN ## echo starting terrain
-## TERRAIN ## cp ../elevation/ELEV_{AK,HI,PR}.zip final/.
-## TERRAIN ## rm -f final/ELEV_NE.zip; zip -9 final/ELEV_NE.zip $(./gettiles.py  -85.00 50.15  -40.00 38.00 ${CYCLE} elev latlon) &  ## --quiet 
-## TERRAIN ## rm -f final/ELEV_NC.zip; zip -9 final/ELEV_NC.zip $(./gettiles.py -110.00 50.15  -85.00 38.00 ${CYCLE} elev latlon) &  ## --quiet 
-## TERRAIN ## rm -f final/ELEV_NW.zip; zip -9 final/ELEV_NW.zip $(./gettiles.py -131.21 50.15 -110.00 38.00 ${CYCLE} elev latlon) &  ## --quiet 
-## TERRAIN ## rm -f final/ELEV_SE.zip; zip -9 final/ELEV_SE.zip $(./gettiles.py  -85.00 38.00  -40.00 23.13 ${CYCLE} elev latlon) &  ## --quiet 
-## TERRAIN ## rm -f final/ELEV_SC.zip; zip -9 final/ELEV_SC.zip $(./gettiles.py -110.00 38.00  -85.00 23.13 ${CYCLE} elev latlon) &  ## --quiet 
-## TERRAIN ## rm -f final/ELEV_SW.zip; zip -9 final/ELEV_SW.zip $(./gettiles.py -131.21 38.00 -110.00 23.13 ${CYCLE} elev latlon) &  ## --quiet 
-## TERRAIN ## wait
-## TERRAIN ## echo done terrain
+echo starting terrain
+## DANGEROUS SHORT TERM FIX ## pushd ../usgs/terrain
+## DANGEROUS SHORT TERM FIX ## for a in ELEV_{AK,HI,PR}.zip; do
+## DANGEROUS SHORT TERM FIX ##     unzip $a
+## DANGEROUS SHORT TERM FIX ##     mv tiles/1* tiles/${CYCLE}
+## DANGEROUS SHORT TERM FIX ##     rm $a
+## DANGEROUS SHORT TERM FIX ##     zip -9 $a `find tiles/${CYCLE} -name "*png"`
+## DANGEROUS SHORT TERM FIX ##     rm -r tiles
+## DANGEROUS SHORT TERM FIX ## done
+## DANGEROUS SHORT TERM FIX ## popd
+## DANGEROUS SHORT TERM FIX ## cp ../usgs/terrain/ELEV_{AK,HI,PR}.zip final/.
+rm -f final/ELEV_NE.zip; zip -9 final/ELEV_NE.zip $(./gettiles.py  -85.00 50.15  -40.00 38.00 ${CYCLE} elev latlon) &  ## --quiet 
+rm -f final/ELEV_NC.zip; zip -9 final/ELEV_NC.zip $(./gettiles.py -110.00 50.15  -85.00 38.00 ${CYCLE} elev latlon) &  ## --quiet 
+rm -f final/ELEV_NW.zip; zip -9 final/ELEV_NW.zip $(./gettiles.py -131.21 50.15 -110.00 38.00 ${CYCLE} elev latlon) &  ## --quiet 
+rm -f final/ELEV_SE.zip; zip -9 final/ELEV_SE.zip $(./gettiles.py  -85.00 38.00  -40.00 23.13 ${CYCLE} elev latlon) &  ## --quiet 
+rm -f final/ELEV_SC.zip; zip -9 final/ELEV_SC.zip $(./gettiles.py -110.00 38.00  -85.00 23.13 ${CYCLE} elev latlon) &  ## --quiet 
+rm -f final/ELEV_SW.zip; zip -9 final/ELEV_SW.zip $(./gettiles.py -131.21 38.00 -110.00 23.13 ${CYCLE} elev latlon) &  ## --quiet 
+wait
+echo done terrain
 
-## HELI ## echo starting heli
-## HELI ## ## Heli
-## HELI ## for img in `ls merge/heli/*2.vrt|grep -v North|grep -v South|grep -v East|grep -v West|grep -v NewYork_2` merge/heli/*3.vrt; do
-## HELI ##     IMG=`echo $img | cut -d\/ -f3 | sed 's/.\{6\}$//'`
-## HELI ##     if [[ ${IMG:0:11} == GrandCanyon ]]; then
-## HELI ## 	IMBASE=${IMG:0:11};
-## HELI ##     else
-## HELI ## 	IMBASE=${IMG}Heli
-## HELI ##     fi
-## HELI ##     BASE=final/${IMBASE}.zip
-## HELI ##     rm -f $BASE
-## HELI ##     FILE=`find merge/heli/${IMG}*|grep 3`
-## HELI ##     if [[ -f ${FILE} ]]; then
-## HELI ## 	#echo `ls merge/heli/${IMG}*3.vrt`
-## HELI ## 	zip -9 --quiet $BASE $(./gettiles.py `./extract_corners.sh merge/heli/${IMG}*3.vrt` ${CYCLE} heli meters) &
-## HELI ##     else
-## HELI ## 	#echo `ls merge/heli/${IMG}*2.vrt`
-## HELI ## 	zip -9 --quiet $BASE $(./gettiles.py `./extract_corners.sh merge/heli/${IMG}*2.vrt` ${CYCLE} heli meters) &
-## HELI ##     fi
-## HELI ## done
-## HELI ## wait
-## HELI ## echo done heli
+echo starting heli
+## Heli
+for img in `ls merge/heli/*2.vrt|grep -v North|grep -v South|grep -v East|grep -v West|grep -v NewYork_2` merge/heli/*3.vrt; do
+    IMG=`echo $img | cut -d\/ -f3 | sed 's/.\{6\}$//'`
+    if [[ ${IMG:0:11} == GrandCanyon ]]; then
+	IMBASE=${IMG:0:11};
+    else
+	IMBASE=${IMG}Heli
+    fi
+    BASE=final/${IMBASE}.zip
+    rm -f $BASE
+    FILE=`find merge/heli/${IMG}*|grep 3`
+    if [[ -f ${FILE} ]]; then
+	#echo `ls merge/heli/${IMG}*3.vrt`
+	zip -9 --quiet $BASE $(./gettiles.py `./extract_corners.sh merge/heli/${IMG}*3.vrt` ${CYCLE} heli meters) &
+    else
+	#echo `ls merge/heli/${IMG}*2.vrt`
+	zip -9 --quiet $BASE $(./gettiles.py `./extract_corners.sh merge/heli/${IMG}*2.vrt` ${CYCLE} heli meters) &
+    fi
+done
+wait
+echo done heli
 
 
 make zipittest
@@ -145,10 +163,18 @@ zip -9 final/databases.zip `./gettiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} re
 echo done databases
 
 ## THIS is canadian topo
-## for img in `ls ../can-topo/[0-9]*vrt`; do
-##     base=`echo $img|cut -f3 -d/|cut -f1 -d.`
-##     [[ -f final/CAN_${base}.zip ]] && rm final/CAN_${base}.zip
-##     zip -9 --quiet final/CAN_${base}.zip `mygroup ${img} topo`
-## done
-## wait
+for img in `ls ../can-topo/[0-9]*vrt`; do
+    base=`echo $img|cut -f3 -d/|cut -f1 -d.`
+    [[ -f final/CAN_${base}.zip ]] && rm final/CAN_${base}.zip
+    zip -9 --quiet final/CAN_${base}.zip `mygroup ${img} topo`
+done
+wait
 
+
+## Now create manifest
+pushd final
+for a in *zip; do
+    b=`basename $a .zip`; zip -d $a $b
+    ../zip.py `basename ${a} .zip` ${CYCLE};
+done
+popd
