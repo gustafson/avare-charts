@@ -4,7 +4,6 @@
 #PBS -l walltime=1000:00:00
 #PBS -m abe 
 #PBS -V 
-#PBS -M peter.gustafson@wmich.edu
 #PBS -N databases
 #PBS -e z-logs/z.databases.${PBS_JOBID}.e
 #PBS -o z-logs/z.databases.${PBS_JOBID}.o
