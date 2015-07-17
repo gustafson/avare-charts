@@ -231,7 +231,16 @@ zipit:
 	sqlite3 main.db "VACUUM;"
 	cp ~/CIFP/procedures.db .
 	sqlite3 procedures.db "VACUUM;"
-	zip -9 -r final/databases.zip procedures.db main.db 
+	zip -9 -r final/databases.zip procedures.db main.db
+	zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/0/6 -name "*jpg"`
+	zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/1/7 -name "*jpg"`
+	zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/2/5 -name "*jpg"`
+	zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/3/6 -name "*png"`
+	zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/4/5 -name "*png"`
+	zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/5/7 -name "*png"`
+	zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/6/5 -name "*png"`
+	zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/7/5 -name "*jpg"`
+	## zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/8/7 -name "*jpg"` ## Canada large and not wanted in US
 
 geolist:
 	./plates_list.sh

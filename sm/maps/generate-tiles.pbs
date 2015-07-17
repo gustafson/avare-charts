@@ -7,7 +7,7 @@
 #PBS -N ChartTiling
 #PBS -e z-logs/z.${PBS_JOBID}.e_${PBS_JOBNAME}
 #PBS -o z-logs/z.${PBS_JOBID}.o_${PBS_JOBNAME}
-#PBS -t 1-6%3
+#PBS -t 1-6%1
 
 #!/bin/bash
 # Copyright (c) 2015, Peter A. Gustafson (peter.gustafson@wmich.edu)
