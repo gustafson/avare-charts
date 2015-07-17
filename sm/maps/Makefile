@@ -77,14 +77,14 @@ download-base-data:
 	## https://nfdc.faa.gov/tod/public/TOD_DOF.html
 	## wget --no-check-certificate https://nfdc.faa.gov/tod/public/DOFS/DOF_$$(./cycledates.sh 56 dof).zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
 	echo "USING Daily DOF file rather than 56 day cycle.  This is, on average, more current than the 56 day cycle."
-	wget --no-check-certificate https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip DAILY_DOF.ZIP DOF.DAT && rm DAILY_DOF.ZIP
+	wget --no-check-certificate https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip -o DAILY_DOF.ZIP DOF.DAT && rm DAILY_DOF.ZIP
 	# https://nfdc.faa.gov/fadds/subscriptionDownload.do?productId=548752
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/APT.zip && unzip APT.zip && rm APT.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWOS.zip && unzip AWOS.zip && rm AWOS.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/TWR.zip && unzip TWR.zip && rm TWR.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/FIX.zip && unzip FIX.zip && rm FIX.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/NAV.zip && unzip NAV.zip && rm NAV.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWY.zip && unzip AWY.zip && rm AWY.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/APT.zip && unzip -o APT.zip && rm APT.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWOS.zip && unzip -o AWOS.zip && rm AWOS.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/TWR.zip && unzip -o TWR.zip && rm TWR.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/FIX.zip && unzip -o FIX.zip && rm FIX.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/NAV.zip && unzip -o NAV.zip && rm NAV.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWY.zip && unzip -o AWY.zip && rm AWY.zip
 	./saa.sh							     $$(./cycledates.sh 56 base)
 
 process-data:
@@ -199,9 +199,9 @@ ziptiles:
 	./sepifa.sh $$(./cyclenumber.sh)
 	./sepelus.sh $$(./cyclenumber.sh)
 	./sepehus.sh $$(./cyclenumber.sh)
-	./sepelev.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
-	./seprel.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
-	./sephelo.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
+	##./sepelev.sh ## 
+	##./seprel.sh ## 
+	##./sephelo.sh ## 
 	##./septopo.sh copy charts zips on servers as no expires
 	##./sepgc.sh copy charts zips on servers as no expires
 
