@@ -80,19 +80,11 @@ int main(int argc, char *argv[])
     snprintf(buffer, sizeof(buffer), "gdalwarp -of vrt -dstnodata '0 0 0' %s %s_1.vrt %s_2.vrt", projstr, filestr, filestr);
     out(buffer);
 		
-    if (strcmp(maps[map].reg,"run")!=0){
-      snprintf(buffer, sizeof(buffer),
-	       "gdal_translate -of vrt -a_nodata '0 0 0' -q -projwin_srs WGS84 -projwin %f %f %f %f %s_2.vrt %s_c.vrt",
-	       maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
-	       filestr, filestr);
-      out(buffer);
-    } else {
-      // Put a mask near the edges so that no seams show on the tiles
-      snprintf(buffer, sizeof(buffer),
-	       // Note the reversed order 2, 1 is appropriate
-	       "gdalbuildvrt -addalpha -srcnodata '0 0 0' -srcnodata '255 255 255' %s_c.vrt  %s_2.vrt;\n", filestr, filestr);
-      out(buffer);     
-    }
+    snprintf(buffer, sizeof(buffer),
+	     "gdal_translate -of vrt -a_nodata '0 0 0' -q -projwin_srs WGS84 -projwin %f %f %f %f %s_2.vrt %s_c.vrt",
+	     maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
+	     filestr, filestr);
+    out(buffer);
   }
 
   out ("\n\n\n");
