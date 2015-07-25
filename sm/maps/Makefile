@@ -30,6 +30,8 @@
 ## ToDo for "normal" machines.
 ## 1) Update NP variable in scripts
 
+CYCLE=$(shell ./cyclenumber.sh)
+
 all:
 	@echo
 	@echo
@@ -98,10 +100,10 @@ process-data:
 	./aw.pl > aw.csv
 
 plates-png: 
-	# wget -N http://aeronav.faa.gov/d-tpp/$$(./cyclenumber.sh)/xml_data/d-TPP_Metafile.xml
+	# wget -N http://aeronav.faa.gov/d-tpp/$(CYCLE)/xml_data/d-TPP_Metafile.xml
 	### Currently buying plate xml file so this isn't needed.
 	## [[ -f d-TPP_Metafile.xml ]] && rm d-TPP_Metafile.xml || echo
-	[[ -f d-TPP_Metafile.xml.zip.$$(./cyclenumber.sh) ]] && unzip -o d-TPP_Metafile.xml.zip.$$(./cyclenumber.sh)
+	[[ -f d-TPP_Metafile.xml.zip.$(CYCLE) ]] && unzip -o d-TPP_Metafile.xml.zip.$(CYCLE)
 	./plates_png.sh
 
 afd-data:
@@ -109,10 +111,10 @@ afd-data:
 	./afd.sh
 
 mins-data:
-	./domins.sh $$(./cyclenumber.sh)
+	./domins.sh $(CYCLE)
 
 download-vfr:
-	echo Downloading vfr for cycle $$(./cyclenumber.sh)
+	echo Downloading vfr for cycle $(CYCLE)
 	mkdir merge
 	mkdir -p charts/wac  
 	mkdir -p charts/sec 
@@ -129,7 +131,7 @@ update-vfr:
 	./update_vfr_charts.sh ## New process gets only updates
 
 download-ifr:
-	echo Downloading ifr for cycle $$(./cyclenumber.sh)
+	echo Downloading ifr for cycle $(CYCLE)
 	if [[ -d charts/iff ]]; then rm -fr charts/iff; fi
 	if [[ -d charts/ifh ]]; then rm -fr charts/ifh; fi
 	if [[ -d charts/ifal ]]; then rm -fr charts/ifal; fi
@@ -189,11 +191,11 @@ stage-vfr: retile
 ziptiles:
 	gcc -march=native -O3 -Wall sepsec.c -o sepsec -fopenmp
 	gcc -march=native -O3 -Wall septac.c -o septac -fopenmp
-	./sepsec $$(./cyclenumber.sh)
-	./septac $$(./cyclenumber.sh)
-	./sepifa.sh $$(./cyclenumber.sh)
-	./sepelus.sh $$(./cyclenumber.sh)
-	./sepehus.sh $$(./cyclenumber.sh)
+	./sepsec $(CYCLE)
+	./septac $(CYCLE)
+	./sepifa.sh $(CYCLE)
+	./sepelus.sh $(CYCLE)
+	./sepehus.sh $(CYCLE)
 	./sepelev.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
 	./seprel.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
 	./sephelo.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
@@ -202,7 +204,7 @@ ziptiles:
 
 zipit-oldprojection:
 	## FIXME must find out how to updated canap.csv canfreq.csv canrun.csv
-	echo "Zipping cycle " $$(./cyclenumber.sh)
+	echo "Zipping cycle " $(CYCLE)
 	if [ -a main.db ]; then rm main.db; fi;
 	if [ -a final/databases.zip ]; then rm final/databases.zip; fi;
 	sqlite3 main.db < importother.sql
@@ -220,27 +222,30 @@ zipit-oldprojection:
 	# STATIC sqlite3 maps.rel.db "VACUUM;"
 	# STATIC sqlite3 maps.topo.db "VACUUM;"
 	## FIXME must add maps.topo.db 
-	zip -9 -r final/databases.zip maps.*.db procedures.db main.db `find tiles/{$$(./cyclenumber.sh),static}/[a-z]*/*/4 -type f|grep -v tif|	grep -v topo"`
+	zip -9 -r final/databases.zip maps.*.db procedures.db main.db `find tiles/{$(CYCLE),static}/[a-z]*/*/4 -type f|grep -v tif|	grep -v topo"`
 
 zipit:
 	## FIXME must find out how to updated canap.csv canfreq.csv canrun.csv
-	echo "Zipping cycle " $$(./cyclenumber.sh)
+	echo "Zipping cycle " $(CYCLE)
 	if [ -a main.db ]; then rm main.db; fi;
 	if [ -a final/databases.zip ]; then rm final/databases.zip; fi;
 	sqlite3 main.db < importother.sql
 	sqlite3 main.db "VACUUM;"
+	sqlite3 tiles.db "VACUUM;"
 	cp ~/CIFP/procedures.db .
 	sqlite3 procedures.db "VACUUM;"
-	zip -9 -r final/databases.zip procedures.db main.db
-	zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/0/6 -name "*jpg"`
-	zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/1/7 -name "*jpg"`
-	zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/2/5 -name "*jpg"`
-	zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/3/6 -name "*png"`
-	zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/4/5 -name "*png"`
-	zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/5/7 -name "*png"`
-	zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/6/5 -name "*png"`
-	zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/7/5 -name "*jpg"`
-	## zip -9 final/databases.zip `find tiles/$$(./cyclenumber.sh)/8/7 -name "*jpg"` ## Canada large and not wanted in US
+	zip -9 -r final/databases.zip procedures.db main.db tiles.db
+	zip -9 final/databases.zip `find tiles/$(CYCLE)/0/6 -name "*jpg"`
+	zip -9 final/databases.zip `find tiles/$(CYCLE)/1/7 -name "*jpg"`
+	zip -9 final/databases.zip `find tiles/$(CYCLE)/2/5 -name "*jpg"`
+	zip -9 final/databases.zip `find tiles/$(CYCLE)/3/6 -name "*png"`
+	zip -9 final/databases.zip `find tiles/$(CYCLE)/4/5 -name "*png"`
+	zip -9 final/databases.zip `find tiles/$(CYCLE)/5/7 -name "*png"`
+	zip -9 final/databases.zip `find tiles/$(CYCLE)/6/5 -name "*png"`
+	zip -9 final/databases.zip `find tiles/$(CYCLE)/7/5 -name "*jpg"`
+	## zip -9 final/databases.zip `find tiles/$(CYCLE)/8/7 -name "*jpg"` ## Canada large and not wanted in US
+	zip -9 final/databases.zip `find tiles/$(CYCLE)/9/8 -name "*jpg"`
+	pushd final; ../zip.py databases $(CYCLE); popd
 
 geolist:
 	./plates_list.sh

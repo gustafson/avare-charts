@@ -1,3 +1,32 @@
+#!/bin/bash
+# Copyright (c) Peter A. Gustafson (peter.gustafson@wmich.edu)
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in
+#   the documentation and/or other materials provided with the
+#   distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+# WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+
 function mygroup(){
     ## echo $1 $2
     ## echo ./gettiles.py $(extract_corners.sh $1) $(cyclenumber.sh) $2 meters
@@ -97,7 +126,7 @@ echo starting relief
 ## DANGEROUS SHORT TERM FIX ##     rm -r tiles
 ## DANGEROUS SHORT TERM FIX ## done
 ## DANGEROUS SHORT TERM FIX ## popd
-## DANGEROUS SHORT TERM FIX ## cp ../usgs/sr/REL_{AK,HI,PR}.zip final/.
+cp ../usgs/sr/REL_{AK,HI,PR}.zip final/.
 rm -f final/REL_NE.zip; zip -9 --quiet final/REL_NE.zip $(./gettiles.py  -85.00 50.15  -40.00 38.00 ${CYCLE} rel latlon) &
 rm -f final/REL_NC.zip; zip -9 --quiet final/REL_NC.zip $(./gettiles.py -110.00 50.15  -85.00 38.00 ${CYCLE} rel latlon) &
 rm -f final/REL_NW.zip; zip -9 --quiet final/REL_NW.zip $(./gettiles.py -131.21 50.15 -110.00 38.00 ${CYCLE} rel latlon) &
@@ -173,8 +202,22 @@ wait
 
 ## Now create manifest
 pushd final
+rm -f ../tiledatabase.txt
 for a in *zip; do
-    b=`basename $a .zip`; zip -d $a $b
-    ../zip.py `basename ${a} .zip` ${CYCLE};
+    b=`basename $a .zip`;
+    #zip -d $a $b
+    #../zip.py `basename ${a} .zip` ${CYCLE};
+    unzip -l ${a} |grep tiles/${CYCLE}/./8 | cut -f 3- -d/ | cut -f1 -d. |
+	while read img; do
+	    echo "${b},${img}" >> ../tiledatabase.txt
+	done
 done
 popd
+
+## Now create tile lookup database
+rm -f tiles.db
+cat << EOF  | sqlite3 tiles.db
+CREATE TABLE tiles(zip Text,tile Text);
+.separator ','
+.import tiledatabase.txt tiles
+EOF

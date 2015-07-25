@@ -67,18 +67,62 @@ export OMP_NUM_THREADS=${NP}
 
 [[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
 
-OPTIONS1="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos --processes 16"
-OPTIONS2="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos"
+OPTIONS1="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos --processes 16" # --zoom=3
+OPTIONS2="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos" # --zoom=3
 TIME1="/usr/bin/time -v -o"
 TIME2="/usr/bin/time -v --append -o"
 MYDIR1=/home/pi/gustafson/avare.charts.git/sm/maps
 
-rm -fr tiles
-#unzip ELEV_HI_PNG.zip
-${TIME1} time.txt ${MYDIR1}/gdal2tiles_512_parallel.py -t "Tactical Pilotage Charts" ${OPTIONS1} tpc.vrt ${MYDIR1}/tiles/1507/10
-${TIME2} time.txt ${MYDIR1}/gdal2tiles_512_mysingle.py -t "Tactical Pilotage Charts" ${OPTIONS2} tpc.vrt ${MYDIR1}/tiles/1507/10
-find ${MYDIR1}/tiles/1507/10 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
-find ${MYDIR1}/tiles/1507/10 -name "*png"| xargs mogrify -unsharp 3x3 -format jpg -quality 75
+## #rm -fr tiles
+## #unzip ELEV_HI_PNG.zip
+## ${TIME1} time.txt ${MYDIR1}/gdal2tiles_512_parallel.py -t "Tactical Pilotage Charts" ${OPTIONS1} tpc.vrt ${MYDIR1}/tiles/1508/10
+## ${TIME2} time.txt ${MYDIR1}/gdal2tiles_512_mysingle.py -t "Tactical Pilotage Charts" ${OPTIONS2} tpc.vrt ${MYDIR1}/tiles/1508/10
+
+rm log.txt
+for a in `ls *tif`; do
+    b=`basename $a .tif`;
+    
+    read arg1 arg2 arg3 arg4 <<< `../maps/extract_corners.sh $a | awk '{print $1, $2, $3, $4}'`
+
+    CRIT=`../maps/extract_corners.sh $a | awk '{if ($4 > 75.0) {print 1}}'`
+    if [[ $CRIT ]]; then
+	echo ${a}: $arg4 too far north do nothing >> log.txt
+    else
+	CRIT=`../maps/extract_corners.sh $a | awk '{if ($2 > 75.0) {print 1}}'`
+	if [[ $CRIT ]]; then
+	    CRIT="75.0"
+	    echo ${a}: $arg2 too far north fix it to 75.0 >> log.txt
+	    echo "gdal_translate -of vrt -a_nodata '0 0 0' -projwin $arg1 $CRIT $arg3 $arg4 -expand rgb ${b}.tif ${b}_1.vrt" >> log.txt
+	    gdal_translate -of vrt -a_nodata '0 0 0' -projwin $arg1 $CRIT $arg3 $arg4 -expand rgb ${b}.tif ${b}_1.vrt
+	else
+	    CRIT=`../maps/extract_corners.sh $a | awk '{if ($2 < -75.0) {print 1}}'`
+	    if [[ $CRIT ]]; then
+		echo ${a}: $arg2 too far south do nothing >> log.txt
+	    else
+		CRIT=`../maps/extract_corners.sh $a | awk '{if ($4 < -75.0) {print 1}}'`
+		if [[ $CRIT ]]; then
+		    CRIT="-75.0"
+		    echo ${a}: $arg4 too far south fix it to -75 >> log.txt
+		    echo "gdal_translate -of vrt -a_nodata '0 0 0' -projwin $arg1 $arg2 $arg3 $CRIT -expand rgb ${b}.tif ${b}_1.vrt" >> log.txt
+		    gdal_translate -of vrt -a_nodata '0 0 0' -projwin $arg1 $arg2 $arg3 $CRIT -expand rgb ${b}.tif ${b}_1.vrt
+		else
+		    echo "gdal_translate -of vrt -a_nodata '0 0 0' -expand rgb ${b}.tif ${b}_1.vrt" >> log.txt
+		    gdal_translate -of vrt -a_nodata '0 0 0' -expand rgb ${b}.tif ${b}_1.vrt
+		fi
+	    fi
+	fi
+    fi
+
+    if [[ -f ${b}_1.vrt ]]; then gdalwarp -of vrt -t_srs 'EPSG:900913' ${b}_1.vrt ${b}_2.vrt; fi
+    ## 
+done 
+
+gdalbuildvrt -resolution highest -overwrite tpc.vrt *_2.vrt
+${TIME1} time.txt ${MYDIR1}/gdal2tiles_512_parallel.py -t "Tactical Pilotage Charts" ${OPTIONS1} tpc.vrt ${MYDIR1}/tiles/1508/10
+${TIME2} time.txt ${MYDIR1}/gdal2tiles_512_mysingle.py -t "Tactical Pilotage Charts" ${OPTIONS2} tpc.vrt ${MYDIR1}/tiles/1508/10
+
+find ${MYDIR1}/tiles/1508/10 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
+find ${MYDIR1}/tiles/1508/10 -name "*png"| xargs mogrify -unsharp 3x3 -format jpg -quality 75
 
 ## 0 Sectional
 ## 1 TAC
