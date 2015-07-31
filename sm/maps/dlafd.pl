@@ -81,9 +81,10 @@ my $cycle = "29MAY2014";
 my $name = "afd_$cycle.xml";
 
 # Dates coincide with IFR charts every 56 days 
-if (!(-e $name)) {
-    system("wget http://avn.faa.gov/afd/".$name);
-}
+## This is dated now... the link doesn't work and we're paying for the xml file.
+## if (!(-e $name)) {
+##     system("wget http://avn.faa.gov/afd/".$name);
+## }
 
 $response = read_file($name);
 
@@ -98,8 +99,10 @@ foreach(@list) {
 		print "$count of ";
 		print scalar @list;
 		print " $_ $nm \n"; 
-		print "http://aeronav.faa.gov/afd/$cycle/$_ ";
+#		print "http://aeronav.faa.gov/afd/$cycle/$_ ";
+		print "http://eagle.ceas.wmich.edu/avare/afd/$cycle/$_ ";
 		print "afd/$nm \n"; 
-		getstore("http://aeronav.faa.gov/afd/$cycle/$_", "afd/$nm");
+#		getstore("http://aeronav.faa.gov/afd/$cycle/$_", "afd/$nm");
+		getstore("http://eagle.ceas.wmich.edu/avare/afd/$cycle/$_", "afd/$nm");
 	}
 }

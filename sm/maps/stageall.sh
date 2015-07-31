@@ -9,28 +9,29 @@ if [[ $2 == vfr ]]; then
     rm tac.*sql tac-ak.*sql merge/TC/PuertoRico-VITAC.tif*sql
     rm sec-{ak,hi,48}*sql
     rm wac-{ak,48}*sql
-
+    
     [[ -d tiles/$1/tac ]] && rm -fr tiles/$1/tac
     J0=`qsub -N tac-stage stagetac.pbs -v CYCLE=$1,TILES=tac`
     J1=`qsub -N tac-pyram -W depend=afterok:${J0} retile.pbs                -v CYCLE=$1,TILES=tac`
     J2=`qsub -N tac-db    -W depend=afterokarray:${J1} retile_databases.pbs -v CYCLE=$1,TILES=tac`
-
+    
     [[ -d tiles/$1/sec ]] && rm -fr tiles/$1/sec
     [[ -d tiles/$1/wac ]] && rm -fr tiles/$1/wac
-
+    
     J0=`qsub -N sec-stage stagesec.pbs -v CYCLE=$1,TILES=sec`
-
+    
     J1=`qsub -N sec-pyram -W depend=afterok:${J0} retile.pbs                -v CYCLE=$1,TILES=sec`
     J2=`qsub -N sec-db    -W depend=afterokarray:${J1} retile_databases.pbs -v CYCLE=$1,TILES=sec`
-
+    
     J1=`qsub -N wac-pyram -W depend=afterok:${J0} retile.pbs                -v CYCLE=$1,TILES=wac`
     J2=`qsub -N wac-db    -W depend=afterokarray:${J1} retile_databases.pbs -v CYCLE=$1,TILES=wac`
 
+    echo done
+
 elif [[ $2 == ifr ]]; then
-    rm {ifr,ifal-west,ifal-east}*sql
+    rm {ifa,ifr,ifal-west,ifal-east}*sql
     rm {ifh,ifah-west,ifah-east}*sql
     rm ifr.tif ifh.tif ifal-*tif ifah-*tif
-
 
     [[ -d tiles/$1/ifr ]] && rm -fr tiles/$1/ifr
 
@@ -40,12 +41,17 @@ elif [[ $2 == ifr ]]; then
     J1=`qsub -N ifr-pyram -W depend=afterok:${J0}:${J1} retile.pbs          -v CYCLE=$1,TILES=ifr`
     J2=`qsub -N ifr-db    -W depend=afterokarray:${J1} retile_databases.pbs -v CYCLE=$1,TILES=ifr`
 
-    [[ -d tiles/$1/ifh ]] && rm -fr tiles/$1/ifh
+    [[ -d tiles/$1/ifa ]] && rm -fr tiles/$1/ifa
 
+    J0=`qsub -N ifa-stage  stageifa.pbs  -v CYCLE=$1,TILES=ifa`
+    J1=`qsub -N ifa-pyram -W depend=afterok:${J0}       retile.pbs          -v CYCLE=$1,TILES=ifa`
+    J2=`qsub -N ifa-db    -W depend=afterokarray:${J1} retile_databases.pbs -v CYCLE=$1,TILES=ifa`
+
+    [[ -d tiles/$1/ifh ]] && rm -fr tiles/$1/ifh
     
     J0=`qsub -N ifh-stage  stageifh.pbs  -v CYCLE=$1,TILES=ifh`
     J1=`qsub -N ifah-stage stageifah.pbs -v CYCLE=$1,TILES=ifah`
-
+    
     J2=`qsub -N ifh-pyram -W depend=afterok:${J0}:${J1} retile.pbs          -v CYCLE=$1,TILES=ifh`
     J2=`qsub -N ifh-db    -W depend=afterokarray:${J2} retile_databases.pbs -v CYCLE=$1,TILES=ifh`
 

@@ -19,7 +19,7 @@ fi
 
 CYCLEDAYS=$1
 if [[ $2 = dof ]]; then
-    REF=`date -u -d 3/2/2014 +%s`
+    REF=`date -u -d 12/8/2014 +%s`
     CYCLEDAYS=56
 else
     REF=`date -u -d 12/12/2013 +%s`
@@ -35,10 +35,13 @@ if [[ ${CYCLEDAYS} -eq 56 ]]; then
 elif [[ ${CYCLEDAYS} -eq 28 ]]; then
     SREF=$(( ($TOD-$REF)/86400%28 ))
     SREF=$((28-$SREF))
+else
+    echo Length of cycle required as argument \(28 or 56\)
+    exit
 fi
 
-## If more than two weeks in the future, pick the last date
-if [[ $SREF -gt 14 ]]; then
+## If more than three weeks in the future, pick the last date
+if [[ $SREF -gt 21 ]]; then
     SREF=$(($SREF-${CYCLEDAYS}))
 fi
 

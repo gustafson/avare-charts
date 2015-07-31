@@ -9,15 +9,17 @@ void out(char *buffer){
     // printf ("%s\n",buffer);
     i=system(buffer);
     while(i){
-      if (count<5){
+      if (count<1){
 	printf("Attempt %i failed, reattempting: ",count++);
 	printf("Attempted command: %s\n",buffer);
+	printf("\n");
+	// sleep(3);
       }else{
 	printf("Attempt %i failed, Thus, last attempt failed. ",count++);
 	printf("Attempted command: %s\n",buffer);
+	printf("\n");
 	return;
       }
-      sleep (1.0)
       i=system(buffer);
     }
   }

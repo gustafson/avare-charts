@@ -28,7 +28,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+CYCLE=`./cyclenumber.sh`
 pushd final
+
+for a in *zip; do
+    b=`basename $a .zip`; zip -d $a $b
+    ../zip.py `basename ${a} .zip` ${CYCLE};
+done
+
 
 echo Unzipping reference data
 rm *ref 2> /dev/null
@@ -38,6 +45,7 @@ rm *manualcheck 2> /dev/null
 unzip -q ../qualitycontrol.zip
 
 for a in *zip.qc.ref; do
+##for a in *zip; do  ## For adding new files to record -- use this an ignore errors
     b=`basename $a .qc.ref`;
 
     ## Count files and total file size

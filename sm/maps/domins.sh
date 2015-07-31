@@ -45,12 +45,18 @@ cd mins
 rm -f *.png
 rm -f *.csv
 rm -f *.txt
-rm -f *.PDF
+rm -f *.{PDF,pdf}
 rm -rf minimums
 
 for REG in ${REGNS}; do
-    wget ${LINK}/${REG}TO.PDF
-    wget ${LINK}/${REG}ALT.PDF
+    wget -q --no-check-certificate ${LINK}/${REG}TO.{PDF,pdf}
+    wget -q --no-check-certificate ${LINK}/${REG}ALT.{PDF,pdf}
+done
+
+rename pdf PDF *pdf
+for REG in ${REGNS}; do
+    [[ -f ${REG}TO.PDF ]]  || echo ${REG}TO.PDF not found. Check download ${LINK}/${REG}TO.{PDF,pdf}
+    [[ -f ${REG}ALT.PDF ]] || echo ${REG}ALT.PDF not found. Check download ${LINK}/${REG}ALT.{PDF,pdf}
 done
 
 ## Parallel version
@@ -86,8 +92,8 @@ mv N*.png minimums/N
 mv P*.png minimums/P
 mv S*.png minimums/S
 
-
 zip -r -i "*.png" -1 -T -q alternates.zip minimums
 
 cd ..
 mv mins/alternates.zip final/
+echo mins done

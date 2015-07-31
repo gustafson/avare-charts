@@ -12,8 +12,10 @@
 #
 
 
-DAY=`date -d today +"%-j"`
-YR=`date -d today +"%y"`
+DATE=`./cycledates.sh 28`
+
+DAY=`date -d ${DATE} +"%-j"`
+YR=`date -d ${DATE} +"%y"`
 NUM=$((DAY/28))
 
 ## Now convert it to the next cycle

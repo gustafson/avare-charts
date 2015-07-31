@@ -38,7 +38,7 @@ all:
 	@echo "Pull the latest code"
 	@echo "  git pull"
 	@echo
-	@echo 'execute "make fresh" to clean out temp files'
+	@echo 'execute "make clean" to clean out temp files'
 	@echo
 	@echo 'execute "make update" to update a prior build (saving download time)'
 	@echo 'execute "make scratch" to start from scratch'
@@ -47,39 +47,45 @@ all:
 	@echo "  make download-ifr #$$(./cycledates.sh 56)"
 	@echo "  make update-vfr #$$(./cycledates.sh 28)"
 	@echo "  make unzip"
-	@echo "  make stageall"
-	@echo "  make plates #$$(./cycledates.sh 28)"
-	@echo "  make mins #$$(./cycledates.sh 28)"
-	@echo "  make afd #$$(./cycledates.sh 56)"
-	@echo "  make download-base-data #$$(./cycledates.sh base) $$(./cycledates.sh 56 dof)"
-	@echo "  make process-data #$$(./cycledates.sh base)"
+	@echo "  make stage-all #$$(./cycledates.sh 56)"
+	@echo "  make stage-vfr #$$(./cycledates.sh 28)"
+	@echo "  make plates-png #$$(./cycledates.sh 28)"
+	@echo "  make mins-data #$$(./cycledates.sh 28)"
+	@echo "  make afd-data #$$(./cycledates.sh 56)"
+	@echo "  make download-base-data #$$(./cycledates.sh 56 base) $$(./cycledates.sh 56 dof)"
+	@echo "  make process-data #$$(./cycledates.sh 56 base)"
+	@echo "  make procedures.db #$$(./cycledates.sh 28)"
+	@echo "  make canada #$$(./cycledates.sh 28)"
+	@echo "  make geolist #$$(./cycledates.sh 28)"
 	@echo "  make ziptiles"
 	@echo "  make zipit"
 	@echo "  make qualitycontrol"
 
-scratch: download-ifr download-vfr unzip stageall plates download-base-data process-data zipit
-update: download-ifr update-vfr unzip stageall plates download-base-data process-data zipit
+scratch: download-ifr download-vfr unzip stage-all plates download-base-data process-data zipit
+update: download-ifr update-vfr unzip stage-all plates download-base-data process-data zipit
 
-fresh:
+clean:
 	find final -type f|grep -v "CAN_\|REL_\|ELEV_"| xargs rm # \|ELUS_\|EHUS\|AFD_
 	rm -rf merge ads.txt
 	rm sepsec septac stagesec stageifr stageifa stageifh stagetac *.tif *.jpg *.xml
 	rm files*.csv logfile.txt *.log
+	rm ifr-gps-currency*{kmz,json,txt}
 
 download-base-data:
-	# https://nfdc.faa.gov/fadds/subscriptionDownload.do?productId=548752
-	$$(rm APT.txt AWOS.txt FIX.txt TWR.txt DOF.DAT NAV.txt AWY.txt)
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/APT.zip && unzip APT.zip && rm APT.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWOS.zip && unzip AWOS.zip && rm AWOS.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/TWR.zip && unzip TWR.zip && rm TWR.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/FIX.zip && unzip FIX.zip && rm FIX.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/NAV.zip && unzip NAV.zip && rm NAV.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWY.zip && unzip AWY.zip && rm AWY.zip
-	./saa.sh							     $$(./cycledates.sh 56 base)
-	## obstacles file
+	$$(rm -f APT.txt AWOS.txt FIX.txt TWR.txt DOF.DAT NAV.txt aixm5.0.zip DAILY_DOF.ZIP)
+	## obstacles file.  Get this first as it is usually last posted... will thus not download the rest unless successful.
 	## https://nfdc.faa.gov/tod/public/TOD_DOF.html
-	wget --no-check-certificate https://nfdc.faa.gov/tod/public/DOFS/DOF_$$(./cycledates.sh 56 dof).zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
-	## wget https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip DAILY_DOF.ZIP DOF.DAT && rm DAILY_DOF.ZIP
+	## wget --no-check-certificate https://nfdc.faa.gov/tod/public/DOFS/DOF_$$(./cycledates.sh 56 dof).zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
+	echo "USING Daily DOF file rather than 56 day cycle.  This is, on average, more current than the 56 day cycle."
+	wget --no-check-certificate https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip -o DAILY_DOF.ZIP DOF.DAT && rm DAILY_DOF.ZIP
+	# https://nfdc.faa.gov/fadds/subscriptionDownload.do?productId=548752
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/APT.zip && unzip -o APT.zip && rm APT.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWOS.zip && unzip -o AWOS.zip && rm AWOS.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/TWR.zip && unzip -o TWR.zip && rm TWR.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/FIX.zip && unzip -o FIX.zip && rm FIX.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/NAV.zip && unzip -o NAV.zip && rm NAV.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWY.zip && unzip -o AWY.zip && rm AWY.zip
+	./saa.sh							     $$(./cycledates.sh 56 base)
 
 process-data:
 	./saa.pl > saa.csv
@@ -92,22 +98,19 @@ process-data:
 	./awos.pl > awos.csv
 	./aw.pl > aw.csv
 
-plates: d-TPP_Metafile.xml
+plates-png: 
 	# wget -N http://aeronav.faa.gov/d-tpp/$$(./cyclenumber.sh)/xml_data/d-TPP_Metafile.xml
 	### Currently buying plate xml file so this isn't needed.
 	## [[ -f d-TPP_Metafile.xml ]] && rm d-TPP_Metafile.xml || echo
-	## [[ -f d-TPP_Metafile.xml.zip.$$(./cyclenumber.sh) ]] && unzip d-TPP_Metafile.xml.zip.$$(./cyclenumber.sh)
-	rm -rf plates plates_[A-Z][A-Z]
-	mkdir plates
+	[[ -f d-TPP_Metafile.xml.zip.$$(./cyclenumber.sh) ]] && unzip -o d-TPP_Metafile.xml.zip.$$(./cyclenumber.sh)
 	./plates_png.sh
 
-
-afd:
+afd-data:
 	[[ -f afd.csv ]] && rm afd.csv
 	./afd.sh
 
-mins:
-	./domins.sh $$(./cyclenumber.sh) # change cycle here
+mins-data:
+	./domins.sh $$(./cyclenumber.sh)
 
 download-vfr:
 	echo Downloading vfr for cycle $$(./cyclenumber.sh)
@@ -128,12 +131,14 @@ update-vfr:
 
 download-ifr:
 	echo Downloading ifr for cycle $$(./cyclenumber.sh)
-	if [[ -d charts/iff ]]; then rm -fr charts/iff; fi
-	if [[ -d charts/ifh ]]; then rm -fr charts/ifh; fi
-	if [[ -d charts/ifal ]]; then rm -fr charts/ifal; fi
-	if [[ -d charts/ifah ]]; then rm -fr charts/ifah; fi
+	mkdir charts/keep
+	if [[ -d charts/iff ]]; then mv charts/iff charts/keep/iff; fi
+	if [[ -d charts/ifh ]]; then mv charts/ifh charts/keep/iff; fi
+	if [[ -d charts/ifal ]]; then mv charts/ifal charts/keep/iff; fi
+	if [[ -d charts/ifa ]]; then mv charts/ifa charts/keep/iff; fi
 	mkdir -p charts/iff
 	mkdir -p charts/ifh
+	mkdir -p charts/ifa
 	mkdir -p charts/ifal
 	mkdir -p charts/ifah
 	./dlifr.sh $$(./cycledates.sh 56 ifr)
@@ -141,57 +146,62 @@ download-ifr:
 	./dlifa.sh $$(./cycledates.sh 56 ifr)
 
 unzip:
-	cd charts/tac && rm -rf *.tif && unzip -j \*.zip \*.tif && \
-	for file in *\ *; do \
-	  mv "$$file" `echo $$file | sed 's/ //g'`;\
-	done && \
-	rm -f NewYorkTACVFRPlanningCharts*.tif
-	cd charts/wac && rm -f *.tif && unzip -j \*.zip \*.tif && \
-	for file in *\ *; do \
-	  mv "$$file" `echo $$file | sed 's/ //g'`;\
-	done
-	cd charts/sec && rm -f *.tif && unzip -j \*.zip \*.tif && \
-	for file in *\ *; do \
-	  mv "$$file" `echo $$file | sed 's/ //g'`;\
-	done
-	cd charts/oth && rm -f *.tif && unzip -j \*.zip \*.tif && \
-	for file in *\ *; do \
-	  mv "$$file" `echo $$file | sed 's/ //g'`;\
-	done
-	cd charts/ifh  && rm -f *.tif && unzip -j \*.zip \*.tif
-	cd charts/iff  && rm -f *.tif && unzip -j \*.zip \*.tif
-	cd charts/ifah && rm -f *.tif && unzip -j \*.zip \*.tif
-	cd charts/ifal && rm -f *.tif && unzip -j \*.zip \*.tif
-	cd charts/oth && rm -f *.tif && unzip -j \*.zip \*.tif && \
-	for file in *\ *; do \
-	  mv "$$file" `echo $$file | sed 's/ //g'`;\
-	done
+	rm charts/*/*tif
+	cd charts/tac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	cd charts/wac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	cd charts/sec  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	## cd charts/oth  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	cd charts/ifh  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	cd charts/ifa  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	cd charts/iff  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	cd charts/ifah && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	cd charts/ifal && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	#
+	rm charts/tac/*Planning*tif
+	rename " " "" charts/*/*tif
+	rename " " "" charts/*/*tif
+	rename " " "" charts/*/*tif
+	rename " " "" charts/*/*tif
 
 
-stageall: retile
+stage-all: retile
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	gcc -march=native -O3 -Wall stagesec.c -o stagesec -fopenmp
+	gcc -march=native -O3 -Wall stagetac.c -o stagetac -fopenmp
+	gcc -march=native -O3 -Wall stagefly.c -o stagefly -fopenmp
 	gcc -march=native -O3 -Wall stageifr.c -o stageifr -fopenmp
 	gcc -march=native -O3 -Wall stageifh.c -o stageifh -fopenmp
+	### stageifa.c lost -- will use shell script instead
+	## gcc -march=native -O3 -Wall stageifa.c -o stageifa -fopenmp
 	gcc -march=native -O3 -Wall stageifal.c -o stageifal -fopenmp
 	gcc -march=native -O3 -Wall stageifah.c -o stageifah -fopenmp
-	gcc -march=native -O3 -Wall stagetac.c -o stagetac -fopenmp
 	## gcc -march=native -O3 -Wall stageheli.c -o stageheli -fopenmp
 	## each pbs script could be run as a shell script but is 
 	## run through pbs for efficient resource management.
 	./stageall.sh $$(./cyclenumber.sh) $$(./cycledates.sh 28 vfr stageall)
 	./stageall.sh $$(./cyclenumber.sh) $$(./cycledates.sh 56 ifr stageall)
 
+stage-vfr: retile
+	./update_ifr_tiles_db.sh
+	if [[ ! -d merge ]]; then mkdir merge; fi
+	gcc -march=native -O3 -Wall stagesec.c -o stagesec -fopenmp
+	gcc -march=native -O3 -Wall stagetac.c -o stagetac -fopenmp
+	## gcc -march=native -O3 -Wall stageheli.c -o stageheli -fopenmp
+	## each pbs script could be run as a shell script but is 
+	## run through pbs for efficient resource management.
+	./stageall.sh $$(./cyclenumber.sh) $$(./cycledates.sh 28 vfr stageall)
+
 ziptiles:
 	gcc -march=native -O3 -Wall sepsec.c -o sepsec -fopenmp
 	gcc -march=native -O3 -Wall septac.c -o septac -fopenmp
 	./sepsec $$(./cyclenumber.sh)
 	./septac $$(./cyclenumber.sh)
+	./sepifa.sh $$(./cyclenumber.sh)
 	./sepelus.sh $$(./cyclenumber.sh)
 	./sepehus.sh $$(./cyclenumber.sh)
-	./sepelev.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
-	./seprel.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
-	./sephelo.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
+	##./sepelev.sh ## 
+	##./seprel.sh ## 
+	##./sephelo.sh ## 
 	##./septopo.sh copy charts zips on servers as no expires
 	##./sepgc.sh copy charts zips on servers as no expires
 
@@ -201,6 +211,7 @@ zipit:
 	if [ -a main.db ]; then rm main.db; fi;
 	if [ -a final/databases.zip ]; then rm final/databases.zip; fi;
 	sqlite3 main.db < importother.sql
+	sqlite3 maps.ea.db "VACUUM;"
 	sqlite3 maps.eh.db "VACUUM;"
 	sqlite3 maps.el.db "VACUUM;"
 	sqlite3 maps.sec.db "VACUUM;"
@@ -214,10 +225,19 @@ zipit:
 	# STATIC sqlite3 maps.rel.db "VACUUM;"
 	# STATIC sqlite3 maps.topo.db "VACUUM;"
 	## FIXME must add maps.topo.db 
-	zip -9 -r final/databases.zip maps.*.db procedures.db main.db `find tiles/{$$(./cyclenumber.sh),static}/*/*/4 -type f|grep -v tif|grep -v topo`
+	zip -9 -r final/databases.zip maps.*.db procedures.db main.db `find tiles/{$$(./cyclenumber.sh),static}/[a-z]*/*/4 -type f|grep -v tif|grep -v topo|grep -v "\/all\/"`
 
-makegeolist:
+geolist:
+	./plates_list.sh
 	perl plate_list.pl > list_plates.txt
+	mv list_plates.txt final/.
+
+procedures.db:
+	echo This is currently done outside of the avare working directory
+
+canada:
+	./ourairports.sh
+	./canada_ad.sh
 
 qualitycontrol:
 	./qualitycontrol.sh

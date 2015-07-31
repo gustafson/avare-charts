@@ -17,17 +17,22 @@
 FILE=CanadianAirportCharts_Next.pdf
 
 # This is a big download
-#wget http://www.navcanada.ca/EN/products-and-services/Documents/$FILE
+wget -N http://www.navcanada.ca/EN/products-and-services/Documents/$FILE
+
+[[ -d plates ]] || mkdir plates
 
 # Find number of pages in this doc, for our FOR loop
 PAGES=`pdfinfo $FILE  | grep Pages | sed 's/Pages:\s*//'`
+echo Checking $PAGES
+
 
 # Process all pages
 for i in `seq 1 $PAGES`;
 do
     # Find the name of the airport, which is prefixed on airport diagram page
     # with -AD, many cases may exist, in which case take the last line
-    AD=`pdf2txt -p $i $FILE  | grep '\-AD' | tail -n 1`
+    AD=`pdftotext -f $i -l $i $FILE - | grep '\-AD' | tail -n 1`
+    #AD=`pdf2txt -p $i $FILE  | grep '\-AD' | tail -n 1`
     # If not an AD page, continue to next page
     if [[ $AD != *"-AD" ]]
     then

@@ -58,8 +58,7 @@ int main(int argc, char *argv[])
   if (argc>=2){debug=1;}
 
   out("rm -fr merge/TC; mkdir merge/TC"); // TAC
-  out("[[ -d tmp-stagetac ]] && rm -fr tmp-stagetac");
-  out("mkdir tmp-stagetac");
+  out("rm -fr tmp-stagetac; mkdir tmp-stagetac");
   int entries = sizeof(maps) / sizeof(maps[0]);
 
 #pragma omp parallel for private (n_ptr, dir_ptr, buffer, tmpstr)
@@ -78,7 +77,7 @@ int main(int argc, char *argv[])
     // out(buffer);
 
     snprintf(buffer, sizeof(buffer),
-	     "gdal_translate -expand rgb `ls charts/%s/%s*.tif|tail -n1` %s.tif",
+	     "gdal_translate -expand rgb `ls charts/%s/%s*.tif|grep -vi planning | tail -n1` %s.tif",
 	     dir_ptr, n_ptr, tmpstr);
     out(buffer);
 
@@ -151,7 +150,7 @@ int main(int argc, char *argv[])
   out("gdal_translate -outsize 25%% 25%% -of JPEG tac-ak.tif tac-ak_small.jpg");
 
   // printf("\n\n\n");
-  out("[[ -d tmp-stagetac ]] && rmdir tmp-stagetac");
+  out("rm -fr tmp-stagetac");
 
   return 0;
 }
