@@ -12,7 +12,10 @@
 #
 # Author: zkhan
 
-rm -f *.csv *.xml *.db all
+rm -f *.csv *.xml *.db all weather
+
+date -u +"%m_%d_%Y_%H:%M_UTC" > weather 
+echo weather.db >> weather
 
 CMD="http://aviationweather.gov/adds/dataserver_current/current/"
 
@@ -42,6 +45,6 @@ perl wa.pl > wa.csv
 sqlite3 weather.db < import.sql
 
 rm -f /home/apps4av/mamba.dreamhosters.com/new/weather.zip
-zip /home/apps4av/mamba.dreamhosters.com/new/weather.zip weather.db
+zip /home/apps4av/mamba.dreamhosters.com/new/weather.zip weather.db weather
 
-rm -f *.csv *.xml *.db 
+rm -f *.csv *.xml *.db all weather

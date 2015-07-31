@@ -12,7 +12,11 @@
 #
 # Author: zkhan
 
-rm -f *.txt *.gfw *.gif *.zip *.png
+rm -f *.txt *.gfw *.gif *.zip *.png conus
+
+echo date -u +"%m_%d_%Y_%H:%M_UTC" > conus
+echo latest.txt >> conus
+echo latest_radaronly.png >> conus
 
 wget http://radar.weather.gov/ridge/Conus/RadarImg/latest_radaronly.gif
 wget http://radar.weather.gov/ridge/Conus/RadarImg/latest_radaronly.gfw
@@ -24,5 +28,5 @@ head -1 latest_radaronly.txt > latest.txt
 tail -3 latest_radaronly.txt >> latest.txt
 tail -1 mosaic_times.txt >> latest.txt
 
-zip /home/apps4av/mamba.dreamhosters.com/new/conus.zip latest.txt latest_radaronly.png
-rm -f *.txt *.gfw *.gif *.zip *.png
+zip /home/apps4av/mamba.dreamhosters.com/new/conus.zip conus latest.txt latest_radaronly.png
+rm -f *.txt *.gfw *.gif *.zip *.png conus

@@ -176,7 +176,7 @@ my $parser = new XML::Parser (Handlers => {
                             });
 # get TFR list
 
-@LWP::Protocol::http::EXTRA_SOCK_OPTS = (LocalAddr => "208.113.226.170");
+#@LWP::Protocol::http::EXTRA_SOCK_OPTS = (LocalAddr => "208.113.226.170");
 
 my $response = get('http://tfr.faa.gov/tfr2/list.html') or die;
 # extract links from it

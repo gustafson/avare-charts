@@ -12,10 +12,14 @@
 #
 # Author: zkhan
 
-CURDIR=`pwd`
-cd /home/apps4av && \
-	perl tfr.pl && \
-	zip TFRs.zip tfr.txt && \
-	cp TFRs.zip mamba.dreamhosters.com/new && \
-	rm TFRs.zip tfr.txt
+rm -f tfr.txt TFRs 
+
+date -u +"%m_%d_%Y_%H:%M_UTC" > TFRs 
+echo tfr.txt >> TFRs
+
+perl tfr.pl
+zip TFRs.zip tfr.txt TFRs
+mv TFRs.zip /home/apps4av/mamba.dreamhosters.com/new
+
+rm -f tfr.txt TFRs
 
