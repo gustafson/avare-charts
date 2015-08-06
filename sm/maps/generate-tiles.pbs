@@ -73,7 +73,7 @@ TIME2="/usr/bin/time -v --append -o"
 ARRAY=`echo ${PBS_JOBID} | sed -e s/"\[..\]"/"\[\]"/g -e "s/.cs.wmich.edu//g"`
 
 
-## Would be faster for TAC but isn't really needed... it skips the overview tiles
+## Would be faster for TAC but isn't really needed... this skips the overview tiles
 ##if [[ ${PBS_ARRAYID} -le 26 ]]; then
 ##    ${TIME1} time.tac.txt ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} $(ls merge/tac/run*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/${CYCLE}/1
 ##    ${TIME2} time.tac.txt ./gdal2tiles_512_mysingle.py -t "VFR Terminal Area" ${OPTIONS2} $(ls merge/tac/run*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/${CYCLE}/1

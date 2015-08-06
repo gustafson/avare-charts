@@ -31,6 +31,9 @@
 ## 1) Update NP variable in scripts
 
 CYCLE=$(shell ./cyclenumber.sh)
+CYCLEDATE56BASE=$(shell ./cycledates.sh 56 base)
+CYCLEDATE28=$(shell ./cycledates.sh 28)
+CYCLEDATE56=$(shell ./cycledates.sh 56)
 
 all:
 	@echo
@@ -45,19 +48,26 @@ all:
 	@echo 'execute "make update" to update a prior build (saving download time)'
 	@echo 'execute "make scratch" to start from scratch'
 	@echo
-	@echo "Due to FAA posting sequence, this may be the preferred order (all included in above)."
-	@echo "  make download-ifr #$$(./cycledates.sh 56)"
-	@echo "  make update-vfr #$$(./cycledates.sh 28)"
+	@echo "Due to FAA posting sequence, this may be the preferred order for this cycle (all included in above)."
+ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
+	@echo "  make download-ifr #$(CYCLEDATE56)"
+endif
+	@echo "  make update-vfr #$(CYCLEDATE28)"
 	@echo "  make unzip"
-	@echo "  make stage-all #$$(./cycledates.sh 56)"
-	@echo "  make stage-vfr #$$(./cycledates.sh 28)"
-	@echo "  make plates-png #$$(./cycledates.sh 28)"
-	@echo "  make mins-data #$$(./cycledates.sh 28)"
-	@echo "  make afd-data #$$(./cycledates.sh 56)"
-	@echo "  make download-base-data #$$(./cycledates.sh 56 base) $$(./cycledates.sh 56 dof)"
-	@echo "  make process-data #$$(./cycledates.sh 56 base)"
-	@echo "  make procedures.db #$$(./cycledates.sh 28)"
-	@echo "  make geolist #$$(./cycledates.sh 28)"
+ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
+	@echo "  make stage-all #$(CYCLEDATE56)"
+else
+	@echo "  make stage-vfr #$(CYCLEDATE28)"
+endif
+	@echo "  make plates-png #$(CYCLEDATE28)"
+	@echo "  make mins-data #$(CYCLEDATE28)"
+ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
+	@echo "  make afd-data #$(CYCLEDATE56)"
+endif
+	@echo "  make download-base-data #$(CYCLEDATE56BASE) $$(./cycledates.sh 56 dof)"
+	@echo "  make process-data #$(CYCLEDATE56BASE)"
+	@echo "  make procedures.db #$(CYCLEDATE28)"
+	@echo "  make geolist #$(CYCLEDATE28)"
 	@echo "  make ziptiles"
 	@echo "  make zipit"
 	@echo "  make qualitycontrol"
@@ -80,13 +90,13 @@ download-base-data:
 	echo "USING Daily DOF file rather than 56 day cycle.  This is, on average, more current than the 56 day cycle."
 	wget --no-check-certificate https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip DAILY_DOF.ZIP DOF.DAT && rm DAILY_DOF.ZIP
 	# https://nfdc.faa.gov/fadds/subscriptionDownload.do?productId=548752
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/APT.zip && unzip APT.zip && rm APT.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWOS.zip && unzip AWOS.zip && rm AWOS.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/TWR.zip && unzip TWR.zip && rm TWR.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/FIX.zip && unzip FIX.zip && rm FIX.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/NAV.zip && unzip NAV.zip && rm NAV.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$$(./cycledates.sh 56 base)/AWY.zip && unzip AWY.zip && rm AWY.zip
-	./saa.sh							     $$(./cycledates.sh 56 base)
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/APT.zip && unzip APT.zip && rm APT.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/AWOS.zip && unzip AWOS.zip && rm AWOS.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/TWR.zip && unzip TWR.zip && rm TWR.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/FIX.zip && unzip FIX.zip && rm FIX.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/NAV.zip && unzip NAV.zip && rm NAV.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/AWY.zip && unzip AWY.zip && rm AWY.zip
+	./saa.sh							     $(CYCLEDATE56BASE)
 
 process-data:
 	./saa.pl > saa.csv
@@ -163,66 +173,33 @@ unzip:
 	rename " " "" charts/*/*tif
 
 
-stage-all: retile
+stage-all: stage-vfr stage-ifr
+
+stage-ifr:
+	if [[ ! -d merge ]]; then mkdir merge; fi
+	gcc -march=native -O3 -Wall stage-ifr-low.c -o stage-ifr-low
+	gcc -march=native -O3 -Wall stage-ifr-high.c -o stage-ifr-high
+	gcc -march=native -O3 -Wall stage-ifr-area.c -o stage-ifr-area
+	./stage-ifr-low
+	./stage-ifr-high
+	./stage-ifr-area
+	## NOTE current limit is disk IO and open files, do one at a time
+	qsub -t 1-3%1 generate-tiles.pbs
+
+stage-vfr:
+	./update_ifr_tiles.sh
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	## gcc -march=native -O3 -Wall stagefly.c -o stagefly
 	## gcc -march=native -O3 -Wall stage-vfr-heli.c -o stage-vfr-heli
 	gcc -march=native -O3 -Wall stage-vfr-sec.c -o stage-vfr-sec
 	gcc -march=native -O3 -Wall stage-vfr-tac.c -o stage-vfr-tac
-	gcc -march=native -O3 -Wall stage-ifr-low.c -o stage-ifr-low
-	gcc -march=native -O3 -Wall stage-ifr-high.c -o stage-ifr-high
-	gcc -march=native -O3 -Wall stage-ifr-area.c -o stage-ifr-area
 	./stage-vfr-sec
 	./stage-vfr-tac
-	./stage-ifr-low
-	./stage-ifr-high
-	./stage-ifr-area
-	qsub generate-tiles.pbs
-
-stage-vfr: retile
-	./update_ifr_tiles.sh
-	if [[ ! -d merge ]]; then mkdir merge; fi
-	gcc -march=native -O3 -Wall stage-vfr-sec.c -o stage-vfr-sec
-	gcc -march=native -O3 -Wall stage-vfr-tac.c -o stage-vfr-tac
-	./stage-vfr-sec
-	./stage-vfr-tac
-	qsub -t 4-6 generate-tiles.pbs
+	## NOTE current limit is disk IO and open files, do one at a time
+	qsub -t 4-6%1 generate-tiles.pbs
 
 ziptiles:
-	gcc -march=native -O3 -Wall sepsec.c -o sepsec -fopenmp
-	gcc -march=native -O3 -Wall septac.c -o septac -fopenmp
-	./sepsec $(CYCLE)
-	./septac $(CYCLE)
-	./sepifa.sh $(CYCLE)
-	./sepelus.sh $(CYCLE)
-	./sepehus.sh $(CYCLE)
-	./sepelev.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
-	./seprel.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
-	./sephelo.sh ## FIXME Images and correct db file currently added to the tiles and current directory manually
-	##./septopo.sh copy charts zips on servers as no expires
-	##./sepgc.sh copy charts zips on servers as no expires
-
-zipit-oldprojection:
-	## FIXME must find out how to updated canap.csv canfreq.csv canrun.csv
-	echo "Zipping cycle " $(CYCLE)
-	if [ -a main.db ]; then rm main.db; fi;
-	if [ -a final/databases.zip ]; then rm final/databases.zip; fi;
-	sqlite3 main.db < importother.sql
-	sqlite3 maps.ea.db "VACUUM;"
-	sqlite3 maps.eh.db "VACUUM;"
-	sqlite3 maps.el.db "VACUUM;"
-	sqlite3 maps.sec.db "VACUUM;"
-	sqlite3 maps.tac.db "VACUUM;"
-	sqlite3 maps.wac.db "VACUUM;"
-	sqlite3 maps.oth.db "VACUUM;"
-	sqlite3 main.db "VACUUM;"
-	cp ~/CIFP/procedures.db .
-	sqlite3 procedures.db "VACUUM;"
-	# STATIC sqlite3 maps.elv.db "VACUUM;"
-	# STATIC sqlite3 maps.rel.db "VACUUM;"
-	# STATIC sqlite3 maps.topo.db "VACUUM;"
-	## FIXME must add maps.topo.db 
-	zip -9 -r final/databases.zip maps.*.db procedures.db main.db `find tiles/{$(CYCLE),static}/[a-z]*/*/4 -type f|grep -v tif|	grep -v topo"`
+	./gettiles.sh
 
 zipit:
 	## FIXME must find out how to updated canap.csv canfreq.csv canrun.csv
@@ -258,16 +235,7 @@ procedures.db:
 qualitycontrol:
 	./qualitycontrol.sh
 
-# Use gdalinfo -approx_stats to check tif files for success.
-
 clean:
 	rm time.*txt *tif*sql
-
-retile: retile.c
-	# gcc retile.c -o retile16 -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -fopenmp -fopenmp -I/home/pi/gustafson/local/include/ImageMagick-6 -L/home/pi/gustafson/local/lib -lMagickWand-6.Q16
-	#gcc retile.c -o retile -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -fopenmp -fopenmp -I/home/pi/gustafson/local/include/ImageMagick-6 -L/home/pi/gustafson/local/lib -lMagickWand-6.Q16
-	gcc retile.c -o retile8 -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=8 -fopenmp -fopenmp -I/home/pi/gustafson/local/im8/include/ImageMagick-6 -L/home/pi/gustafson/local/im8/lib -lMagickWand-6.Q8
-	#export LD_LIBRARY_PATH="/home/pi/gustafson/local/im8/lib:$LD_LIBRARY_PATH"
-	gcc `pkg-config --cflags --libs MagickWand` -I ~/local/include/ImageMagick-6 retile.c -o retile -fopenmp
 
 .PHONY: retile

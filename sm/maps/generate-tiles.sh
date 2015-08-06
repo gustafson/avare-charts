@@ -20,21 +20,21 @@ CYCLE=$(cyclenumber.sh)
 
 ## The following compresses only the files that are remade
 
-## ./gettiles.py -180.00 75.00 -125.00 50.00 ${CYCLE} ifr |xargs -n 1 -P 16 bash -c topng8
-## ./gettiles.py  -85.00 50.15  -40.00 38.00 ${CYCLE} ifr |xargs -n 1 -P 16 bash -c topng8
-## ./gettiles.py -110.00 50.15  -85.00 38.00 ${CYCLE} ifr |xargs -n 1 -P 16 bash -c topng8
-## ./gettiles.py -131.21 50.15 -110.00 38.00 ${CYCLE} ifr |xargs -n 1 -P 16 bash -c topng8
-## ./gettiles.py  -85.00 38.00  -40.00 23.13 ${CYCLE} ifr |xargs -n 1 -P 16 bash -c topng8
-## ./gettiles.py -110.00 38.00  -85.00 23.13 ${CYCLE} ifr |xargs -n 1 -P 16 bash -c topng8
-## ./gettiles.py -131.21 38.00 -110.00 23.13 ${CYCLE} ifr |xargs -n 1 -P 16 bash -c topng8
+## ./ziptiles.py -180.00 75.00 -125.00 50.00 ${CYCLE} ifr |xargs -n 1 -P 16 bash -c topng8
+## ./ziptiles.py  -85.00 50.15  -40.00 38.00 ${CYCLE} ifr |xargs -n 1 -P 16 bash -c topng8
+## ./ziptiles.py -110.00 50.15  -85.00 38.00 ${CYCLE} ifr |xargs -n 1 -P 16 bash -c topng8
+## ./ziptiles.py -131.21 50.15 -110.00 38.00 ${CYCLE} ifr |xargs -n 1 -P 16 bash -c topng8
+## ./ziptiles.py  -85.00 38.00  -40.00 23.13 ${CYCLE} ifr |xargs -n 1 -P 16 bash -c topng8
+## ./ziptiles.py -110.00 38.00  -85.00 23.13 ${CYCLE} ifr |xargs -n 1 -P 16 bash -c topng8
+## ./ziptiles.py -131.21 38.00 -110.00 23.13 ${CYCLE} ifr |xargs -n 1 -P 16 bash -c topng8
 
-## ./gettiles.py -180.00 75.00 -125.00 50.00 ${CYCLE} ifh |xargs -n 1 -P 16 bash -c topng8
-## ./gettiles.py  -85.00 50.15  -40.00 38.00 ${CYCLE} ifh |xargs -n 1 -P 16 bash -c topng8
-## ./gettiles.py -110.00 50.15  -85.00 38.00 ${CYCLE} ifh |xargs -n 1 -P 16 bash -c topng8
-## ./gettiles.py -131.21 50.15 -110.00 38.00 ${CYCLE} ifh |xargs -n 1 -P 16 bash -c topng8
-## ./gettiles.py  -85.00 38.00  -40.00 23.13 ${CYCLE} ifh |xargs -n 1 -P 16 bash -c topng8
-## ./gettiles.py -110.00 38.00  -85.00 23.13 ${CYCLE} ifh |xargs -n 1 -P 16 bash -c topng8
-## ./gettiles.py -131.21 38.00 -110.00 23.13 ${CYCLE} ifh |xargs -n 1 -P 16 bash -c topng8
+## ./ziptiles.py -180.00 75.00 -125.00 50.00 ${CYCLE} ifh |xargs -n 1 -P 16 bash -c topng8
+## ./ziptiles.py  -85.00 50.15  -40.00 38.00 ${CYCLE} ifh |xargs -n 1 -P 16 bash -c topng8
+## ./ziptiles.py -110.00 50.15  -85.00 38.00 ${CYCLE} ifh |xargs -n 1 -P 16 bash -c topng8
+## ./ziptiles.py -131.21 50.15 -110.00 38.00 ${CYCLE} ifh |xargs -n 1 -P 16 bash -c topng8
+## ./ziptiles.py  -85.00 38.00  -40.00 23.13 ${CYCLE} ifh |xargs -n 1 -P 16 bash -c topng8
+## ./ziptiles.py -110.00 38.00  -85.00 23.13 ${CYCLE} ifh |xargs -n 1 -P 16 bash -c topng8
+## ./ziptiles.py -131.21 38.00 -110.00 23.13 ${CYCLE} ifh |xargs -n 1 -P 16 bash -c topng8
 
 
 
