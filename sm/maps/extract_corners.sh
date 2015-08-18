@@ -11,7 +11,7 @@ for tif in $*; do
 	cat /dev/shm/tmp2.txt | cut -f2 -d\(| cut -f1 -d\) | sed s/","/" "/ |
 	
 	while read a b; do
-		echo $tif `extract_chart_polygons.py $a $b` 
+	    echo $tif `extract_chart_polygons.py $a $b` 
 	done
 	
     else
