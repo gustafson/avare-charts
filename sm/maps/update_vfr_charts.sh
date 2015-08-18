@@ -79,6 +79,8 @@ function update {
 
 	    ## grep -h -i ending *htm |head -n1
 	    END=$(grep -h -i ending *htm | sed "s/[^0-9]//g" |head -n1)
+	    CHARTNAME=`echo $a | rev| cut -c 7- | rev`
+	    echo EXPIRATION DATE $CHARTNAME $END | sed s/_//g >> /dev/shm/expired.txt
 	    END=$(($(date -u +%s)-$(date -u -d $END +%s)))
 	    let END/=-86400
 

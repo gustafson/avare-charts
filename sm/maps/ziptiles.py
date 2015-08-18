@@ -121,7 +121,8 @@ def main(argv):
         t1 = PixelsToTile(p1)
         p2 = MetersToPixels(m2, zoom)
         t2 = PixelsToTile(p2)
-        mystr2 = "tiles/%s/%i/%i" % (cycle, chart, zoom) 
+        ## mystr2 = "tiles/%s/%i/%i" % (cycle, chart, zoom)
+        mystr2 = "tiles/%i/%i" % (chart, zoom) 
         for i in range (t1[0], t2[0]+1):
             for j in range (t2[1], t1[1]+1):
                 mystr3 = "%s/%s" % (i,j)

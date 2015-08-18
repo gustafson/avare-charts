@@ -183,26 +183,26 @@ stage-ifr:
 	./stage-ifr-low
 	./stage-ifr-high
 	./stage-ifr-area
-	## NOTE current limit is disk IO and open files, do one at a time
+	## NOTE current rate limit is disk IO and open files, do one at a time
 	qsub -t 1-3%1 generate-tiles.pbs
 
 stage-vfr:
 	./update_ifr_tiles.sh
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	## gcc -march=native -O3 -Wall stagefly.c -o stagefly
-	## gcc -march=native -O3 -Wall stage-vfr-heli.c -o stage-vfr-heli
+	gcc -march=native -O3 -Wall stage-vfr-heli.c -o stage-vfr-heli
 	gcc -march=native -O3 -Wall stage-vfr-sec.c -o stage-vfr-sec
 	gcc -march=native -O3 -Wall stage-vfr-tac.c -o stage-vfr-tac
+	./stage-vfr-heli
 	./stage-vfr-sec
 	./stage-vfr-tac
-	## NOTE current limit is disk IO and open files, do one at a time
+	## NOTE current rate limit is disk IO and open files, do one at a time
 	qsub -t 4-6%1 generate-tiles.pbs
 
 ziptiles:
-	./gettiles.sh
+	./ziptiles.sh
 
 zipit:
-	## FIXME must find out how to updated canap.csv canfreq.csv canrun.csv
 	echo "Zipping cycle " $(CYCLE)
 	if [ -a main.db ]; then rm main.db; fi;
 	if [ -a final/databases.zip ]; then rm final/databases.zip; fi;
@@ -212,22 +212,24 @@ zipit:
 	cp ~/CIFP/procedures.db .
 	sqlite3 procedures.db "VACUUM;"
 	zip -9 -r final/databases.zip procedures.db main.db tiles.db
-	zip -9 final/databases.zip `find tiles/$(CYCLE)/0/6 -name "*jpg"`
-	zip -9 final/databases.zip `find tiles/$(CYCLE)/1/7 -name "*jpg"`
-	zip -9 final/databases.zip `find tiles/$(CYCLE)/2/5 -name "*jpg"`
-	zip -9 final/databases.zip `find tiles/$(CYCLE)/3/6 -name "*png"`
-	zip -9 final/databases.zip `find tiles/$(CYCLE)/4/5 -name "*png"`
-	zip -9 final/databases.zip `find tiles/$(CYCLE)/5/7 -name "*png"`
-	zip -9 final/databases.zip `find tiles/$(CYCLE)/6/5 -name "*png"`
-	zip -9 final/databases.zip `find tiles/$(CYCLE)/7/5 -name "*jpg"`
-	## zip -9 final/databases.zip `find tiles/$(CYCLE)/8/7 -name "*jpg"` ## Canada large and not wanted in US
-	zip -9 final/databases.zip `find tiles/$(CYCLE)/9/8 -name "*jpg"`
+	zip -9 final/databases.zip `find tiles/0/6 -name "*jpg"`
+	zip -9 final/databases.zip `find tiles/1/7 -name "*jpg"`
+	zip -9 final/databases.zip `find tiles/2/5 -name "*jpg"`
+	zip -9 final/databases.zip `find tiles/3/6 -name "*png"`
+	zip -9 final/databases.zip `find tiles/4/5 -name "*png"`
+	zip -9 final/databases.zip `find tiles/5/7 -name "*png"`
+	zip -9 final/databases.zip `find tiles/6/5 -name "*png"`
+	zip -9 final/databases.zip `find tiles/7/5 -name "*jpg"`
+	## zip -9 final/databases.zip `find tiles/8/7 -name "*jpg"` ## Canada large and not wanted in US
+	zip -9 final/databases.zip `find tiles/9/8 -name "*png"`
 	pushd final; ../zip.py databases $(CYCLE); popd
 
 geolist:
 	./plates_list.sh
 	perl plate_list.pl > list_plates.txt
 	mv list_plates.txt final/.
+
+chartpoly.txt:
 
 procedures.db:
 	echo This is currently done outside of the avare working directory

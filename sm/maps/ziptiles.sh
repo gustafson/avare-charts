@@ -180,25 +180,26 @@ wait
 echo done heli
 
 
-make zipittest
-zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} sec latlon|grep "tiles/..../0/7"`   ## --quiet 
-zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} tac latlon|grep "tiles/..../1/8"`	  ## --quiet 
-zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} wac latlon|grep "tiles/..../2/6"`	  ## --quiet 
-zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} ifr latlon|grep "tiles/..../3/7"`	  ## --quiet 
-zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} ifh latlon|grep "tiles/..../4/6"`	  ## --quiet 
-zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} ifa latlon|grep "tiles/..../5/8"`	  ## --quiet 
-zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} elev latlon|grep "tiles/..../6/6"`  ## --quiet 
-zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} rel latlon|grep "tiles/..../7/6"`	  ## --quiet 
-echo done databases
+## make zipit
+## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} sec latlon|grep "tiles/..../0/7"`   ## --quiet 
+## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} tac latlon|grep "tiles/..../1/8"`	  ## --quiet 
+## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} wac latlon|grep "tiles/..../2/6"`	  ## --quiet 
+## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} ifr latlon|grep "tiles/..../3/7"`	  ## --quiet 
+## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} ifh latlon|grep "tiles/..../4/6"`	  ## --quiet 
+## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} ifa latlon|grep "tiles/..../5/8"`	  ## --quiet 
+## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} elev latlon|grep "tiles/..../6/6"`  ## --quiet 
+## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} rel latlon|grep "tiles/..../7/6"`	  ## --quiet 
+## echo done databases
 
-## THIS is canadian topo
+echo start Candian topo
 for img in `ls ../can-topo/[0-9]*vrt`; do
     base=`echo $img|cut -f3 -d/|cut -f1 -d.`
     [[ -f final/CAN_${base}.zip ]] && rm final/CAN_${base}.zip
+    echo final/CAN_${base}.zip
     zip -9 --quiet final/CAN_${base}.zip `mygroup ${img} topo`
 done
 wait
-
+echo done topo
 
 ## Now create manifest
 pushd final
