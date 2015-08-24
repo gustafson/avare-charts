@@ -68,6 +68,7 @@ endif
 	@echo "  make process-data #$(CYCLEDATE56BASE)"
 	@echo "  make procedures.db #$(CYCLEDATE28)"
 	@echo "  make geolist #$(CYCLEDATE28)"
+	@echo "  make canada"
 	@echo "  make ziptiles"
 	@echo "  make zipit"
 	@echo "  make qualitycontrol"
@@ -233,6 +234,10 @@ chartpoly.txt:
 
 procedures.db:
 	echo This is currently done outside of the avare working directory
+
+canada:
+	./ourairports.sh
+	./canada_ad.sh
 
 qualitycontrol:
 	./qualitycontrol.sh

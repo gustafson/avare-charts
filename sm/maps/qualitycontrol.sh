@@ -32,7 +32,7 @@ CYCLE=`./cyclenumber.sh`
 pushd final
 
 for a in *zip; do
-    b=`basename $a .zip`; zip -d $a $b
+    b=`basename $a .zip`; zip -d $a $b #> /dev/null
     echo $b `unzip -l $a |tail -n1` > ${a}.count
     ../zip.py `basename ${a} .zip` ${CYCLE};
 done

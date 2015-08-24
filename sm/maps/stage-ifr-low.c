@@ -68,11 +68,11 @@ int main(int argc, char *argv[])
 
     printf("\n\n# %s\n\n", maps[map].name);
 
-    if(0 == strcmp(maps[map].reg, "IF")) {
-      dir_ptr = "iff";
-      order_ptr = "0";
-    } else if(0 == strcmp(maps[map].reg, "IFAL")) {
+    if(0 == strcmp(maps[map].reg, "IFAL")) {
       dir_ptr = "ifal";
+      order_ptr = "0";
+    } else if(0 == strcmp(maps[map].reg, "IF")) {
+      dir_ptr = "ifr";
       order_ptr = "1";
     } else {
       dir_ptr = "empty";
@@ -97,7 +97,8 @@ int main(int argc, char *argv[])
 
   /* one image */
   out("\n\n\n# Merge all");
+  /* Alaska should be first so it is underneath. */
   out("gdalbuildvrt -resolution highest ifr.vrt -overwrite merge/ifr/*_2.vrt");
-  out("gdalbuildvrt -resolution highest ifr_ak.vrt -overwrite merge/ifr/{1ENR_AKL01_2.vrt,1ENR_AKL02C_2.vrt,1ENR_AKL02W_2.vrt,1ENR_AKL03_2.vrt,1ENR_AKL04_2.vrt}");
+  out("gdalbuildvrt -resolution highest ifr_ak.vrt -overwrite merge/ifr/{0ENR_AKL01_2.vrt,0ENR_AKL02C_2.vrt,0ENR_AKL02W_2.vrt,0ENR_AKL03_2.vrt,0ENR_AKL04_2.vrt}");
   return 0;
 }

@@ -51,15 +51,14 @@ CYCLE=$(cyclenumber.sh)
 ## wait
 
 ## THIS WILL DELETE IFR TILES BY CHART
-## for img in `ls merge/ifr/1*_2.vrt`; do #  merge/ifr/1ENR_AKL01_2.vrt
-##     ## this is the corner one joining AK 
+## for img in merge/ifr/{0ENR_AKL01,1ENR_L01}.vrt; do # `ls merge/ifr/1*_2.vrt`; do #
 ##     echo ${img}
 ##     rm `mygroup ${img} deleteifr`
 ## done
 ## wait
 
 ## THIS WILL DELETE IFH TILES BY CHART
-## for img in `ls merge/ifh/*_2.vrt`; do
+## for img in `ls merge/ifh/00ENR_AKH01_2.vrt merge/ifh/03ENR_H01_2.vrt`; do
 ##     echo ${img}
 ##     rm `mygroup ${img} deleteifh`
 ## done
@@ -201,24 +200,24 @@ done
 wait
 echo done topo
 
-## Now create manifest
-pushd final
-rm -f ../tiledatabase.txt
-for a in *zip; do
-    b=`basename $a .zip`;
-    #zip -d $a $b
-    #../zip.py `basename ${a} .zip` ${CYCLE};
-    unzip -l ${a} |grep tiles/${CYCLE}/./8 | cut -f 3- -d/ | cut -f1 -d. |
-	while read img; do
-	    echo "${b},${img}" >> ../tiledatabase.txt
-	done
-done
-popd
-
-## Now create tile lookup database
-rm -f tiles.db
-cat << EOF  | sqlite3 tiles.db
-CREATE TABLE tiles(zip Text,tile Text);
-.separator ','
-.import tiledatabase.txt tiles
-EOF
+## OBSOLUTE WITH CHART POLYGONS ## ## Now create manifest
+## OBSOLUTE WITH CHART POLYGONS ## pushd final
+## OBSOLUTE WITH CHART POLYGONS ## rm -f ../tiledatabase.txt
+## OBSOLUTE WITH CHART POLYGONS ## for a in *zip; do
+## OBSOLUTE WITH CHART POLYGONS ##     b=`basename $a .zip`;
+## OBSOLUTE WITH CHART POLYGONS ##     #zip -d $a $b
+## OBSOLUTE WITH CHART POLYGONS ##     #../zip.py `basename ${a} .zip` ${CYCLE};
+## OBSOLUTE WITH CHART POLYGONS ##     unzip -l ${a} |grep tiles/${CYCLE}/./8 | cut -f 3- -d/ | cut -f1 -d. |
+## OBSOLUTE WITH CHART POLYGONS ## 	while read img; do
+## OBSOLUTE WITH CHART POLYGONS ## 	    echo "${b},${img}" >> ../tiledatabase.txt
+## OBSOLUTE WITH CHART POLYGONS ## 	done
+## OBSOLUTE WITH CHART POLYGONS ## done
+## OBSOLUTE WITH CHART POLYGONS ## popd
+## OBSOLUTE WITH CHART POLYGONS ## 
+## OBSOLUTE WITH CHART POLYGONS ## ## Now create tile lookup database
+## OBSOLUTE WITH CHART POLYGONS ## rm -f tiles.db
+## OBSOLUTE WITH CHART POLYGONS ## cat << EOF  | sqlite3 tiles.db
+## OBSOLUTE WITH CHART POLYGONS ## CREATE TABLE tiles(zip Text,tile Text);
+## OBSOLUTE WITH CHART POLYGONS ## .separator ','
+## OBSOLUTE WITH CHART POLYGONS ## .import tiledatabase.txt tiles
+## OBSOLUTE WITH CHART POLYGONS ## EOF

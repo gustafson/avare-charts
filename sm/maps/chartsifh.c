@@ -1,4 +1,7 @@
 Maps maps[] = {
+	{"ENR_AKH01",  2204, 264, 19591, 4014, "IFAH"}, // Same chart split into two pieces for efficiency
+	{"ENR_AKH01",  2204, 264, 10655, 7472, "IFAH"}, // Same chart split into two pieces for efficiency
+	{"ENR_AKH02",  2206, 266, 19591, 7472, "IFAH"},
 	{"ENR_H01",  2200, 200, 21700, 7600, "IFH"},
 	{"ENR_H02",  2100, 200, 19800, 7600, "IFH"},
 	{"ENR_H03",  2200, 100, 21700, 7700, "IFH"},
@@ -10,7 +13,4 @@ Maps maps[] = {
 	{"ENR_H09",  2100, 100, 19700, 7700, "IFH"},
 	{"ENR_H10",  2100, 100, 19700, 7700, "IFH"},
 	{"ENR_H11",  4100, 200, 17700, 7600, "IFH"},
-	{"ENR_AKH01",  2204, 264, 19591, 4014, "IFAH"}, // Same chart split into two pieces for efficiency
-	{"ENR_AKH01",  2204, 264, 10655, 7472, "IFAH"}, // Same chart split into two pieces for efficiency
-	{"ENR_AKH02",  2206, 266, 19591, 7472, "IFAH"},
 };
