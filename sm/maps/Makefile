@@ -34,11 +34,16 @@ CYCLE=$(shell ./cyclenumber.sh)
 CYCLEDATE56BASE=$(shell ./cycledates.sh 56 base)
 CYCLEDATE28=$(shell ./cycledates.sh 28)
 CYCLEDATE56=$(shell ./cycledates.sh 56)
+GDALVERSION=$(shell gdal-config --version)
+NP=$(shell grep proc /proc/cpuinfo|wc -l)
 
 all:
 	@echo
 	@echo
 	@echo "Build instructions for Avare charts"
+	@echo "  Minimum gdal version is 2.0"
+	@echo "  -- Current gdal version is $(GDALVERSION)"
+	@echo "  Machine has $(NP) processors, assuming all may be used."
 	@echo
 	@echo "Pull the latest code"
 	@echo "  git pull"
@@ -79,9 +84,9 @@ update: download-ifr update-vfr unzip stage-all plates download-base-data proces
 clean:
 	find final -type f|grep -v "CAN_\|REL_\|ELEV_"| xargs rm # \|ELUS_\|EHUS\|AFD_
 	rm -rf merge ads.txt
-	rm sepsec septac stage-vfr-sec stage-ifr-low stage-ifr-area stage-ifr-high stage-vfr-tac *.tif *.jpg *.xml
-	rm files*.csv logfile.txt *.log
-	rm ifr-gps-currency*{kmz,json,txt}
+	rm -f sepsec septac stage-vfr-sec stage-ifr-low stage-ifr-area stage-ifr-high stage-vfr-tac *.tif *.jpg *.xml
+	rm -f files*.csv logfile.txt *.log
+	rm -f ifr-gps-currency*{kmz,json,txt}
 
 download-base-data:
 	$$(rm -f APT.txt AWOS.txt FIX.txt TWR.txt DOF.DAT NAV.txt aixm5.0.zip DAILY_DOF.ZIP)
@@ -89,14 +94,14 @@ download-base-data:
 	## https://nfdc.faa.gov/tod/public/TOD_DOF.html
 	## wget --no-check-certificate https://nfdc.faa.gov/tod/public/DOFS/DOF_$$(./cycledates.sh 56 dof).zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
 	echo "USING Daily DOF file rather than 56 day cycle.  This is, on average, more current than the 56 day cycle."
-	wget --no-check-certificate https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip DAILY_DOF.ZIP DOF.DAT && rm DAILY_DOF.ZIP
+	wget --no-check-certificate https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip DAILY_DOF.ZIP DOF.DAT && rm -f DAILY_DOF.ZIP
 	# https://nfdc.faa.gov/fadds/subscriptionDownload.do?productId=548752
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/APT.zip && unzip APT.zip && rm APT.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/AWOS.zip && unzip AWOS.zip && rm AWOS.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/TWR.zip && unzip TWR.zip && rm TWR.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/FIX.zip && unzip FIX.zip && rm FIX.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/NAV.zip && unzip NAV.zip && rm NAV.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/AWY.zip && unzip AWY.zip && rm AWY.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/APT.zip && unzip APT.zip && rm -f APT.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/AWOS.zip && unzip AWOS.zip && rm -f AWOS.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/TWR.zip && unzip TWR.zip && rm -f TWR.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/FIX.zip && unzip FIX.zip && rm -f FIX.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/NAV.zip && unzip NAV.zip && rm -f NAV.zip
+	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/AWY.zip && unzip AWY.zip && rm -f AWY.zip
 	./saa.sh							     $(CYCLEDATE56BASE)
 
 process-data:
@@ -113,12 +118,11 @@ process-data:
 plates-png: 
 	# wget -N http://aeronav.faa.gov/d-tpp/$(CYCLE)/xml_data/d-TPP_Metafile.xml
 	### Currently buying plate xml file so this isn't needed.
-	## [[ -f d-TPP_Metafile.xml ]] && rm d-TPP_Metafile.xml || echo
 	[[ -f d-TPP_Metafile.xml.zip.$(CYCLE) ]] && unzip -o d-TPP_Metafile.xml.zip.$(CYCLE)
 	./plates_png.sh
 
 afd-data:
-	[[ -f afd.csv ]] && rm afd.csv
+	rm -f afd.csv
 	./afd.sh
 
 mins-data:
@@ -133,7 +137,7 @@ download-vfr:
 	mkdir -p charts/oth
 	cd charts/sec && \
 	perl ../../reapfiles.pl -f zip http://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/vfr/
-	rm *_P.zip *NFN.zip
+	rm -f *_P.zip *NFN.zip
 	mv *TAC*zip ../tac
 	mv C[CDEFGHJ]* ../wac
 	mv *Heli.zip ../oth
@@ -143,11 +147,11 @@ update-vfr:
 
 download-ifr:
 	echo Downloading ifr for cycle $(CYCLE)
-	if [[ -d charts/iff ]]; then rm -fr charts/iff; fi
+	if [[ -d charts/ifr ]]; then rm -fr charts/ifr; fi
 	if [[ -d charts/ifh ]]; then rm -fr charts/ifh; fi
 	if [[ -d charts/ifal ]]; then rm -fr charts/ifal; fi
 	if [[ -d charts/ifa ]]; then rm -fr charts/ifa; fi
-	mkdir -p charts/iff
+	mkdir -p charts/ifr
 	mkdir -p charts/ifh
 	mkdir -p charts/ifa
 	mkdir -p charts/ifal
@@ -155,19 +159,19 @@ download-ifr:
 	./dlifr.sh $$(./cycledates.sh 56 ifr)
 
 unzip:
-	rm charts/*/*tif
-	cd charts/tac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
-	cd charts/wac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
-	cd charts/sec  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
-	cd charts/heli && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
-	cd charts/ifh  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
-	cd charts/ifa  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
-	cd charts/iff  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
-	cd charts/ifah && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
-	cd charts/ifal && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
-	# cd charts/heli && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P16 unzip -j
+	rm -f charts/*/*tif
+	cd charts/tac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	cd charts/wac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	cd charts/sec  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	cd charts/heli && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	cd charts/ifh  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	cd charts/ifa  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	cd charts/ifr  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	cd charts/ifah && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	cd charts/ifal && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	# cd charts/heli && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
 	#
-	rm charts/tac/*Planning*tif
+	rm -f charts/tac/*Planning*tif
 	rename " " "" charts/*/*tif
 	rename " " "" charts/*/*tif
 	rename " " "" charts/*/*tif
@@ -188,7 +192,6 @@ stage-ifr:
 	qsub -t 1-3%1 generate-tiles.pbs
 
 stage-vfr:
-	./update_ifr_tiles.sh
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	## gcc -march=native -O3 -Wall stagefly.c -o stagefly
 	gcc -march=native -O3 -Wall stage-vfr-heli.c -o stage-vfr-heli
@@ -197,16 +200,16 @@ stage-vfr:
 	./stage-vfr-heli
 	./stage-vfr-sec
 	./stage-vfr-tac
-	## NOTE current rate limit is disk IO and open files, do one at a time
-	qsub -t 4-6%1 generate-tiles.pbs
+	## NOTE current limit is disk IO and open files, do one at a time
+	cat generate-tiles.pbs| sed s/ppn=16/ppn=$(NP)/ | qsub -t 4-6%1 
 
 ziptiles:
 	./ziptiles.sh
 
 zipit:
 	echo "Zipping cycle " $(CYCLE)
-	if [ -a main.db ]; then rm main.db; fi;
-	if [ -a final/databases.zip ]; then rm final/databases.zip; fi;
+	rm -f main.db
+	rm -f final/databases.zip
 	sqlite3 main.db < importother.sql
 	sqlite3 main.db "VACUUM;"
 	sqlite3 tiles.db "VACUUM;"
@@ -243,6 +246,6 @@ qualitycontrol:
 	./qualitycontrol.sh
 
 clean:
-	rm time.*txt *tif*sql
+	rm -f time.*txt *tif*sql
 
 .PHONY: retile

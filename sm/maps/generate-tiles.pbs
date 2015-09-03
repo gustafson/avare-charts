@@ -1,5 +1,5 @@
 #!/bin/sh -login
-#PBS -l mem=60gb
+#PBS -l mem=20gb
 #PBS -l nodes=1:ppn=16
 #PBS -l walltime=1000:00:00
 #PBS -m abe 
@@ -56,7 +56,6 @@ if [[ ${PBS_NODEFILE} ]]; then
     echo ------------------------------------------------------
 
     NP=$(cat ${PBS_NODEFILE} | wc -l)
-    ## export MAGICK_TEMPORARY_PATH=/scratch
     export TMPDIR=/scratch
 else
     NP=16
@@ -116,27 +115,6 @@ elif [[ ${PBS_ARRAYID} -eq 6 ]]; then
 ## HELI ON CHANGE ONLY ##     ${TIME2} time.heli.txt ./gdal2tiles_512_mysingle.py -t "Helicoptor Route Chart" ${OPTIONS2} heli.vrt tiles/9
 ## HELI ON CHANGE ONLY ##     find tiles/0 -name "*png"| xargs mogrify -unsharp 3x3 -format jpg -quality 75
     
-## OLDER OPTIMIZATION METHOD ## elif [[ ${PBS_ARRAYID} -ge 34 && ${PBS_ARRAYID} -le 41 ]]; then
-## OLDER OPTIMIZATION METHOD ## 
-## OLDER OPTIMIZATION METHOD ##     function topng8(){
-## OLDER OPTIMIZATION METHOD ## 	convert $0 png8:${0}.png8.png
-## OLDER OPTIMIZATION METHOD ## 	mv ${0}.png8.png ${0}
-## OLDER OPTIMIZATION METHOD ## 	optipng -quiet ${0}
-## OLDER OPTIMIZATION METHOD ##     }
-## OLDER OPTIMIZATION METHOD ##     export -f topng8
-## OLDER OPTIMIZATION METHOD ##     
-## OLDER OPTIMIZATION METHOD ##     NUM=$((${PBS_ARRAYID}-34))
-## OLDER OPTIMIZATION METHOD ##     NUMJOBS=8
-## OLDER OPTIMIZATION METHOD ##     ## [0-2]
-## OLDER OPTIMIZATION METHOD ##     ## [3-5]
-## OLDER OPTIMIZATION METHOD ##     ## find tiles/$(./cyclenumber.sh)/[0-2] -name "*png"| sed -n ${NUM}~${NUMJOBS}p | xargs mogrify -unsharp 3x3 -format jpg -quality 75
-## OLDER OPTIMIZATION METHOD ##     ## find tiles/$(./cyclenumber.sh)/[3-5] -name "*png"| sed -n ${NUM}~${NUMJOBS}p | xargs mogrify -format png8
-## OLDER OPTIMIZATION METHOD ##     ## find tiles/$(./cyclenumber.sh)/[3-5] -name "*png"| xargs -n 1 -P ${NP} bash -c topng8
-## OLDER OPTIMIZATION METHOD ##     ## find tiles/$(./cyclenumber.sh)/[9] -name "*png"| sed -n ${NUM}~${NUMJOBS}p | xargs mogrify -format png8
-## OLDER OPTIMIZATION METHOD ##     ## find tiles/$(./cyclenumber.sh)/[9] -name "*png"| sed -n ${NUM}~${NUMJOBS}p | xargs mogrify -unsharp 3x3 -format jpg -quality 75
-## OLDER OPTIMIZATION METHOD ##     ## find tiles/$(./cyclenumber.sh)/[9] -name "*png8"| sed -n ${NUM}~${NUMJOBS}p | xargs optipng -quiet
-## OLDER OPTIMIZATION METHOD ##     ## rename png png.orig `find tiles/$(./cyclenumber.sh)/[3-5] -name "*png"`
-## OLDER OPTIMIZATION METHOD ##     ## rename png8 png8 `find tiles/$(./cyclenumber.sh)/[3-5] -name "*png8"`
 fi
 
 ## 0 Sectional
