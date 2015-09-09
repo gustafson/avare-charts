@@ -189,7 +189,7 @@ stage-ifr:
 	./stage-ifr-high
 	./stage-ifr-area
 	## NOTE current rate limit is disk IO and open files, do one at a time
-	qsub -t 1-3%1 generate-tiles.pbs
+	qsub -t 3-5%1 generate-tiles.pbs
 
 stage-vfr:
 	if [[ ! -d merge ]]; then mkdir merge; fi
@@ -201,7 +201,7 @@ stage-vfr:
 	./stage-vfr-sec
 	./stage-vfr-tac
 	## NOTE current limit is disk IO and open files, do one at a time
-	cat generate-tiles.pbs| sed s/ppn=16/ppn=$(NP)/ | qsub -t 4-6%1 
+	cat generate-tiles.pbs| sed s/ppn=16/ppn=$(NP)/ | qsub -t 0-2%1 
 
 ziptiles:
 	./ziptiles.sh
