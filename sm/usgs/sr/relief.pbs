@@ -70,43 +70,43 @@ TIME1="/usr/bin/time -v -o"
 TIME2="/usr/bin/time -v --append -o"
 MYDIR=../../maps/
 
-${TIME1} time.txt ${MYDIR}/gdal2tiles_512_parallel.py -t "Shaded Relief Maps" ${OPTIONS1} srco48i0100a.tif ${MYDIR}/tiles/1507/7
-${TIME2} time.txt ${MYDIR}/gdal2tiles_512_mysingle.py -t "Shaded Relief Maps" ${OPTIONS2} srco48i0100a.tif ${MYDIR}/tiles/1507/7
-find ${MYDIR}/tiles/1507/7 -name "*png"| xargs mogrify -format jpg -quality 80
-find ${MYDIR}/tiles/1507/7 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
+${TIME1} time.txt ${MYDIR}/gdal2tiles_512_parallel.py -t "Shaded Relief Maps" ${OPTIONS1} srco48i0100a.tif ${MYDIR}/tiles/7
+${TIME2} time.txt ${MYDIR}/gdal2tiles_512_mysingle.py -t "Shaded Relief Maps" ${OPTIONS2} srco48i0100a.tif ${MYDIR}/tiles/7
+find ${MYDIR}/tiles/7 -name "*png"| xargs mogrify -format jpg -quality 80
+find ${MYDIR}/tiles/7 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
 
 rm -fr tiles
 #unzip REL_HI_PNG.zip
-${TIME1} time.txt ${MYDIR}/gdal2tiles_512_parallel.py -t "Shaded Relief Maps" ${OPTIONS1} srcohii0100a.tif tiles/1507/7
-${TIME2} time.txt ${MYDIR}/gdal2tiles_512_mysingle.py -t "Shaded Relief Maps" ${OPTIONS2} srcohii0100a.tif tiles/1507/7
-find tiles/1507/7 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
-find tiles/1507/7 -name "*png"| xargs mogrify -format jpg -quality 80
-zip -9 -u REL_HI.zip `find tiles/1507/7 -name "*jpg"`
-zip -9 -u REL_HI_PNG.zip `find tiles/1507/7 -name "*png"` tiles/1507/7/openlayers.html
+${TIME1} time.txt ${MYDIR}/gdal2tiles_512_parallel.py -t "Shaded Relief Maps" ${OPTIONS1} srcohii0100a.tif tiles/7
+${TIME2} time.txt ${MYDIR}/gdal2tiles_512_mysingle.py -t "Shaded Relief Maps" ${OPTIONS2} srcohii0100a.tif tiles/7
+find tiles/7 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
+find tiles/7 -name "*png"| xargs mogrify -format jpg -quality 80
+zip -9 -u REL_HI.zip `find tiles/7 -name "*jpg"`
+zip -9 -u REL_HI_PNG.zip `find tiles/7 -name "*png"` tiles/7/openlayers.html
 # Copy overview tiles into final directory
-rsync -avP tiles/1507/7/5/ ${MYDIR}/tiles/1507/7/5/
+rsync -avP tiles/7/5/ ${MYDIR}/tiles/7/5/
 
 rm -fr tiles
 #unzip REL_PR_PNG.zip
-${TIME1} time.txt ${MYDIR}/gdal2tiles_512_parallel.py -t "Shaded Relief Maps" ${OPTIONS1} srcopri0100a.tif tiles/1507/7
-${TIME2} time.txt ${MYDIR}/gdal2tiles_512_mysingle.py -t "Shaded Relief Maps" ${OPTIONS2} srcopri0100a.tif tiles/1507/7
-find tiles/1507/7 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
-find tiles/1507/7 -name "*png"| xargs mogrify -format jpg -quality 80
-zip -9 -u REL_PR.zip `find tiles/1507/7 -name "*jpg"`
-zip -9 -u REL_PR_PNG.zip `find tiles/1507/7 -name "*png"` tiles/1507/7/openlayers.html
+${TIME1} time.txt ${MYDIR}/gdal2tiles_512_parallel.py -t "Shaded Relief Maps" ${OPTIONS1} srcopri0100a.tif tiles/7
+${TIME2} time.txt ${MYDIR}/gdal2tiles_512_mysingle.py -t "Shaded Relief Maps" ${OPTIONS2} srcopri0100a.tif tiles/7
+find tiles/7 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
+find tiles/7 -name "*png"| xargs mogrify -format jpg -quality 80
+zip -9 -u REL_PR.zip `find tiles/7 -name "*jpg"`
+zip -9 -u REL_PR_PNG.zip `find tiles/7 -name "*png"` tiles/7/openlayers.html
 # Copy overview tiles into final directory
-rsync -avP tiles/1507/7/5/ ${MYDIR}/tiles/1507/7/5/
+rsync -avP tiles/7/5/ ${MYDIR}/tiles/7/5/
 
 rm -fr tiles
 #unzip REL_AK_PNG.zip
-${TIME1} time.txt ${MYDIR}/gdal2tiles_512_parallel.py -t "Shaded Relief Maps" ${OPTIONS1} srcoaki0100a.tif tiles/1507/7
-${TIME2} time.txt ${MYDIR}/gdal2tiles_512_mysingle.py -t "Shaded Relief Maps" ${OPTIONS2} srcoaki0100a.tif tiles/1507/7
-find tiles/1507/7 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
-find tiles/1507/7 -name "*png"| xargs mogrify -format jpg -quality 80
-zip -9 -u REL_AK.zip `find tiles/1507/7 -name "*jpg"`
-zip -9 -u REL_AK_PNG.zip `find tiles/1507/7 -name "*png"` tiles/1507/7/openlayers.html
+${TIME1} time.txt ${MYDIR}/gdal2tiles_512_parallel.py -t "Shaded Relief Maps" ${OPTIONS1} srcoaki0100a.tif tiles/7
+${TIME2} time.txt ${MYDIR}/gdal2tiles_512_mysingle.py -t "Shaded Relief Maps" ${OPTIONS2} srcoaki0100a.tif tiles/7
+find tiles/7 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
+find tiles/7 -name "*png"| xargs mogrify -format jpg -quality 80
+zip -9 -u REL_AK.zip `find tiles/7 -name "*jpg"`
+zip -9 -u REL_AK_PNG.zip `find tiles/7 -name "*png"` tiles/7/openlayers.html
 # Copy overview tiles into final directory
-rsync -avP tiles/1507/7/5/ ${MYDIR}/tiles/1507/7/5/
+rsync -avP tiles/7/5/ ${MYDIR}/tiles/7/5/
 
 rm -fr tiles
 

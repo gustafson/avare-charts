@@ -7,7 +7,7 @@
 #PBS -N ChartTiling
 #PBS -e z-logs/z.${PBS_JOBID}.e_${PBS_JOBNAME}
 #PBS -o z-logs/z.${PBS_JOBID}.o_${PBS_JOBNAME}
-#PBS -t 1-6%1
+#PBS -t 0-5%1
 
 #!/bin/bash
 # Copyright (c) 2015, Peter A. Gustafson (peter.gustafson@wmich.edu)
@@ -77,6 +77,17 @@ ARRAY=`echo ${PBS_JOBID} | sed -e s/"\[..\]"/"\[\]"/g -e "s/.cs.wmich.edu//g"`
 ##    ${TIME1} time.tac.txt ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} $(ls merge/tac/run*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/1
 ##    ${TIME2} time.tac.txt ./gdal2tiles_512_mysingle.py -t "VFR Terminal Area" ${OPTIONS2} $(ls merge/tac/run*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/1
 
+function myfindwac (){
+    find tiles/2 -name "*png"|
+	while IFS=\/ read tiles type layer lat img; do
+	    lon=$(basename $img .png)
+	    if [[ $(($lat % 2)) -eq 0 && $(($lon % 2)) -eq 0 ]]; then
+		echo $tiles/$type/$layer/$lat/$img
+	    fi
+	done
+}
+
+
 if [[ ${PBS_ARRAYID} -eq 0 ]]; then
     ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} sec.vrt tiles/0
     ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py -t "VFR Sectional" ${OPTIONS2} sec.vrt tiles/0
@@ -90,9 +101,12 @@ elif [[ ${PBS_ARRAYID} -eq 1 ]]; then
 elif [[ ${PBS_ARRAYID} -eq 2 ]]; then
     ${TIME1} time.wac.txt ./gdal2tiles_512_parallel.py -t "VFR World" ${OPTIONS1} wac.vrt tiles/2
     ${TIME2} time.wac.txt ./gdal2tiles_512_mysingle.py -t "VFR World" ${OPTIONS2} wac.vrt tiles/2
+    
+##    myfindwac | xargs mogrify -gravity center -pointsize 40 -fill white \
+##	      -draw "fill-opacity 0.25 rotate -45 text 0,0 'Discontinued'"
+	    
     find tiles/2 -name "*png"| xargs mogrify -unsharp 3x3 -format jpg -quality 75
-    ## find tiles/2 -name "*png"| xargs mogrify -gravity center -pointsize 40 -fill white -draw "fill-opacity 0.25 rotate -45 text 0,0 'Discontinued'" -unsharp 3x3 -format jpg -quality 75
-
+    
 elif [[ ${PBS_ARRAYID} -eq 3 ]]; then
     ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} ifr.vrt tiles/3
     ${TIME2} time.ifr.txt ./gdal2tiles_512_mysingle.py -t "IFR Enroute Low" ${OPTIONS2} ifr.vrt tiles/3
