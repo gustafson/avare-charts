@@ -1,6 +1,6 @@
 #!/bin/sh -login
-#PBS -l mem=120gb
-#PBS -l nodes=1:ppn=16
+#PBS -l mem=20gb
+#PBS -l nodes=1:ppn=4
 #PBS -l walltime=1000:00:00
 #PBS -m abe 
 #PBS -V 
@@ -55,28 +55,20 @@ if [[ ${PBS_NODEFILE} ]]; then
     echo ------------------------------------------------------
 
     NP=$(cat ${PBS_NODEFILE} | wc -l)
-    ## export MAGICK_TEMPORARY_PATH=/scratch
     export TMPDIR=/scratch
 else
     NP=16
-    export TMPDIR=/data/home/pi/gustafson
 fi
 
 export OMP_NUM_THREADS=${NP}
-## export OMP_NUM_THREADS=1
 
 [[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
 
-OPTIONS1="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos --processes 16" # --zoom=3
+OPTIONS1="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos --processes ${NP}" # --zoom=3
 OPTIONS2="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos" # --zoom=3
 TIME1="/usr/bin/time -v -o"
 TIME2="/usr/bin/time -v --append -o"
-MYDIR1=/home/pi/gustafson/avare.charts.git/sm/maps
-
-## #rm -fr tiles
-## #unzip ELEV_HI_PNG.zip
-## ${TIME1} time.txt ${MYDIR1}/gdal2tiles_512_parallel.py -t "Tactical Pilotage Charts" ${OPTIONS1} tpc.vrt ${MYDIR1}/tiles/1508/10
-## ${TIME2} time.txt ${MYDIR1}/gdal2tiles_512_mysingle.py -t "Tactical Pilotage Charts" ${OPTIONS2} tpc.vrt ${MYDIR1}/tiles/1508/10
+MYDIR1=../maps/tiles
 
 rm log.txt
 for a in `ls *tif`; do
@@ -118,11 +110,11 @@ for a in `ls *tif`; do
 done 
 
 gdalbuildvrt -resolution highest -overwrite tpc.vrt *_2.vrt
-${TIME1} time.txt ${MYDIR1}/gdal2tiles_512_parallel.py -t "Tactical Pilotage Charts" ${OPTIONS1} tpc.vrt ${MYDIR1}/tiles/1508/10
-${TIME2} time.txt ${MYDIR1}/gdal2tiles_512_mysingle.py -t "Tactical Pilotage Charts" ${OPTIONS2} tpc.vrt ${MYDIR1}/tiles/1508/10
+${TIME1} time.txt ${MYDIR1}/gdal2tiles_512_parallel.py -t "Tactical Pilotage Charts" ${OPTIONS1} tpc.vrt ${MYDIR1}/tiles/10
+${TIME2} time.txt ${MYDIR1}/gdal2tiles_512_mysingle.py -t "Tactical Pilotage Charts" ${OPTIONS2} tpc.vrt ${MYDIR1}/tiles/10
 
-find ${MYDIR1}/tiles/1508/10 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
-find ${MYDIR1}/tiles/1508/10 -name "*png"| xargs mogrify -unsharp 3x3 -format jpg -quality 75
+find ${MYDIR1}/tiles/10 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
+find ${MYDIR1}/tiles/10 -name "*png"| xargs mogrify -unsharp 3x3 -format jpg -quality 75
 
 ## 0 Sectional
 ## 1 TAC
