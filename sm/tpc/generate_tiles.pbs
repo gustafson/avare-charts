@@ -64,8 +64,8 @@ export OMP_NUM_THREADS=${NP}
 
 [[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
 
-OPTIONS1="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos --processes ${NP}" # --zoom=3
-OPTIONS2="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos" # --zoom=3
+OPTIONS1="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos --processes ${NP}" --zoom=10
+OPTIONS2="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos" --zoom=10
 TIME1="/usr/bin/time -v -o"
 TIME2="/usr/bin/time -v --append -o"
 MYDIR1=../maps/tiles
