@@ -116,7 +116,7 @@ else
     echo "  Here is a command:"
     echo "     mv qualitycontrol.newref.zip qualitycontrol.zip"
     echo
-    rename .qc .qc.ref *qc
+    rename .qc .qc.ref *qc *count
     zip -q -9 qualitycontrol.newref.zip *ref && mv qualitycontrol.newref.zip ..
     rm *ref
 fi
