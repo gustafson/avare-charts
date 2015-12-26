@@ -46,7 +46,7 @@ rm -f *manualcheck
 unzip -q ../qualitycontrol.zip
 ## 
 for a in *zip.qc.ref; do
-## for a in *zip; do  ## For adding new files to record -- use this an ignore errors
+## for a in *zip; do  ## For adding new files to record -- use this and ignore errors
     b=`basename $a .qc.ref`;
 
     ## Count files and total file size
@@ -116,7 +116,8 @@ else
     echo "  Here is a command:"
     echo "     mv qualitycontrol.newref.zip qualitycontrol.zip"
     echo
-    rename .qc .qc.ref *qc *count
+    rename .qc .qc.ref *qc
+    rm *count
     zip -q -9 qualitycontrol.newref.zip *ref && mv qualitycontrol.newref.zip ..
     rm *ref
 fi

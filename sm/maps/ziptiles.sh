@@ -30,6 +30,7 @@
 function mygroup(){
     ## echo $1 $2
     ## echo ./ziptiles.py $(extract_corners.sh $1) $(cyclenumber.sh) $2 meters
+    echo $1
     ./ziptiles.py $(extract_corners.sh $1) $(cyclenumber.sh) $2 meters
 }
 
@@ -166,6 +167,17 @@ echo done ifr
 ##     [[ -f final/CAN_${base}.zip ]] && rm final/CAN_${base}.zip
 ##     echo final/CAN_${base}.zip
 ##     zip -9 --quiet final/CAN_${base}.zip `mygroup ${img} topo`
+## done
+## wait
+## echo done topo
+##
+## echo start TPC
+## for img in `ls ../tpc/*2.vrt`; do
+##     base=`echo $img|cut -f3 -d/|cut -f1 -d.|sed s/_2//`
+##     [[ -f final/TPC_${base}.zip ]] && rm final/TPC_${base}.zip
+##     echo final/TPC_${base}.zip
+##     ## mygroup ${img} tpc
+##     zip -9 --quiet final/TPC_${base}.zip `mygroup ${img} tpc`
 ## done
 ## wait
 ## echo done topo

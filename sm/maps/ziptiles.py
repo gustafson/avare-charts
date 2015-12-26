@@ -87,6 +87,11 @@ def main(argv):
     elif chart=="heli":
         chart = 9
         maxzoom=13
+    elif chart=="tpc":
+        chart = 11
+        ftype = "jpg"
+        #cycle = "static"
+        maxzoom=10
 ## Note delete always chooses pngs because the jpg will just be replaced anyway        
     elif chart=="deletesec":
         chart = 0
@@ -110,6 +115,9 @@ def main(argv):
         #cycle = "static"
     elif chart=="deleteheli":
         chart = 9
+    elif chart=="deletetpc":
+        chart = 11
+        #cycle = "static"
     else:
         print "Chart type not among current list"
         return 1
