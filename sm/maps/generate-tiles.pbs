@@ -1,6 +1,6 @@
 #!/bin/sh -login
 #PBS -l mem=20gb
-#PBS -l nodes=1:ppn=16
+#PBS -l nodes=1:ppn=4
 #PBS -l walltime=1000:00:00
 #PBS -m abe 
 #PBS -V 
@@ -112,7 +112,7 @@ elif [[ ${PBS_ARRAYID} -eq 3 ]]; then
     ${TIME2} time.ifr.txt ./gdal2tiles_512_mysingle.py -t "IFR Enroute Low" ${OPTIONS2} ifr.vrt tiles/3
     find tiles/3 -name "*png"| xargs mogrify -format png8
     find tiles/3 -name "*png8"| xargs rename png8 png
-    
+
 elif [[ ${PBS_ARRAYID} -eq 4 ]]; then
     ${TIME1} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} ifh.vrt tiles/4
     ${TIME2} time.ifh.txt ./gdal2tiles_512_mysingle.py -t "IFR Enroute High" ${OPTIONS2} ifh.vrt tiles/4
@@ -120,11 +120,27 @@ elif [[ ${PBS_ARRAYID} -eq 4 ]]; then
     find tiles/4 -name "*png8"| xargs rename png8 png
 
 elif [[ ${PBS_ARRAYID} -eq 5 ]]; then
-    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS2} ifa.vrt tiles/5
+    ## start with guam then backfill the rest
+    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -z 7-11 merge/ifa/ENR_P01_GUA.vrt tiles/5
+    ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py -t "IFR Area" ${OPTIONS2} -z 7-11 merge/ifa/ENR_P01_GUA.vrt tiles/5
+    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} ifa.vrt tiles/5
     ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py -t "IFR Area" ${OPTIONS2} ifa.vrt tiles/5
     find tiles/5 -name "*png"| xargs mogrify -format png8
     find tiles/5 -name "*png8"| xargs rename png8 png
-     
+
+elif [[ ${PBS_ARRAYID} -eq 55 ]]; then
+    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} ifa.vrt tiles/5.test
+    ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py -t "IFR Area" ${OPTIONS2} ifa.vrt tiles/5.test
+    find tiles/5.test -name "*png"| xargs mogrify -format png8
+    find tiles/5.test -name "*png8"| xargs rename png8 png
+
+elif [[ ${PBS_ARRAYID} -eq 99 ]]; then
+    gdal_translate -of vrt -expand rgba ./charts/tac/DetroitTAC84.tif debug.vrt
+    ${TIME1} time.debug.txt ./gdal2tiles_512_parallel.py -t "DEBUG" ${OPTIONS1} --verbose debug.vrt tiles/debug
+    ${TIME2} time.debug.txt ./gdal2tiles_512_mysingle.py -t "DEBUG" ${OPTIONS2} --verbose debug.vrt tiles/debug
+    find tiles/debug -name "*png"| xargs mogrify -format png8
+    find tiles/debug -name "*png8"| xargs rename png8 png
+
 ## HELI ON CHANGE ONLY ## elif [[ ${PBS_ARRAYID} -eq 7 ]]; then
 ## HELI ON CHANGE ONLY ##     ${TIME1} time.heli.txt ./gdal2tiles_512_parallel.py -t "Helicoptor Route Chart" ${OPTIONS1} heli.vrt tiles/9
 ## HELI ON CHANGE ONLY ##     ${TIME2} time.heli.txt ./gdal2tiles_512_mysingle.py -t "Helicoptor Route Chart" ${OPTIONS2} heli.vrt tiles/9

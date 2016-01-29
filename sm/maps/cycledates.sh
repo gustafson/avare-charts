@@ -22,7 +22,7 @@ if [[ $2 = dof ]]; then
     REF=`date -u -d 12/8/2014 +%s`
     CYCLEDAYS=56
 else
-    REF=`date -u -d 12/13/2013 +%s`
+    REF=`date -u -d 8/20/2015 +%s`
 fi
 
 #TODAY="7/15/2014"

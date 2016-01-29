@@ -29,6 +29,7 @@
 #
 
 CYCLE=`./cyclenumber.sh`
+# pushd static
 pushd final
 
 for a in *zip; do
@@ -43,10 +44,12 @@ rm -f *ref
 rm -f *qc 
 rm -f *manualcheck 
 
+# unzip -q ../qualitycontrol.static.zip
 unzip -q ../qualitycontrol.zip
+
 ## 
 for a in *zip.qc.ref; do
-## for a in *zip; do  ## For adding new files to record -- use this and ignore errors
+## for a in CAN_*zip; do  ## For adding new files to record -- use this and ignore errors
     b=`basename $a .qc.ref`;
 
     ## Count files and total file size

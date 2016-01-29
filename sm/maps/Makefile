@@ -151,6 +151,7 @@ download-ifr:
 	if [[ -d charts/ifh ]]; then rm -fr charts/ifh; fi
 	if [[ -d charts/ifal ]]; then rm -fr charts/ifal; fi
 	if [[ -d charts/ifa ]]; then rm -fr charts/ifa; fi
+	if [[ -d charts/ifah ]]; then rm -fr charts/ifah; fi
 	mkdir -p charts/ifr
 	mkdir -p charts/ifh
 	mkdir -p charts/ifa

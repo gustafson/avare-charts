@@ -40,9 +40,8 @@ def main(argv):
     lat2 = float(argv[3])
     m1 = [lon1, lat1]
     m2 = [lon2, lat2]
-    cycle = argv[4]
-    chart = argv[5]
-    spec =  argv[6]
+    chart = argv[4]
+    spec =  argv[5]
     ftype = "png"
     maxzoom=14
     
@@ -77,12 +76,10 @@ def main(argv):
     elif chart=="rel":
         chart = 7
         ftype = "jpg"
-        #cycle = "static"
         maxzoom=9
     elif chart=="topo":
         chart = 8
         ftype = "jpg"
-        #cycle = "static"
         maxzoom=10
     elif chart=="heli":
         chart = 9
@@ -90,7 +87,6 @@ def main(argv):
     elif chart=="tpc":
         chart = 11
         ftype = "jpg"
-        #cycle = "static"
         maxzoom=10
 ## Note delete always chooses pngs because the jpg will just be replaced anyway        
     elif chart=="deletesec":
@@ -109,15 +105,12 @@ def main(argv):
         chart = 6
     elif chart=="deleterel":
         chart = 7
-        #cycle = "static"
     elif chart=="deletetopo":
         chart = 8
-        #cycle = "static"
     elif chart=="deleteheli":
         chart = 9
     elif chart=="deletetpc":
         chart = 11
-        #cycle = "static"
     else:
         print "Chart type not among current list"
         return 1
@@ -129,13 +122,13 @@ def main(argv):
         t1 = PixelsToTile(p1)
         p2 = MetersToPixels(m2, zoom)
         t2 = PixelsToTile(p2)
-        ## mystr2 = "tiles/%s/%i/%i" % (cycle, chart, zoom)
         mystr2 = "tiles/%i/%i" % (chart, zoom) 
         for i in range (t1[0], t2[0]+1):
             for j in range (t2[1], t1[1]+1):
                 mystr3 = "%s/%s" % (i,j)
                 fname  = "%s/%s." % (mystr2,mystr3)
                 fname += ftype
+                ## print fname
                 if (os.path.isfile(fname)):
                     print fname
 

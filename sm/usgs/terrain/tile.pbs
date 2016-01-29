@@ -4,7 +4,7 @@
 #PBS -l walltime=24:00:00
 #PBS -m abe 
 #PBS -V 
-#PBS -N retile
+#PBS -N tile
 #PBS -e ${PBS_JOBID}.e_${PBS_JOBNAME}
 #PBS -o ${PBS_JOBID}.o_${PBS_JOBNAME}
 
@@ -71,41 +71,13 @@ OPTIONS1="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos --processes 16"
 OPTIONS2="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos"
 TIME1="/usr/bin/time -v -o"
 TIME2="/usr/bin/time -v --append -o"
-MYDIR1=/home/pi/gustafson/avare.charts.git/sm/elevation
 MYDIR2=/home/pi/gustafson/avare.charts.git/sm/maps
 
-rm -fr tiles
-#unzip ELEV_HI_PNG.zip
-${TIME1} time.txt ${MYDIR1}/gdal2tiles_512_parallel.py -t "Terrain Maps" ${OPTIONS1} elevhii0100a_1.vrt tiles/6
-${TIME2} time.txt ${MYDIR1}/gdal2tiles_512_mysingle.py -t "Terrain Maps" ${OPTIONS2} elevhii0100a_1.vrt tiles/6
-find tiles/6 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
-find tiles/6 -name "*png"| xargs -n 1 -P ${NP} mogrify -format jpg -quality 100
-zip -9 -u ELEV_HI.zip `find tiles/6 -name "*jpg"`
-zip -9 -u ELEV_HI_PNG.zip `find tiles/6 -name "*png"` tiles/6/openlayers.html
-
-rm -fr tiles
-#unzip ELEV_PR_PNG.zip
-${TIME1} time.txt ${MYDIR1}/gdal2tiles_512_parallel.py -t "Terrain Maps" ${OPTIONS1} elevpri0100a_1.vrt tiles/6
-${TIME2} time.txt ${MYDIR1}/gdal2tiles_512_mysingle.py -t "Terrain Maps" ${OPTIONS2} elevpri0100a_1.vrt tiles/6
-find tiles/6 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
-find tiles/6 -name "*png"| xargs -n 1 -P ${NP} mogrify -format jpg -quality 100
-zip -9 -u ELEV_PR.zip `find tiles/6 -name "*jpg"`
-zip -9 -u ELEV_PR_PNG.zip `find tiles/6 -name "*png"` tiles/6/openlayers.html
-
-rm -fr tiles
-#unzip ELEV_AK_PNG.zip
-${TIME1} time.txt ${MYDIR1}/gdal2tiles_512_parallel.py -t "Terrain Maps" ${OPTIONS1} elevaki0100a_1.vrt tiles/6
-${TIME2} time.txt ${MYDIR1}/gdal2tiles_512_mysingle.py -t "Terrain Maps" ${OPTIONS2} elevaki0100a_1.vrt tiles/6
-find tiles/6 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
-find tiles/6 -name "*png"| xargs -n 1 -P ${NP} mogrify -format jpg -quality 100
-zip -9 -u ELEV_AK.zip `find tiles/6 -name "*jpg"`
-zip -9 -u ELEV_AK_PNG.zip `find tiles/6 -name "*png"` tiles/6/openlayers.html
-rm -fr tiles
-
-## ${TIME1} time.txt ${MYDIR1}/gdal2tiles_512_parallel.py -t "Terrain Maps" ${OPTIONS1} elev48i0100a_1.vrt ${MYDIR2}/tiles/6
-## ${TIME2} time.txt ${MYDIR1}/gdal2tiles_512_mysingle.py -t "Terrain Maps" ${OPTIONS2} elev48i0100a_1.vrt ${MYDIR2}/tiles/6
-## find ${MYDIR2}/tiles/6 -name "*png"| xargs mogrify -format jpg -quality 100
-## find ${MYDIR2}/tiles/6 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
+rm -fr terrain/[0-9]
+${TIME1} time.txt ${MYDIR2}/gdal2tiles_512_parallel.py -t "Terrain Maps" ${OPTIONS1} terrain.vrt terrain
+${TIME2} time.txt ${MYDIR2}/gdal2tiles_512_mysingle.py -t "Terrain Maps" ${OPTIONS2} terrain.vrt terrain
+find terrain -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
+#find terrain -name "*png"| xargs -n 1 -P ${NP} mogrify -format jpg -quality 100
 
 ## 0 Sectional
 ## 1 TAC

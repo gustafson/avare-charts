@@ -55,4 +55,5 @@ do
 done
 
 # Zip up the result
-zip CAN_ADS.zip -r -i*.png plates
+rm final/CAN_ADS.zip
+zip final/CAN_ADS.zip -r -i*.png plates

@@ -29,9 +29,9 @@
 
 function mygroup(){
     ## echo $1 $2
-    ## echo ./ziptiles.py $(extract_corners.sh $1) $(cyclenumber.sh) $2 meters
+    ## echo ./ziptiles.py $(extract_corners.sh $1) $2 meters
     echo $1
-    ./ziptiles.py $(extract_corners.sh $1) $(cyclenumber.sh) $2 meters
+    ./ziptiles.py $(extract_corners.sh $1) $2 meters
 }
 
 export -f mygroup
@@ -98,44 +98,54 @@ for img in merge/ifa/*vrt; do
 done
 wait
 
-rm -f final/ELUS_AK.zip; zip -9 --quiet final/ELUS_AK.zip $(./ziptiles.py -180.00 75.00 -125.00 50.00 ${CYCLE} ifr latlon) &
-rm -f final/ELUS_NE.zip; zip -9 --quiet final/ELUS_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 ${CYCLE} ifr latlon) &
-rm -f final/ELUS_NC.zip; zip -9 --quiet final/ELUS_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 ${CYCLE} ifr latlon) &
-rm -f final/ELUS_NW.zip; zip -9 --quiet final/ELUS_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 ${CYCLE} ifr latlon) &
-rm -f final/ELUS_SE.zip; zip -9 --quiet final/ELUS_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 ${CYCLE} ifr latlon) &
-rm -f final/ELUS_SC.zip; zip -9 --quiet final/ELUS_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 ${CYCLE} ifr latlon) &
-rm -f final/ELUS_SW.zip; zip -9 --quiet final/ELUS_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 ${CYCLE} ifr latlon) &
+rm -f final/ELUS_AK.zip; zip -9 --quiet final/ELUS_AK.zip $(./ziptiles.py -180.00 75.00 -125.00 50.00 ifr latlon) &
+rm -f final/ELUS_NE.zip; zip -9 --quiet final/ELUS_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 ifr latlon) &
+rm -f final/ELUS_NC.zip; zip -9 --quiet final/ELUS_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 ifr latlon) &
+rm -f final/ELUS_NW.zip; zip -9 --quiet final/ELUS_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 ifr latlon) &
+rm -f final/ELUS_SE.zip; zip -9 --quiet final/ELUS_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 ifr latlon) &
+rm -f final/ELUS_SC.zip; zip -9 --quiet final/ELUS_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 ifr latlon) &
+rm -f final/ELUS_SW.zip; zip -9 --quiet final/ELUS_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 ifr latlon) &
 
-rm -f final/EHUS_AK.zip; zip -9 --quiet final/EHUS_AK.zip $(./ziptiles.py -180.00 75.00 -125.00 50.00 ${CYCLE} ifh latlon) &
-rm -f final/EHUS_NE.zip; zip -9 --quiet final/EHUS_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 ${CYCLE} ifh latlon) &
-rm -f final/EHUS_NC.zip; zip -9 --quiet final/EHUS_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 ${CYCLE} ifh latlon) &
-rm -f final/EHUS_NW.zip; zip -9 --quiet final/EHUS_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 ${CYCLE} ifh latlon) &
-rm -f final/EHUS_SE.zip; zip -9 --quiet final/EHUS_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 ${CYCLE} ifh latlon) &
-rm -f final/EHUS_SC.zip; zip -9 --quiet final/EHUS_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 ${CYCLE} ifh latlon) &
-rm -f final/EHUS_SW.zip; zip -9 --quiet final/EHUS_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 ${CYCLE} ifh latlon) &
+rm -f final/EHUS_AK.zip; zip -9 --quiet final/EHUS_AK.zip $(./ziptiles.py -180.00 75.00 -125.00 50.00 ifh latlon) &
+rm -f final/EHUS_NE.zip; zip -9 --quiet final/EHUS_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 ifh latlon) &
+rm -f final/EHUS_NC.zip; zip -9 --quiet final/EHUS_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 ifh latlon) &
+rm -f final/EHUS_NW.zip; zip -9 --quiet final/EHUS_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 ifh latlon) &
+rm -f final/EHUS_SE.zip; zip -9 --quiet final/EHUS_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 ifh latlon) &
+rm -f final/EHUS_SC.zip; zip -9 --quiet final/EHUS_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 ifh latlon) &
+rm -f final/EHUS_SW.zip; zip -9 --quiet final/EHUS_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 ifh latlon) &
 wait
 echo done ifr
 
 ## echo starting relief
-## cp ../usgs/sr/REL_{AK,HI,PR}.zip final/.
-## rm -f final/REL_NE.zip; zip -9 --quiet final/REL_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 ${CYCLE} rel latlon) &
-## rm -f final/REL_NC.zip; zip -9 --quiet final/REL_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 ${CYCLE} rel latlon) &
-## rm -f final/REL_NW.zip; zip -9 --quiet final/REL_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 ${CYCLE} rel latlon) &
-## rm -f final/REL_SE.zip; zip -9 --quiet final/REL_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 ${CYCLE} rel latlon) &
-## rm -f final/REL_SC.zip; zip -9 --quiet final/REL_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 ${CYCLE} rel latlon) &
-## rm -f final/REL_SW.zip; zip -9 --quiet final/REL_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 ${CYCLE} rel latlon) &
-## wait
+rm -f static/REL_AK.zip; zip -9 --quiet static/REL_AK.zip $(./ziptiles.py -179.90  75.0 -128.45 50.50 rel latlon) &
+rm -f static/REL_HI.zip; zip -9 --quiet static/REL_HI.zip $(./ziptiles.py -165.00  25.0 -150.00 15.00 rel latlon) &
+rm -f static/REL_PR.zip; zip -9 --quiet static/REL_PR.zip $(./ziptiles.py  -68.00  19.5  -64.00 17.00 rel latlon) &
+rm -f static/REL_NE.zip; zip -9 --quiet static/REL_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 rel latlon) &
+rm -f static/REL_NC.zip; zip -9 --quiet static/REL_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 rel latlon) &
+rm -f static/REL_NW.zip; zip -9 --quiet static/REL_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 rel latlon) &
+rm -f static/REL_SE.zip; zip -9 --quiet static/REL_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 rel latlon) &
+rm -f static/REL_SC.zip; zip -9 --quiet static/REL_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 rel latlon) &
+rm -f static/REL_SW.zip; zip -9 --quiet static/REL_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 rel latlon) &
+wait
 ## echo done relief
 ## 
 ## echo starting terrain
-## cp ../usgs/terrain/ELEV_{AK,HI,PR}.zip final/.
-## rm -f final/ELEV_NE.zip; zip -9 final/ELEV_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 ${CYCLE} elev latlon) &  ## --quiet 
-## rm -f final/ELEV_NC.zip; zip -9 final/ELEV_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 ${CYCLE} elev latlon) &  ## --quiet 
-## rm -f final/ELEV_NW.zip; zip -9 final/ELEV_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 ${CYCLE} elev latlon) &  ## --quiet 
-## rm -f final/ELEV_SE.zip; zip -9 final/ELEV_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 ${CYCLE} elev latlon) &  ## --quiet 
-## rm -f final/ELEV_SC.zip; zip -9 final/ELEV_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 ${CYCLE} elev latlon) &  ## --quiet 
-## rm -f final/ELEV_SW.zip; zip -9 final/ELEV_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 ${CYCLE} elev latlon) &  ## --quiet 
-## wait
+## AK Upper Left  (-3327000.000, 2438000.000) (142d44' 7.99"E, 56d30' 7.45"N)
+## AK Lower Left  (-3327000.000,  346000.000) (163d25'20.02"E, 43d 3'12.40"N)
+## AK Upper Right ( 1654000.000, 2438000.000) (113d28'58.51"W, 67d12'45.81"N)
+## AK Lower Right ( 1654000.000,  346000.000) (130d24'21.38"W, 50d26'41.22"N)
+## AK Center      ( -836500.000, 1392000.000) (169d57'59.56"W, 61d35'50.85"N)
+
+rm -f static/ELEV_AK.zip; zip -9 static/ELEV_AK.zip $(./ziptiles.py -179.90  75.0 -128.45 50.50 elev latlon) &  ## --quiet 
+rm -f static/ELEV_HI.zip; zip -9 static/ELEV_HI.zip $(./ziptiles.py -165.00  25.0 -150.00 15.00 elev latlon) &  ## --quiet 
+rm -f static/ELEV_PR.zip; zip -9 static/ELEV_PR.zip $(./ziptiles.py  -68.00  19.5  -64.00 17.00 elev latlon) &  ## --quiet 
+rm -f static/ELEV_NE.zip; zip -9 static/ELEV_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 elev latlon) &  ## --quiet 
+rm -f static/ELEV_NC.zip; zip -9 static/ELEV_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 elev latlon) &  ## --quiet 
+rm -f static/ELEV_NW.zip; zip -9 static/ELEV_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 elev latlon) &  ## --quiet 
+rm -f static/ELEV_SE.zip; zip -9 static/ELEV_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 elev latlon) &  ## --quiet 
+rm -f static/ELEV_SC.zip; zip -9 static/ELEV_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 elev latlon) &  ## --quiet 
+rm -f static/ELEV_SW.zip; zip -9 static/ELEV_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 elev latlon) &  ## --quiet 
+wait
 ## echo done terrain
 ## 
 ## echo starting heli
@@ -152,10 +162,10 @@ echo done ifr
 ##     FILE=`find merge/heli/${IMG}*|grep 3`
 ##     if [[ -f ${FILE} ]]; then
 ## 	#echo `ls merge/heli/${IMG}*3.vrt`
-## 	zip -9 --quiet $BASE $(./ziptiles.py `./extract_corners.sh merge/heli/${IMG}*3.vrt` ${CYCLE} heli meters) &
+## 	zip -9 --quiet $BASE $(./ziptiles.py `./extract_corners.sh merge/heli/${IMG}*3.vrt` heli meters) &
 ##     else
 ## 	#echo `ls merge/heli/${IMG}*2.vrt`
-## 	zip -9 --quiet $BASE $(./ziptiles.py `./extract_corners.sh merge/heli/${IMG}*2.vrt` ${CYCLE} heli meters) &
+## 	zip -9 --quiet $BASE $(./ziptiles.py `./extract_corners.sh merge/heli/${IMG}*2.vrt` heli meters) &
 ##     fi
 ## done
 ## wait
@@ -184,14 +194,14 @@ echo done ifr
 ## 
 ## ALTERNATIVE TO ADD OVERVIEW TILES ## 
 ## make zipit
-## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} sec latlon|grep "tiles/..../0/7"`   ## --quiet 
-## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} tac latlon|grep "tiles/..../1/8"`	  ## --quiet 
-## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} wac latlon|grep "tiles/..../2/6"`	  ## --quiet 
-## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} ifr latlon|grep "tiles/..../3/7"`	  ## --quiet 
-## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} ifh latlon|grep "tiles/..../4/6"`	  ## --quiet 
-## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} ifa latlon|grep "tiles/..../5/8"`	  ## --quiet 
-## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} elev latlon|grep "tiles/..../6/6"`  ## --quiet 
-## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ${CYCLE} rel latlon|grep "tiles/..../7/6"`	  ## --quiet 
+## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 sec latlon|grep "tiles/..../0/7"`   ## --quiet 
+## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 tac latlon|grep "tiles/..../1/8"`	  ## --quiet 
+## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 wac latlon|grep "tiles/..../2/6"`	  ## --quiet 
+## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ifr latlon|grep "tiles/..../3/7"`	  ## --quiet 
+## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ifh latlon|grep "tiles/..../4/6"`	  ## --quiet 
+## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 ifa latlon|grep "tiles/..../5/8"`	  ## --quiet 
+## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 elev latlon|grep "tiles/..../6/6"`  ## --quiet 
+## zip -9 final/databases.zip `./ziptiles.py -131.21 50.15 -40.00 23.13 rel latlon|grep "tiles/..../7/6"`	  ## --quiet 
 ## echo done databases
 
 ## OBSOLUTE WITH CHART POLYGONS ## ## Now create manifest

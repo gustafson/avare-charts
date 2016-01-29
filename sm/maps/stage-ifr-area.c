@@ -51,6 +51,7 @@ int main(int argc, char *argv[])
   int map;
   char buffer[512];
   char tmpstr[512];
+  // char tmpstr2[512];
   char projstr[512];
   snprintf(projstr, sizeof(projstr), "-t_srs 'EPSG:900913' ");
   char *n_ptr;
@@ -58,29 +59,42 @@ int main(int argc, char *argv[])
 
   if (argc>=2){debug=1;}
 
-  out("rm -fr merge/ifa; mkdir merge/ifa"); // ifa
+  out("rm -fr merge/ifa; mkdir merge/ifa;"); // ifa
+  // out("rm -fr merge/ifa-temp; mkdir merge/ifa-temp;"); // ifa
   int entries = sizeof(maps) / sizeof(maps[0]);
-
+  
   for(map = 0; map < entries; map++) {
+    if(0 == strcmp(maps[map].reg, "IFA")) {
+      dir_ptr = "ifa";
+    } else if(0 == strcmp(maps[map].reg, "IFAL")) {
+      dir_ptr = "ifal";
+    } else {
+      dir_ptr = "empty";
+    }
+ 
     n_ptr = maps[map].name; 
 
     // Establish a parallel safe tmp name
     snprintf(tmpstr, sizeof(tmpstr), "merge/ifa/%s", maps[map].name);
+    //snprintf(tmpstr2, sizeof(tmpstr2), "merge/ifa-temp/%s", maps[map].name);
 
     printf("\n\n# %s\n", maps[map].name);
-
-    dir_ptr = "ifa";
 
     snprintf(buffer, sizeof(buffer),
 	     "gdalwarp -of vrt %s charts/%s/%s.tif %s.vrt",
 	     projstr, dir_ptr, n_ptr, tmpstr);
     out(buffer);
 
+    // snprintf(buffer, sizeof(buffer),
+    // 	     "gdalwarp -tr 30 30 -of vrt %s charts/%s/%s.tif %s.vrt",
+    // 	     projstr, dir_ptr, n_ptr, tmpstr2);
+    // out(buffer);
+
   }
 
   /* one image */
   out("\n\n\n# Merge all");
-  out("gdalbuildvrt -resolution highest ifa.vrt -overwrite merge/ifa/*.vrt\n");
+  out("gdalbuildvrt -resolution highest ifa.vrt -overwrite `ls merge/ifa/*.vrt|grep -v GUA`\n");
 
   return 0;
 }
