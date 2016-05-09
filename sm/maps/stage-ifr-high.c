@@ -82,13 +82,13 @@ int main(int argc, char *argv[])
        (0 == strcmp(maps[map].reg, "IFAH"))) {
 			
       snprintf(buffer, sizeof(buffer),
-	       "gdal_translate -of vrt -a_nodata '51 51 51' -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
+	       "gdal_translate -of vrt -r lanczos -a_nodata '51 51 51' -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
 	       maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
 	       dir_ptr, n_ptr, tmpstr);
       out(buffer);
       
       snprintf(buffer, sizeof(buffer),  
-      	       "gdalwarp -of vrt -dstnodata '51 51 51' %s %s_1.vrt %s_2.vrt\n",
+      	       "gdalwarp -of vrt -r lanczos -dstnodata '51 51 51' %s %s_1.vrt %s_2.vrt\n",
       	       projstr, tmpstr, tmpstr);
       out(buffer);
 
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
   
   /* one image */
   out("\n\n\n# Merge all");
-  out("gdalbuildvrt -resolution highest ifh.vrt -overwrite merge/ifh/*_2.vrt\n");
+  out("gdalbuildvrt -r lanczos -resolution highest ifh.vrt -overwrite merge/ifh/*_2.vrt\n");
 
   return 0;
 }

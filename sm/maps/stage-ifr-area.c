@@ -81,12 +81,12 @@ int main(int argc, char *argv[])
     printf("\n\n# %s\n", maps[map].name);
 
     snprintf(buffer, sizeof(buffer),
-	     "gdalwarp -of vrt %s charts/%s/%s.tif %s.vrt",
+	     "gdalwarp -of vrt -r lanczos %s charts/%s/%s.tif %s.vrt",
 	     projstr, dir_ptr, n_ptr, tmpstr);
     out(buffer);
 
     // snprintf(buffer, sizeof(buffer),
-    // 	     "gdalwarp -tr 30 30 -of vrt %s charts/%s/%s.tif %s.vrt",
+    // 	     "gdalwarp -of vrt -r lanczos -tr 30 30 %s charts/%s/%s.tif %s.vrt",
     // 	     projstr, dir_ptr, n_ptr, tmpstr2);
     // out(buffer);
 
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 
   /* one image */
   out("\n\n\n# Merge all");
-  out("gdalbuildvrt -resolution highest ifa.vrt -overwrite `ls merge/ifa/*.vrt|grep -v GUA`\n");
+  out("gdalbuildvrt -r lanczos -resolution highest ifa.vrt -overwrite `ls merge/ifa/*.vrt|grep -v GUA`\n");
 
   return 0;
 }

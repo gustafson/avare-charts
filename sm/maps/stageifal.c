@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     if((0 == strcmp(maps[map].reg, "IFAL"))) {
       
       snprintf(buffer0, sizeof(buffer0),
-	       "gdal_translate -of vrt -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
+	       "gdal_translate -of vrt -r cubicspline -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
 	       maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
 	       dir_ptr,
 	       n_ptr,
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
       out(buffer0);
       
       // START WORKING HERE
-      snprintf(buffer0, sizeof(buffer0), "gdalwarp -of vrt -dstnodata '51 51 51' %s %s_1.vrt %s_2.vrt", projstr, tmpstr, tmpstr);
+      snprintf(buffer0, sizeof(buffer0), "gdalwarp -of vrt -r cubicspline -dstnodata '51 51 51' %s %s_1.vrt %s_2.vrt", projstr, tmpstr, tmpstr);
       out(buffer0);
 
       // snprintf(buffer0, sizeof(buffer0), "nearblack -color 0,0,0 -setmask %s_2.vrt;\n", tmpstr);
@@ -96,6 +96,6 @@ int main(int argc, char *argv[])
 
   /* one image */
   out("\n\n\n# Merge all including alaska west and enroute low 48");
-  out("gdalbuildvrt -resolution highest ifr.vrt -overwrite merge/ifr/*_2.vrt");
+  out("gdalbuildvrt -r cubicspline -resolution highest ifr.vrt -overwrite merge/ifr/*_2.vrt");
   return 0;
 }

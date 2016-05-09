@@ -84,19 +84,19 @@ int main(int argc, char *argv[])
     snprintf(tmpstr, sizeof(tmpstr), "merge/ifr/%s%s%s", order_ptr, maps[map].name, maps[map].sub);
     
     snprintf(buffer, sizeof(buffer),
-	     "gdal_translate -of vrt -a_nodata '51 51 51' -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
+	     "gdal_translate -of vrt -r lanczos -a_nodata '51 51 51' -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
 	     maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
 	     dir_ptr, n_ptr, tmpstr);
     out(buffer);
 
     if(0 == strcmp(maps[map].name, "ENR_AKL02W")) {
       snprintf(buffer, sizeof(buffer),  
-	       "gdalwarp -of vrt -dstnodata '51 51 51' -tr 200 200 %s %s_1.vrt %s_2.vrt",
+	       "gdalwarp -of vrt -r lanczos -dstnodata '51 51 51' -tr 200 200 %s %s_1.vrt %s_2.vrt",
 	       projstr, tmpstr, tmpstr);
       
     } else {
       snprintf(buffer, sizeof(buffer),  
-	       "gdalwarp -of vrt -dstnodata '51 51 51' %s %s_1.vrt %s_2.vrt",
+	       "gdalwarp -of vrt -r lanczos -dstnodata '51 51 51' %s %s_1.vrt %s_2.vrt",
 	       projstr, tmpstr, tmpstr);
     }
     
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
   /* one image */
   out("\n\n\n# Merge all");
   /* Alaska should be first so it is underneath. */
-  out("gdalbuildvrt -resolution highest ifr.vrt -overwrite merge/ifr/*_2.vrt");
-  out("gdalbuildvrt -resolution highest ifr_ak.vrt -overwrite merge/ifr/{0ENR_AKL01_2.vrt,0ENR_AKL02C_2.vrt,0ENR_AKL02W_2.vrt,0ENR_AKL03_2.vrt,0ENR_AKL04north_2.vrt,0ENR_AKL04middle_2.vrt,0ENR_AKL04south_2.vrt}");
+  out("gdalbuildvrt -r lanczos -resolution highest ifr.vrt -overwrite merge/ifr/*_2.vrt");
+  out("gdalbuildvrt -r lanczos -resolution highest ifr_ak.vrt -overwrite merge/ifr/{0ENR_AKL01_2.vrt,0ENR_AKL02C_2.vrt,0ENR_AKL02W_2.vrt,0ENR_AKL03_2.vrt,0ENR_AKL04north_2.vrt,0ENR_AKL04middle_2.vrt,0ENR_AKL04south_2.vrt}");
   return 0;
 }

@@ -179,9 +179,17 @@ unzip:
 	rename " " "" charts/*/*tif
 
 
-stage-all: stage-vfr stage-ifr
+stage-all: stage-vfr-sec stage-ifr-low
+	## NOTE current limit is disk IO and open files, do one at a time
+	cat generate-tiles.pbs| qsub -t 0-5%2 #| sed s/ppn=16/ppn=$(NP)/
 
-stage-ifr:
+stage-ifr: stage-ifr-low
+	cat generate-tiles.pbs| qsub -t 3-5%2 #| sed s/ppn=16/ppn=$(NP)/
+
+stage-vfr: stage-vfr-sec
+	cat generate-tiles.pbs| qsub -t 0-2%2 #| sed s/ppn=16/ppn=$(NP)/	
+
+stage-ifr-low:
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	gcc -march=native -O3 -Wall stage-ifr-low.c -o stage-ifr-low
 	gcc -march=native -O3 -Wall stage-ifr-high.c -o stage-ifr-high
@@ -189,10 +197,8 @@ stage-ifr:
 	./stage-ifr-low
 	./stage-ifr-high
 	./stage-ifr-area
-	## NOTE current rate limit is disk IO and open files, do one at a time
-	qsub -t 3-5%1 generate-tiles.pbs
 
-stage-vfr:
+stage-vfr-sec:
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	## gcc -march=native -O3 -Wall stagefly.c -o stagefly
 	gcc -march=native -O3 -Wall stage-vfr-heli.c -o stage-vfr-heli
@@ -201,8 +207,6 @@ stage-vfr:
 	./stage-vfr-heli
 	./stage-vfr-sec
 	./stage-vfr-tac
-	## NOTE current limit is disk IO and open files, do one at a time
-	cat generate-tiles.pbs| sed s/ppn=16/ppn=$(NP)/ | qsub -t 0-2%1 
 
 ziptiles:
 	./ziptiles.sh

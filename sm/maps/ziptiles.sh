@@ -28,10 +28,9 @@
 #
 
 function mygroup(){
-    ## echo $1 $2
-    ## echo ./ziptiles.py $(extract_corners.sh $1) $2 meters
-    echo $1
-    ./ziptiles.py $(extract_corners.sh $1) $2 meters
+    # echo $1 $2
+    corners=`extract_corners.sh $1`
+    ./ziptiles.py $corners $2 meters
 }
 
 export -f mygroup

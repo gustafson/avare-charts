@@ -73,20 +73,20 @@ int main(int argc, char *argv[])
       snprintf(filestr, sizeof(filestr), "merge/%s/%02i%s", dir_ptr, map, maps[map].name);
  
       snprintf(buffer, sizeof(buffer),
-	       "gdal_translate -of vrt -expand rgb -srcwin %i %i %i %i charts/%s/%s*.tif %s_1.vrt;\n",
+	       "gdal_translate -of vrt -r cubicspline -expand rgb -srcwin %i %i %i %i charts/%s/%s*.tif %s_1.vrt;\n",
 	       maps[map].x, maps[map].y, maps[map].dx, maps[map].dy, dir_ptr, n_ptr, filestr);
       strcat(cmdstr, buffer);
       // Put a mask near the edges so that no seams show on the tiles
       snprintf(buffer, sizeof(buffer),
 	       // Note the reversed order 2, 1 is appropriate
-	       "gdalbuildvrt -addalpha -srcnodata '0 0 0' -srcnodata '255 255 255' %s_2.vrt  %s_1.vrt;\n", filestr, filestr);
+	       "gdalbuildvrt -r cubicspline -addalpha -srcnodata '0 0 0' -srcnodata '255 255 255' %s_2.vrt  %s_1.vrt;\n", filestr, filestr);
       strcat(cmdstr, buffer);
       snprintf(buffer, sizeof(buffer),
-	       "gdalwarp -of vrt %s %s_2.vrt %s_3.vrt;\n",
+	       "gdalwarp -of vrt -r cubicspline -r cubicspline %s %s_2.vrt %s_3.vrt;\n",
 	       projstr, filestr, filestr);
       strcat(cmdstr, buffer);
       snprintf(buffer, sizeof(buffer),
-	       "gdal_translate -of vrt -projwin_srs WGS84 -projwin %f %f %f %f %s_3.vrt %s_c.vrt;\n",
+	       "gdal_translate -of vrt -r cubicspline -projwin_srs WGS84 -projwin %f %f %f %f %s_3.vrt %s_c.vrt;\n",
 	       maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
 	       filestr, filestr);
       strcat(cmdstr, buffer);
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
   
   printf("\n\n\n");
 
-  snprintf(filestr, sizeof(filestr), "gdalbuildvrt -resolution highest -overwrite");
+  snprintf(filestr, sizeof(filestr), "gdalbuildvrt -r cubicspline -resolution highest -overwrite");
   for(map = 0; map < 2; map++)
     {
       if (map==0){

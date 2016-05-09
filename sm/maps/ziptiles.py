@@ -117,7 +117,7 @@ def main(argv):
     if (maxzoom<14):
         maxzoom = maxzoom+1
         
-    for zoom in range (0,maxzoom):
+    for zoom in range (maxzoom-4,maxzoom):
         p1 = MetersToPixels(m1, zoom)
         t1 = PixelsToTile(p1)
         p2 = MetersToPixels(m2, zoom)

@@ -631,7 +631,8 @@ class GDAL2Tiles(object):
 
         elif self.options.resampling == 'lanczos':
             self.resampling = gdal.GRA_Lanczos
-        
+
+        print "Note: Resampling method is ", self.resampling, self.options.resampling
         # User specified zoom levels
         self.tminz = None
         self.tmaxz = None
