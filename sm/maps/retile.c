@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
 	// Create and load a smaller megatile
 	char tmpfname[1024];
 	sprintf (tmpfname,"%s%i%i%i%i", infile, xb*16*sx, yb*16*sy, sbx, sby);
-	sprintf (buffer1, "gdal_translate -co TILED=YES -q -srcwin %i %i %i %i %s %s.tif", xb*16*sx, yb*16*sy, sbx, sby, infile, tmpfname);
+	sprintf (buffer1, "gdal_translate -r cubicspline -co TILED=YES -q -srcwin %i %i %i %i %s %s.tif", xb*16*sx, yb*16*sy, sbx, sby, infile, tmpfname);
 	out(buffer1);
 	sprintf (buffer1, "%s.tif", tmpfname);
 	status = MagickReadImage(wand_temp1,buffer1);

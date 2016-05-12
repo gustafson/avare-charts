@@ -1,7 +1,7 @@
 #!/bin/sh -login
 #PBS -l mem=20gb
-#PBS -l nodes=1:ppn=4
-#PBS -l walltime=1000:00:00
+#PBS -l nodes=1:ppn=16
+#PBS -l walltime=72:00:00
 #PBS -m abe 
 #PBS -V 
 #PBS -N retile
@@ -64,11 +64,17 @@ export OMP_NUM_THREADS=${NP}
 
 [[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
 
-OPTIONS1="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos --processes ${NP}" --zoom=10
-OPTIONS2="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos" --zoom=10
+OPTIONS1="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos --processes ${NP}" # --zoom=10
+OPTIONS2="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos" # --zoom=10
 TIME1="/usr/bin/time -v -o"
 TIME2="/usr/bin/time -v --append -o"
 MYDIR1=../maps/tiles
+
+function rmemptypng(){
+    ## echo $0
+    [[ `convert $0 -format '%@' info: 2> /dev/null|cut -c 1-3` == "0x0" ]] && rm $0
+}
+export -f rmemptypng
 
 rm log.txt
 for a in `ls *tif`; do
@@ -84,8 +90,8 @@ for a in `ls *tif`; do
 	if [[ $CRIT ]]; then
 	    CRIT="75.0"
 	    echo ${a}: $arg2 too far north fix it to 75.0 >> log.txt
-	    echo "gdal_translate -of vrt -a_nodata '0 0 0' -projwin $arg1 $CRIT $arg3 $arg4 -expand rgb ${b}.tif ${b}_1.vrt" >> log.txt
-	    gdal_translate -of vrt -a_nodata '0 0 0' -projwin $arg1 $CRIT $arg3 $arg4 -expand rgb ${b}.tif ${b}_1.vrt
+	    echo "gdal_translate -r cubicspline -of vrt -a_nodata '0 0 0' -projwin $arg1 $CRIT $arg3 $arg4 -expand rgba ${b}.tif ${b}_1.vrt" >> log.txt
+	    gdal_translate -r cubicspline -of vrt -a_nodata '0 0 0' -projwin $arg1 $CRIT $arg3 $arg4 -expand rgba ${b}.tif ${b}_1.vrt
 	else
 	    CRIT=`../maps/extract_corners.sh $a | awk '{if ($2 < -75.0) {print 1}}'`
 	    if [[ $CRIT ]]; then
@@ -95,26 +101,27 @@ for a in `ls *tif`; do
 		if [[ $CRIT ]]; then
 		    CRIT="-75.0"
 		    echo ${a}: $arg4 too far south fix it to -75 >> log.txt
-		    echo "gdal_translate -of vrt -a_nodata '0 0 0' -projwin $arg1 $arg2 $arg3 $CRIT -expand rgb ${b}.tif ${b}_1.vrt" >> log.txt
-		    gdal_translate -of vrt -a_nodata '0 0 0' -projwin $arg1 $arg2 $arg3 $CRIT -expand rgb ${b}.tif ${b}_1.vrt
+		    echo "gdal_translate -r cubicspline -of vrt -a_nodata '0 0 0' -projwin $arg1 $arg2 $arg3 $CRIT -expand rgba ${b}.tif ${b}_1.vrt" >> log.txt
+		    gdal_translate -r cubicspline -of vrt -a_nodata '0 0 0' -projwin $arg1 $arg2 $arg3 $CRIT -expand rgba ${b}.tif ${b}_1.vrt
 		else
-		    echo "gdal_translate -of vrt -a_nodata '0 0 0' -expand rgb ${b}.tif ${b}_1.vrt" >> log.txt
-		    gdal_translate -of vrt -a_nodata '0 0 0' -expand rgb ${b}.tif ${b}_1.vrt
+		    echo "gdal_translate -r cubicspline -of vrt -a_nodata '0 0 0' -expand rgba ${b}.tif ${b}_1.vrt" >> log.txt
+		    gdal_translate -r cubicspline -of vrt -a_nodata '0 0 0' -expand rgba ${b}.tif ${b}_1.vrt
 		fi
 	    fi
 	fi
     fi
 
-    if [[ -f ${b}_1.vrt ]]; then gdalwarp -of vrt -t_srs 'EPSG:900913' ${b}_1.vrt ${b}_2.vrt; fi
+    if [[ -f ${b}_1.vrt ]]; then gdalwarp -r cubicspline -of vrt -t_srs 'EPSG:900913' ${b}_1.vrt ${b}_2.vrt; fi
     ## 
 done 
 
 gdalbuildvrt -resolution highest -overwrite tpc.vrt *_2.vrt
-${TIME1} time.txt ${MYDIR1}/gdal2tiles_512_parallel.py -t "Tactical Pilotage Charts" ${OPTIONS1} tpc.vrt ${MYDIR1}/tiles/10
-${TIME2} time.txt ${MYDIR1}/gdal2tiles_512_mysingle.py -t "Tactical Pilotage Charts" ${OPTIONS2} tpc.vrt ${MYDIR1}/tiles/10
+${TIME1} time.txt ${MYDIR1}/gdal2tiles_512_parallel.py -t "Tactical Pilotage Charts" ${OPTIONS1} tpc.vrt tpc
+${TIME2} time.txt ${MYDIR1}/gdal2tiles_512_mysingle.py -t "Tactical Pilotage Charts" ${OPTIONS2} tpc.vrt tpc
 
-find ${MYDIR1}/tiles/10 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
-find ${MYDIR1}/tiles/10 -name "*png"| xargs mogrify -unsharp 3x3 -format jpg -quality 75
+find tpc -name "*png"| xargs -n1 -P16 bash -c rmemptypng
+find tpc -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
+find tpc -name "*png"| xargs mogrify -unsharp 1x1 -format jpg -quality 75
 
 ## 0 Sectional
 ## 1 TAC

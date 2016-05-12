@@ -1,10 +1,10 @@
 #!/bin/sh -login
-#PBS -l mem=120gb
+#PBS -l mem=20gb
 #PBS -l nodes=1:ppn=16
 #PBS -l walltime=24:00:00
 #PBS -m abe 
 #PBS -V 
-#PBS -N tile
+#PBS -N Terrain-tile
 #PBS -e ${PBS_JOBID}.e_${PBS_JOBNAME}
 #PBS -o ${PBS_JOBID}.o_${PBS_JOBNAME}
 
@@ -67,17 +67,33 @@ export OMP_NUM_THREADS=${NP}
 
 [[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
 
-OPTIONS1="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos --processes 16"
-OPTIONS2="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos"
+OPTIONS1="-w openlayers -c MUAVLLC --no-kml --resume -r cubicspline --processes 16"
+OPTIONS2="-w openlayers -c MUAVLLC --no-kml --resume -r cubicspline"
 TIME1="/usr/bin/time -v -o"
 TIME2="/usr/bin/time -v --append -o"
-MYDIR2=/home/pi/gustafson/avare.charts.git/sm/maps
+MYDIR2=../../maps
 
-rm -fr terrain/[0-9]
+function rmemptypng(){
+    ## echo $0
+    [[ `convert $0 -format '%@' info: 2> /dev/null|cut -c 1-3` == "0x0" ]] && rm $0
+}
+export -f rmemptypng
+
+for a in *tif; do
+    #../../maps/extract_corners.sh $a
+    b=`basename $a .tif`;
+    gdal_translate -of vrt -ot Byte -scale -100 6175 0 251 ${b}.tif ${b}_1.vrt
+    gdalwarp -r cubicspline -of vrt -t_srs 'EPSG:900913' ${b}_1.vrt ${b}_2.vrt;
+done
+
+gdalbuildvrt -r cubicspline -resolution highest -overwrite terrain.vrt `ls -r elev*2.vrt`
+
+rm -fr terrain
 ${TIME1} time.txt ${MYDIR2}/gdal2tiles_512_parallel.py -t "Terrain Maps" ${OPTIONS1} terrain.vrt terrain
 ${TIME2} time.txt ${MYDIR2}/gdal2tiles_512_mysingle.py -t "Terrain Maps" ${OPTIONS2} terrain.vrt terrain
+find terrain -name "*png"| xargs -n1 -P16 bash -c rmemptypng
 find terrain -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
-#find terrain -name "*png"| xargs -n 1 -P ${NP} mogrify -format jpg -quality 100
+# #find terrain -name "*png"| xargs -n 1 -P ${NP} mogrify -format jpg -quality 100
 
 ## 0 Sectional
 ## 1 TAC
@@ -86,6 +102,6 @@ find terrain -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
 ## 4 IFR High
 ## 5 IFR Area
 ## 6 Terrain
-## 7 Terrain
+## 7 Shaded Relief
 ## 8 Topographic
 ## 9 Heli/Other

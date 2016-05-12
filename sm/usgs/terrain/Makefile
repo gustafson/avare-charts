@@ -24,9 +24,8 @@ terrain.vrt: elevaki0100a.tif elevhii0100a.tif elevpri0100a.tif elev48i0100a.tif
 	gdal_translate -of vrt -ot Byte -scale -100 6175 0 251 elevhii0100a.tif elevhii0100a_1.vrt
 	gdal_translate -of vrt -ot Byte -scale -100 6175 0 251 elevpri0100a.tif elevpri0100a_1.vrt
 	gdal_translate -of vrt -ot Byte -scale -100 6175 0 251 elev48i0100a.tif elev48i0100a_1.vrt
-	gdalwarp -of vrt -t_srs 'EPSG:900913' elevaki0100a_1.vrt elevaki0100a_2.vrt
-	gdalwarp -of vrt -t_srs 'EPSG:900913' elevhii0100a_1.vrt elevhii0100a_2.vrt
-	gdalwarp -of vrt -t_srs 'EPSG:900913' elevpri0100a_1.vrt elevpri0100a_2.vrt
-	gdalwarp -of vrt -t_srs 'EPSG:900913' elev48i0100a_1.vrt elev48i0100a_2.vrt
-	gdalbuildvrt -resolution highest -overwrite terrain.vrt elevhii0100a_2.vrt elevpri0100a_2.vrt elevaki0100a_2.vrt elev48i0100a_2.vrt 
-
+	gdalwarp -r cubicspline -of vrt -t_srs 'EPSG:900913' elevaki0100a_1.vrt elevaki0100a_2.vrt
+	gdalwarp -r cubicspline -of vrt -t_srs 'EPSG:900913' elevhii0100a_1.vrt elevhii0100a_2.vrt
+	gdalwarp -r cubicspline -of vrt -t_srs 'EPSG:900913' elevpri0100a_1.vrt elevpri0100a_2.vrt
+	gdalwarp -r cubicspline -of vrt -t_srs 'EPSG:900913' elev48i0100a_1.vrt elev48i0100a_2.vrt
+	gdalbuildvrt -r cubicspline -resolution highest -overwrite terrain.vrt elevhii0100a_2.vrt elevpri0100a_2.vrt elevaki0100a_2.vrt elev48i0100a_2.vrt 

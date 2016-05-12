@@ -1,5 +1,5 @@
 #!/bin/sh -login
-#PBS -l mem=120gb
+#PBS -l mem=20gb
 #PBS -l nodes=1:ppn=16
 #PBS -l walltime=24:00:00
 #PBS -m abe 
@@ -68,19 +68,26 @@ export OMP_NUM_THREADS=${NP}
 [[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
 CYCLE=$(./cyclenumber.sh)
 
-OPTIONS1="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos --processes ${NP}"
-OPTIONS2="-w openlayers -c MUAVLLC --no-kml --resume -r lanczos"
+OPTIONS1="-w openlayers -c MUAVLLC --no-kml --resume -r cubicspline --processes ${NP}"
+OPTIONS2="-w openlayers -c MUAVLLC --no-kml --resume -r cubicspline"
 TIME1="/usr/bin/time -v -o"
 TIME2="/usr/bin/time -v --append -o"
 ARRAY=`echo ${PBS_JOBID} | sed -e s/"\[..\]"/"\[\]"/g -e "s/.cs.wmich.edu//g"`
 
-MYDIR=/home/pi/gustafson/avare.charts.git/sm/maps
+MYDIR=../maps
 
-${TIME1} time.txt ${MYDIR}/gdal2tiles_512_parallel.py -t "Canadian Topographic Maps" ${OPTIONS1} can-topo.vrt ${MYDIR}/tiles/static/8
-${TIME2} time.txt ${MYDIR}/gdal2tiles_512_mysingle.py -t "Canadian Topographic Maps" ${OPTIONS2} can-topo.vrt ${MYDIR}/tiles/static/8
+function rmemptypng(){
+    ## echo $0
+    [[ `convert $0 -format '%@' info: 2> /dev/null|cut -c 1-3` == "0x0" ]] && rm $0
+}
+export -f rmemptypng
 
-find ${MYDIR}/tiles/static/8 -name "*png"| sed -n ${NUM}~${NP}p | xargs -n 1 -P ${NP} optipng -preserve -quiet
-find ${MYDIR}/tiles/static/8 -name "*png"| sed -n ${NUM}~${NUMJOBS}p | xargs -n 1 -P ${NP} mogrify -format jpg -quality 85
+${TIME1} time.txt ${MYDIR}/gdal2tiles_512_parallel.py -t "Canadian Topographic Maps" ${OPTIONS1} can-topo.vrt can-topo
+${TIME2} time.txt ${MYDIR}/gdal2tiles_512_mysingle.py -t "Canadian Topographic Maps" ${OPTIONS2} can-topo.vrt can-topo
+
+find can-topo -name "*png"| xargs -n1 -P16 bash -c rmemptypng
+find can-topo -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
+find can-topo -name "*png"| xargs -n 1 -P ${NP} mogrify -unsharp 1x1 -format jpg -quality 85
 
 ## 0 Sectional
 ## 1 TAC
