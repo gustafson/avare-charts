@@ -64,87 +64,110 @@ CYCLE=$(cyclenumber.sh)
 ## done
 ## wait
 ## 
-## echo starting vfr
-for img in `ls merge/sec/*_c.vrt`; do
-    BASE=final/`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`.zip
-    rm -f $BASE
-    echo $BASE
-    zip -9 --quiet $BASE `mygroup ${img} sec` &
-done
-wait
-for img in `ls merge/wac/*_c.vrt`; do
-    BASE=final/`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`.zip
-    rm -fr $BASE
-    echo $BASE
-    zip -9 --quiet $BASE `mygroup ${img} wac` &
-done
-wait
-for img in `ls merge/tac/*_c.vrt`; do
-    BASE=final/`echo $img | cut -f3 -d/ | cut -c 4-|cut -f1 -d_`.zip
-    rm -f $BASE
-    echo $BASE
-    zip -9 --quiet $BASE `mygroup ${img} tac` &
-done
-wait
-echo done vfr
+## TEMP ## ## echo starting vfr
+## TEMP ## for img in `ls merge/sec/*_c.vrt`; do
+## TEMP ##     BASE=final/`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`.zip
+## TEMP ##     rm -f $BASE
+## TEMP ##     echo $BASE
+## TEMP ##     zip -9 --quiet $BASE `mygroup ${img} sec` &
+## TEMP ## done
+## TEMP ## wait
+## TEMP ## for img in `ls merge/wac/*_c.vrt`; do
+## TEMP ##     BASE=final/`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`.zip
+## TEMP ##     rm -fr $BASE
+## TEMP ##     echo $BASE
+## TEMP ##     zip -9 --quiet $BASE `mygroup ${img} wac` &
+## TEMP ## done
+## TEMP ## wait
+## TEMP ## for img in `ls merge/tac/*_c.vrt`; do
+## TEMP ##     BASE=final/`echo $img | cut -f3 -d/ | cut -c 4-|cut -f1 -d_`.zip
+## TEMP ##     rm -f $BASE
+## TEMP ##     echo $BASE
+## TEMP ##     zip -9 --quiet $BASE `mygroup ${img} tac` &
+## TEMP ## done
+## TEMP ## wait
+## TEMP ## echo done vfr
+## TEMP ## 
+## TEMP ## echo starting ifr
+## TEMP ## ## IFR AREA Tiles
+## TEMP ## for img in merge/ifa/*vrt; do
+## TEMP ##     base=ENRA_`echo ${img} | cut -f3 -d/|cut -f3 -d_|cut -f1 -d.`
+## TEMP ##     [[ -f final/${base}.zip ]] && rm final/${base}.zip
+## TEMP ##     zip -9 --quiet final/${base}.zip `mygroup ${img} ifa` &
+## TEMP ## done
+## TEMP ## wait
+## TEMP ## 
+## TEMP ## rm -f final/ELUS_AK.zip; zip -9 --quiet final/ELUS_AK.zip $(./ziptiles.py -180.00 75.00 -125.00 50.00 ifr latlon) &
+## TEMP ## rm -f final/ELUS_NE.zip; zip -9 --quiet final/ELUS_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 ifr latlon) &
+## TEMP ## rm -f final/ELUS_NC.zip; zip -9 --quiet final/ELUS_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 ifr latlon) &
+## TEMP ## rm -f final/ELUS_NW.zip; zip -9 --quiet final/ELUS_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 ifr latlon) &
+## TEMP ## rm -f final/ELUS_SE.zip; zip -9 --quiet final/ELUS_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 ifr latlon) &
+## TEMP ## rm -f final/ELUS_SC.zip; zip -9 --quiet final/ELUS_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 ifr latlon) &
+## TEMP ## rm -f final/ELUS_SW.zip; zip -9 --quiet final/ELUS_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 ifr latlon) &
+## TEMP ## 
+## TEMP ## rm -f final/EHUS_AK.zip; zip -9 --quiet final/EHUS_AK.zip $(./ziptiles.py -180.00 75.00 -125.00 50.00 ifh latlon) &
+## TEMP ## rm -f final/EHUS_NE.zip; zip -9 --quiet final/EHUS_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 ifh latlon) &
+## TEMP ## rm -f final/EHUS_NC.zip; zip -9 --quiet final/EHUS_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 ifh latlon) &
+## TEMP ## rm -f final/EHUS_NW.zip; zip -9 --quiet final/EHUS_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 ifh latlon) &
+## TEMP ## rm -f final/EHUS_SE.zip; zip -9 --quiet final/EHUS_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 ifh latlon) &
+## TEMP ## rm -f final/EHUS_SC.zip; zip -9 --quiet final/EHUS_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 ifh latlon) &
+## TEMP ## rm -f final/EHUS_SW.zip; zip -9 --quiet final/EHUS_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 ifh latlon) &
+## TEMP ## wait
+## TEMP ## echo done ifr
+## TEMP ## 
+## TEMP ## ## echo starting relief
+## TEMP ## rm -f static/REL_AK.zip; zip -9 --quiet static/REL_AK.zip $(./ziptiles.py -179.90  75.0 -128.45 50.50 rel latlon) &
+## TEMP ## rm -f static/REL_HI.zip; zip -9 --quiet static/REL_HI.zip $(./ziptiles.py -165.00  25.0 -150.00 15.00 rel latlon) &
+## TEMP ## rm -f static/REL_PR.zip; zip -9 --quiet static/REL_PR.zip $(./ziptiles.py  -68.00  19.5  -64.00 17.00 rel latlon) &
+## TEMP ## rm -f static/REL_NE.zip; zip -9 --quiet static/REL_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 rel latlon) &
+## TEMP ## rm -f static/REL_NC.zip; zip -9 --quiet static/REL_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 rel latlon) &
+## TEMP ## rm -f static/REL_NW.zip; zip -9 --quiet static/REL_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 rel latlon) &
+## TEMP ## rm -f static/REL_SE.zip; zip -9 --quiet static/REL_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 rel latlon) &
+## TEMP ## rm -f static/REL_SC.zip; zip -9 --quiet static/REL_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 rel latlon) &
+## TEMP ## rm -f static/REL_SW.zip; zip -9 --quiet static/REL_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 rel latlon) &
+## TEMP ## wait
+## TEMP ## ## echo done relief
+## TEMP ## ## 
+## TEMP ## ## echo starting terrain
+## TEMP ## ## AK Upper Left  (-3327000.000, 2438000.000) (142d44' 7.99"E, 56d30' 7.45"N)
+## TEMP ## ## AK Lower Left  (-3327000.000,  346000.000) (163d25'20.02"E, 43d 3'12.40"N)
+## TEMP ## ## AK Upper Right ( 1654000.000, 2438000.000) (113d28'58.51"W, 67d12'45.81"N)
+## TEMP ## ## AK Lower Right ( 1654000.000,  346000.000) (130d24'21.38"W, 50d26'41.22"N)
+## TEMP ## ## AK Center      ( -836500.000, 1392000.000) (169d57'59.56"W, 61d35'50.85"N)
+## TEMP ## 
+## TEMP ## rm -f static/ELEV_AK.zip; zip -9 static/ELEV_AK.zip $(./ziptiles.py -179.90  75.0 -128.45 50.50 elev latlon) &  ## --quiet 
+## TEMP ## rm -f static/ELEV_HI.zip; zip -9 static/ELEV_HI.zip $(./ziptiles.py -165.00  25.0 -150.00 15.00 elev latlon) &  ## --quiet 
+## TEMP ## rm -f static/ELEV_PR.zip; zip -9 static/ELEV_PR.zip $(./ziptiles.py  -68.00  19.5  -64.00 17.00 elev latlon) &  ## --quiet 
+## TEMP ## rm -f static/ELEV_NE.zip; zip -9 static/ELEV_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 elev latlon) &  ## --quiet 
+## TEMP ## rm -f static/ELEV_NC.zip; zip -9 static/ELEV_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 elev latlon) &  ## --quiet 
+## TEMP ## rm -f static/ELEV_NW.zip; zip -9 static/ELEV_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 elev latlon) &  ## --quiet 
+## TEMP ## rm -f static/ELEV_SE.zip; zip -9 static/ELEV_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 elev latlon) &  ## --quiet 
+## TEMP ## rm -f static/ELEV_SC.zip; zip -9 static/ELEV_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 elev latlon) &  ## --quiet 
+## TEMP ## rm -f static/ELEV_SW.zip; zip -9 static/ELEV_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 elev latlon) &  ## --quiet 
+## TEMP ## wait
+## TEMP ## 
 
-echo starting ifr
-## IFR AREA Tiles
-for img in merge/ifa/*vrt; do
-    base=ENRA_`echo ${img} | cut -f3 -d/|cut -f3 -d_|cut -f1 -d.`
-    [[ -f final/${base}.zip ]] && rm final/${base}.zip
-    zip -9 --quiet final/${base}.zip `mygroup ${img} ifa` &
-done
+#rm -f static/ELEV_3D_Coarse_AK.zip; ./cyclenumber.sh > ELEV_3D_Coarse_AK; ./ziptiles.py -179.90  75.0 -128.45 50.50 3dcoarse latlon >> ELEV_3D_Coarse_AK; tail -n+2 ELEV_3D_Coarse_AK | xargs zip -9 static/ELEV_3D_Coarse_AK.zip ELEV_3D_Coarse_AK &  ## --quiet 
+#rm -f static/ELEV_3D_Coarse_HI.zip; ./cyclenumber.sh > ELEV_3D_Coarse_HI; ./ziptiles.py -165.00  25.0 -150.00 15.00 3dcoarse latlon >> ELEV_3D_Coarse_HI; tail -n+2 ELEV_3D_Coarse_HI | xargs zip -9 static/ELEV_3D_Coarse_HI.zip ELEV_3D_Coarse_HI &  ## --quiet 
+#rm -f static/ELEV_3D_Coarse_PR.zip; ./cyclenumber.sh > ELEV_3D_Coarse_PR; ./ziptiles.py  -68.00  19.5  -64.00 17.00 3dcoarse latlon >> ELEV_3D_Coarse_PR; tail -n+2 ELEV_3D_Coarse_PR | xargs zip -9 static/ELEV_3D_Coarse_PR.zip ELEV_3D_Coarse_PR &  ## --quiet 
+rm -f static/ELEV_3D_Coarse_NE.zip; ./cyclenumber.sh > ELEV_3d_Coarse_NE; ./ziptiles.py  -85.00 50.15  -40.00 38.00 3dcoarse latlon >> ELEV_3d_Coarse_NE; tail -n+2 ELEV_3d_Coarse_NE | xargs zip -9 static/ELEV_3D_Coarse_NE.zip ELEV_3d_Coarse_NE &  ## --quiet 
+rm -f static/ELEV_3D_Coarse_NC.zip; ./cyclenumber.sh > ELEV_3d_Coarse_NC; ./ziptiles.py -110.00 50.15  -85.00 38.00 3dcoarse latlon >> ELEV_3d_Coarse_NC; tail -n+2 ELEV_3d_Coarse_NC | xargs zip -9 static/ELEV_3D_Coarse_NC.zip ELEV_3d_Coarse_NC &  ## --quiet 
+rm -f static/ELEV_3D_Coarse_NW.zip; ./cyclenumber.sh > ELEV_3d_Coarse_NW; ./ziptiles.py -131.21 50.15 -110.00 38.00 3dcoarse latlon >> ELEV_3d_Coarse_NW; tail -n+2 ELEV_3d_Coarse_NW | xargs zip -9 static/ELEV_3D_Coarse_NW.zip ELEV_3d_Coarse_NW &  ## --quiet 
+rm -f static/ELEV_3D_Coarse_SE.zip; ./cyclenumber.sh > ELEV_3d_Coarse_SE; ./ziptiles.py  -85.00 38.00  -40.00 23.13 3dcoarse latlon >> ELEV_3d_Coarse_SE; tail -n+2 ELEV_3d_Coarse_SE | xargs zip -9 static/ELEV_3D_Coarse_SE.zip ELEV_3d_Coarse_SE &  ## --quiet 
+rm -f static/ELEV_3D_Coarse_SC.zip; ./cyclenumber.sh > ELEV_3d_Coarse_SC; ./ziptiles.py -110.00 38.00  -85.00 23.13 3dcoarse latlon >> ELEV_3d_Coarse_SC; tail -n+2 ELEV_3d_Coarse_SC | xargs zip -9 static/ELEV_3D_Coarse_SC.zip ELEV_3d_Coarse_SC &  ## --quiet 
+rm -f static/ELEV_3D_Coarse_SW.zip; ./cyclenumber.sh > ELEV_3d_Coarse_SW; ./ziptiles.py -131.21 38.00 -110.00 23.13 3dcoarse latlon >> ELEV_3d_Coarse_SW; tail -n+2 ELEV_3d_Coarse_SW | xargs zip -9 static/ELEV_3D_Coarse_SW.zip ELEV_3d_Coarse_SW &  ## --quiet 
+#
+#rm -f static/ELEV_3D_Detail_AK.zip; ./cyclenumber.sh > ELEV_3D_Detail_AK; ./ziptiles.py -179.90  75.0 -128.45 50.50 3ddetail latlon >> ELEV_3D_Detail_AK; tail -n+2 ELEV_3D_Detail_AK | xargs zip -9 static/ELEV_3D_Detail_AK.zip ELEV_3D_Detail_AK &  ## --quiet 
+#rm -f static/ELEV_3D_Detail_HI.zip; ./cyclenumber.sh > ELEV_3D_Detail_HI; ./ziptiles.py -165.00  25.0 -150.00 15.00 3ddetail latlon >> ELEV_3D_Detail_HI; tail -n+2 ELEV_3D_Detail_HI | xargs zip -9 static/ELEV_3D_Detail_HI.zip ELEV_3D_Detail_HI &  ## --quiet 
+#rm -f static/ELEV_3D_Detail_PR.zip; ./cyclenumber.sh > ELEV_3D_Detail_PR; ./ziptiles.py  -68.00  19.5  -64.00 17.00 3ddetail latlon >> ELEV_3D_Detail_PR; tail -n+2 ELEV_3D_Detail_PR | xargs zip -9 static/ELEV_3D_Detail_PR.zip ELEV_3D_Detail_PR &  ## --quiet 
+rm -f static/ELEV_3D_Detail_NE.zip; ./cyclenumber.sh > ELEV_3d_Detail_NE; ./ziptiles.py  -85.00 50.15  -40.00 38.00 3ddetail latlon >> ELEV_3d_Detail_NE; tail -n+2 ELEV_3d_Detail_NE | xargs zip -9 static/ELEV_3D_Detail_NE.zip ELEV_3d_Detail_NE &  ## --quiet 
+rm -f static/ELEV_3D_Detail_NC.zip; ./cyclenumber.sh > ELEV_3d_Detail_NC; ./ziptiles.py -110.00 50.15  -85.00 38.00 3ddetail latlon >> ELEV_3d_Detail_NC; tail -n+2 ELEV_3d_Detail_NC | xargs zip -9 static/ELEV_3D_Detail_NC.zip ELEV_3d_Detail_NC &  ## --quiet 
+rm -f static/ELEV_3D_Detail_NW.zip; ./cyclenumber.sh > ELEV_3d_Detail_NW; ./ziptiles.py -131.21 50.15 -110.00 38.00 3ddetail latlon >> ELEV_3d_Detail_NW; tail -n+2 ELEV_3d_Detail_NW | xargs zip -9 static/ELEV_3D_Detail_NW.zip ELEV_3d_Detail_NW &  ## --quiet 
+rm -f static/ELEV_3D_Detail_SE.zip; ./cyclenumber.sh > ELEV_3d_Detail_SE; ./ziptiles.py  -85.00 38.00  -40.00 23.13 3ddetail latlon >> ELEV_3d_Detail_SE; tail -n+2 ELEV_3d_Detail_SE | xargs zip -9 static/ELEV_3D_Detail_SE.zip ELEV_3d_Detail_SE &  ## --quiet 
+rm -f static/ELEV_3D_Detail_SC.zip; ./cyclenumber.sh > ELEV_3d_Detail_SC; ./ziptiles.py -110.00 38.00  -85.00 23.13 3ddetail latlon >> ELEV_3d_Detail_SC; tail -n+2 ELEV_3d_Detail_SC | xargs zip -9 static/ELEV_3D_Detail_SC.zip ELEV_3d_Detail_SC &  ## --quiet 
+rm -f static/ELEV_3D_Detail_SW.zip; ./cyclenumber.sh > ELEV_3d_Detail_SW; ./ziptiles.py -131.21 38.00 -110.00 23.13 3ddetail latlon >> ELEV_3d_Detail_SW; tail -n+2 ELEV_3d_Detail_SW | xargs zip -9 static/ELEV_3D_Detail_SW.zip ELEV_3d_Detail_SW &  ## --quiet 
 wait
 
-rm -f final/ELUS_AK.zip; zip -9 --quiet final/ELUS_AK.zip $(./ziptiles.py -180.00 75.00 -125.00 50.00 ifr latlon) &
-rm -f final/ELUS_NE.zip; zip -9 --quiet final/ELUS_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 ifr latlon) &
-rm -f final/ELUS_NC.zip; zip -9 --quiet final/ELUS_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 ifr latlon) &
-rm -f final/ELUS_NW.zip; zip -9 --quiet final/ELUS_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 ifr latlon) &
-rm -f final/ELUS_SE.zip; zip -9 --quiet final/ELUS_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 ifr latlon) &
-rm -f final/ELUS_SC.zip; zip -9 --quiet final/ELUS_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 ifr latlon) &
-rm -f final/ELUS_SW.zip; zip -9 --quiet final/ELUS_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 ifr latlon) &
-
-rm -f final/EHUS_AK.zip; zip -9 --quiet final/EHUS_AK.zip $(./ziptiles.py -180.00 75.00 -125.00 50.00 ifh latlon) &
-rm -f final/EHUS_NE.zip; zip -9 --quiet final/EHUS_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 ifh latlon) &
-rm -f final/EHUS_NC.zip; zip -9 --quiet final/EHUS_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 ifh latlon) &
-rm -f final/EHUS_NW.zip; zip -9 --quiet final/EHUS_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 ifh latlon) &
-rm -f final/EHUS_SE.zip; zip -9 --quiet final/EHUS_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 ifh latlon) &
-rm -f final/EHUS_SC.zip; zip -9 --quiet final/EHUS_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 ifh latlon) &
-rm -f final/EHUS_SW.zip; zip -9 --quiet final/EHUS_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 ifh latlon) &
-wait
-echo done ifr
-
-## echo starting relief
-rm -f static/REL_AK.zip; zip -9 --quiet static/REL_AK.zip $(./ziptiles.py -179.90  75.0 -128.45 50.50 rel latlon) &
-rm -f static/REL_HI.zip; zip -9 --quiet static/REL_HI.zip $(./ziptiles.py -165.00  25.0 -150.00 15.00 rel latlon) &
-rm -f static/REL_PR.zip; zip -9 --quiet static/REL_PR.zip $(./ziptiles.py  -68.00  19.5  -64.00 17.00 rel latlon) &
-rm -f static/REL_NE.zip; zip -9 --quiet static/REL_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 rel latlon) &
-rm -f static/REL_NC.zip; zip -9 --quiet static/REL_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 rel latlon) &
-rm -f static/REL_NW.zip; zip -9 --quiet static/REL_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 rel latlon) &
-rm -f static/REL_SE.zip; zip -9 --quiet static/REL_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 rel latlon) &
-rm -f static/REL_SC.zip; zip -9 --quiet static/REL_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 rel latlon) &
-rm -f static/REL_SW.zip; zip -9 --quiet static/REL_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 rel latlon) &
-wait
-## echo done relief
-## 
-## echo starting terrain
-## AK Upper Left  (-3327000.000, 2438000.000) (142d44' 7.99"E, 56d30' 7.45"N)
-## AK Lower Left  (-3327000.000,  346000.000) (163d25'20.02"E, 43d 3'12.40"N)
-## AK Upper Right ( 1654000.000, 2438000.000) (113d28'58.51"W, 67d12'45.81"N)
-## AK Lower Right ( 1654000.000,  346000.000) (130d24'21.38"W, 50d26'41.22"N)
-## AK Center      ( -836500.000, 1392000.000) (169d57'59.56"W, 61d35'50.85"N)
-
-rm -f static/ELEV_AK.zip; zip -9 static/ELEV_AK.zip $(./ziptiles.py -179.90  75.0 -128.45 50.50 elev latlon) &  ## --quiet 
-rm -f static/ELEV_HI.zip; zip -9 static/ELEV_HI.zip $(./ziptiles.py -165.00  25.0 -150.00 15.00 elev latlon) &  ## --quiet 
-rm -f static/ELEV_PR.zip; zip -9 static/ELEV_PR.zip $(./ziptiles.py  -68.00  19.5  -64.00 17.00 elev latlon) &  ## --quiet 
-rm -f static/ELEV_NE.zip; zip -9 static/ELEV_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 elev latlon) &  ## --quiet 
-rm -f static/ELEV_NC.zip; zip -9 static/ELEV_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 elev latlon) &  ## --quiet 
-rm -f static/ELEV_NW.zip; zip -9 static/ELEV_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 elev latlon) &  ## --quiet 
-rm -f static/ELEV_SE.zip; zip -9 static/ELEV_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 elev latlon) &  ## --quiet 
-rm -f static/ELEV_SC.zip; zip -9 static/ELEV_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 elev latlon) &  ## --quiet 
-rm -f static/ELEV_SW.zip; zip -9 static/ELEV_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 elev latlon) &  ## --quiet 
-wait
 ## echo done terrain
 ## 
 ## echo starting heli

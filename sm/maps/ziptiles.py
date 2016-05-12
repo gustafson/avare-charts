@@ -88,6 +88,16 @@ def main(argv):
         chart = 11
         ftype = "jpg"
         maxzoom=10
+    elif chart=="3dcoarse":
+        chart = 13
+        tileSize = 128
+        ftype = "png"
+        maxzoom=14
+    elif chart=="3ddetail":
+        chart = 14
+        tileSize = 128
+        ftype = "png"
+        maxzoom=14
 ## Note delete always chooses pngs because the jpg will just be replaced anyway        
     elif chart=="deletesec":
         chart = 0
@@ -111,6 +121,10 @@ def main(argv):
         chart = 9
     elif chart=="deletetpc":
         chart = 11
+    elif chart=="delete3dcoarse":
+        chart = 13
+    elif chart=="delete3ddetail":
+        chart = 14
     else:
         print "Chart type not among current list"
         return 1
