@@ -5,9 +5,11 @@ import sys
 import os.path
 
 import math
+
 tileSize = 512
 originShift = 2 * math.pi * 6378137.0 / 2.0
 initialResolution = 20037508.342789244 * 2.0 / tileSize
+
 
 def LatLonToMeters(lat, lon):
     ## "Converts given lat/lon in WGS84 Datum to XY in Spherical Mercator EPSG:900913"
@@ -48,56 +50,58 @@ def main(argv):
     if spec=="latlon":
         m1 = LatLonToMeters(lat1, lon1)
         m2 = LatLonToMeters(lat2, lon2)
-        
+
     if chart=="sec":
         chart = 0
         ftype = "jpg"
-        maxzoom=10
+        maxzoom=11
     elif chart=="tac":
         chart = 1
         ftype = "jpg"
-        maxzoom=11
+        maxzoom=12
     elif chart=="wac":
         chart = 2
         ftype = "jpg"
-        maxzoom=9
+        maxzoom=10
     elif chart=="ifr":
         chart = 3
-        maxzoom=10
+        maxzoom=11
     elif chart=="ifh":
         chart = 4
-        maxzoom=9
+        maxzoom=10
     elif chart=="ifa":
         chart = 5
-        maxzoom=11
+        maxzoom=12
     elif chart=="elev":
         chart = 6
-        maxzoom=9
+        maxzoom=11
     elif chart=="rel":
         chart = 7
         ftype = "jpg"
-        maxzoom=9
+        maxzoom=10
     elif chart=="topo":
         chart = 8
         ftype = "jpg"
-        maxzoom=10
+        maxzoom=11
     elif chart=="heli":
         chart = 9
         maxzoom=13
     elif chart=="tpc":
         chart = 11
         ftype = "jpg"
-        maxzoom=10
+        maxzoom=11
     elif chart=="3dcoarse":
         chart = 13
-        tileSize = 128
         ftype = "png"
-        maxzoom=14
+        maxzoom=13
     elif chart=="3ddetail":
         chart = 14
-        tileSize = 128
         ftype = "png"
-        maxzoom=14
+        maxzoom=13
+    elif chart=="elevationdetail":
+        chart = 15
+        ftype = "png"
+        maxzoom=11
 ## Note delete always chooses pngs because the jpg will just be replaced anyway        
     elif chart=="deletesec":
         chart = 0
@@ -125,10 +129,21 @@ def main(argv):
         chart = 13
     elif chart=="delete3ddetail":
         chart = 14
+    elif chart=="deleteelevationdetail":
+        chart = 15
     else:
         print "Chart type not among current list"
         return 1
-    if (maxzoom<14):
+
+    ## This is to allow control of tile size within python.  The new
+    ## default should be 256.  If were are using 512, then we'll grab
+    ## one lower layer.
+    if (tileSize==512):
+        maxzoom = maxzoom-1
+
+    ## This is due to integer range style in python.  Both this and
+    ## the above are both required.
+    if (maxzoom<15):
         maxzoom = maxzoom+1
         
     for zoom in range (maxzoom-4,maxzoom):

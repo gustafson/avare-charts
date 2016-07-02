@@ -89,7 +89,7 @@ clean:
 	rm -f ifr-gps-currency*{kmz,json,txt}
 
 download-base-data:
-	$$(rm -f APT.txt AWOS.txt FIX.txt TWR.txt DOF.DAT NAV.txt aixm5.0.zip DAILY_DOF.ZIP)
+	$$(rm -f APT.txt AWOS.txt FIX.txt TWR.txt DOF.DAT NAV.txt AWY.txt aixm5.0.zip DAILY_DOF.ZIP)
 	## obstacles file.  Get this first as it is usually last posted... will thus not download the rest unless successful.
 	## https://nfdc.faa.gov/tod/public/TOD_DOF.html
 	## wget --no-check-certificate https://nfdc.faa.gov/tod/public/DOFS/DOF_$$(./cycledates.sh 56 dof).zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
@@ -122,6 +122,7 @@ plates-png:
 	./plates_png.sh
 
 afd-data:
+	echo http://www.aeronav.faa.gov/upload_313-d/supplements/DCS_20160526.zip
 	rm -f afd.csv
 	./afd.sh
 
@@ -162,7 +163,7 @@ download-ifr:
 unzip:
 	rm -f charts/*/*tif
 	cd charts/tac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	cd charts/wac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	## cd charts/wac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
 	cd charts/sec  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
 	cd charts/heli && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
 	cd charts/ifh  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
@@ -180,16 +181,16 @@ unzip:
 
 
 stage-all: stage-vfr-sec stage-ifr-low
-	## NOTE current limit is disk IO and open files, do one at a time
-	cat generate-tiles.pbs| qsub -t 0-5%2 #| sed s/ppn=16/ppn=$(NP)/
+	## NOTE current limit is disk IO and open files, it is inadvisable to do all at the same time
+	cat generate-tiles.pbs| qsub -t 0,1,2,3,4,5%1 #| sed s/ppn=16/ppn=$(NP)/
 
 stage-ifr: stage-ifr-low
 	cat generate-tiles.pbs| qsub -t 3-5%2 #| sed s/ppn=16/ppn=$(NP)/
 
 stage-vfr: stage-vfr-sec
-	cat generate-tiles.pbs| qsub -t 0-2%2 #| sed s/ppn=16/ppn=$(NP)/	
+	cat generate-tiles.pbs| qsub -t 0-1%2 #| sed s/ppn=16/ppn=$(NP)/	
 
-stage-ifr-low:
+stage-ifr-low: charts/ifr/*zip charts/ifa/*zip charts/ifh/*zip
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	gcc -march=native -O3 -Wall stage-ifr-low.c -o stage-ifr-low
 	gcc -march=native -O3 -Wall stage-ifr-high.c -o stage-ifr-high
@@ -198,7 +199,7 @@ stage-ifr-low:
 	./stage-ifr-high
 	./stage-ifr-area
 
-stage-vfr-sec:
+stage-vfr-sec: charts/sec/*zip charts/wac/*zip charts/tac/*zip
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	## gcc -march=native -O3 -Wall stagefly.c -o stagefly
 	gcc -march=native -O3 -Wall stage-vfr-heli.c -o stage-vfr-heli
@@ -227,11 +228,33 @@ zipit:
 	zip -9 final/databases.zip `find tiles/3/6 -name "*png"`
 	zip -9 final/databases.zip `find tiles/4/5 -name "*png"`
 	zip -9 final/databases.zip `find tiles/5/7 -name "*png"`
-	zip -9 final/databases.zip `find tiles/6/5 -name "*png"`
+	zip -9 final/databases.zip `find tiles/6/6 -name "*png"`
 	zip -9 final/databases.zip `find tiles/7/5 -name "*jpg"`
 	## zip -9 final/databases.zip `find tiles/8/7 -name "*jpg"` ## Canada large and not wanted in US
 	zip -9 final/databases.zip `find tiles/9/8 -name "*png"`
 	pushd final; ../zip.py databases $(CYCLE); popd
+
+zipit256:
+	echo "Zipping cycle " $(CYCLE)
+	rm -f main.db
+	rm -f final/256/databases.zip
+	sqlite3 main.db < importother.sql
+	sqlite3 main.db "VACUUM;"
+	sqlite3 tiles.db "VACUUM;"
+	cp ~/CIFP/procedures.db .
+	sqlite3 procedures.db "VACUUM;"
+	zip -9 -r final/256/databases.zip procedures.db main.db tiles.db
+	zip -9 final/256/databases.zip `find tiles/0/7 -name "*jpg"`
+	zip -9 final/256/databases.zip `find tiles/1/8 -name "*jpg"`
+	zip -9 final/256/databases.zip `find tiles/2/6 -name "*jpg"`
+	zip -9 final/256/databases.zip `find tiles/3/7 -name "*png"`
+	zip -9 final/256/databases.zip `find tiles/4/6 -name "*png"`
+	zip -9 final/256/databases.zip `find tiles/5/8 -name "*png"`
+	## zip -9 final/256/databases.zip `find tiles/6/6 -name "*png"` ## New elevation model would be too big to include
+	zip -9 final/256/databases.zip `find tiles/7/6 -name "*jpg"`
+	## zip -9 final/256/databases.zip `find tiles/8/8 -name "*jpg"` ## Canada large and not wanted in US
+	zip -9 final/256/databases.zip `find tiles/9/9 -name "*png"`
+	pushd final/256/; ../../zip.py databases $(CYCLE); popd
 
 geolist:
 	./plates_list.sh

@@ -89,8 +89,8 @@ done
 gdalbuildvrt -r cubicspline -resolution highest -overwrite terrain.vrt `ls -r elev*2.vrt`
 
 rm -fr terrain
-${TIME1} time.txt ${MYDIR2}/gdal2tiles_512_parallel.py -t "Terrain Maps" ${OPTIONS1} terrain.vrt terrain
-${TIME2} time.txt ${MYDIR2}/gdal2tiles_512_mysingle.py -t "Terrain Maps" ${OPTIONS2} terrain.vrt terrain
+${TIME1} time.txt ${MYDIR2}/gdal2tiles_256_parallel.py -t "Terrain Maps" ${OPTIONS1} terrain.vrt terrain
+${TIME2} time.txt ${MYDIR2}/gdal2tiles_256_mysingle.py -t "Terrain Maps" ${OPTIONS2} terrain.vrt terrain
 find terrain -name "*png"| xargs -n1 -P16 bash -c rmemptypng
 find terrain -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
 # #find terrain -name "*png"| xargs -n 1 -P ${NP} mogrify -format jpg -quality 100

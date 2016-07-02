@@ -40,8 +40,8 @@ else
     exit
 fi
 
-## If more than three weeks in the future, pick the last date
-if [[ $SREF -gt 21 ]]; then
+## If within three days of the prior cycle, choose it instead.
+if [[ $SREF -gt 25 ]]; then
     SREF=$(($SREF-${CYCLEDAYS}))
 fi
 

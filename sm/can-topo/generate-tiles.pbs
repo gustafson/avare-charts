@@ -82,12 +82,12 @@ function rmemptypng(){
 }
 export -f rmemptypng
 
-${TIME1} time.txt ${MYDIR}/gdal2tiles_512_parallel.py -t "Canadian Topographic Maps" ${OPTIONS1} can-topo.vrt can-topo
-${TIME2} time.txt ${MYDIR}/gdal2tiles_512_mysingle.py -t "Canadian Topographic Maps" ${OPTIONS2} can-topo.vrt can-topo
+${TIME1} time.txt ${MYDIR}/gdal2tiles_256_parallel.py -t "Canadian Topographic Maps" ${OPTIONS1} can-topo.vrt ${MYDIR}/tiles/8
+${TIME2} time.txt ${MYDIR}/gdal2tiles_256_mysingle.py -t "Canadian Topographic Maps" ${OPTIONS2} can-topo.vrt ${MYDIR}/tiles/8
 
-find can-topo -name "*png"| xargs -n1 -P16 bash -c rmemptypng
-find can-topo -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
-find can-topo -name "*png"| xargs -n 1 -P ${NP} mogrify -unsharp 1x1 -format jpg -quality 85
+find ${MYDIR}/tiles/8 -name "*png"| xargs -n1 -P16 bash -c rmemptypng
+find ${MYDIR}/tiles/8 -name "*png"| xargs -n 1 -P ${NP} optipng -preserve -quiet
+find ${MYDIR}/tiles/8 -name "*png"| xargs -n 1 -P ${NP} mogrify -unsharp 1x1 -format jpg -quality 85
 
 ## 0 Sectional
 ## 1 TAC
