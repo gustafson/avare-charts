@@ -7,7 +7,7 @@
 #PBS -N ChartTiling
 #PBS -e z-logs/z.${PBS_JOBID}.e_${PBS_JOBNAME}
 #PBS -o z-logs/z.${PBS_JOBID}.o_${PBS_JOBNAME}
-#PBS -t 0-5%1
+#PBS -t 0,1,3-5%1
 
 #!/bin/bash
 # Copyright (c) 2015, Peter A. Gustafson (peter.gustafson@wmich.edu)
@@ -95,39 +95,39 @@ export -f rmemptypng
 if [[ ${PBS_ARRAYID} -eq 0 ]]; then
     ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -r cubicspline sec.vrt tiles/0
     ${TIME2} time.sec.txt ./gdal2tiles_512_mysingle.py -t "VFR Sectional" ${OPTIONS2} -r cubicspline sec.vrt tiles/0
-    find tiles/0 -name "*png"| xargs -n1 -P16 bash -c rmemptypng
-    find tiles/0 -name "*png"| xargs mogrify -unsharp 1x1 -format jpg -quality 85
+    ## find tiles/0 -name "*png"| xargs -n1 -P16 bash -c rmemptypng
+    ## find tiles/0 -name "*png"| xargs mogrify -unsharp 1x1 -format jpg -quality 85
     
 elif [[ ${PBS_ARRAYID} -eq 1 ]]; then
     ${TIME1} time.tac.txt ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} -r cubicspline tac.vrt tiles/1
     ${TIME2} time.tac.txt ./gdal2tiles_512_mysingle.py -t "VFR Terminal Area" ${OPTIONS2} -r cubicspline tac.vrt tiles/1
-    find tiles/1 -name "*png"| xargs -n1 -P16 bash -c rmemptypng
-    find tiles/1 -name "*png"| xargs mogrify -unsharp 1x1 -format jpg -quality 85
+    ## find tiles/1 -name "*png"| xargs -n1 -P16 bash -c rmemptypng
+    ## find tiles/1 -name "*png"| xargs mogrify -unsharp 1x1 -format jpg -quality 85
 
 elif [[ ${PBS_ARRAYID} -eq 2 ]]; then
     ${TIME1} time.wac.txt ./gdal2tiles_512_parallel.py -t "VFR World" ${OPTIONS1} -r cubicspline wac.vrt tiles/2
     ${TIME2} time.wac.txt ./gdal2tiles_512_mysingle.py -t "VFR World" ${OPTIONS2} -r cubicspline wac.vrt tiles/2
+    ## find tiles/2 -name "*png"| xargs -n1 -P16 bash -c rmemptypng
+    ## find tiles/2 -name "*png"| xargs mogrify -unsharp 1x1 -format jpg -quality 85
     
 ##    myfindwac | xargs mogrify -gravity center -pointsize 40 -fill white \
 ##	      -draw "fill-opacity 0.25 rotate -45 text 0,0 'Discontinued'"
-    find tiles/2 -name "*png"| xargs -n1 -P16 bash -c rmemptypng
-    find tiles/2 -name "*png"| xargs mogrify -unsharp 1x1 -format jpg -quality 85
     
 elif [[ ${PBS_ARRAYID} -eq 3 ]]; then
     ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -r lanczos ifr.vrt tiles/3
     ${TIME2} time.ifr.txt ./gdal2tiles_512_mysingle.py -t "IFR Enroute Low" ${OPTIONS2} -r lanczos ifr.vrt tiles/3
-    find tiles/3 -name "*png"| xargs -n1 -P16 bash -c rmemptypng
-    find tiles/3 -name "*png"| xargs mogrify -format png8
-    find tiles/3 -name "*png8"| xargs rename png8 png
-    find tiles/3 -name "*png" |xargs -n1 -P16 optipng
+    ## find tiles/3 -name "*png"| xargs -n1 -P16 bash -c rmemptypng
+    ## find tiles/3 -name "*png"| xargs mogrify -format png8
+    ## find tiles/3 -name "*png8"| xargs rename png8 png
+    ## find tiles/3 -name "*png" |xargs -n1 -P16 optipng
 
 elif [[ ${PBS_ARRAYID} -eq 4 ]]; then
     ${TIME1} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -r lanczos ifh.vrt tiles/4
     ${TIME2} time.ifh.txt ./gdal2tiles_512_mysingle.py -t "IFR Enroute High" ${OPTIONS2} -r lanczos ifh.vrt tiles/4
-    find tiles/4 -name "*png"| xargs -n1 -P16 bash -c rmemptypng
-    find tiles/4 -name "*png"| xargs mogrify -format png8
-    find tiles/4 -name "*png8"| xargs rename png8 png
-    find tiles/4 -name "*png" |xargs -n1 -P16 optipng
+    ## find tiles/4 -name "*png"| xargs -n1 -P16 bash -c rmemptypng
+    ## find tiles/4 -name "*png"| xargs mogrify -format png8
+    ## find tiles/4 -name "*png8"| xargs rename png8 png
+    ## find tiles/4 -name "*png" |xargs -n1 -P16 optipng
 
 elif [[ ${PBS_ARRAYID} -eq 5 ]]; then
     ## start with guam then backfill the rest
@@ -135,27 +135,27 @@ elif [[ ${PBS_ARRAYID} -eq 5 ]]; then
     ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py -t "IFR Area" ${OPTIONS2} -r lanczos -z 7-11 merge/ifa/ENR_P01_GUA.vrt tiles/5
     ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos ifa.vrt tiles/5
     ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py -t "IFR Area" ${OPTIONS2} -r lanczos ifa.vrt tiles/5
-    find tiles/5 -name "*png"| xargs -n1 -P16 bash -c rmemptypng
-    find tiles/5 -name "*png"| xargs mogrify -format png8
-    find tiles/5 -name "*png8"| xargs rename png8 png
-    find tiles/5 -name "*png" |xargs -n1 -P16 optipng
+    ## find tiles/5 -name "*png"| xargs -n1 -P16 bash -c rmemptypng
+    ## find tiles/5 -name "*png"| xargs mogrify -format png8
+    ## find tiles/5 -name "*png8"| xargs rename png8 png
+    ## find tiles/5 -name "*png" |xargs -n1 -P16 optipng
 
 elif [[ ${PBS_ARRAYID} -eq 9 ]]; then
     ## Heli only on change
     ${TIME1} time.heli.txt ./gdal2tiles_512_parallel.py -t "Helicoptor Route Chart" ${OPTIONS1} -r cubicspline heli.vrt tiles/9
     ${TIME2} time.heli.txt ./gdal2tiles_512_mysingle.py -t "Helicoptor Route Chart" ${OPTIONS2} -r cubicspline heli.vrt tiles/9
-    find tiles/9 -name "*png"| xargs -n1 -P16 bash -c rmemptypng
-    find tiles/9 -name "*png"| xargs mogrify -unsharp 1x1 -format png8
-    find tiles/9 -name "*png"| xargs -n1 -P16 optipng -o7
-    find tiles/9 -name "*png"| xargs mogrify -unsharp 1x1 -format jpg -quality 85
+    ## find tiles/9 -name "*png"| xargs -n1 -P16 bash -c rmemptypng
+    ## find tiles/9 -name "*png"| xargs mogrify -unsharp 1x1 -format png8
+    ## find tiles/9 -name "*png"| xargs -n1 -P16 optipng -o7
+    ## find tiles/9 -name "*png"| xargs mogrify -unsharp 1x1 -format jpg -quality 85
     
 
 elif [[ ${PBS_ARRAYID} -eq 55 ]]; then
     ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos ifa.vrt tiles/5.test
     ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py -t "IFR Area" ${OPTIONS2} -r lanczos ifa.vrt tiles/5.test
-    find tiles/5.test -name "*png"| xargs mogrify -unsharp 1x1 -format png8
-    find tiles/5.test -name "*png8"| xargs rename png8 png
-    find tiles/5.test -name "*png" |xargs -n1 -P16 optipng
+    ## find tiles/5.test -name "*png"| xargs mogrify -unsharp 1x1 -format png8
+    ## find tiles/5.test -name "*png8"| xargs rename png8 png
+    ## find tiles/5.test -name "*png" |xargs -n1 -P16 optipng
     
 elif [[ ${PBS_ARRAYID} -eq 99 ]]; then
     ${TIME1} time.debug.txt ./gdal2tiles_512_parallel.py -t "DEBUG" ${OPTIONS1} -r lanczos merge/ifa/ENR_A01_DET.vrt tiles/debug

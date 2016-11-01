@@ -2,13 +2,21 @@
 
 ## Run on eagle first, then on thor
 
-## Note to extract to svg without inkscape, pstoedit seems to be the best at preserving text rather than glyph.  But it looks pretty ugly and it gets both the glyph (as polygon outline) and the text.  Grep to get rid of the polygon.
+## Note to extract to svg without inkscape, pstoedit seems to be the
+## best at preserving text rather than glyph.  But it looks pretty
+## ugly and it gets both the glyph (as polygon outline) and the text.
+## Grep to get rid of the polygon.
 
-if [[ $# -eq 0 ]]; then
-    NP=32
-else
-    NP=$1
+if [[ $# -lt 3 ]]; then
+    echo requires three arguments
+    exit
 fi
+
+NP=$1
+ARRAYID=$2
+ARRAYSIZE=$3
+
+CYCLE=`./cyclenumber.sh`
 
 function svgtext(){
 cat << EOF
@@ -128,6 +136,7 @@ cat << EOF
 EOF
 }
 export -f svgtext
+export CYCLE
 
 function doit(){
 
@@ -136,7 +145,7 @@ function doit(){
     if [[ `echo $proc | grep -o AREA.png` ]]; then
 	png=plates.archive/area/${proc};
     else
-	png=plates.archive/$(./cyclenumber.sh)/plates_${state}/${proc};
+	png=plates.archive/${CYCLE}/plates_${state}/${proc};
     fi
     pdf=`echo $png |sed s/.png/.pdf/`
     pngf=$(echo $png |cut -f2-3 -d"/")
@@ -149,7 +158,7 @@ function doit(){
     ## echo png $png $pngf  
     ## echo svg $svg
 
-    if [[ -f $png ]]; then
+    if [[ -f $png && ! -f $svg ]]; then
 
 	unset SVGTEXT
 	
@@ -463,10 +472,6 @@ function doit(){
 export -f doit
 
 
-
-
-CYCLE=`./cyclenumber.sh`
-
 SCOUROPTS="--enable-comment-stripping --enable-id-stripping --indent=none --remove-metadata --set-precision=4 --shorten-ids --strip-xml-prolog --quiet "
 
 function doall (){
@@ -587,7 +592,7 @@ export -f assembleit
 
 
 echo Creating geotags from existing plates
-sqlite3 geoplates.db "select proc,state from geoplates;" | sed -n "$NP~16p" |
+sqlite3 geoplates.db "select proc,state from geoplates;" | sed -n "${ARRAYID}~${ARRAYSIZE}p" |
 xargs -P${NP} -n1 bash -c doit
 wait
 

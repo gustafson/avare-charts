@@ -27,6 +27,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+CYCLE=$(./cyclenumber.sh)
 
 function rmtif {
     rm *tif
@@ -54,6 +55,8 @@ function update {
 	    LOC=sectional_files;
 	elif [[ $1 = tac ]]; then
 	    LOC=tac_files;
+	elif [[ $1 = heli ]]; then
+	    LOC=heli_files;
 	fi
 
 
@@ -139,9 +142,43 @@ function update {
     [[ $UPDATED ]] && echo Updated charts are `for a in $UPDATED; do echo $a;done` || echo No updates
 }
 
-echo > /dev/shm/expired.txt
-update wac
-update sec
-update tac
+## echo > /dev/shm/expired.txt
+## ## update wac
+## update sec
+## update tac
+## update heli
+## 
+## mv /dev/shm/expired.txt .
 
-mv /dev/shm/expired.txt .
+TMP=charts/vfr-downloads
+echo Fetching VFR update for $CYCLE
+[[ -d $TMP ]] || mkdir $TMP
+
+pushd $TMP
+rm *tif
+wget -c http://aeronav.faa.gov/Upload_313-d/visual/DDVC_20${CYCLE}_Changes.zip
+unzip DDVC_20${CYCLE}_Changes.zip *tif
+
+echo Renaming files
+for a in `seq 10`; do
+    rename " " "" *
+done
+
+echo Fixing filenames for Caribbean charts
+rename VFRChart SEC Caribbean[12]*tif
+
+for type in TAC SEC HEL; do
+    echo Working on $type
+
+    if [[ `ls *${type}*tif 2> /dev/null |wc -l` -gt 0 ]]; then
+	for file in *${type}*tif; do
+	    echo working on $file
+	    OLDFILE=$(echo $file|rev|cut -c 8-|rev)
+	    echo removing ../${type,,}/${OLDFILE}*tif
+	    rm -f ../${type,,}/${OLDFILE}*tif
+	    mv $file ../${type,,}/.
+	done
+    fi
+done
+popd
+    

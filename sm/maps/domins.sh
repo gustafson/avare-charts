@@ -51,17 +51,20 @@ rm -f *.txt
 rm -f *.{PDF,pdf}
 rm -rf minimums
 
+echo Downloading TO and ALT mins
 for REG in ${REGNS}; do
     wget -q --no-check-certificate ${LINK}/${REG}TO.{PDF,pdf}
     wget -q --no-check-certificate ${LINK}/${REG}ALT.{PDF,pdf}
 done
 
+echo Renaming for consistency
 rename pdf PDF *pdf
 for REG in ${REGNS}; do
     [[ -f ${REG}TO.PDF ]]  || echo ${REG}TO.PDF not found. Check download ${LINK}/${REG}TO.{PDF,pdf}
     [[ -f ${REG}ALT.PDF ]] || echo ${REG}ALT.PDF not found. Check download ${LINK}/${REG}ALT.{PDF,pdf}
 done
 
+echo Converting to png
 ## Parallel version
 ls *TO.PDF |
 xargs -P ${NP} -n 1 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png 
@@ -69,17 +72,21 @@ ls *ALT.PDF |
 xargs -P ${NP} -n 1 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png 
 wait
 
+echo Zipping
 find . -name "*.png" | 
 xargs -P ${NP} -n 1 optipng -quiet
 wait
 
+echo Creating database input files
 for REG in ${REGNS}
 do
+    echo "../mins.sh ${REG}TO >> to.csv"
     ../mins.sh ${REG}TO >> to.csv
 done
 
 for REG in ${REGNS}
 do
+    echo "../mins.sh ${REG}ALT >> alt.csv"
     ../mins.sh ${REG}ALT >> alt.csv
 done
 
@@ -95,7 +102,9 @@ mv N*.png minimums/N
 mv P*.png minimums/P
 mv S*.png minimums/S
 
+echo Zipping
 zip -r -i "*.png" -1 -T -q alternates.zip minimums
+
 
 cd ..
 mv mins/alternates.zip final/

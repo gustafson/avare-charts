@@ -96,15 +96,15 @@ int main(int argc, char *argv[])
   printf("\n\n\n");
 
   snprintf(filestr, sizeof(filestr), "gdalbuildvrt -r cubicspline -resolution highest -overwrite");
-  for(map = 0; map < 2; map++)
-    {
-      if (map==0){
+  // for(map = 0; map < 2; map++)
+  //   {
+  //     if (map==0){
 	snprintf(buffer, sizeof(buffer), "%s sec.vrt merge/sec/*_c.vrt", filestr);
-      } else if (map==1){
-	snprintf(buffer, sizeof(buffer), "%s wac.vrt merge/wac/*_c.vrt", filestr);
-      }
+  //     } else if (map==1){
+  // 	snprintf(buffer, sizeof(buffer), "%s wac.vrt merge/wac/*_c.vrt", filestr);
+  //     }
       out(buffer);
-    }
+  //  }
   
   printf("\n\n\n");
   return 0;

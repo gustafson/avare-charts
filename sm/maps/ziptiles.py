@@ -36,6 +36,16 @@ def PixelsToTile(p):
     return [tx,ty]
 
 def main(argv):
+    ## for myarg in argv:
+    ##     print myarg
+        
+    if (len(argv)!=8):
+        print "ERROR: 8 arguments required"
+        for myarg in argv:
+            print myarg
+        sys.exit()
+
+    ## print "length of argv is ", len(argv)
     lon1 = float(argv[0])
     lat1 = float(argv[1])
     lon2 = float(argv[2])
@@ -44,7 +54,7 @@ def main(argv):
     m2 = [lon2, lat2]
     chart = argv[4]
     spec =  argv[5]
-    ftype = "png"
+    ftype = argv[6]
     maxzoom=14
     
     if spec=="latlon":
@@ -53,15 +63,12 @@ def main(argv):
 
     if chart=="sec":
         chart = 0
-        ftype = "jpg"
         maxzoom=11
     elif chart=="tac":
         chart = 1
-        ftype = "jpg"
         maxzoom=12
     elif chart=="wac":
         chart = 2
-        ftype = "jpg"
         maxzoom=10
     elif chart=="ifr":
         chart = 3
@@ -77,30 +84,24 @@ def main(argv):
         maxzoom=11
     elif chart=="rel":
         chart = 7
-        ftype = "jpg"
         maxzoom=10
     elif chart=="topo":
         chart = 8
-        ftype = "jpg"
         maxzoom=11
     elif chart=="heli":
         chart = 9
         maxzoom=13
     elif chart=="tpc":
         chart = 11
-        ftype = "jpg"
         maxzoom=11
     elif chart=="3dcoarse":
         chart = 13
-        ftype = "png"
         maxzoom=13
     elif chart=="3ddetail":
         chart = 14
-        ftype = "png"
         maxzoom=13
     elif chart=="elevationdetail":
         chart = 15
-        ftype = "png"
         maxzoom=11
 ## Note delete always chooses pngs because the jpg will just be replaced anyway        
     elif chart=="deletesec":
@@ -145,8 +146,17 @@ def main(argv):
     ## the above are both required.
     if (maxzoom<15):
         maxzoom = maxzoom+1
-        
-    for zoom in range (maxzoom-4,maxzoom):
+
+    ## Heli, aren't included in the databases.zip
+    if ((argv[7]=="forclean") or (argv[4]=="heli")):
+        minzoom = maxzoom-5
+    elif (argv[7]=="forzip"):
+        minzoom = maxzoom-4
+    else:
+        sys.exit()
+
+    ## print "debug: " + ftype + "maxzoom" + str(maxzoom) + "minzoom" + str(minzoom)
+    for zoom in range (minzoom,maxzoom):
         p1 = MetersToPixels(m1, zoom)
         t1 = PixelsToTile(p1)
         p2 = MetersToPixels(m2, zoom)
@@ -160,6 +170,7 @@ def main(argv):
                 ## print fname
                 if (os.path.isfile(fname)):
                     print fname
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])

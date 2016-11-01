@@ -58,28 +58,36 @@ ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
 	@echo "  make download-ifr #$(CYCLEDATE56)"
 endif
 	@echo "  make update-vfr #$(CYCLEDATE28)"
-	@echo "  make unzip"
 ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
+	@echo "  make unzip"
 	@echo "  make stage-all #$(CYCLEDATE56)"
 else
 	@echo "  make stage-vfr #$(CYCLEDATE28)"
 endif
+	@echo
+	@echo "  make download-cifp #$(CYCLE)"
+	@echo "  make procedures.db #$(CYCLEDATE28)"
+	@echo
+	@echo "  make download-plates #$(CYCLE)"
 	@echo "  make plates-png #$(CYCLEDATE28)"
 	@echo "  make mins-data #$(CYCLEDATE28)"
 ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
+	@echo
+	@echo "  make download-afd #$(CYCLEDATE56)"
 	@echo "  make afd-data #$(CYCLEDATE56)"
 endif
+	@echo
 	@echo "  make download-base-data #$(CYCLEDATE56BASE) $$(./cycledates.sh 56 dof)"
 	@echo "  make process-data #$(CYCLEDATE56BASE)"
-	@echo "  make procedures.db #$(CYCLEDATE28)"
+	@echo
 	@echo "  make geolist #$(CYCLEDATE28)"
 	@echo "  make canada"
 	@echo "  make ziptiles"
-	@echo "  make zipit"
+	@echo "  make zipdatabase"
 	@echo "  make qualitycontrol"
 
-scratch: download-ifr download-vfr unzip stage-all plates download-base-data process-data zipit
-update: download-ifr update-vfr unzip stage-all plates download-base-data process-data zipit
+scratch: download-ifr download-vfr unzip stage-all plates download-base-data process-data zipdatabase
+update: download-ifr update-vfr unzip stage-all plates download-base-data process-data zipdatabase
 
 clean:
 	find final -type f|grep -v "CAN_\|REL_\|ELEV_"| xargs rm # \|ELUS_\|EHUS\|AFD_
@@ -116,10 +124,28 @@ process-data:
 	./aw.pl > aw.csv
 
 plates-png: 
-	# wget -N http://aeronav.faa.gov/d-tpp/$(CYCLE)/xml_data/d-TPP_Metafile.xml
-	### Currently buying plate xml file so this isn't needed.
 	[[ -f d-TPP_Metafile.xml.zip.$(CYCLE) ]] && unzip -o d-TPP_Metafile.xml.zip.$(CYCLE)
 	./plates_png.sh
+
+download-plates: 
+	@echo This is currently done on eagle:
+	@echo "  wget -c -b http://www.aeronav.faa.gov/upload_313-d/terminal/DDTPPA_20$(CYCLE).zip"
+	@echo "  wget -c -b http://www.aeronav.faa.gov/upload_313-d/terminal/DDTPPB_20$(CYCLE).zip"
+	@echo "  wget -c -b http://www.aeronav.faa.gov/upload_313-d/terminal/DDTPPC_20$(CYCLE).zip"
+	@echo "  wget -c -b http://www.aeronav.faa.gov/upload_313-d/terminal/DDTPPD_20$(CYCLE).zip"
+	@echo "  wget -c -b http://www.aeronav.faa.gov/upload_313-d/terminal/DDTPPE_20$(CYCLE).zip"
+	@echo "  wait"
+
+download-cifp: 
+	@echo on thor:
+	@echo "  pushd ~/CIFP"
+	@echo "  wget -c http://www.aeronav.faa.gov/Upload_313-d/cifp/cifp_20$(CYCLE).zip"
+	@echo "and complete the processing:"
+	@echo "  popd"
+
+download-afd:
+	@echo This is currently done on eagle:
+	@echo "  wget -c http://www.aeronav.faa.gov/upload_313-d/supplements/DCS_$(shell ./cycledates.sh 56 afd).zip"
 
 afd-data:
 	echo http://www.aeronav.faa.gov/upload_313-d/supplements/DCS_20160526.zip
@@ -161,28 +187,28 @@ download-ifr:
 	./dlifr.sh $$(./cycledates.sh 56 ifr)
 
 unzip:
-	rm -f charts/*/*tif
-	cd charts/tac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	## rm -f charts/*/*tif
+	## cd charts/tac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
 	## cd charts/wac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	cd charts/sec  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	cd charts/heli && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	## cd charts/sec  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	## cd charts/hel && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
 	cd charts/ifh  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
 	cd charts/ifa  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
 	cd charts/ifr  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
 	cd charts/ifah && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
 	cd charts/ifal && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	# cd charts/heli && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
 	#
 	rm -f charts/tac/*Planning*tif
 	rename " " "" charts/*/*tif
 	rename " " "" charts/*/*tif
 	rename " " "" charts/*/*tif
 	rename " " "" charts/*/*tif
+	rename U.S. US charts/*/*tif
 
 
 stage-all: stage-vfr-sec stage-ifr-low
 	## NOTE current limit is disk IO and open files, it is inadvisable to do all at the same time
-	cat generate-tiles.pbs| qsub -t 0,1,2,3,4,5%1 #| sed s/ppn=16/ppn=$(NP)/
+	cat generate-tiles.pbs| qsub -t 0,1,3,4,5%2 #| sed s/ppn=16/ppn=$(NP)/
 
 stage-ifr: stage-ifr-low
 	cat generate-tiles.pbs| qsub -t 3-5%2 #| sed s/ppn=16/ppn=$(NP)/
@@ -199,7 +225,7 @@ stage-ifr-low: charts/ifr/*zip charts/ifa/*zip charts/ifh/*zip
 	./stage-ifr-high
 	./stage-ifr-area
 
-stage-vfr-sec: charts/sec/*zip charts/wac/*zip charts/tac/*zip
+stage-vfr-sec: charts/sec/*tif charts/wac/*tif charts/tac/*tif
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	## gcc -march=native -O3 -Wall stagefly.c -o stagefly
 	gcc -march=native -O3 -Wall stage-vfr-heli.c -o stage-vfr-heli
@@ -210,9 +236,14 @@ stage-vfr-sec: charts/sec/*zip charts/wac/*zip charts/tac/*zip
 	./stage-vfr-tac
 
 ziptiles:
-	./ziptiles.sh
+	## ./ziptiles.sh
+ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
+	qsub -t 0,1,3,4,5 ziptiles512.pbs
+else
+	qsub -t 0,1 ziptiles512.pbs
+endif
 
-zipit:
+zipdatabase:
 	echo "Zipping cycle " $(CYCLE)
 	rm -f main.db
 	rm -f final/databases.zip
@@ -231,10 +262,10 @@ zipit:
 	zip -9 final/databases.zip `find tiles/6/6 -name "*png"`
 	zip -9 final/databases.zip `find tiles/7/5 -name "*jpg"`
 	## zip -9 final/databases.zip `find tiles/8/7 -name "*jpg"` ## Canada large and not wanted in US
-	zip -9 final/databases.zip `find tiles/9/8 -name "*png"`
+	## zip -9 final/databases.zip `find tiles/9/8 -name "*png"` ## Heli very large with gulf coast
 	pushd final; ../zip.py databases $(CYCLE); popd
 
-zipit256:
+zipdatabase256:
 	echo "Zipping cycle " $(CYCLE)
 	rm -f main.db
 	rm -f final/256/databases.zip
@@ -253,7 +284,7 @@ zipit256:
 	## zip -9 final/256/databases.zip `find tiles/6/6 -name "*png"` ## New elevation model would be too big to include
 	zip -9 final/256/databases.zip `find tiles/7/6 -name "*jpg"`
 	## zip -9 final/256/databases.zip `find tiles/8/8 -name "*jpg"` ## Canada large and not wanted in US
-	zip -9 final/256/databases.zip `find tiles/9/9 -name "*png"`
+	## zip -9 final/256/databases.zip `find tiles/9/9 -name "*png"` ## Heli very large with gulf coast
 	pushd final/256/; ../../zip.py databases $(CYCLE); popd
 
 geolist:
