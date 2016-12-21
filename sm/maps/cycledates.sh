@@ -43,7 +43,7 @@ else
 fi
 
 #TODAY="7/15/2014"
-TODAY="today"
+TODAY=`date -u -d "today 00:00:00" +%x`
 TOD=`date -u -d "${TODAY}" +%s`
 
 if [[ ${CYCLEDAYS} -eq 56 ]]; then
