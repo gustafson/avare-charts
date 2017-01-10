@@ -163,6 +163,16 @@ elif [[ ${PBS_ARRAYID} -eq 99 ]]; then
     ## find tiles/debug -name "*png"| xargs mogrify -unsharp 1x1 -format png8
     ## find tiles/debug -name "*png8"| xargs rename png8 png
     ## find tiles/debug -name "*png" |xargs -n1 -P16 optipng
+
+elif [[ ${PBS_ARRAYID} -eq 199 ]]; then
+    ${TIME1} time.debug.txt ./gdal2tiles_512_parallel.py -t "DEBUG" ${OPTIONS1} -r lanczos plates.archive/1701/plates_MI/AZO/RNAV-GPS-RWY-17.pdf tiles/debug
+    ${TIME2} time.debug.txt ./gdal2tiles_512_mysingle.py -t "DEBUG" ${OPTIONS2} -r lanczos plates.archive/1701/plates_MI/AZO/RNAV-GPS-RWY-17.pdf tiles/debug
+    ## gdal_translate --config GDAL_PDF_DPI 150 -of Rasterlite RNAV-GPS-RWY-17.pdf RASTERLITE:my_db.sqlite,table=source -co DRIVER=WEBP
+    ## find tiles/debug -name "*png"| xargs mogrify -unsharp 1x1 -format png8
+    ## find tiles/debug -name "*png8"| xargs rename png8 png
+    ## find tiles/debug -name "*png" |xargs -n1 -P16 optipng
+
+    gdal_translate -of GPKG byte.tif byte.gpkg -co TILING_SCHEME=GoogleMapsCompatible -co RESAMPLING LANCZOS
 fi
 
 ## 0 Sectional
