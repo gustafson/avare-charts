@@ -158,11 +158,18 @@ pushd $TMP
 rm *tif
 wget -c http://aeronav.faa.gov/Upload_313-d/visual/DDVC_20${CYCLE}_Changes.zip
 unzip DDVC_20${CYCLE}_Changes.zip *tif
+## if [[ ! -f *tif ]]; then
+##     echo no tiff files
+##     echo trying zip files
+##     unzip DDVC_20${CYCLE}_Changes.zip
+##     for zip in *zip; do unzip $zip "*tif";done
+## fi
 
 echo Renaming files
 for a in `seq 10`; do
     rename " " "" *
 done
+rm *FLY*tif
 
 echo Fixing filenames for Caribbean charts
 rename VFRChart SEC Caribbean[12]*tif

@@ -32,43 +32,58 @@
 export DT=$1
 
 pushd charts/ifr
-for ch in 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36;do
-    wget http://aeronav.faa.gov/enroute/${DT,,}/enr_l$ch.zip
+## TMP ## for ch in 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36;do
+## TMP ##     wget -N http://aeronav.faa.gov/enroute/${DT,,}/enr_l${ch}.zip
+## TMP ## done
+
+#Carribean
+for ch in 1 3 5; do
+    wget -N http://aeronav.faa.gov/enroute/${DT,,}/delcb${ch}.zip
 done
+#Gulf of Mexico annually
+wget -N http://aeronav.faa.gov/enroute/GoM/04-27-2017/gom_west_tif.zip
+wget -N http://aeronav.faa.gov/enroute/GoM/04-27-2017/gom_central_tif.zip
 popd
 
-## IFR low Alaska
-pushd charts/ifal
-for ch in 1 2 3 4; do
-    ## Alaska low
-    wget http://aeronav.faa.gov/enroute/${DT,,}/enr_akl0$ch.zip
-done
-popd
-
-pushd charts/ifal
-for ch in 1 2; do
-    ## Hawaii Pacific
-    wget http://aeronav.faa.gov/enroute/${DT,,}/enr_p0$ch.zip
-done
-popd
-
-## IFR area
-pushd charts/ifa
-for ch in 1 2; do
-    wget http://aeronav.faa.gov/enroute/${DT,,}/enr_a0$ch.zip
-done
-popd
-
-## IFR 48 High
-pushd charts/ifh;
-for ch in 01 02 03 04 05 06 07 08 09 10 11; do
-    wget http://aeronav.faa.gov/enroute/${DT,,}/enr_h$ch.zip
-done
-popd
-
-## Alaska high
-pushd charts/ifah
-for ch in 1 2; do
-    wget http://aeronav.faa.gov/enroute/${DT,,}/enr_akh0$ch.zip
-done
-popd
+## TMP ## ## IFR low Alaska
+## TMP ## pushd charts/ifal
+## TMP ## for ch in 1 2 3 4; do
+## TMP ##     ## Alaska low
+## TMP ##     wget http://aeronav.faa.gov/enroute/${DT,,}/enr_akl0${ch}.zip
+## TMP ## done
+## TMP ## popd
+## TMP ## 
+## TMP ## pushd charts/ifal
+## TMP ## for ch in 1 2; do
+## TMP ##     ## Hawaii Pacific
+## TMP ##     wget http://aeronav.faa.gov/enroute/${DT,,}/enr_p0${ch}.zip
+## TMP ## done
+## TMP ## popd
+## TMP ## 
+## TMP ## ## IFR area
+## TMP ## pushd charts/ifa
+## TMP ## for ch in 1 2; do
+## TMP ##     wget http://aeronav.faa.gov/enroute/${DT,,}/enr_a0${ch}.zip
+## TMP ## done
+## TMP ## #Carribean
+## TMP ## wget http://aeronav.faa.gov/enroute/${DT,,}/delcba1.zip
+## TMP ## wget http://aeronav.faa.gov/enroute/${DT,,}/delcb3.zip
+## TMP ## popd
+## TMP ## 
+## TMP ## ## IFR 48 High
+## TMP ## pushd charts/ifh;
+## TMP ## for ch in 01 02 03 04 05 06 07 08 09 10 11; do
+## TMP ##     wget http://aeronav.faa.gov/enroute/${DT,,}/enr_h${ch}.zip
+## TMP ## done
+## TMP ## #Carribean
+## TMP ## for ch in 1; do
+## TMP ##     http://aeronav.faa.gov/enroute/${DT,,}/dehcb${ch}.zip
+## TMP ## done
+## TMP ## popd
+## TMP ## 
+## TMP ## ## Alaska high
+## TMP ## pushd charts/ifah
+## TMP ## for ch in 1 2; do
+## TMP ##     wget http://aeronav.faa.gov/enroute/${DT,,}/enr_akh0${ch}.zip
+## TMP ## done
+## TMP ## popd

@@ -65,11 +65,11 @@ int main(int argc, char *argv[])
   
   for(map = 0; map < entries; map++) {
     if(0 == strcmp(maps[map].reg, "IFA")) {
-      dir_ptr = "ifa";
+      dir_ptr = "ifr";
     } else if(0 == strcmp(maps[map].reg, "IFAL")) {
-      dir_ptr = "ifal";
+      dir_ptr = "ifr";
     } else {
-      dir_ptr = "empty";
+      dir_ptr = "ifr";
     }
  
     n_ptr = maps[map].name; 

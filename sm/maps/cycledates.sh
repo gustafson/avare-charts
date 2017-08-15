@@ -37,7 +37,7 @@ fi
 CYCLEDAYS=$1
 if [[ $2 = dof ]]; then
     REF=`date -u -d 12/8/2014 +%s`
-    CYCLEDAYS=56
+    ## CYCLEDAYS=56 ## Updated no longer every 56 days as of 4/27/2017
 else
     REF=`date -u -d 8/20/2015 +%s`
 fi

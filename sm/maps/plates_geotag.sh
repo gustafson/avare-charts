@@ -1,12 +1,5 @@
 #!/bin/bash
 
-## Run on eagle first, then on thor
-
-## Note to extract to svg without inkscape, pstoedit seems to be the
-## best at preserving text rather than glyph.  But it looks pretty
-## ugly and it gets both the glyph (as polygon outline) and the text.
-## Grep to get rid of the polygon.
-
 if [[ $# -lt 3 ]]; then
     echo requires three arguments
     exit
@@ -416,7 +409,7 @@ function doit(){
 
 
 
- 	obs=`sqlite3 main.db "select Height,ARPLongitude,ARPLatitude from obs where ARPLongitude>${minmax[0]} and ARPLongitude<${minmax[1]} and ARPLatitude<${minmax[2]} and ARPLatitude>${minmax[3]} order by Height desc limit 100;"`
+ 	obs=`sqlite3 obs.db "select Height,ARPLongitude,ARPLatitude from obs where ARPLongitude>${minmax[0]} and ARPLongitude<${minmax[1]} and ARPLatitude<${minmax[2]} and ARPLatitude>${minmax[3]} order by Height desc limit 100;"`
  	#obs2=`echo "$obs" |sort`
  	SVGTEXT+="<g id=\"obs\" onclick='ToggleOpacity(evt, \"obs\")'>"
  	
@@ -564,6 +557,13 @@ export -f assembleit
 
 
 
+
+## Run on eagle first, then on thor
+
+## Note to extract to svg without inkscape, pstoedit seems to be the
+## best at preserving text rather than glyph.  But it looks pretty
+## ugly and it gets both the glyph (as polygon outline) and the text.
+## Grep to get rid of the polygon.
 
 ## VECTOR SVGS FROM PDF ## if [[ $(hostname) == eagle ]]; then
 ## VECTOR SVGS FROM PDF ## 

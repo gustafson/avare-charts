@@ -68,17 +68,20 @@ int main(int argc, char *argv[])
     printf("\n\n# %s\n\n", maps[map].name);
 
     if(0 == strcmp(maps[map].reg, "IFH")) {
-      dir_ptr = "ifh";
+      dir_ptr = "ifr";
     }else if(0 == strcmp(maps[map].reg, "IFAH")) {
-      dir_ptr = "ifah";
+      dir_ptr = "ifr";
+    }else if(0 == strcmp(maps[map].reg, "IFAL")) {
+      dir_ptr = "ifr";
     }else{
-      dir_ptr = "empty";
+      dir_ptr = "ifr";
     }
 
     // Establish a parallel safe tmp name
     snprintf(tmpstr, sizeof(tmpstr), "merge/ifh/%02i%s", map, maps[map].name);
     
-    if((0 == strcmp(maps[map].reg, "IFH"))||
+    if((0 == strcmp(maps[map].reg, "IFH")) ||
+       (0 == strcmp(maps[map].reg, "IFAL")) ||
        (0 == strcmp(maps[map].reg, "IFAH"))) {
 			
       snprintf(buffer, sizeof(buffer),
@@ -97,6 +100,7 @@ int main(int argc, char *argv[])
   
   /* one image */
   out("\n\n\n# Merge all");
+  // The pacific should be first, so it is underneath
   out("gdalbuildvrt -r lanczos -resolution highest ifh.vrt -overwrite merge/ifh/*_2.vrt\n");
 
   return 0;

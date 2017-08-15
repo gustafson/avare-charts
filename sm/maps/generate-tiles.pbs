@@ -114,8 +114,19 @@ elif [[ ${PBS_ARRAYID} -eq 2 ]]; then
 ##	      -draw "fill-opacity 0.25 rotate -45 text 0,0 'Discontinued'"
     
 elif [[ ${PBS_ARRAYID} -eq 3 ]]; then
+    ## start with hawaii then backfill the rest
+    ${TIME1} time.ifr-hi.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -r lanczos ifr_hi.vrt tiles/3
+    ${TIME2} time.ifr-hi.txt ./gdal2tiles_512_mysingle.py -t "IFR Enroute Low" ${OPTIONS2} -r lanczos ifr_hi.vrt tiles/3
+    rm tiles/3/*html tiles/3/*xml
     ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -r lanczos ifr.vrt tiles/3
     ${TIME2} time.ifr.txt ./gdal2tiles_512_mysingle.py -t "IFR Enroute Low" ${OPTIONS2} -r lanczos ifr.vrt tiles/3
+
+    ## Include a pacific overlay
+    ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-7 -r lanczos ifr_all.vrt tiles/3-overlay
+    ${TIME2} time.ifr.txt ./gdal2tiles_512_mysingle.py -t "IFR Enroute Low" ${OPTIONS2} -z 0-7 -r lanczos ifr_all.vrt tiles/3-overlay
+
+    rsync --exclude="*.xml" --exclude="*.html" -avP tiles/3-hi/ tiles/3/
+    rsync --exclude="*.xml" --exclude="*.html" -avP tiles/3-overlay/ tiles/3/
     ## find tiles/3 -name "*png"| xargs -n1 -P16 bash -c rmemptypng
     ## find tiles/3 -name "*png"| xargs mogrify -format png8
     ## find tiles/3 -name "*png8"| xargs rename png8 png
@@ -133,6 +144,7 @@ elif [[ ${PBS_ARRAYID} -eq 5 ]]; then
     ## start with guam then backfill the rest
     ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 7-11 merge/ifa/ENR_P01_GUA.vrt tiles/5
     ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py -t "IFR Area" ${OPTIONS2} -r lanczos -z 7-11 merge/ifa/ENR_P01_GUA.vrt tiles/5
+    rm tiles/5/*html tiles/5/*xml
     ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos ifa.vrt tiles/5
     ${TIME2} time.ifa.txt ./gdal2tiles_512_mysingle.py -t "IFR Area" ${OPTIONS2} -r lanczos ifa.vrt tiles/5
     ## find tiles/5 -name "*png"| xargs -n1 -P16 bash -c rmemptypng

@@ -31,6 +31,7 @@
 ## 1) Update NP variable in scripts
 
 CYCLE=$(shell ./cyclenumber.sh)
+CYCLEDATE28BASE=$(shell ./cycledates.sh 28 base)
 CYCLEDATE56BASE=$(shell ./cycledates.sh 56 base)
 CYCLEDATE28=$(shell ./cycledates.sh 28)
 CYCLEDATE56=$(shell ./cycledates.sh 56)
@@ -59,7 +60,7 @@ ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
 endif
 	@echo "  make update-vfr #$(CYCLEDATE28)"
 ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
-	@echo "  make unzip"
+	@echo "  make rename"
 	@echo "  make stage-all #$(CYCLEDATE56)"
 else
 	@echo "  make stage-vfr #$(CYCLEDATE28)"
@@ -77,7 +78,7 @@ ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
 	@echo "  make afd-data #$(CYCLEDATE56)"
 endif
 	@echo
-	@echo "  make download-base-data #$(CYCLEDATE56BASE) $$(./cycledates.sh 56 dof)"
+	@echo "  make download-base-data #$(CYCLEDATE56BASE) $$(./cycledates.sh 28 dof)"
 	@echo "  make process-data #$(CYCLEDATE56BASE)"
 	@echo
 	@echo "  make geolist #$(CYCLEDATE28)"
@@ -86,8 +87,8 @@ endif
 	@echo "  make zipdatabase"
 	@echo "  make qualitycontrol"
 
-scratch: download-ifr download-vfr unzip stage-all plates download-base-data process-data zipdatabase
-update: download-ifr update-vfr unzip stage-all plates download-base-data process-data zipdatabase
+scratch: download-ifr download-vfr rename stage-all plates download-base-data process-data zipdatabase
+update: download-ifr update-vfr rename stage-all plates download-base-data process-data zipdatabase
 
 clean:
 	find final -type f|grep -v "CAN_\|REL_\|ELEV_"| xargs rm # \|ELUS_\|EHUS\|AFD_
@@ -100,17 +101,19 @@ download-base-data:
 	$$(rm -f APT.txt AWOS.txt FIX.txt TWR.txt DOF.DAT NAV.txt AWY.txt aixm5.0.zip DAILY_DOF.ZIP)
 	## obstacles file.  Get this first as it is usually last posted... will thus not download the rest unless successful.
 	## https://nfdc.faa.gov/tod/public/TOD_DOF.html
-	## wget --no-check-certificate https://nfdc.faa.gov/tod/public/DOFS/DOF_$$(./cycledates.sh 56 dof).zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
+	## wget -N --no-check-certificate https://nfdc.faa.gov/tod/public/DOFS/DOF_$$(./cycledates.sh 56 dof).zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
 	echo "USING Daily DOF file rather than 56 day cycle.  This is, on average, more current than the 56 day cycle."
-	wget --no-check-certificate https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip DAILY_DOF.ZIP DOF.DAT && rm -f DAILY_DOF.ZIP
+	wget -N --no-check-certificate https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip DAILY_DOF.ZIP DOF.DAT && rm -f DAILY_DOF.ZIP
 	# https://nfdc.faa.gov/fadds/subscriptionDownload.do?productId=548752
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/APT.zip && unzip APT.zip && rm -f APT.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/AWOS.zip && unzip AWOS.zip && rm -f AWOS.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/TWR.zip && unzip TWR.zip && rm -f TWR.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/FIX.zip && unzip FIX.zip && rm -f FIX.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/NAV.zip && unzip NAV.zip && rm -f NAV.zip
-	wget --no-check-certificate https://nfdc.faa.gov/webContent/56DaySub/$(CYCLEDATE56BASE)/AWY.zip && unzip AWY.zip && rm -f AWY.zip
-	./saa.sh							     $(CYCLEDATE56BASE)
+	## https://nfdc.faa.gov/webContent/28DaySub/2017-04-27/APT.zip
+	wget -N --no-check-certificate https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/APT.zip && unzip APT.zip && rm -f APT.zip
+	wget -N --no-check-certificate https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/AWOS.zip && unzip AWOS.zip && rm -f AWOS.zip
+	wget -N --no-check-certificate https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/TWR.zip && unzip TWR.zip && rm -f TWR.zip
+	wget -N --no-check-certificate https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/FIX.zip && unzip FIX.zip && rm -f FIX.zip
+	wget -N --no-check-certificate https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/NAV.zip && unzip NAV.zip && rm -f NAV.zip
+	wget -N --no-check-certificate https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/AWY.zip && unzip AWY.zip && rm -f AWY.zip
+	./saa.sh							     $(CYCLEDATE28BASE)
+	wget -N --no-check-certificate https://www.outerworldapps.com/WairToNowWork/avare_aptdiags.php && mv avare_aptdiags.php airdiags/aptdiags.csv
 
 process-data:
 	./saa.pl > saa.csv
@@ -174,30 +177,36 @@ update-vfr:
 
 download-ifr:
 	echo Downloading ifr for cycle $(CYCLE)
-	if [[ -d charts/ifr ]]; then rm -fr charts/ifr; fi
-	if [[ -d charts/ifh ]]; then rm -fr charts/ifh; fi
-	if [[ -d charts/ifal ]]; then rm -fr charts/ifal; fi
-	if [[ -d charts/ifa ]]; then rm -fr charts/ifa; fi
-	if [[ -d charts/ifah ]]; then rm -fr charts/ifah; fi
-	mkdir -p charts/ifr
-	mkdir -p charts/ifh
-	mkdir -p charts/ifa
-	mkdir -p charts/ifal
-	mkdir -p charts/ifah
+	#if [[ -d charts/ifr ]]; then rm -fr charts/ifr; fi
+	## if [[ -d charts/ifh ]]; then rm -fr charts/ifh; fi
+	## if [[ -d charts/ifal ]]; then rm -fr charts/ifal; fi
+	## if [[ -d charts/ifa ]]; then rm -fr charts/ifa; fi
+	## if [[ -d charts/ifah ]]; then rm -fr charts/ifah; fi
+	#mkdir -p charts/ifr
+	## mkdir -p charts/ifh
+	## mkdir -p charts/ifa
+	## mkdir -p charts/ifal
+	## mkdir -p charts/ifah
+	cd charts/ifr && wget -N http://aeronav.faa.gov/enroute/$$(../../cycledates.sh 56 ifr)/DDECUS.zip
 	./dlifr.sh $$(./cycledates.sh 56 ifr)
+	## cd charts/ifr && rm -f *pdf*zip *tif
+	cd charts/ifr && unzip -f -o -j DDECUS.zip
+	cd charts/ifr && ls *zip | grep -v -e DDECUS.zip -e delcb | xargs -n1 -P$(NP) unzip -f -o -j  ## Don't use carribean which isn't geotagged
+	@echo Done downloading and unziping ifr charts
 
-unzip:
+rename:
 	## rm -f charts/*/*tif
 	## cd charts/tac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
 	## cd charts/wac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
 	## cd charts/sec  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
 	## cd charts/hel && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	cd charts/ifh  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	cd charts/ifa  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	cd charts/ifr  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	cd charts/ifah && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	cd charts/ifal && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	## cd charts/ifh  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	## cd charts/ifa  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	## cd charts/ifr  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	## cd charts/ifah && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
+	##cd charts/ifal && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
 	#
+	@echo Reminder: unzip is done by the download code
 	rm -f charts/tac/*Planning*tif
 	rename " " "" charts/*/*tif
 	rename " " "" charts/*/*tif
@@ -216,7 +225,7 @@ stage-ifr: stage-ifr-low
 stage-vfr: stage-vfr-sec
 	cat generate-tiles.pbs| qsub -t 0-1%2 #| sed s/ppn=16/ppn=$(NP)/	
 
-stage-ifr-low: charts/ifr/*zip charts/ifa/*zip charts/ifh/*zip
+stage-ifr-low: charts/ifr/*zip  # charts/ifa/*zip charts/ifh/*zip
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	gcc -march=native -O3 -Wall stage-ifr-low.c -o stage-ifr-low
 	gcc -march=native -O3 -Wall stage-ifr-high.c -o stage-ifr-high
@@ -242,6 +251,7 @@ ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
 else
 	qsub -t 0,1 ziptiles512.pbs
 endif
+	qsub -t 98 ziptiles512.pbs
 
 zipdatabase:
 	echo "Zipping cycle " $(CYCLE)
@@ -252,10 +262,19 @@ zipdatabase:
 	sqlite3 tiles.db "VACUUM;"
 	cp ~/CIFP/procedures.db .
 	sqlite3 procedures.db "VACUUM;"
-	zip -9 -r final/databases.zip procedures.db main.db tiles.db
+	rm obs.db; sqlite3 main.db ".dump obs" | sqlite3 obs.db
+	sqlite3 main.db "drop table obs; vacuum;"
+	sqlite3 obs.db "vacuum;"
+	zip -9 -r final/databases.zip procedures.db main.db obs.db
 	zip -9 final/databases.zip `find tiles/0/6 -name "*jpg"`
 	zip -9 final/databases.zip `find tiles/1/7 -name "*jpg"`
 	zip -9 final/databases.zip `find tiles/2/5 -name "*jpg"`
+ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
+	find tiles/3/6 -name "*png" |xargs -n8 optipng
+	find tiles/4/5 -name "*png" |xargs -n8 optipng
+	find tiles/5/7 -name "*png" |xargs -n8 optipng
+endif
+	find tiles/6/6 -name "*png" |xargs -n8 optipng
 	zip -9 final/databases.zip `find tiles/3/6 -name "*png"`
 	zip -9 final/databases.zip `find tiles/4/5 -name "*png"`
 	zip -9 final/databases.zip `find tiles/5/7 -name "*png"`

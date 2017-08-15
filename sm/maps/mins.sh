@@ -13,7 +13,7 @@
 # Download and run on ALTERNATE and TAKEOFF minimums
 # e.g. mins.sh NE1TO
 # e.g. mins.sh NEIALT
-# Use mogirfy to convert PDF to images with names like NE1TO-0.jpeg ...
+# Use mogrify to convert PDF to images with names like NE1TO-0.jpeg ...
 
 export PG=`pdfinfo $1.PDF | grep Pages | sed "s/Pages:\s*//"`
 for (( c=1; c<=${PG}; c++ ))

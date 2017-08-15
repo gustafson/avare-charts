@@ -36,7 +36,7 @@ LINK=http://aeronav.faa.gov/d-tpp/$1
 LINK=http://eagle.ceas.wmich.edu/avare/plates/$1
 
 DPI=248.3 ## Ideal android limit 2400x
-DPI=150
+DPI=225
 
 
 ./airport_min.pl > airport_min.txt;  
