@@ -17,7 +17,7 @@
 FILE=CanadianAirportCharts_Next.pdf
 
 # This is a big download
-wget -N http://www.navcanada.ca/EN/products-and-services/Documents/$FILE
+wget -N http://www.navcanada.ca/en/products-and-services/Documents/$FILE
 
 [[ -d plates ]] || mkdir plates
 
