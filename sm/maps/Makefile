@@ -82,8 +82,8 @@ endif
 	@echo "  make process-data #$(CYCLEDATE56BASE)"
 	@echo
 	@echo "  make geolist #$(CYCLEDATE28)"
-	@echo "  make canada"
 	@echo "  make ziptiles"
+	@echo "  make canada"
 	@echo "  make zipdatabase"
 	@echo "  make qualitycontrol"
 
@@ -190,8 +190,8 @@ download-ifr:
 	cd charts/ifr && wget -N http://aeronav.faa.gov/enroute/$$(../../cycledates.sh 56 ifr)/DDECUS.zip
 	./dlifr.sh $$(./cycledates.sh 56 ifr)
 	## cd charts/ifr && rm -f *pdf*zip *tif
-	cd charts/ifr && unzip -f -o -j DDECUS.zip
-	cd charts/ifr && ls *zip | grep -v -e DDECUS.zip -e delcb | xargs -n1 -P$(NP) unzip -f -o -j  ## Don't use carribean which isn't geotagged
+	cd charts/ifr && unzip -o -j DDECUS.zip
+	cd charts/ifr && ls *zip | grep -v -e DDECUS.zip -e delcb | xargs -n1 -P$(NP) unzip -o -j  ## Don't use carribean which isn't geotagged
 	@echo Done downloading and unziping ifr charts
 
 rename:
