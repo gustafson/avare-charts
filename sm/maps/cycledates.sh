@@ -57,8 +57,8 @@ else
     exit
 fi
 
-## If within three days of the prior cycle, choose it instead.
-if [[ $SREF -gt 25 ]]; then
+## If within 1 day of the prior cycle, choose it instead.
+if [[ $SREF -gt 27 ]]; then
     SREF=$(($SREF-${CYCLEDAYS}))
 fi
 
