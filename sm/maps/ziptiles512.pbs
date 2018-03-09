@@ -59,7 +59,8 @@ if [[ ${PBS_NODEFILE} ]]; then
     NP=$(cat ${PBS_NODEFILE} | wc -l)
     export TMPDIR=/scratch
 else
-    NP=16
+    PBS_ARRAYID=1
+    NP=8
     export TMPDIR=/data/home/pi/gustafson
 fi
 

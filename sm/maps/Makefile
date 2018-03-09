@@ -187,11 +187,11 @@ download-ifr:
 	## mkdir -p charts/ifa
 	## mkdir -p charts/ifal
 	## mkdir -p charts/ifah
-	cd charts/ifr && wget -N http://aeronav.faa.gov/enroute/$$(../../cycledates.sh 56 ifr)/DDECUS.zip
+	cd charts/ifr && wget -N http://aeronav.faa.gov/enroute/$$(../../cycledates.sh 56 ifr)/DDECUS_.zip
 	./dlifr.sh $$(./cycledates.sh 56 ifr)
 	## cd charts/ifr && rm -f *pdf*zip *tif
-	cd charts/ifr && unzip -o -j DDECUS.zip
-	cd charts/ifr && ls *zip | grep -v -e DDECUS.zip -e delcb | xargs -n1 -P$(NP) unzip -o -j  ## Don't use carribean which isn't geotagged
+	cd charts/ifr && unzip -o -j DDECUS_.zip
+	cd charts/ifr && ls *zip | grep -v -e DDECUS_.zip -e delcb | xargs -n1 -P$(NP) unzip -o -j  ## Don't use carribean which isn't geotagged
 	@echo Done downloading and unziping ifr charts
 
 rename:
