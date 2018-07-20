@@ -103,17 +103,17 @@ download-base-data:
 	## https://nfdc.faa.gov/tod/public/TOD_DOF.html
 	## wget -N --no-check-certificate https://nfdc.faa.gov/tod/public/DOFS/DOF_$$(./cycledates.sh 56 dof).zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
 	echo "USING Daily DOF file rather than 56 day cycle.  This is, on average, more current than the 56 day cycle."
-	wget -N --no-check-certificate https://nfdc.faa.gov/tod/DAILY_DOF.ZIP && unzip DAILY_DOF.ZIP DOF.DAT && rm -f DAILY_DOF.ZIP
+	wget -N http://aeronav.faa.gov/Obst_Data/DAILY_DOF_DAT.ZIP && unzip DAILY_DOF_DAT.ZIP DOF.DAT && rm -f DAILY_DOF_DAT.ZIP
 	# https://nfdc.faa.gov/fadds/subscriptionDownload.do?productId=548752
 	## https://nfdc.faa.gov/webContent/28DaySub/2017-04-27/APT.zip
-	wget -N --no-check-certificate https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/APT.zip && unzip APT.zip && rm -f APT.zip
-	wget -N --no-check-certificate https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/AWOS.zip && unzip AWOS.zip && rm -f AWOS.zip
-	wget -N --no-check-certificate https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/TWR.zip && unzip TWR.zip && rm -f TWR.zip
-	wget -N --no-check-certificate https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/FIX.zip && unzip FIX.zip && rm -f FIX.zip
-	wget -N --no-check-certificate https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/NAV.zip && unzip NAV.zip && rm -f NAV.zip
-	wget -N --no-check-certificate https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/AWY.zip && unzip AWY.zip && rm -f AWY.zip
+	wget -N https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/APT.zip && unzip APT.zip && rm -f APT.zip
+	wget -N https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/AWOS.zip && unzip AWOS.zip && rm -f AWOS.zip
+	wget -N https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/TWR.zip && unzip TWR.zip && rm -f TWR.zip
+	wget -N https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/FIX.zip && unzip FIX.zip && rm -f FIX.zip
+	wget -N https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/NAV.zip && unzip NAV.zip && rm -f NAV.zip
+	wget -N https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/AWY.zip && unzip AWY.zip && rm -f AWY.zip
 	./saa.sh							     $(CYCLEDATE28BASE)
-	wget -N --no-check-certificate https://www.outerworldapps.com/WairToNowWork/avare_aptdiags.php && mv avare_aptdiags.php airdiags/aptdiags.csv
+	wget -N https://www.outerworldapps.com/WairToNowWork/avare_aptdiags.php && mv avare_aptdiags.php airdiags/aptdiags.csv
 
 process-data:
 	./saa.pl > saa.csv
@@ -122,7 +122,8 @@ process-data:
 	./freq.pl > freq.csv
 	./fix.pl > fix.csv
 	./nav.pl > nav.csv
-	./dof.pl > dof.csv
+	## ./dof.pl > dof.csv  ## New file format 3/2018
+	./dof.sh > dof.csv
 	./awos.pl > awos.csv
 	./aw.pl > aw.csv
 
@@ -177,21 +178,13 @@ update-vfr:
 
 download-ifr:
 	echo Downloading ifr for cycle $(CYCLE)
-	#if [[ -d charts/ifr ]]; then rm -fr charts/ifr; fi
-	## if [[ -d charts/ifh ]]; then rm -fr charts/ifh; fi
-	## if [[ -d charts/ifal ]]; then rm -fr charts/ifal; fi
-	## if [[ -d charts/ifa ]]; then rm -fr charts/ifa; fi
-	## if [[ -d charts/ifah ]]; then rm -fr charts/ifah; fi
-	#mkdir -p charts/ifr
-	## mkdir -p charts/ifh
-	## mkdir -p charts/ifa
-	## mkdir -p charts/ifal
-	## mkdir -p charts/ifah
-	cd charts/ifr && wget -N http://aeronav.faa.gov/enroute/$$(../../cycledates.sh 56 ifr)/DDECUS_.zip
-	./dlifr.sh $$(./cycledates.sh 56 ifr)
+	if [[ -d charts/ifr ]]; then rm -fr charts/ifr; fi
+	mkdir -p charts/ifr
+	cd charts/ifr && wget -N http://aeronav.faa.gov/enroute/$$(../../cycledates.sh 56 ifr)/DDECUS.zip
+	## ./dlifr.sh $$(./cycledates.sh 56 ifr)  ## Currently this only gets the carribean
 	## cd charts/ifr && rm -f *pdf*zip *tif
-	cd charts/ifr && unzip -o -j DDECUS_.zip
-	cd charts/ifr && ls *zip | grep -v -e DDECUS_.zip -e delcb | xargs -n1 -P$(NP) unzip -o -j  ## Don't use carribean which isn't geotagged
+	cd charts/ifr && unzip -o -j DDECUS.zip
+	cd charts/ifr && ls *zip | grep -v -e DDECUS.zip -e delcb | xargs -n1 -P$(NP) unzip -o -j  ## Don't use carribean which isn't geotagged
 	@echo Done downloading and unziping ifr charts
 
 rename:
@@ -247,11 +240,16 @@ stage-vfr-sec: charts/sec/*tif charts/wac/*tif charts/tac/*tif
 ziptiles:
 	## ./ziptiles.sh
 ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
-	qsub -t 0,1,3,4,5 ziptiles512.pbs
+	qsub -t 0,1,3,4,5,98%3 ziptiles512.pbs
 else
-	qsub -t 0,1 ziptiles512.pbs
+	qsub -t 0,1,98 ziptiles512.pbs
 endif
-	qsub -t 98 ziptiles512.pbs
+
+temp:
+	@for chart in 3; do \
+	DEP=`qsub -t $$chart generate-tiles.pbs`; \
+	qsub -t $$chart -W depend=afterany:$$DEP ziptiles512.pbs; \
+	done
 
 zipdatabase:
 	echo "Zipping cycle " $(CYCLE)

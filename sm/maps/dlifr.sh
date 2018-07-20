@@ -40,9 +40,6 @@ pushd charts/ifr
 for ch in 1 3 5; do
     wget -N http://aeronav.faa.gov/enroute/${DT,,}/delcb${ch}.zip
 done
-#Gulf of Mexico annually
-wget -N http://aeronav.faa.gov/enroute/GoM/04-27-2017/gom_west_tif.zip
-wget -N http://aeronav.faa.gov/enroute/GoM/04-27-2017/gom_central_tif.zip
 popd
 
 ## TMP ## ## IFR low Alaska

@@ -82,7 +82,9 @@ int main(int argc, char *argv[])
 	       "gdalbuildvrt -r cubicspline -addalpha -srcnodata '0 0 0' -srcnodata '255 255 255' %s_2.vrt  %s_1.vrt;\n", filestr, filestr);
       strcat(cmdstr, buffer);
       snprintf(buffer, sizeof(buffer),
-	       "gdalwarp -of vrt -r cubicspline -r cubicspline %s %s_2.vrt %s_3.vrt;\n",
+	       // "gdalwarp -tr 43.684681955566703 43.684681955566703 -of vrt -r cubicspline %s %s_2.vrt %s_3.vrt;\n",
+	       "gdalwarp -tr 43 43 -of vrt -r cubicspline %s %s_2.vrt %s_3.vrt;\n",
+	       // "gdalwarp -of vrt -r cubicspline %s %s_2.vrt %s_3.vrt;\n",
 	       projstr, filestr, filestr);
       strcat(cmdstr, buffer);
       snprintf(buffer, sizeof(buffer),
