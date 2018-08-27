@@ -16,7 +16,9 @@ ogr2ogr -s_srs EPSG:4326 -t_srs EPSG:4326 -segmentize 2500 west.shp west.csv
 
 rm {east,west}.csv
 
-for TYPE in ifr; do # ifr
+for TYPE in ifh; do # ifr
+    ./stage-ifr-high
+
     filew=${TYPE}-west.shp
     filee=${TYPE}-east.shp
 
@@ -101,7 +103,7 @@ for TYPE in ifr; do # ifr
     	TRR=$TR
     	
     	echo "merge/${TYPE}/${a}.tif.time gdalwarp -multi -wm 512 -r bilinear -cutline merge/${TYPE}/$a -crop_to_cutline -dstnodata 51 -tr $TRR $TRR -t_srs ${EPSG} charts/ifr/$b.pdf merge/${TYPE}/${a}.tif -of gtiff -overwrite" 
-    done |xargs -L1 -P8 /usr/bin/time -v -o echo 
+    done |xargs -L1 -P8 /usr/bin/time -v -o 
     
     rm -f merge/${TYPE}/${TYPE}-west.vrt; gdalbuildvrt merge/${TYPE}/${TYPE}-west.vrt merge/${TYPE}/*west*shp*tif
     rm -f merge/${TYPE}/${TYPE}-east.vrt; gdalbuildvrt merge/${TYPE}/${TYPE}-east.vrt merge/${TYPE}/*east*shp*tif
@@ -111,4 +113,4 @@ for TYPE in ifr; do # ifr
 
 done
 
-# qsub -t3,4 generate-tiles.pbs
+qsub -t4 generate-tiles.pbs
