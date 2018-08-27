@@ -32,6 +32,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<math.h>
 
 int debug=0;
 #include "charts.c"
@@ -47,9 +48,11 @@ int main(int argc, char *argv[])
   char filestr[512];
   char cmdstr[4096];
   char projstr[512];
-  snprintf(projstr, sizeof(projstr), "-t_srs 'EPSG:900913' ");
-
-    if (argc>=2){debug=1;}
+  snprintf(projstr, sizeof(projstr), "-t_srs EPSG:3857 ");
+  // "for a in merge/tac/*c.vrt; do gdaltindex -f GeoJSON $a.geojson $a;done"
+  double tr;
+  
+  if (argc>=2){debug=1;}
 
   out("rm -fr merge/sec; mkdir -p merge/sec"); // Alaska sec
   out("rm -fr merge/wac; mkdir -p merge/wac"); // WAC Alaska
@@ -76,19 +79,22 @@ int main(int argc, char *argv[])
 	       "gdal_translate -of vrt -r cubicspline -expand rgb -srcwin %i %i %i %i charts/%s/%s*.tif %s_1.vrt;\n",
 	       maps[map].x, maps[map].y, maps[map].dx, maps[map].dy, dir_ptr, n_ptr, filestr);
       strcat(cmdstr, buffer);
-      // Put a mask near the edges so that no seams show on the tiles
+
+
+      // // Put a mask near the edges so that no seams show on the tiles
+      // snprintf(buffer, sizeof(buffer),
+      // 	       // Note the reversed order 2, 1 is appropriate
+      // 	       "gdalbuildvrt -r cubicspline -addalpha -srcnodata '0 0 0' -srcnodata '255 255 255' %s_2.vrt  %s_1.vrt;\n", filestr, filestr); 
+      // strcat(cmdstr, buffer);
+
+      tr=20026376.39/512/(pow(2,10));
       snprintf(buffer, sizeof(buffer),
-	       // Note the reversed order 2, 1 is appropriate
-	       "gdalbuildvrt -r cubicspline -addalpha -srcnodata '0 0 0' -srcnodata '255 255 255' %s_2.vrt  %s_1.vrt;\n", filestr, filestr);
-      strcat(cmdstr, buffer);
-      snprintf(buffer, sizeof(buffer),
-	       // "gdalwarp -tr 43.684681955566703 43.684681955566703 -of vrt -r cubicspline %s %s_2.vrt %s_3.vrt;\n",
-	       "gdalwarp -tr 43 43 -of vrt -r cubicspline %s %s_2.vrt %s_3.vrt;\n",
+	       "gdalwarp -tr %f %f -of vrt -r cubicspline %s %s_1.vrt %s_3.vrt;\n",
 	       // "gdalwarp -of vrt -r cubicspline %s %s_2.vrt %s_3.vrt;\n",
-	       projstr, filestr, filestr);
+	       tr, tr, projstr, filestr, filestr);
       strcat(cmdstr, buffer);
       snprintf(buffer, sizeof(buffer),
-	       "gdal_translate -of vrt -r cubicspline -projwin_srs WGS84 -projwin %f %f %f %f %s_3.vrt %s_c.vrt;\n",
+	       "gdal_translate -a_nodata none -of vrt -r cubicspline -projwin_srs WGS84 -projwin %f %f %f %f %s_3.vrt %s_c.vrt;\n",
 	       maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
 	       filestr, filestr);
       strcat(cmdstr, buffer);
@@ -97,17 +103,21 @@ int main(int argc, char *argv[])
   
   printf("\n\n\n");
 
-  snprintf(filestr, sizeof(filestr), "gdalbuildvrt -r cubicspline -resolution highest -overwrite");
+  snprintf(filestr, sizeof(filestr), "gdalbuildvrt -addalpha -r cubicspline -resolution highest -overwrite");
   // for(map = 0; map < 2; map++)
   //   {
   //     if (map==0){
-	snprintf(buffer, sizeof(buffer), "%s sec.vrt merge/sec/*_c.vrt", filestr);
+  snprintf(buffer, sizeof(buffer), "%s merge/sec/sec.vrt merge/sec/*_c.vrt", filestr);
   //     } else if (map==1){
   // 	snprintf(buffer, sizeof(buffer), "%s wac.vrt merge/wac/*_c.vrt", filestr);
   //     }
-      out(buffer);
+  out(buffer);
   //  }
-  
+
+  out("rm -f sec-east.vrt; gdal_translate -a_nodata none -r cubicspline -projwin_srs WGS84 -projwin  143.0 53.25 180.0 13.0 -of vrt merge/sec/sec.vrt sec-east.vrt");
+  out("rm -f sec-west.vrt; gdal_translate -a_nodata none -r cubicspline -projwin_srs WGS84 -projwin -180.0 72   -61.0 -16.0 -of vrt merge/sec/sec.vrt sec-west.vrt");
+
+
   printf("\n\n\n");
   return 0;
 }

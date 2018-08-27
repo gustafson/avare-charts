@@ -133,26 +133,26 @@ plates-png:
 
 download-plates: 
 	@echo This is currently done on eagle:
-	@echo "  wget -c -b http://www.aeronav.faa.gov/upload_313-d/terminal/DDTPPA_20$(CYCLE).zip"
-	@echo "  wget -c -b http://www.aeronav.faa.gov/upload_313-d/terminal/DDTPPB_20$(CYCLE).zip"
-	@echo "  wget -c -b http://www.aeronav.faa.gov/upload_313-d/terminal/DDTPPC_20$(CYCLE).zip"
-	@echo "  wget -c -b http://www.aeronav.faa.gov/upload_313-d/terminal/DDTPPD_20$(CYCLE).zip"
-	@echo "  wget -c -b http://www.aeronav.faa.gov/upload_313-d/terminal/DDTPPE_20$(CYCLE).zip"
+	@echo "  wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPA_20$(CYCLE).zip"
+	@echo "  wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPB_20$(CYCLE).zip"
+	@echo "  wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPC_20$(CYCLE).zip"
+	@echo "  wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPD_20$(CYCLE).zip"
+	@echo "  wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPE_20$(CYCLE).zip"
 	@echo "  wait"
 
 download-cifp: 
 	@echo on thor:
 	@echo "  pushd ~/CIFP"
-	@echo "  wget -c http://www.aeronav.faa.gov/Upload_313-d/cifp/cifp_20$(CYCLE).zip"
+	@echo "  wget -c http://aeronav.faa.gov/Upload_313-d/cifp/cifp_20$(CYCLE).zip"
 	@echo "and complete the processing:"
 	@echo "  popd"
 
 download-afd:
 	@echo This is currently done on eagle:
-	@echo "  wget -c http://www.aeronav.faa.gov/upload_313-d/supplements/DCS_$(shell ./cycledates.sh 56 afd).zip"
+	@echo "  wget -c http://aeronav.faa.gov/upload_313-d/supplements/DCS_$(shell ./cycledates.sh 56 afd).zip"
 
 afd-data:
-	echo http://www.aeronav.faa.gov/upload_313-d/supplements/DCS_20160526.zip
+	echo http://aeronav.faa.gov/upload_313-d/supplements/DCS_20160526.zip
 	rm -f afd.csv
 	./afd.sh
 
@@ -266,18 +266,18 @@ zipdatabase:
 	zip -9 -r final/databases.zip procedures.db main.db obs.db
 	zip -9 final/databases.zip `find tiles/0/6 -name "*jpg"`
 	zip -9 final/databases.zip `find tiles/1/7 -name "*jpg"`
-	zip -9 final/databases.zip `find tiles/2/5 -name "*jpg"`
+	zip -9 final/databases.zip `find tiles/2/5 -name "*jpg"` 
 ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
 	find tiles/3/6 -name "*png" |xargs -n8 optipng
-	find tiles/4/5 -name "*png" |xargs -n8 optipng
+	find tiles/4/5 -name "*png" |xargs -n8 optipng ## This should be tiles/4/5 but Z doesn't appear to use it
 	find tiles/5/7 -name "*png" |xargs -n8 optipng
 endif
 	find tiles/6/6 -name "*png" |xargs -n8 optipng
 	zip -9 final/databases.zip `find tiles/3/6 -name "*png"`
-	zip -9 final/databases.zip `find tiles/4/5 -name "*png"`
+	zip -9 final/databases.zip `find tiles/4/5 -name "*png"` ## This should be tiles/4/5 but Z doesn't appear to use it
 	zip -9 final/databases.zip `find tiles/5/7 -name "*png"`
 	zip -9 final/databases.zip `find tiles/6/6 -name "*png"`
-	zip -9 final/databases.zip `find tiles/7/5 -name "*jpg"`
+	zip -9 final/databases.zip `find tiles/7/5 -name "*jpg"` 
 	## zip -9 final/databases.zip `find tiles/8/7 -name "*jpg"` ## Canada large and not wanted in US
 	## zip -9 final/databases.zip `find tiles/9/8 -name "*png"` ## Heli very large with gulf coast
 	pushd final; ../zip.py databases $(CYCLE); popd

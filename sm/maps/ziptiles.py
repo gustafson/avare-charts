@@ -40,9 +40,9 @@ def main(argv):
     ##     print myarg
         
     if (len(argv)!=8):
-        print "ERROR: 8 arguments required"
+        print ("ERROR: 8 arguments required")
         for myarg in argv:
-            print myarg
+            print (myarg)
         sys.exit()
 
     ## print "length of argv is ", len(argv)
@@ -133,7 +133,7 @@ def main(argv):
     elif chart=="deleteelevationdetail":
         chart = 15
     else:
-        print "Chart type not among current list"
+        print ("Chart type not among current list")
         return 1
 
     ## This is to allow control of tile size within python.  The new
@@ -167,9 +167,9 @@ def main(argv):
                 mystr3 = "%s/%s" % (i,j)
                 fname  = "%s/%s." % (mystr2,mystr3)
                 fname += ftype
-                ## print fname
+                ## print (fname)
                 if (os.path.isfile(fname)):
-                    print fname
+                    print (fname)
 
 
 if __name__ == "__main__":

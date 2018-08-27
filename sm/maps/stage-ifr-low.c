@@ -91,21 +91,22 @@ int main(int argc, char *argv[])
     
     // Establish a parallel safe tmp name
     snprintf(tmpstr, sizeof(tmpstr), "merge/ifr/%s%s%s", order_ptr, maps[map].name, maps[map].sub);
-    
+
+    // This just crops the image
     snprintf(buffer, sizeof(buffer),
-	     "gdal_translate -of vrt -r lanczos -a_nodata '51 51 51' -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
+	     "gdal_translate -of vrt -r lanczos -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
 	     maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
 	     dir_ptr, n_ptr, tmpstr);
     out(buffer);
 
     if(0 == strcmp(maps[map].name, "ENR_AKL02W")) {
       snprintf(buffer, sizeof(buffer),  
-	       "gdalwarp -of vrt -r lanczos -dstnodata '51 51 51' -tr 200 200 %s %s_1.vrt %s_2.vrt",
+	       "gdalwarp -of vrt -r lanczos -dstalpha -tr 200 200 %s %s_1.vrt %s_2.vrt",
 	       projstr, tmpstr, tmpstr);
       
     } else {
       snprintf(buffer, sizeof(buffer),  
-	       "gdalwarp -of vrt -r lanczos -dstnodata '51 51 51' %s %s_1.vrt %s_2.vrt",
+	       "gdalwarp -of vrt -r lanczos -dstalpha %s %s_1.vrt %s_2.vrt",
 	       projstr, tmpstr, tmpstr);
     }
     

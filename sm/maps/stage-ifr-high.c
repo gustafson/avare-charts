@@ -85,23 +85,40 @@ int main(int argc, char *argv[])
        (0 == strcmp(maps[map].reg, "IFAH"))) {
 			
       snprintf(buffer, sizeof(buffer),
-	       "gdal_translate -of vrt -r lanczos -a_nodata '51 51 51' -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
+	       "gdal_translate -of vrt -r lanczos -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
 	       maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
 	       dir_ptr, n_ptr, tmpstr);
       out(buffer);
       
       snprintf(buffer, sizeof(buffer),  
-      	       "gdalwarp -of vrt -r lanczos -dstnodata '51 51 51' %s %s_1.vrt %s_2.vrt\n",
+      	       "gdalwarp -of vrt -r near -dstnodata '51 51 51' %s %s_1.vrt %s_2.vrt\n", // -tap -tr 102.5 102.5 
       	       projstr, tmpstr, tmpstr);
       out(buffer);
-
     }
   }
-  
+
+// 00ENR_P01_1.vrt
+// Upper Left  (-9430341.229, 2778369.121) (122d52'52.85"E, 15d15'15.99"N)
+// Lower Left  (-9430516.428, -574709.615) (141d39'24.25"E,  9d 4'23.33"S)
+// Upper Right (-7244952.694, 2778374.952) (141d 0'59.81"E, 28d23'38.17"N)
+// Lower Right (-7245127.893, -574703.784) (158d 3'35.47"E,  0d40'46.46"N)
+// 01ENR_P01_1.vrt
+// Upper Left  (-7244211.884, 2778374.954) (141d 1'24.18"E, 28d23'52.80"N)
+// Lower Left  (-7244501.509,-2764650.919) (166d 8' 3.26"E, 16d 0'15.20"S)
+// Upper Right ( 2120363.192, 2778399.941) (106d 3' 1.36"W, 47d24'53.31"N)
+// Lower Right ( 2120073.568,-2764625.933) (115d28'32.25"W,  4d22'27.94"S)
+// 04ENR_AKH02_1.vrt
+// Upper Left  (-3327345.931, 1268588.448) (152d33'49.75"E, 50d55'48.83"N)
+// Lower Left  (-3205095.050, -109456.766) (164d55'22.72"E, 41d26'29.71"N)
+// Upper Right (  286536.323, 1589322.505) (147d49'41.84"W, 65d27' 9.96"N)
+// Lower Right (  408787.204,  211277.290) (147d44'46.08"W, 52d47'41.89"N)
+
   /* one image */
   out("\n\n\n# Merge all");
   // The pacific should be first, so it is underneath
-  out("gdalbuildvrt -r lanczos -resolution highest ifh.vrt -overwrite merge/ifh/*_2.vrt\n");
+  out("gdalbuildvrt -r near -srcnodata '51 51 51' -vrtnodata '51 51 51' -resolution highest ifh.vrt -overwrite merge/ifh/*_2.vrt\n"); // 
+  out("gdal_translate -r near -projwin_srs WGS84 -projwin  123.5 62.0 180.0 -5.25 -a_nodata '51 51 51' -of vrt ifh.vrt ifh-east.vrt"); // 
+  out("gdal_translate -r near -projwin_srs WGS84 -projwin -180.0 72.2 -62.7 -5.25 -a_nodata '51 51 51' -of vrt ifh.vrt ifh-west.vrt"); // 
 
   return 0;
 }

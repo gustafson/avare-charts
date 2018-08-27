@@ -1,4 +1,4 @@
-for a in `ls *.zip|grep -v webp`; do
+for a in `ls EHUS*.zip|grep -v webp`; do
 #for a in `ls databases.zip|grep -v webp`; do
 #for a in `ls ELEV*NEW*.zip REL*zip|grep -v webp`; do
     b=`basename $a .zip`
@@ -6,15 +6,19 @@ for a in `ls *.zip|grep -v webp`; do
     ## TMP2=$(tempfile -p tmpf-)
     TMP1=$(mktemp)
     TMP2=$(mktemp)
+
     if [[ ! -f ${b}.webp.zip ]]; then
-    
-    	if [[ `unzip -l ${a}  *jpg|tail -n1|awk '{print $1}'` -gt 0 ]]; then
+	echo webp zip does not exist
+	
+    	unzip -l ${a} *jpg *png
+    	if [[ `unzip -l ${a} *jpg *png|tail -n1|awk '{print $1}'` -gt 0 ]]; then
+
     	    echo Starting $a
-    	    
     	    mkdir $b 2> /dev/null
     	    pushd $b > /dev/null
     	    unzip -u ../$a > /dev/null
-    	    
+
+	    echo find type
     	    find {afd,area,minimums,plates,tiles} -type f  2> /dev/null | grep -e jpg -e png |
     		while read FILE; do
     		    if [[ `echo "${FILE##*.}"` == "jpg" ]]; then

@@ -68,7 +68,7 @@ fi
 
 function mygroup(){
     # echo $1 $2
-    corners=`extract_corners.sh $1`
+    corners=`./extract_corners.sh $1`
     ./ziptiles.py $corners $2 meters $3 $4
 }
 
@@ -125,6 +125,7 @@ export -f cleanpngbyimage
 export -f createjpgfrompng_byimage
 export -f createwebpfrompng_byimage
 
+
 if [[ ${PBS_ARRAYID} -eq 0 ]]; then
     ## The following three step processes allows tiles across the 180 degree meridian
     ## Initialize the list of images 
@@ -138,6 +139,7 @@ if [[ ${PBS_ARRAYID} -eq 0 ]]; then
     for img in `ls merge/sec/*_c.vrt`; do
     	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
 	createjpgfrompng_byimage ${img} sec
+	createwebpfrompng_byimage ${img} sec
 	mygroup ${img} sec jpg forzip >> ${BASE}
     done
 	
@@ -163,7 +165,7 @@ elif [[ ${PBS_ARRAYID} -eq 1 ]]; then
     for img in `ls merge/tac/*_c.vrt`; do
         BASE=`echo $img | cut -f3 -d/ | cut -c 4-|cut -f1 -d_`
 	createjpgfrompng_byimage ${img} tac
-	## createwebpfrompng_byimage ${img} tac
+	createwebpfrompng_byimage ${img} tac
 	mygroup ${img} tac jpg  forzip >> ${BASE}
 	## mygroup ${img} tac webp forzip >> ${BASE}
     done
@@ -181,6 +183,7 @@ elif [[ ${PBS_ARRAYID} -eq 2 ]]; then
     for img in `ls merge/wac/*_c.vrt`; do
     	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
 	createjpgfrompng_byimage ${img} wac
+	createwebpfrompng_byimage ${img} wac
 	echo ${CYCLE} > ${BASE}
 	mygroup ${img} wac jpg forzip >> ${BASE}
 
