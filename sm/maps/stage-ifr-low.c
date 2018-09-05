@@ -32,6 +32,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include <math.h>
 
 typedef struct {
   char name[64];
@@ -53,21 +54,21 @@ int main(int argc, char *argv[])
   char buffer[512];
   char tmpstr[512];
   char projstr[512];
-  snprintf(projstr, sizeof(projstr), "-t_srs 'EPSG:900913' ");
+  snprintf(projstr, sizeof(projstr), "-t_srs EPSG:3857 ");
   char *n_ptr;
   char *dir_ptr;
   char *order_ptr;
 
   if (argc>=2){debug=1;}
 
-  out("rm -fr merge/ifr; mkdir merge/ifr"); // IFR 48 
+  out("rm -fr merge/ifr; mkdir -p merge/ifr"); // IFR 48 
 
   int entries = sizeof(maps) / sizeof(maps[0]);
 
   for(map = 0; map < entries; map++) {
     n_ptr = maps[map].name; 
 
-    printf("\n\n# %s\n\n", maps[map].name);
+    printf("\n\n# %s\n", maps[map].name);
 
     if(0 == strcmp(maps[map].reg, "IFAL")) {
       dir_ptr = "ifr";
@@ -94,33 +95,58 @@ int main(int argc, char *argv[])
 
     // This just crops the image
     snprintf(buffer, sizeof(buffer),
-	     "gdal_translate -of vrt -r lanczos -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
+	     "gdal_translate -of vrt -r cubic -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
 	     maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
 	     dir_ptr, n_ptr, tmpstr);
     out(buffer);
 
+    // Create a crop box
+    snprintf(buffer, sizeof(buffer),
+	     "gdaltindex %s_1.shp %s_1.vrt",
+	     tmpstr, tmpstr);
+    out(buffer);
+
+    // Increase the number of points in the segment
+    snprintf(buffer, sizeof(buffer),
+	     "ogr2ogr -segmentize 2500 -t_srs EPSG:4326 %s_2.shp %s_1.shp",
+	     tmpstr, tmpstr);
+    out(buffer);
+
+    // Project into a lat lon based system
+    snprintf(buffer, sizeof(buffer),
+	     "ogr2ogr -t_srs EPSG:3857 %s_3.shp %s_2.shp",
+	     tmpstr, tmpstr);
+    out(buffer);
+
+
+    double TR;
     if(0 == strcmp(maps[map].name, "ENR_AKL02W")) {
-      snprintf(buffer, sizeof(buffer),  
-	       "gdalwarp -of vrt -r lanczos -dstalpha -tr 200 200 %s %s_1.vrt %s_2.vrt",
-	       projstr, tmpstr, tmpstr);
-      
+      TR = (20026376.39)/512/(pow(2,9));
     } else {
-      snprintf(buffer, sizeof(buffer),  
-	       "gdalwarp -of vrt -r lanczos -dstalpha %s %s_1.vrt %s_2.vrt",
-	       projstr, tmpstr, tmpstr);
+      TR = (20026376.39)/512/(pow(2,10));
     }
-    
+
+    TR = (20026376.39)/512/(pow(2,5));
+
+    // If the pdf exists, use it.  Elsewise use the tiff
+    snprintf(buffer, sizeof(buffer),  
+	     "[[ -f charts/%s/%s.pdf ]] && gdalwarp -cutline %s_3.shp -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.pdf %s_1.tif",
+	     dir_ptr, n_ptr, tmpstr, TR, TR, projstr, dir_ptr, n_ptr, tmpstr);
+    out(buffer);
+    snprintf(buffer, sizeof(buffer),  
+	     "[[ ! -f charts/%s/%s.pdf ]] && gdalwarp -cutline %s_3.shp -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.tif %s_1.tif",
+	     dir_ptr, n_ptr, tmpstr, TR, TR, projstr, dir_ptr, n_ptr, tmpstr);
     out(buffer);
     
   }
 
-  /* one image */
-  out("\n\n\n# Merge all");
-  /* Alaska should be first so it is underneath. */
-  out("gdalbuildvrt -r lanczos -resolution highest ifr.vrt -overwrite merge/ifr/1[01]*_2.vrt");
-  /* out("gdalbuildvrt -r lanczos -resolution highest ifr_ak.vrt -overwrite merge/ifr/{0ENR_AKL01_2.vrt,0ENR_AKL02C_2.vrt,0ENR_AKL02W_2.vrt,0ENR_AKL03_2.vrt,0ENR_AKL04north_2.vrt,0ENR_AKL04middle_2.vrt,0ENR_AKL04south_2.vrt}"); */
-  /* Hawaii done separately */
-  out("gdalbuildvrt -r lanczos -resolution highest ifr_hi.vrt -overwrite merge/ifr/12*_2.vrt");
-  out("gdalbuildvrt -r lanczos -resolution highest ifr_all.vrt -overwrite merge/ifr/*_2.vrt");
+  //  /* one image */
+  //  out("\n\n\n# Merge all");
+  //  /* Alaska should be first so it is underneath. */
+  //  out("gdalbuildvrt -r cubic -resolution highest ifr.vrt -overwrite merge/ifr/1[01]*_2.vrt");
+  //  /* out("gdalbuildvrt -r cubic -resolution highest ifr_ak.vrt -overwrite merge/ifr/{0ENR_AKL01_2.vrt,0ENR_AKL02C_2.vrt,0ENR_AKL02W_2.vrt,0ENR_AKL03_2.vrt,0ENR_AKL04north_2.vrt,0ENR_AKL04middle_2.vrt,0ENR_AKL04south_2.vrt}"); */
+  //  /* Hawaii done separately */
+  //  out("gdalbuildvrt -r cubic -resolution highest ifr_hi.vrt -overwrite merge/ifr/12*_2.vrt");
+  //  out("gdalbuildvrt -r cubic -resolution highest ifr_all.vrt -overwrite merge/ifr/*_2.vrt");
   return 0;
 }

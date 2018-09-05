@@ -2,6 +2,8 @@ rm time-ifr-low-warps.time
 rm -fr /dev/shm/merge/ifr && mkdir -p /dev/shm/merge/ifr
 rm -fr merge/ifr && mkdir -p merge/ifr
 
+# ls `./stage-ifr-low 1|grep cutline|cut -f17 -d" "`
+
 ./stage-ifr-low 1|grep -v gdalwarp | grep -e ogr2ogr -e gdal |grep AKL > /dev/shm/tmp.sh
     ## xargs -L9 -P1 -I {} /usr/bin/time -v --append -o time-ifr-low-warps.time bash -c {}
 bash /dev/shm/tmp.sh

@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
   char buffer[512];
   char tmpstr[512];
   char projstr[512];
-  snprintf(projstr, sizeof(projstr), "-t_srs 'EPSG:900913' ");
+  snprintf(projstr, sizeof(projstr), "-t_srs 'EPSG:3857' ");
   char *n_ptr;
 
   if (argc>=2){debug=1;}

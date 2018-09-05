@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
   char tmpstr[512];
   // char tmpstr2[512];
   char projstr[512];
-  snprintf(projstr, sizeof(projstr), "-t_srs 'EPSG:900913' ");
+  snprintf(projstr, sizeof(projstr), "-t_srs 'EPSG:3857' ");
   char *n_ptr;
   char *dir_ptr;
 
