@@ -52,7 +52,8 @@ int main(int argc, char *argv[])
 {
   int map;
   char buffer[512];
-  char tmpstr[512];
+  char tmpstr0[512];
+  char tmpstr1[512];
   char projstr[512];
   snprintf(projstr, sizeof(projstr), "-t_srs EPSG:3857 ");
   char *n_ptr;
@@ -91,53 +92,80 @@ int main(int argc, char *argv[])
     }
     
     // Establish a parallel safe tmp name
-    snprintf(tmpstr, sizeof(tmpstr), "merge/ifr/%s%s%s", order_ptr, maps[map].name, maps[map].sub);
+    snprintf(tmpstr0, sizeof(tmpstr0), "%s%s%s", order_ptr, maps[map].name, maps[map].sub);
+    snprintf(tmpstr1, sizeof(tmpstr1), "merge/ifr/%s", tmpstr0);
 
     // This just crops the image
     snprintf(buffer, sizeof(buffer),
 	     "gdal_translate -of vrt -r cubic -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
 	     maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
-	     dir_ptr, n_ptr, tmpstr);
+	     dir_ptr, n_ptr, tmpstr1);
     out(buffer);
 
+    // Remove old files
+    out("rm -f step_?.shp");
+    out("rm -f step_?[ew].shp");
+    
     // Create a crop box
     snprintf(buffer, sizeof(buffer),
-	     "gdaltindex %s_1.shp %s_1.vrt",
-	     tmpstr, tmpstr);
+	     "gdaltindex step_1.shp %s_1.vrt",
+	     tmpstr1);
     out(buffer);
-
+    
     // Increase the number of points in the segment
-    snprintf(buffer, sizeof(buffer),
-	     "ogr2ogr -segmentize 2500 -t_srs EPSG:4326 %s_2.shp %s_1.shp",
-	     tmpstr, tmpstr);
-    out(buffer);
+    out("ogr2ogr -segmentize 500 -t_srs EPSG:4326 step_2.shp step_1.shp");
+    
+    // Shift its lon and that of the western hemisphere (now going from 0 to 360)                                                                                                                                                                                          
+    out("ogr2ogr step_3.shp step_2.shp -dialect sqlite -sql \"select ST_Shift_Longitude(Geometry) from step_2\";");
+    out("ogr2ogr shiftedwest.shp west.shp -dialect sqlite -sql \"select ST_Shift_Longitude(Geometry) from west\";");
 
+    // Now clip the shape file to hemispheres
+    out("ogr2ogr -clipsrc shiftedwest.shp step_3w.shp step_3.shp;");
+    out("ogr2ogr -clipsrc east.shp step_3e.shp step_3.shp;");
+
+    // If two are the same, delete the other one
+    out("[[ -f step_3w.shp ]] && diff step_3.shp step_3w.shp > /dev/null && rm step_3e.shp");
+    out("[[ -f step_3e.shp ]] && diff step_3.shp step_3e.shp > /dev/null && rm step_3w.shp");
+    
     // Project into a lat lon based system
+    out("[[ -f step_3w.shp ]] && ogr2ogr -t_srs EPSG:3857 step_4w.shp step_3w.shp");
+    out("[[ -f step_3e.shp ]] && ogr2ogr -t_srs EPSG:3857 step_4e.shp step_3e.shp");
+
+    // Create a geojson instead
     snprintf(buffer, sizeof(buffer),
-	     "ogr2ogr -t_srs EPSG:3857 %s_3.shp %s_2.shp",
-	     tmpstr, tmpstr);
+	     "[[ -f step_4w.shp ]] && ogr2ogr %s_westernhemisphere.geojson step_4w.shp",
+	     tmpstr1);
     out(buffer);
-
-
+    snprintf(buffer, sizeof(buffer),
+	     "[[ -f step_4e.shp ]] && ogr2ogr %s_easternhemisphere.geojson step_4e.shp",
+	     tmpstr1);
+    out(buffer);
+    
     double TR;
     if(0 == strcmp(maps[map].name, "ENR_AKL02W")) {
       TR = (20026376.39)/512/(pow(2,9));
     } else {
       TR = (20026376.39)/512/(pow(2,10));
     }
-
     TR = (20026376.39)/512/(pow(2,5));
 
     // If the pdf exists, use it.  Elsewise use the tiff
-    snprintf(buffer, sizeof(buffer),  
-	     "[[ -f charts/%s/%s.pdf ]] && gdalwarp -cutline %s_3.shp -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.pdf %s_1.tif",
-	     dir_ptr, n_ptr, tmpstr, TR, TR, projstr, dir_ptr, n_ptr, tmpstr);
+    snprintf(buffer, sizeof(buffer),
+	     "[[ -f charts/%s/%s.pdf && -f %s_westernhemisphere.geojson ]] && gdalwarp -overwrite -cutline %s_westernhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.pdf %s_westernhemisphere.tif",
+	     dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
     out(buffer);
     snprintf(buffer, sizeof(buffer),  
-	     "[[ ! -f charts/%s/%s.pdf ]] && gdalwarp -cutline %s_3.shp -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.tif %s_1.tif",
-	     dir_ptr, n_ptr, tmpstr, TR, TR, projstr, dir_ptr, n_ptr, tmpstr);
+	     "[[ -f charts/%s/%s.pdf && -f %s_easternhemisphere.geojson ]] && gdalwarp -overwrite -cutline %s_easternhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.pdf %s_easternhemisphere.tif",
+	     dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
     out(buffer);
-    
+    snprintf(buffer, sizeof(buffer),  
+	     "[[ -f charts/%s/%s.tif && -f %s_westernhemisphere.geojson ]] && gdalwarp -overwrite -cutline %s_westernhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.tif %s_westernhemisphere.tif",
+	     dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
+    out(buffer);
+    snprintf(buffer, sizeof(buffer),  
+	     "[[ -f charts/%s/%s.tif && -f %s_easternhemisphere.geojson ]] && gdalwarp -overwrite -cutline %s_easternhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.tif %s_easternhemisphere.tif",
+	     dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
+    out(buffer);
   }
 
   //  /* one image */
