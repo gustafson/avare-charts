@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
     out(buffer);
     
     // Increase the number of points in the segment
-    out("ogr2ogr -segmentize 500 -t_srs EPSG:4326 step_2.shp step_1.shp");
+    out("ogr2ogr -segmentize 2500 -t_srs EPSG:4326 step_2.shp step_1.shp");
     
     // Shift its lon and that of the western hemisphere (now going from 0 to 360)                                                                                                                                                                                          
     out("ogr2ogr step_3.shp step_2.shp -dialect sqlite -sql \"select ST_Shift_Longitude(Geometry) from step_2\";");
@@ -127,28 +127,34 @@ int main(int argc, char *argv[])
     out("[[ -f step_3w.shp ]] && diff step_3.shp step_3w.shp > /dev/null && rm step_3e.shp");
     out("[[ -f step_3e.shp ]] && diff step_3.shp step_3e.shp > /dev/null && rm step_3w.shp");
     
-    // Project into a lat lon based system
-    out("[[ -f step_3w.shp ]] && ogr2ogr -t_srs EPSG:3857 step_4w.shp step_3w.shp");
-    out("[[ -f step_3e.shp ]] && ogr2ogr -t_srs EPSG:3857 step_4e.shp step_3e.shp");
+    // Shift back
+    out("[[ -f step_3w.shp ]] && ogr2ogr step_4w.shp step_3w.shp -dialect sqlite -sql \"select ShiftCoords(Geometry,-360,0) from step_3w\" 2> /dev/null ## This one might fail");
+    out("[[ -f step_3e.shp ]] && ogr2ogr step_4e.shp step_3e.shp -dialect sqlite -sql \"select ShiftCoords(Geometry,-360,0) from step_3e\" 2> /dev/null ## This one might fail");
 
+    // Project into a lat lon based system
+    out("[[ -f step_4w.shp ]] && ogr2ogr -t_srs EPSG:3857 step_5w.shp step_4w.shp");
+    out("[[ -f step_4e.shp ]] && ogr2ogr -t_srs EPSG:3857 step_5e.shp step_4e.shp");
+
+    
     // Create a geojson instead
     snprintf(buffer, sizeof(buffer),
-	     "[[ -f step_4w.shp ]] && ogr2ogr %s_westernhemisphere.geojson step_4w.shp",
+	     "[[ -f step_5w.shp ]] && ogr2ogr %s_westernhemisphere.geojson step_5w.shp",
 	     tmpstr1);
     out(buffer);
     snprintf(buffer, sizeof(buffer),
-	     "[[ -f step_4e.shp ]] && ogr2ogr %s_easternhemisphere.geojson step_4e.shp",
+	     "[[ -f step_5e.shp ]] && ogr2ogr %s_easternhemisphere.geojson step_5e.shp",
 	     tmpstr1);
     out(buffer);
     
     double TR;
     if(0 == strncmp(maps[map].name, "ENR_AKL",7)) {
-      TR = (20026376.39)/512/(pow(2,10));
+      TR = (20026376.39)/512/(pow(2,9));
     } else if(0 == strncmp(maps[map].name, "ENR_P", 5)) {
       TR = (20026376.39)/512/(pow(2,7));
     } else {
       TR = (20026376.39)/512/(pow(2,10));
     }
+    TR = (20026376.39)/512/(pow(2,5));
 
     // If the pdf exists, use it.  Elsewise use the tif
     // Currently doesn't pick up ENR_L06N and Alaska pdfs.
