@@ -45,6 +45,8 @@ typedef struct {
 } Maps;
 
 int debug=0;
+double TR;
+
 #include "chartsifr.c"
 #include "stageall.c"
 
@@ -112,8 +114,18 @@ int main(int argc, char *argv[])
 	     tmpstr1);
     out(buffer);
     
+    // Set image segment length
+    TR = 2500;
+    if(0 == strncmp(maps[map].name, "ENR_AKL",7)) {
+      // TR = 2500;
+    } else if(0 == strncmp(maps[map].name, "ENR_L21", 7)) {
+      TR = 10000;
+    } else if(0 == strncmp(maps[map].name, "ENR_P", 5)) {
+      TR = 10000;
+    }
     // Increase the number of points in the segment
-    out("ogr2ogr -segmentize 2500 -t_srs EPSG:4326 step_2.shp step_1.shp");
+    snprintf(buffer, sizeof(buffer), "ogr2ogr -segmentize %5.0f -t_srs EPSG:4326 step_2.shp step_1.shp", TR);
+    out(buffer);
     
     // Shift its lon and that of the western hemisphere (now going from 0 to 360)                                                                                                                                                                                          
     out("ogr2ogr step_3.shp step_2.shp -dialect sqlite -sql \"select ST_Shift_Longitude(Geometry) from step_2\";");
@@ -145,32 +157,31 @@ int main(int argc, char *argv[])
 	     tmpstr1);
     out(buffer);
     
-    double TR;
+    // Set image density
+    TR = (20026376.39)/512/(pow(2,10));
     if(0 == strncmp(maps[map].name, "ENR_AKL",7)) {
       TR = (20026376.39)/512/(pow(2,8));
     } else if(0 == strncmp(maps[map].name, "ENR_P", 5)) {
       TR = (20026376.39)/512/(pow(2,7));
-    } else {
-      TR = (20026376.39)/512/(pow(2,10));
     }
 
     // If the pdf exists, use it.  Elsewise use the tif
     // Currently doesn't pick up ENR_L06N and Alaska pdfs.
     snprintf(buffer, sizeof(buffer),
-	     "[[ -f charts/%s/%s.pdf && -f %s_westernhemisphere.geojson ]] && gdalwarp -overwrite -wo NUM_THREADS=4 -multi -cutline %s_westernhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.pdf %s_westernhemisphere.tif",
-	     dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
+    	     "[[ -f charts/%s/%s.pdf && -f %s_westernhemisphere.geojson ]] && gdalwarp -overwrite -wo NUM_THREADS=4 -multi -cutline %s_westernhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.pdf %s_westernhemisphere.tif",
+    	     dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
     out(buffer);
     snprintf(buffer, sizeof(buffer),  
-	     "[[ -f charts/%s/%s.pdf && -f %s_easternhemisphere.geojson ]] && gdalwarp -overwrite -wo NUM_THREADS=4 -multi -cutline %s_easternhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.pdf %s_easternhemisphere.tif",
-	     dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
+    	     "[[ -f charts/%s/%s.pdf && -f %s_easternhemisphere.geojson ]] && gdalwarp -overwrite -wo NUM_THREADS=4 -multi -cutline %s_easternhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.pdf %s_easternhemisphere.tif",
+    	     dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
     out(buffer);
     snprintf(buffer, sizeof(buffer),  
-	     "[[ -f charts/%s/%s.tif && -f %s_westernhemisphere.geojson ]] && gdalwarp -overwrite -wo NUM_THREADS=4 -multi -cutline %s_westernhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.tif %s_westernhemisphere.tif",
-	     dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
+    	     "[[ -f charts/%s/%s.tif && -f %s_westernhemisphere.geojson ]] && gdalwarp -overwrite -wo NUM_THREADS=4 -multi -cutline %s_westernhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.tif %s_westernhemisphere.tif",
+    	     dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
     out(buffer);
     snprintf(buffer, sizeof(buffer),  
-	     "[[ -f charts/%s/%s.tif && -f %s_easternhemisphere.geojson ]] && gdalwarp -overwrite -wo NUM_THREADS=4 -multi -cutline %s_easternhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.tif %s_easternhemisphere.tif",
-	     dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
+    	     "[[ -f charts/%s/%s.tif && -f %s_easternhemisphere.geojson ]] && gdalwarp -overwrite -wo NUM_THREADS=4 -multi -cutline %s_easternhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.tif %s_easternhemisphere.tif",
+    	     dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
     out(buffer);
   }
 
