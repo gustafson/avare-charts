@@ -1,11 +1,10 @@
-## rm time-ifr-low-warps.time
-## rm -fr /dev/shm/merge/ifr && mkdir -p /dev/shm/merge/ifr
-## rm -fr merge/ifr && mkdir -p merge/ifr
+##
+rm time-ifr-low-warps.time
+rm -fr /dev/shm/merge/ifr && mkdir -p /dev/shm/merge/ifr
+rm -fr merge/ifr && mkdir -p merge/ifr
 
-## ./stage-ifr-low 1|grep -v crop > /dev/shm/tmp.sh
-## bash /dev/shm/tmp.sh && rm /dev/shm/tmp.sh
-
-
+./stage-ifr-low 1|grep -v crop > /dev/shm/tmp.sh
+bash /dev/shm/tmp.sh && rm /dev/shm/tmp.sh
 
 echo cd $PWD > /dev/shm/job.pbs
 COUNT=0
