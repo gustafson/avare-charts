@@ -139,11 +139,11 @@ elif [[ ${PBS_ARRAYID} -eq 4 ]]; then
 
 elif [[ ${PBS_ARRAYID} -eq 5 ]]; then
     ## start with guam then backfill the rest
-    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 7-11 merge/ifa/ENR_P01_GUA.vrt tiles/5
-    rm tiles/5/*html tiles/5/*xml
-
+    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-11 merge/ifa/ENR_P01_GUA.vrt /dev/shm/tiles/5
     ## Backfill
-    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos ifa.vrt tiles/5
+    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-11 ifa.vrt /dev/shm/tiles/5
+    rsync -avP --exclude=*.xml /dev/shm/tiles/5/ tiles/5/
+    rm -fr /dev/shm/tiles/5
 
 elif [[ ${PBS_ARRAYID} -eq 9 ]]; then
     ## Heli only on change
