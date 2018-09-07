@@ -111,21 +111,27 @@ elif [[ ${PBS_ARRAYID} -eq 2 ]]; then
 ##	      -draw "fill-opacity 0.25 rotate -45 text 0,0 'Discontinued'"
     
 elif [[ ${PBS_ARRAYID} -eq 3 ]]; then
-    ## start with hawaii then backfill the rest
-    ${TIME1} time.ifr-hi.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 8-10 -r lanczos ifr_hi.vrt tiles/3-hi
+    mkdir -p /dev/shm/tiles
+    ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-east.vrt /dev/shm/tiles/3
+    ${TIME2} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS2} -z 0-10 -r near ifr-west.vrt /dev/shm/tiles/3
+    rsync -avP --exclude=*.xml /dev/shm/tiles/3/ tiles/3/
+    rm -fr /dev/shm/tiles/3
 
-    ## Do past of 180
-    ${TIME1} time.ifr-180.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -r lanczos merge/ifr/10ENR_AKL02W_2_180.vrt tiles/3-180
-
-    ## Do stuff on this side of 180
-    ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -r lanczos ifr.vrt tiles/3
-
-    ## Include an pacific overlay
-    ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-7 -r lanczos ifr_all.vrt tiles/3-overlay
-
-    rsync --exclude="*.xml" --exclude="*.html" -avP tiles/3-180/ tiles/3/  ## Copy east, shouldn't overwrite anything
-    rsync --exclude="*.xml" --exclude="*.html" -avP tiles/3-hi/ tiles/3/  ## Copy hawaii
-    rsync --exclude="*.xml" --exclude="*.html" -avP tiles/3-overlay/ tiles/3/ ## Copy overlay tiles
+    ## ## start with hawaii then backfill the rest
+    ## ${TIME1} time.ifr-hi.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 8-10 -r lanczos ifr_hi.vrt tiles/3-hi
+    ## 
+    ## ## Do past of 180
+    ## ${TIME1} time.ifr-180.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -r lanczos merge/ifr/10ENR_AKL02W_2_180.vrt tiles/3-180
+    ## 
+    ## ## Do stuff on this side of 180
+    ## ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -r lanczos ifr.vrt tiles/3
+    ## 
+    ## ## Include an pacific overlay
+    ## ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-7 -r lanczos ifr_all.vrt tiles/3-overlay
+    ## 
+    ## rsync --exclude="*.xml" --exclude="*.html" -avP tiles/3-180/ tiles/3/  ## Copy east, shouldn't overwrite anything
+    ## rsync --exclude="*.xml" --exclude="*.html" -avP tiles/3-hi/ tiles/3/  ## Copy hawaii
+    ## rsync --exclude="*.xml" --exclude="*.html" -avP tiles/3-overlay/ tiles/3/ ## Copy overlay tiles
 
 elif [[ ${PBS_ARRAYID} -eq 4 ]]; then
     ${TIME1} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -r lanczos ifh-east.vrt tiles/4-east
