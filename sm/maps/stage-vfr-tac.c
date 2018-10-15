@@ -77,11 +77,11 @@ int main(int argc, char *argv[])
 	     dir_ptr, n_ptr, filestr);
     out(buffer);
 
-    snprintf(buffer, sizeof(buffer), "gdalwarp -of vrt -r cubicspline -dstnodata none %s %s_1.vrt %s_2.vrt", projstr, filestr, filestr);
+    snprintf(buffer, sizeof(buffer), "gdalwarp -of vrt -r cubicspline -dstnodata 51 %s %s_1.vrt %s_2.vrt", projstr, filestr, filestr);
     out(buffer);
     
     snprintf(buffer, sizeof(buffer),
-    	     "gdal_translate -of vrt -r cubicspline -a_nodata none -q -projwin_srs WGS84 -projwin %f %f %f %f %s_2.vrt %s_c.vrt",
+    	     "gdal_translate -of vrt -r cubicspline -a_nodata 51 -q -projwin_srs WGS84 -projwin %f %f %f %f %s_2.vrt %s_c.vrt",
     	     maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd,
     	     filestr, filestr);
     out(buffer);
@@ -94,6 +94,6 @@ int main(int argc, char *argv[])
 //  out ("pushd merge/tac; gdalbuildvrt -r cubicspline -srcnodata '0 0 0' -vrtnodata '0 0 0' -resolution highest runtacgroup_c_c.vrt -overwrite T3*_c.vrt; popd");
 //  out ("pushd merge/tac; gdalbuildvrt -r cubicspline -srcnodata '0 0 0' -vrtnodata '0 0 0' -resolution highest runtacgroup_4_c.vrt -overwrite T4*_c.vrt; popd");
 //  out ("pushd merge/tac; gdalbuildvrt -r cubicspline -srcnodata '0 0 0' -vrtnodata '0 0 0' -resolution highest runtacgroup_5_c.vrt -overwrite T5*_c.vrt; popd");
-  out ("gdalbuildvrt -r cubicspline -srcnodata none -vrtnodata none -resolution highest tac.vrt -overwrite merge/tac/run*c.vrt");
+  out ("gdalbuildvrt -r cubicspline -srcnodata 51 -vrtnodata 51 -resolution highest tac.vrt -overwrite merge/tac/run*c.vrt");
   return 0;
 }
