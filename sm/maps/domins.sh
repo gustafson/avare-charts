@@ -100,8 +100,9 @@ mv P*.png minimums/P
 mv S*.png minimums/S
 
 echo Zipping
-zip -r -i "*.png" -1 -T -q alternates.zip minimums
-
+echo alternates > alternates
+ls minimums/*png >> alternates
+zip -r -i "*.png" -1 -T -q alternates.zip alternates minimums
 
 cd ..
 mv mins/alternates.zip final/
