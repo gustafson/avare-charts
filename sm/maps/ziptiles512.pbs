@@ -1,5 +1,5 @@
 #!/bin/sh -login
-#PBS -l mem=20gb
+#PBS -l mem=12gb
 #PBS -l nodes=1:ppn=16
 #PBS -l walltime=1000:00:00
 #PBS -m abe 
@@ -54,6 +54,7 @@ if [[ ${PBS_NODEFILE} ]]; then
     echo PBS: node file is ${PBS_NODEFILE}
     echo PBS: current home directory is ${PBS_O_HOME}
     echo PBS: PATH = ${PBS_O_PATH}
+    PATH=${PBS_O_PATH}
     echo ------------------------------------------------------
 
     NP=$(cat ${PBS_NODEFILE} | wc -l)
@@ -109,13 +110,13 @@ function cleanpngbyimage () {
 }
 
 function createjpgfrompng_byimage () {
-    ## mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c rmemptypng
+    mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c rmemptypng
     ## mygroup $1 $2 png forclean | xargs mogrify -unsharp 1x1 -format jpg -quality 85
     mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c guetzli_png_to_jpg
 }
 
 function createwebpfrompng_byimage () {
-    mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c rmemptypng
+    ## mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c rmemptypng
     mygroup $1 $2 png forclean | xargs mogrify -unsharp 1x1 -format webp -define webp:method=6:thread-level=16 -quality 60
 }
 
@@ -132,7 +133,9 @@ if [[ ${PBS_ARRAYID} -eq 0 ]]; then
     for img in `ls merge/sec/*_c.vrt`; do
     	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
 	echo ${CYCLE} > ${BASE}
+	echo ${CYCLE} > ${BASE}_webp
 	rm -f final/${BASE}.zip
+	rm -f final/${BASE}_webp.zip
     done
     
     ## Create the images
@@ -141,6 +144,7 @@ if [[ ${PBS_ARRAYID} -eq 0 ]]; then
 	createjpgfrompng_byimage ${img} sec
 	createwebpfrompng_byimage ${img} sec
 	mygroup ${img} sec jpg forzip >> ${BASE}
+	mygroup ${img} sec webp forzip >> ${BASE}_webp
     done
 	
     ## Actually do the zip
@@ -148,7 +152,11 @@ if [[ ${PBS_ARRAYID} -eq 0 ]]; then
     	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
 	sort -u ${BASE}|
 	tail -n+2 |xargs zip -9 final/${BASE}.zip ${BASE}
-	rm $BASE
+	rm ${BASE}
+
+    	sort -u ${BASE}_webp|
+	tail -n+2 |xargs zip -9 final/${BASE}_webp.zip ${BASE}_webp
+	rm ${BASE}_webp
     done
     wait
     
@@ -158,7 +166,9 @@ elif [[ ${PBS_ARRAYID} -eq 1 ]]; then
     for img in `ls merge/tac/*_c.vrt`; do
         BASE=`echo $img | cut -f3 -d/ | cut -c 4-|cut -f1 -d_`
 	echo ${CYCLE} > ${BASE}
+	echo ${CYCLE} > ${BASE}_webp
 	rm -f final/${BASE}.zip
+	rm -f final/${BASE}_webp.zip
     done
     
     ## Create the images
@@ -167,7 +177,7 @@ elif [[ ${PBS_ARRAYID} -eq 1 ]]; then
 	createjpgfrompng_byimage ${img} tac
 	createwebpfrompng_byimage ${img} tac
 	mygroup ${img} tac jpg  forzip >> ${BASE}
-	## mygroup ${img} tac webp forzip >> ${BASE}
+	mygroup ${img} tac webp forzip >> ${BASE}_webp
     done
     
     ## Actually do the zip
@@ -176,6 +186,10 @@ elif [[ ${PBS_ARRAYID} -eq 1 ]]; then
 	sort -u ${BASE}|
 	tail -n+2 |xargs zip -9 final/${BASE}.zip ${BASE}
 	rm ${BASE}
+
+	sort -u ${BASE}_webp|
+	tail -n+2 |xargs zip -9 final/${BASE}_webp.zip ${BASE}_webp
+	rm ${BASE}_webp
     done
     wait
 
