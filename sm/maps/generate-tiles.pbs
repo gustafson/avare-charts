@@ -1,5 +1,5 @@
 #!/bin/sh -login
-#PBS -l mem=20gb
+#PBS -l mem=8gb
 #PBS -l nodes=1:ppn=16
 #PBS -l walltime=1000:00:00
 #PBS -m abe 
@@ -102,7 +102,9 @@ if [[ ${PBS_ARRAYID} -eq 0 ]]; then
     rm -fr /dev/shm/tiles/0
     
 elif [[ ${PBS_ARRAYID} -eq 1 ]]; then
-    ${TIME1} time.tac.txt ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-11 -r cubicspline tac.vrt tiles/1
+    ${TIME1} time.tac.txt ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-11 -r cubicspline tac.vrt /dev/shm/tiles/1
+    rsync -avP --exclude=*.xml /dev/shm/tiles/1/ tiles/1/
+    rm -fr /dev/shm/tiles/1
 
 elif [[ ${PBS_ARRAYID} -eq 2 ]]; then
     ${TIME1} time.wac.txt ./gdal2tiles_512_parallel.py -t "VFR World" ${OPTIONS1} -r cubicspline wac.vrt tiles/2
