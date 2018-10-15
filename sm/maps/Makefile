@@ -122,7 +122,7 @@ process-data:
 	./freq.pl > freq.csv
 	./fix.pl > fix.csv
 	./nav.pl > nav.csv
-	## ./dof.pl > dof.csv  ## New file format 3/2018
+	./dof.pl > dof.csv  ## New file format 3/2018
 	./dof.sh > dof.csv
 	./awos.pl > awos.csv
 	./aw.pl > aw.csv
@@ -162,7 +162,7 @@ mins-data:
 download-vfr:
 	echo Downloading vfr for cycle $(CYCLE)
 	mkdir merge
-	mkdir -p charts/wac  
+	## mkdir -p charts/wac  
 	mkdir -p charts/sec 
 	mkdir -p charts/tac
 	mkdir -p charts/oth
@@ -170,7 +170,7 @@ download-vfr:
 	perl ../../reapfiles.pl -f zip http://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/vfr/
 	rm -f *_P.zip *NFN.zip
 	mv *TAC*zip ../tac
-	mv C[CDEFGHJ]* ../wac
+	## mv C[CDEFGHJ]* ../wac
 	mv *Heli.zip ../oth
 
 update-vfr:
@@ -227,7 +227,7 @@ stage-ifr-low: charts/ifr/*zip  # charts/ifa/*zip charts/ifh/*zip
 	./stage-ifr-high
 	./stage-ifr-area
 
-stage-vfr-sec: charts/sec/*tif charts/wac/*tif charts/tac/*tif
+stage-vfr-sec: charts/sec/*tif charts/tac/*tif #charts/wac/*tif 
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	## gcc -march=native -O3 -Wall stagefly.c -o stagefly
 	gcc -march=native -O3 -Wall stage-vfr-heli.c -o stage-vfr-heli
