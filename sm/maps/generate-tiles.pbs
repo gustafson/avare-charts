@@ -1,6 +1,6 @@
 #!/bin/sh -login
 #PBS -l mem=8gb
-#PBS -l nodes=1:ppn=16
+#PBS -l nodes=1:ppn=8
 #PBS -l walltime=1000:00:00
 #PBS -m abe 
 #PBS -V 
@@ -136,17 +136,37 @@ elif [[ ${PBS_ARRAYID} -eq 3 ]]; then
     ## rsync --exclude="*.xml" --exclude="*.html" -avP tiles/3-overlay/ tiles/3/ ## Copy overlay tiles
 
 elif [[ ${PBS_ARRAYID} -eq 4 ]]; then
-    ${TIME1} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -r lanczos ifh-east.vrt tiles/4-east
-    ${TIME2} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS2} -r lanczos ifh-west.vrt tiles/4-west
+    ${TIME1} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -r lanczos ifh-east.vrt /dev/shm/tiles/4-east
+    ${TIME2} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -r lanczos ifh-west.vrt /dev/shm/tiles/4-west
+    rsync -avP --exclude=*.xml /dev/shm/tiles/4-east/ tiles/4/
+    rsync -avP --exclude=*.xml /dev/shm/tiles/4-west/ tiles/4/
+    rm -fr /dev/shm/tiles/4-east /dev/shm/tiles/4-west
 
 elif [[ ${PBS_ARRAYID} -eq 5 ]]; then
-    ## start with guam then backfill the rest
+
+    ## The images are sparse, only create those that are necessary
+    for vrt in merge/ifa/*vrt; do
+	${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos ${vrt} -z 7-11 /dev/shm/tiles/5
+    done
+
+    ## Extend Guam which stands completely isolated
     ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-11 merge/ifa/ENR_P01_GUA.vrt /dev/shm/tiles/5
-    ## Backfill
-    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-11 ifa.vrt /dev/shm/tiles/5
+
+    ## Extend the rest... there were a total of 213 images at this level including guam.  ifa.vrt excludes guam
+    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-6 ifa.vrt /dev/shm/tiles/5
+
+    ## Save the unique images
+    fdupes --delete --noprompt --recurse /dev/shm/tiles/5
     rsync -avP --exclude=*.xml /dev/shm/tiles/5/ tiles/5/
     rm -fr /dev/shm/tiles/5
 
+    ## This was how level 6 was identified as the key level after creating tiles for individual images
+    ## find . -name "*png"|cut -f3- -d/|sort > sorted.txt
+    ## find . -name "*png"|cut -f3- -d/|sort -u > uniq.txt 
+    ## diff sorted.txt uniq.txt > difference.txt
+    ## grep png difference.txt |cut -c3-|sort -u > files.txt
+    ## find . -name "*png" |grep -f files.txt |rev|sort|rev|grep .vrt\/6
+    
 elif [[ ${PBS_ARRAYID} -eq 9 ]]; then
     ## Heli only on change
     ${TIME1} time.heli.txt ./gdal2tiles_512_parallel.py -t "Helicoptor Route Chart" ${OPTIONS1} -r cubicspline heli.vrt tiles/9   

@@ -200,23 +200,24 @@ rename:
 	##cd charts/ifal && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
 	#
 	@echo Reminder: unzip is done by the download code
-	rm -f charts/tac/*Planning*tif
-	rename " " "" charts/*/*tif
-	rename " " "" charts/*/*tif
-	rename " " "" charts/*/*tif
-	rename " " "" charts/*/*tif
-	rename U.S. US charts/*/*tif
+	@rm -f charts/tac/*Planning*tif
+	@echo -n $(rename " " "" charts/*/*tif)
+	@echo -n $(rename " " "" charts/*/*tif)
+	@echo -n $(rename " " "" charts/*/*tif)
+	@echo -n $(rename " " "" charts/*/*tif)
+	@echo -n $(rename U.S. US charts/*/*tif)
+	@echo Files are renamed
 
 
 stage-all: stage-vfr-sec stage-ifr-low
 	## NOTE current limit is disk IO and open files, it is inadvisable to do all at the same time
-	cat generate-tiles.pbs| qsub -t 0,1,3,4,5%2 #| sed s/ppn=16/ppn=$(NP)/
+	cat generate-tiles.pbs| qsub -t 0,1,3,4,5%1 #| sed s/ppn=16/ppn=$(NP)/
 
 stage-ifr: stage-ifr-low
-	cat generate-tiles.pbs| qsub -t 3-5%2 #| sed s/ppn=16/ppn=$(NP)/
+	cat generate-tiles.pbs| qsub -t 3-5%1 #| sed s/ppn=16/ppn=$(NP)/
 
 stage-vfr: stage-vfr-sec
-	cat generate-tiles.pbs| qsub -t 0-1%2 #| sed s/ppn=16/ppn=$(NP)/	
+	cat generate-tiles.pbs| qsub -t 0-1%1 #| sed s/ppn=16/ppn=$(NP)/	
 
 stage-ifr-low: charts/ifr/*zip  # charts/ifa/*zip charts/ifh/*zip
 	if [[ ! -d merge ]]; then mkdir merge; fi

@@ -1,4 +1,4 @@
-##
+
 rm time-ifr-low-warps.time
 rm -fr /dev/shm/merge/ifr && mkdir -p /dev/shm/merge/ifr
 rm -fr merge/ifr && mkdir -p merge/ifr
@@ -18,11 +18,9 @@ for ORDER in ENR_P ENR_A ENR_L; do
     done < /dev/shm/tmp.sh
 done
 
-JOBID=$(qsub -t 0-195%4 -l nodes=1:ppn=4 -l mem=6gb -l walltime=1000:00:00 -V -N ifrwarp /dev/shm/job.pbs)
+JOBID=$(qsub -t 0-195 -l nodes=1:ppn=4 -l mem=10gb -l walltime=1000:00:00 -V -N ifrwarp /dev/shm/job.pbs)
 
-sleep 1
-
-
+## sleep 1
 
 rm -f merge/ifr/westernhemisphere.vrt; gdalbuildvrt merge/ifr/westernhemisphere.vrt merge/ifr/*westernhemisphere*tif
 rm -f merge/ifr/easternhemisphere.vrt; gdalbuildvrt merge/ifr/easternhemisphere.vrt merge/ifr/*easternhemisphere*tif
