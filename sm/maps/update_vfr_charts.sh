@@ -28,7 +28,8 @@
 #
 
 CYCLE=$(./cyclenumber.sh)
-
+VFRFILE=$(./cycledates.sh 56 vfrdl)
+echo ${VFRFILE}
 function rmtif {
     rm *tif
 }
@@ -156,12 +157,14 @@ echo Fetching VFR update for $CYCLE
 
 pushd $TMP
 rm *tif
-wget -c http://aeronav.faa.gov/Upload_313-d/visual/DDVC_20${CYCLE}_Changes.zip
-unzip DDVC_20${CYCLE}_Changes.zip *tif
+VFRFILE=DDVC_${VFRFILE}_Changes.zip
+## wget -c https://aeronav.faa.gov/Upload_313-d/visual/DDVC_20${CYCLE}_Changes.zip
+wget -c https://aeronav.faa.gov/Upload_313-d/visual/${VFRFILE}
+unzip ${VFRFILE} *tif
 ## if [[ ! -f *tif ]]; then
 ##     echo no tiff files
 ##     echo trying zip files
-##     unzip DDVC_20${CYCLE}_Changes.zip
+##     unzip ${VFRFILE}
 ##     for zip in *zip; do unzip $zip "*tif";done
 ## fi
 

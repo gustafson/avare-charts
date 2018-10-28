@@ -84,6 +84,8 @@ elif [[ $2 = dof ]]; then  ## Obstacle file
     echo `date -d "$TODAY + $SREF days" +"%y%^m%d"`
 elif [[ $2 = afd ]]; then 
     echo `date -d "$TODAY + $SREF days" +"%Y%^m%d"`
+elif [[ $2 = vfrdl ]]; then 
+    echo `date -d "$TODAY + $SREF days" +"%y%m%d"`
 else
     echo `date -d "$TODAY + $SREF days" +"%d%^b%Y"`
 fi
