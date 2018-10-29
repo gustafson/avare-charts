@@ -131,14 +131,13 @@ plates-png:
 	[[ -f d-TPP_Metafile.xml.zip.$(CYCLE) ]] && unzip -o d-TPP_Metafile.xml.zip.$(CYCLE)
 	./plates_png.sh
 
-download-plates: 
-	@echo This is currently done on eagle:
-	@echo "  wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPA_20$(CYCLE).zip"
-	@echo "  wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPB_20$(CYCLE).zip"
-	@echo "  wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPC_20$(CYCLE).zip"
-	@echo "  wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPD_20$(CYCLE).zip"
-	@echo "  wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPE_20$(CYCLE).zip"
-	@echo "  wait"
+download-plates:
+	cd plates/DDTPP; wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPA_20$(CYCLE).zip
+	cd plates/DDTPP; wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPB_20$(CYCLE).zip
+	cd plates/DDTPP; wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPC_20$(CYCLE).zip
+	cd plates/DDTPP; wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPD_20$(CYCLE).zip
+	cd plates/DDTPP; wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPE_20$(CYCLE).zip
+	cd plates/DDTPP && ./unzip_DDTPP.sh $(CYCLE)
 
 download-cifp: 
 	@echo on thor:
