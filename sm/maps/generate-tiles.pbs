@@ -88,6 +88,21 @@ function myfindwac (){
 	done
 }
 
+function deleteidentical (){
+    find $0 -type f |xargs -n1000 -P16 md5sum > /dev/shm/md5sums.txt
+
+    ## Find repetitive images of more than 1000 instances and delete these
+    ## cut -f1 -d" " /dev/shm/md5sums.txt |sort|uniq -c |sort -n |awk '{if ($1>1000) print $2, $1}' > /dev/shm/delete.txt
+    ## cut -f1 /dev/shm/delete.txt -d" "|xargs -I{} grep {} /dev/shm/md5sums.txt |cut -f3 -d" "|xargs rm
+
+    ## Above bad!!! deletes all white from 3.  This should get only all black
+    cut -f1 -d" " /dev/shm/md5sums.txt |sort|uniq -c |sort -n |tail -n1|awk '{print $2}'|xargs -I{} grep {} /dev/shm/md5sums.txt |awk '{print $2}' |xargs rm 
+    
+    ## gimp `cut -f1 /dev/shm/delete.txt -d" "|xargs -I{} grep -m1 {} /dev/shm/md5sums.txt |cut -f3 -d" "`
+    ## for a in `cut -f1 /dev/shm/delete.txt -d" "|xargs -I{} grep -m1 {} /dev/shm/md5sums.txt |cut -f3 -d" "`; do echo $a; convert ${a} -format %c histogram:info:;done
+
+}
+
 function rmemptypng(){
     ## echo $0
     [[ `convert $0 -format '%@' info: 2> /dev/null|cut -c 1-3` == "0x0" ]] && rm $0
@@ -136,8 +151,8 @@ elif [[ ${PBS_ARRAYID} -eq 3 ]]; then
     ## rsync --exclude="*.xml" --exclude="*.html" -avP tiles/3-overlay/ tiles/3/ ## Copy overlay tiles
 
 elif [[ ${PBS_ARRAYID} -eq 4 ]]; then
-    ${TIME1} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -r lanczos ifh-east.vrt /dev/shm/tiles/4-east
-    ${TIME2} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -r lanczos ifh-west.vrt /dev/shm/tiles/4-west
+    ${TIME1} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r lanczos ifh-east.vrt /dev/shm/tiles/4-east
+    ${TIME2} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r lanczos ifh-west.vrt /dev/shm/tiles/4-west
     rsync -avP --exclude=*.xml /dev/shm/tiles/4-east/ tiles/4/
     rsync -avP --exclude=*.xml /dev/shm/tiles/4-west/ tiles/4/
     rm -fr /dev/shm/tiles/4-east /dev/shm/tiles/4-west
