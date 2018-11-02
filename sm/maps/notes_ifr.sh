@@ -25,7 +25,7 @@ for ORDER in ENR_P ENR_A ENR_L; do
     ./stage-ifr-low 1| grep gdalwarp | grep $ORDER > /dev/shm/tmp.sh
 
     while read COMMAND; do
-	echo "[[ \${PBS_ARRAYID} -eq ${COUNT} ]] && $COMMAND" >> /dev/shm/job.pbs
+	echo "if [[ \${PBS_ARRAYID} -eq ${COUNT} ]]; then $COMMAND; fi" >> /dev/shm/job.pbs
 	let COUNT+=1
     done < /dev/shm/tmp.sh
 done
