@@ -32,9 +32,6 @@ NP=16
 
 REGNS="AK EC1 EC2 EC3 NC1 NC2 NC3 NE1 NE2 NE3 NE4 NW1 PAC SC1 SC2 SC3 SC4 SC5 SE1 SE2 SE3 SE4 SW1 SW2 SW3 SW4"
 
-LINK=http://aeronav.faa.gov/d-tpp/$1
-LINK=http://eagle.ceas.wmich.edu/avare/plates/$1
-
 DPI=248.3 ## Ideal android limit 2400x
 DPI=225
 
@@ -50,8 +47,8 @@ rm -rf minimums
 
 echo Downloading TO and ALT mins
 for REG in ${REGNS}; do
-    wget -q --no-check-certificate ${LINK}/${REG}TO.{PDF,pdf}
-    wget -q --no-check-certificate ${LINK}/${REG}ALT.{PDF,pdf}
+    cp -s ../plates/DDTPP/1812/${REG}TO.{PDF,pdf} .
+    cp -s ../plates/DDTPP/1812/${REG}ALT.{PDF,pdf} .
 done
 
 echo Renaming for consistency
@@ -61,8 +58,7 @@ for REG in ${REGNS}; do
     [[ -f ${REG}ALT.PDF ]] || echo ${REG}ALT.PDF not found. Check download ${LINK}/${REG}ALT.{PDF,pdf}
 done
 
-echo Converting to png
-## Parallel version
+echo Converting to png in parallel
 ls *TO.PDF |
 xargs -P ${NP} -n 1 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png 
 ls *ALT.PDF |
