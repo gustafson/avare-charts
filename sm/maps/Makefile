@@ -31,6 +31,7 @@
 ## 1) Update NP variable in scripts
 
 CYCLE=$(shell ./cyclenumber.sh)
+CYCLECIFP=$(shell ./cycledates.sh 28 vfrdl)
 CYCLEDATE28BASE=$(shell ./cycledates.sh 28 base)
 CYCLEDATE56BASE=$(shell ./cycledates.sh 56 base)
 CYCLEDATE28=$(shell ./cycledates.sh 28)
@@ -128,23 +129,21 @@ process-data:
 	./aw.pl > aw.csv
 
 plates-png: 
-	[[ -f d-TPP_Metafile.xml.zip.$(CYCLE) ]] && unzip -o d-TPP_Metafile.xml.zip.$(CYCLE)
-	./plates_png.sh
+	cd plates && qsub plates.pbs
 
 download-plates:
-	cd plates/DDTPP; wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPA_20$(CYCLE).zip
-	cd plates/DDTPP; wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPB_20$(CYCLE).zip
-	cd plates/DDTPP; wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPC_20$(CYCLE).zip
-	cd plates/DDTPP; wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPD_20$(CYCLE).zip
-	cd plates/DDTPP; wget -c -b http://aeronav.faa.gov/upload_313-d/terminal/DDTPPE_20$(CYCLE).zip
-	cd plates/DDTPP && ./unzip_DDTPP.sh $(CYCLE)
+	[[ -d plates/DDTPP ]] || mkdir -p plates/DDTPP
+	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPA_20$(CYCLE).zip
+	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPB_20$(CYCLE).zip
+	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPC_20$(CYCLE).zip
+	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPD_20$(CYCLE).zip
+	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPE_20$(CYCLE).zip
+	cd plates/DDTPP && ../unzip_DDTPP.sh $(CYCLE)
 
 download-cifp: 
-	@echo on thor:
-	@echo "  pushd ~/CIFP"
-	@echo "  wget -c http://aeronav.faa.gov/Upload_313-d/cifp/cifp_20$(CYCLE).zip"
-	@echo "and complete the processing:"
-	@echo "  popd"
+	pushd CIFP && wget -c http://aeronav.faa.gov/Upload_313-d/cifp/cifp_$(CYCLECIFP).zip
+	pushd CIFP && unzip cifp_$(CYCLECIFP).zip && rm procedures.db
+	pushd CIFP && make procedures.db && mv procedures.db ..
 
 download-afd:
 	@echo This is currently done on eagle:
@@ -176,14 +175,19 @@ update-vfr:
 	./update_vfr_charts.sh ## New process gets only updates
 
 download-ifr:
-	echo Downloading ifr for cycle $(CYCLE)
+	## echo Downloading ifr for cycle $(CYCLE)
 	if [[ -d charts/ifr ]]; then rm -fr charts/ifr; fi
 	mkdir -p charts/ifr
 	cd charts/ifr && wget -N http://aeronav.faa.gov/enroute/$$(../../cycledates.sh 56 ifr)/DDECUS.zip
 	## ./dlifr.sh $$(./cycledates.sh 56 ifr)  ## Currently this only gets the carribean
 	## cd charts/ifr && rm -f *pdf*zip *tif
 	cd charts/ifr && unzip -o -j DDECUS.zip
-	cd charts/ifr && ls *zip | grep -v -e DDECUS.zip -e delcb | xargs -n1 -P$(NP) unzip -o -j  ## Don't use carribean which isn't geotagged
+	## 
+	## ## Chart L06 requires special treatment... it is tagged for north but contains north and south
+	## ## Further, Alaska doesn't have pdf
+	cd charts/ifr && ls *zip | grep -e DE[HL] | xargs -n1 -P$(NP) -I {} unzip -o -j {} "*pdf" ## Don't use carribean which isn't geotagged
+	cd charts/ifr && mv ENR_L06.pdf ENR_L06N.pdf
+	cd charts/ifr && ls *zip | grep -e L06 -e AKL -e ENR_ | xargs -n1 -P$(NP) -I {} unzip -o -j {} "*tif"
 	@echo Done downloading and unziping ifr charts
 
 rename:

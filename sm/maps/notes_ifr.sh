@@ -1,4 +1,3 @@
-
 rm time-ifr-low-warps.time
 rm -fr /dev/shm/merge/ifr && mkdir -p /dev/shm/merge/ifr
 rm -fr merge/ifr && mkdir -p merge/ifr
@@ -6,7 +5,20 @@ rm -fr merge/ifr && mkdir -p merge/ifr
 ./stage-ifr-low 1|grep -v crop > /dev/shm/tmp.sh
 bash /dev/shm/tmp.sh && rm /dev/shm/tmp.sh
 
-echo cd $PWD > /dev/shm/job.pbs
+cat <<EOF > /dev/shm/job.pbs
+#!/bin/sh -login
+#PBS -l mem=8gb
+#PBS -l nodes=1:ppn=8
+#PBS -l walltime=1000:00:00
+#PBS -m abe 
+#PBS -V 
+#PBS -N ifr-warp
+#PBS -e z-logs/z.\${PBS_JOBID}.e_\${PBS_JOBNAME}
+#PBS -o z-logs/z.\${PBS_JOBID}.o_\${PBS_JOBNAME}
+#PBS -t 0-97%3
+EOF
+
+echo cd $PWD >> /dev/shm/job.pbs
 COUNT=0
 ## Do in this order because pacific etc takes a long time
 for ORDER in ENR_P ENR_A ENR_L; do
@@ -18,19 +30,20 @@ for ORDER in ENR_P ENR_A ENR_L; do
     done < /dev/shm/tmp.sh
 done
 
-JOBID=$(qsub -t 0-195 -l nodes=1:ppn=4 -l mem=10gb -l walltime=1000:00:00 -V -N ifrwarp /dev/shm/job.pbs)
+JOBID=$(qsub /dev/shm/job.pbs)
+## ## JOBID=$(qsub -t 0-97 -l nodes=1:ppn=4 -l mem=10gb -l walltime=1000:00:00 -V -N ifrwarp /dev/shm/job.pbs)
 
-## sleep 1
-
-rm -f merge/ifr/westernhemisphere.vrt; gdalbuildvrt merge/ifr/westernhemisphere.vrt merge/ifr/*westernhemisphere*tif
-rm -f merge/ifr/easternhemisphere.vrt; gdalbuildvrt merge/ifr/easternhemisphere.vrt merge/ifr/*easternhemisphere*tif
-
-
-echo cd $PWD > /dev/shm/job.pbs
-echo "rm -f ifr-west.vrt; gdal_translate -r near -projwin_srs WGS84 -projwin -180.0 72   -62.5 -5.25 -a_nodata 51 -of vrt merge/ifr/westernhemisphere.vrt ifr-west.vrt" >> /dev/shm/job.pbs
-echo "rm -f ifr-east.vrt; gdal_translate -r near -projwin_srs WGS84 -projwin  127.5 55.0 180.0 -5.25 -a_nodata 51 -of vrt merge/ifr/easternhemisphere.vrt ifr-east.vrt" >> /dev/shm/job.pbs
-JOBID=$(qsub -W depend=afterok:$JOBID -l nodes=1:ppn=4 -l mem=6gb -l walltime=1000:00:00 -V -N ifrgather /dev/shm/job.pbs)
-qsub -W depend=afterok:$JOBID -t3 generate-tiles.pbs
-
-rm /dev/shm/job.pbs
-
+## ## sleep 1
+## 
+## rm -f merge/ifr/westernhemisphere.vrt; gdalbuildvrt merge/ifr/westernhemisphere.vrt merge/ifr/*westernhemisphere*tif
+## rm -f merge/ifr/easternhemisphere.vrt; gdalbuildvrt merge/ifr/easternhemisphere.vrt merge/ifr/*easternhemisphere*tif
+## 
+## 
+## echo cd $PWD > /dev/shm/job.pbs
+## echo "rm -f ifr-west.vrt; gdal_translate -r near -projwin_srs WGS84 -projwin -180.0 72   -62.5 -5.25 -a_nodata 51 -of vrt merge/ifr/westernhemisphere.vrt ifr-west.vrt" >> /dev/shm/job.pbs
+## echo "rm -f ifr-east.vrt; gdal_translate -r near -projwin_srs WGS84 -projwin  127.5 55.0 180.0 -5.25 -a_nodata 51 -of vrt merge/ifr/easternhemisphere.vrt ifr-east.vrt" >> /dev/shm/job.pbs
+## JOBID=$(qsub -W depend=afterok:$JOBID -l nodes=1:ppn=4 -l mem=6gb -l walltime=1000:00:00 -V -N ifrgather /dev/shm/job.pbs)
+## qsub -W depend=afterok:$JOBID -t3 generate-tiles.pbs
+## 
+## rm /dev/shm/job.pbs
+## 

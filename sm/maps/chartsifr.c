@@ -5,6 +5,14 @@ Maps maps[] = {
   // {"GOM_nw",   66,   66,  15618, 12468, "GOM", ""},
   // Gulf of Mexico should be covered by everthing else where possible so it needs to go first
   {"ENR_L21",  2205, 265, 15589, 7470, "GOM", ""}, 
+  // Now Pacific
+  {"ENR_P01", 2204, 257,  2950, 4526, "IFPB", "west"}, // Broken into two pieces
+  {"ENR_P01", 5155, 257,  12641, 7482, "IFPB", "east"},
+  // Below line could be used with shapefiles
+  // {"ENR_P01", 5155, 257,  12641, 7482, "IFPB", ""},
+  {"ENR_P02", 204, 265, 17591, 7471, "IFPB", ""},
+  {"ENR_P01_GUA", 63, 58, 2794, 2794, "IFAL", ""},  // Guam on top of P01
+  //
   {"ENR_L01",  2205, 265, 19587, 7470, "IF", ""},
   {"ENR_L02",  2205, 266, 17590, 7469, "IF", ""},
   {"ENR_L03",  2205, 265, 19590, 7470, "IF", ""},
@@ -52,13 +60,5 @@ Maps maps[] = {
   {"ENR_AKL04", 8267,  3803, 13616, 2050, "IFAL", "middle"},
   {"ENR_AKL04", 6519, 5853,  15274, 1879, "IFAL", "south"},
   {"ENR_AKL02W",  88, 100, 4455, 7476, "IFAL", ""},
-  // Broken into two pieces
-  {"ENR_P01", 2204, 257,  2950, 4526, "IFPB", "west"},
-  {"ENR_P01", 5155, 257,  12641, 7482, "IFPB", "east"},
-  //
-  // Below could be used with shapefiles
-  // {"ENR_P01", 5155, 257,  12641, 7482, "IFPB", ""},
-  {"ENR_P02", 204, 265, 17591, 7471, "IFPA", ""},
-  {"ENR_P01_GUA", 63, 58, 2794, 2794, "IFAL", ""},  // Guam on top of P01
 };
 

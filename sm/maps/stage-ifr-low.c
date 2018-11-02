@@ -53,10 +53,10 @@ double TR;
 int main(int argc, char *argv[])
 {
   int map;
-  char buffer[512];
-  char tmpstr0[512];
-  char tmpstr1[512];
-  char projstr[512];
+  char buffer[1024];
+  char tmpstr0[1024];
+  char tmpstr1[1024];
+  char projstr[1024];
   snprintf(projstr, sizeof(projstr), "-t_srs EPSG:3857 ");
   char *n_ptr;
   char *dir_ptr;
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 
     // This just crops the image
     snprintf(buffer, sizeof(buffer),
-	     "gdal_translate -of vrt -r cubic -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
+	     "gdal_translate -of vrt -r near -srcwin %d %d %d %d charts/%s/%s.tif %s_1.vrt",
 	     maps[map].x, maps[map].y, maps[map].sizex, maps[map].sizey,
 	     dir_ptr, n_ptr, tmpstr1);
     out(buffer);
@@ -165,24 +165,27 @@ int main(int argc, char *argv[])
       TR = (20026376.39)/512/(pow(2,7));
     }
 
-    // If the pdf exists, use it.  Elsewise use the tif
-    // Currently doesn't pick up ENR_L06N and Alaska pdfs.
+    // If the pdf exists, use it.  Alaska's do not currently distribute with pdf.
+    // L6 North pdf is tagged, but L6 South is on the same pdf and is tagged (incorrectly with reference to L6 north).
+    // Consequetly, L06.pdf is not picked up... rather raster L06N.pdf and L06S.pdf are
+
+    // western hemisphere
     snprintf(buffer, sizeof(buffer),
     	     "[[ -f charts/%s/%s.pdf && -f %s_westernhemisphere.geojson ]] && gdalwarp -co BIGTIFF=YES -overwrite -wo NUM_THREADS=4 -multi -cutline %s_westernhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.pdf %s_westernhemisphere.tif",
     	     dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
-    out(buffer);
+    snprintf(tmpstr0, sizeof(tmpstr0),  
+    	     "%s || [[ -f charts/%s/%s.tif && -f %s_westernhemisphere.geojson ]] && gdalwarp -co BIGTIFF=YES -overwrite -wo NUM_THREADS=4 -multi -cutline %s_westernhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.tif %s_westernhemisphere.tif",
+    	     buffer, dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
+    out(tmpstr0);
+
+    // eastern hemisphere
     snprintf(buffer, sizeof(buffer),  
     	     "[[ -f charts/%s/%s.pdf && -f %s_easternhemisphere.geojson ]] && gdalwarp -co BIGTIFF=YES -overwrite -wo NUM_THREADS=4 -multi -cutline %s_easternhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.pdf %s_easternhemisphere.tif",
     	     dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
-    out(buffer);
-    snprintf(buffer, sizeof(buffer),  
-    	     "[[ -f charts/%s/%s.tif && -f %s_westernhemisphere.geojson ]] && gdalwarp -co BIGTIFF=YES -overwrite -wo NUM_THREADS=4 -multi -cutline %s_westernhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.tif %s_westernhemisphere.tif",
-    	     dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
-    out(buffer);
-    snprintf(buffer, sizeof(buffer),  
-    	     "[[ -f charts/%s/%s.tif && -f %s_easternhemisphere.geojson ]] && gdalwarp -co BIGTIFF=YES -overwrite -wo NUM_THREADS=4 -multi -cutline %s_easternhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.tif %s_easternhemisphere.tif",
-    	     dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
-    out(buffer);
+    snprintf(tmpstr0, sizeof(tmpstr0),  
+    	     "%s || [[ -f charts/%s/%s.tif && -f %s_easternhemisphere.geojson ]] && gdalwarp -co BIGTIFF=YES -overwrite -wo NUM_THREADS=4 -multi -cutline %s_easternhemisphere.geojson -crop_to_cutline -of gtiff -dstnodata 51 -r cubic -tr %g %g %s charts/%s/%s.tif %s_easternhemisphere.tif",
+    	     buffer, dir_ptr, n_ptr, tmpstr1, tmpstr1, TR, TR, projstr, dir_ptr, n_ptr, tmpstr1);
+    out(tmpstr0);
   }
 
   //  /* one image */
