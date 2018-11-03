@@ -28,7 +28,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
  
-NP=16
+NP=`cat /proc/cpuinfo |grep processor|wc -l`
 
 REGNS="AK EC1 EC2 EC3 NC1 NC2 NC3 NE1 NE2 NE3 NE4 NW1 PAC SC1 SC2 SC3 SC4 SC5 SE1 SE2 SE3 SE4 SW1 SW2 SW3 SW4"
 
@@ -47,59 +47,55 @@ rm -rf minimums
 
 echo Downloading TO and ALT mins
 for REG in ${REGNS}; do
-    cp -s ../plates/DDTPP/1812/${REG}TO.{PDF,pdf} .
-    cp -s ../plates/DDTPP/1812/${REG}ALT.{PDF,pdf} .
+    cp -l ../plates/DDTPP/1812/${REG}TO.PDF .
+    cp -l ../plates/DDTPP/1812/${REG}ALT.PDF .
 done
 
-echo Renaming for consistency
-rename pdf PDF *pdf
 for REG in ${REGNS}; do
-    [[ -f ${REG}TO.PDF ]]  || echo ${REG}TO.PDF not found. Check download ${LINK}/${REG}TO.{PDF,pdf}
-    [[ -f ${REG}ALT.PDF ]] || echo ${REG}ALT.PDF not found. Check download ${LINK}/${REG}ALT.{PDF,pdf}
+    [[ -f ${REG}TO.PDF ]]  || echo ${REG}TO.PDF not found.
+    [[ -f ${REG}ALT.PDF ]] || echo ${REG}ALT.PDF not found.
 done
 
-echo Converting to png in parallel
+echo Converting to png in parallel.
 ls *TO.PDF |
-xargs -P ${NP} -n 1 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png 
+xargs -P $((NP/3)) -n 3 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png 
 ls *ALT.PDF |
-xargs -P ${NP} -n 1 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png 
+xargs -P $((NP/3)) -n 3 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png 
 wait
 
-echo Zipping
+echo Optimizing
 find . -name "*.png" | 
-xargs -P ${NP} -n 1 optipng -quiet
+xargs -P ${NP} -n 1 nice optipng -quiet
 wait
 
 echo Creating database input files
-for REG in ${REGNS}
-do
+for REG in ${REGNS}; do
     echo "../mins.sh ${REG}TO >> to.csv"
     ../mins.sh ${REG}TO >> to.csv
 done
 
-for REG in ${REGNS}
-do
+for REG in ${REGNS}; do
     echo "../mins.sh ${REG}ALT >> alt.csv"
     ../mins.sh ${REG}ALT >> alt.csv
 done
 
-mkdir minimums
-mkdir minimums/A
-mkdir minimums/E
-mkdir minimums/N
-mkdir minimums/P
-mkdir minimums/S
-mv A*.png minimums/A
-mv E*.png minimums/E
-mv N*.png minimums/N
-mv P*.png minimums/P
-mv S*.png minimums/S
-
-echo Zipping
-echo alternates > alternates
-ls minimums/*png >> alternates
-zip -r -i "*.png" -1 -T -q alternates.zip alternates minimums
-
-cd ..
-mv mins/alternates.zip final/
-echo mins done
+## mkdir minimums
+## mkdir minimums/A
+## mkdir minimums/E
+## mkdir minimums/N
+## mkdir minimums/P
+## mkdir minimums/S
+## mv A*.png minimums/A
+## mv E*.png minimums/E
+## mv N*.png minimums/N
+## mv P*.png minimums/P
+## mv S*.png minimums/S
+## 
+## echo Zipping
+## echo alternates > alternates
+## ls minimums/*png >> alternates
+## zip -r -i "*.png" -1 -T -q alternates.zip alternates minimums
+## 
+## cd ..
+## mv mins/alternates.zip final/
+## echo mins done
