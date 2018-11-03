@@ -89,21 +89,21 @@ function guetzli_png_to_jpg(){
 export -f guetzli_png_to_jpg
 
 function cleanpngbylatlon () {
-    echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs -n1 -P16 bash -c rmemptypng
+    ## echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs -n1 -P16 bash -c rmemptypng
     echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs mogrify -format png8
     echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | sed s/png/png8/g | xargs rename png8 png
     echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs -n1 -P16 optipng
 }
 
 function cleanwholedirectory () {
-    find $1 -name "*png" | xargs -n1 -P16 bash -c rmemptypng
+    ## find $1 -name "*png" | xargs -n1 -P16 bash -c rmemptypng
     find $1 -name "*png" | xargs mogrify -format png8
     find $1 -name "*png" | sed s/png/png8/g | xargs rename png8 png
     find $1 -name "*png" | xargs -n1 -P16 optipng
 }
 
 function cleanpngbyimage () {
-    mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c rmemptypng
+    ## mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c rmemptypng
     mygroup $1 $2 png forclean | xargs mogrify -format png8
     mygroup $1 $2 png forclean | sed s/png/png8/g | xargs rename png8 png
     mygroup $1 $2 png forclean | xargs -n1 -P16 optipng

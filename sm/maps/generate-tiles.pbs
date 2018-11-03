@@ -68,15 +68,8 @@ fi
 CYCLE=$(./cyclenumber.sh)
 
 OPTIONS1="--verbose -w openlayers -c MUAVLLC --no-kml --resume --processes ${NP}"
-OPTIONS2="--verbose -w openlayers -c MUAVLLC --no-kml --resume"
-TIME1="/usr/bin/time -v -o"
-TIME2="/usr/bin/time -v --append -o"
+TIME1="/usr/bin/time -v --append -o"
 ARRAY=`echo ${PBS_JOBID} | sed -e s/"\[..\]"/"\[\]"/g -e "s/.cs.wmich.edu//g"`
-
-## Would be faster for TAC but isn't really needed... this skips the overview tiles
-##if [[ ${PBS_ARRAYID} -le 26 ]]; then
-##    ${TIME1} time.tac.txt ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} $(ls merge/tac/run*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/1
-##    ${TIME2} time.tac.txt ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS2} $(ls merge/tac/run*3.vrt|sed -n ${PBS_ARRAYID}p) tiles/1
 
 function myfindwac (){
     find tiles/2 -name "*png"|
@@ -110,68 +103,54 @@ function rmemptypng(){
 export -f rmemptypng
 
 if [[ ${PBS_ARRAYID} -eq 0 ]]; then
-    mkdir -p /dev/shm/tiles
+    rm -f time.sec.txt
     ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 -r cubicspline sec-west.vrt /dev/shm/tiles/0
-    ${TIME2} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 -r cubicspline sec-east.vrt /dev/shm/tiles/0
+    ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 -r cubicspline sec-east.vrt /dev/shm/tiles/0
     rsync -avP --exclude=*.xml /dev/shm/tiles/0/ tiles/0/
     rm -fr /dev/shm/tiles/0
     
 elif [[ ${PBS_ARRAYID} -eq 1 ]]; then
+    rm -f time.wac.txt
     ${TIME1} time.tac.txt ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-11 -r cubicspline tac.vrt /dev/shm/tiles/1
     rsync -avP --exclude=*.xml /dev/shm/tiles/1/ tiles/1/
     rm -fr /dev/shm/tiles/1
 
 elif [[ ${PBS_ARRAYID} -eq 2 ]]; then
+    rm -f time.wac.txt
     ${TIME1} time.wac.txt ./gdal2tiles_512_parallel.py -t "VFR World" ${OPTIONS1} -r cubicspline wac.vrt tiles/2
-    
 ##    myfindwac | xargs mogrify -gravity center -pointsize 40 -fill white \
 ##	      -draw "fill-opacity 0.25 rotate -45 text 0,0 'Discontinued'"
     
 elif [[ ${PBS_ARRAYID} -eq 3 ]]; then
-    mkdir -p /dev/shm/tiles
+    rm -f time.ifr.txt
     ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-east.vrt /dev/shm/tiles/3
-    ${TIME2} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS2} -z 0-10 -r near ifr-west.vrt /dev/shm/tiles/3
-    rsync -avP --exclude=*.xml /dev/shm/tiles/3/ tiles/3/
+    ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-west.vrt /dev/shm/tiles/3
+    find /dev/shm/tiles/3 -name "*png"|xargs md5sum|grep 4023a0e7925b07a6be26e2cddb65f0cd|cut -f3 -d" "|xargs rm    rsync -avP --exclude=*.xml /dev/shm/tiles/3/ tiles/3/
     rm -fr /dev/shm/tiles/3
 
-    ## ## start with hawaii then backfill the rest
-    ## ${TIME1} time.ifr-hi.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 8-10 -r lanczos ifr_hi.vrt tiles/3-hi
-    ## 
-    ## ## Do past of 180
-    ## ${TIME1} time.ifr-180.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -r lanczos merge/ifr/10ENR_AKL02W_2_180.vrt tiles/3-180
-    ## 
-    ## ## Do stuff on this side of 180
-    ## ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -r lanczos ifr.vrt tiles/3
-    ## 
-    ## ## Include an pacific overlay
-    ## ${TIME1} time.ifr.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-7 -r lanczos ifr_all.vrt tiles/3-overlay
-    ## 
-    ## rsync --exclude="*.xml" --exclude="*.html" -avP tiles/3-180/ tiles/3/  ## Copy east, shouldn't overwrite anything
-    ## rsync --exclude="*.xml" --exclude="*.html" -avP tiles/3-hi/ tiles/3/  ## Copy hawaii
-    ## rsync --exclude="*.xml" --exclude="*.html" -avP tiles/3-overlay/ tiles/3/ ## Copy overlay tiles
-
 elif [[ ${PBS_ARRAYID} -eq 4 ]]; then
-    ${TIME1} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r lanczos ifh-east.vrt /dev/shm/tiles/4-east
-    ${TIME2} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r lanczos ifh-west.vrt /dev/shm/tiles/4-west
-    rsync -avP --exclude=*.xml /dev/shm/tiles/4-east/ tiles/4/
-    rsync -avP --exclude=*.xml /dev/shm/tiles/4-west/ tiles/4/
-    rm -fr /dev/shm/tiles/4-east /dev/shm/tiles/4-west
+    rm -f time.ifh.txt
+    ${TIME1} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r lanczos ifh-east.vrt /dev/shm/tiles/4
+    ${TIME1} time.ifh.txt ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r lanczos ifh-west.vrt /dev/shm/tiles/4
+    find /dev/shm/tiles/4 -name "*png"|xargs md5sum|grep 4023a0e7925b07a6be26e2cddb65f0cd|cut -f3 -d" "|xargs rm
+    rsync -avP --exclude=*.xml /dev/shm/tiles/4/ tiles/4/
+    rm -fr /dev/shm/tiles/4
 
 elif [[ ${PBS_ARRAYID} -eq 5 ]]; then
+    rm -f time.ifa.txt
 
     ## The images are sparse, only create those that are necessary
     for vrt in merge/ifa/*vrt; do
 	${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos ${vrt} -z 7-11 /dev/shm/tiles/5
     done
-
+    
     ## Extend Guam which stands completely isolated
     ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-11 merge/ifa/ENR_P01_GUA.vrt /dev/shm/tiles/5
-
+    
     ## Extend the rest... there were a total of 213 images at this level including guam.  ifa.vrt excludes guam
     ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-6 ifa.vrt /dev/shm/tiles/5
 
-    ## Save the unique images
-    fdupes --delete --noprompt --recurse /dev/shm/tiles/5
+    find /dev/shm/tiles/5 -name "*png"|xargs md5sum|grep 4023a0e7925b07a6be26e2cddb65f0cd|cut -f3 -d" "|xargs rm
     rsync -avP --exclude=*.xml /dev/shm/tiles/5/ tiles/5/
     rm -fr /dev/shm/tiles/5
 
@@ -183,14 +162,9 @@ elif [[ ${PBS_ARRAYID} -eq 5 ]]; then
     ## find . -name "*png" |grep -f files.txt |rev|sort|rev|grep .vrt\/6
     
 elif [[ ${PBS_ARRAYID} -eq 9 ]]; then
+    rm -f time.heli.txt
     ## Heli only on change
     ${TIME1} time.heli.txt ./gdal2tiles_512_parallel.py -t "Helicoptor Route Chart" ${OPTIONS1} -r cubicspline heli.vrt tiles/9   
-
-elif [[ ${PBS_ARRAYID} -eq 55 ]]; then
-    ${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos ifa.vrt tiles/5.test
-    
-elif [[ ${PBS_ARRAYID} -eq 99 ]]; then
-    ${TIME1} time.debug.txt ./gdal2tiles_512_parallel.py -t "DEBUG" ${OPTIONS1} -r lanczos merge/ifa/ENR_A01_DET.vrt tiles/debug
 
 elif [[ ${PBS_ARRAYID} -eq 199 ]]; then
     ${TIME1} time.debug.txt ./gdal2tiles_512_parallel.py -t "DEBUG" ${OPTIONS1} -r lanczos plates.archive/1701/plates_MI/AZO/RNAV-GPS-RWY-17.pdf tiles/debug
