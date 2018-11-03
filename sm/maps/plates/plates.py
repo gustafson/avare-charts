@@ -51,7 +51,8 @@ def copy_files_to_state(state, cycle):
                         pdf = "./DDTPP/" + cycle +"/" + pdf
                         mydir = "/dev/shm/plates/" + airport.attrib['apt_ident']
                         fn = mydir + "/" + cn + ".pdf"
-                        linkname = "plates.archive/" + cycle + "/plates_" + state.attrib['ID'] + "/" + airport.attrib['apt_ident'] + "/" + cn + ".pdf"
+                        linkdir = "plates.archive/" + cycle + "/plates_" + state.attrib['ID'] + "/" + airport.attrib['apt_ident'] + "/" 
+                        linkname = linkdir + cn + ".pdf"
                         png = mydir + "/" + cn + ".png"
                         
                         if not os.path.exists(mydir):
@@ -60,8 +61,11 @@ def copy_files_to_state(state, cycle):
                         if not os.path.isfile(fn):
                             if (os.path.isfile(pdf)):
                                 copyfile(pdf, fn);
-                                os.remove(linkname)
-                                os.link(pdf, linkname);
+                                if not os.path.isdir(linkdir):
+                                    os.makedirs(linkdir)
+                                if not os.path.isfile(linkname):
+                                    ##os.remove(linkname)
+                                    os.link(pdf, linkname);
                             else:
                                 print ("missing:" + fn + " source: " + pdf)
                                     
