@@ -87,10 +87,13 @@ if [[ $STEP -eq 0 ]]; then
 		rm ${FN}_${SIZE}.256.png.aux.xml
 		SRCWIN=`convert ${FN}_${SIZE}.256.png -trim -format "%X %Y %w %h" info:`
 		gdal_translate -q -r lanczos ${FN}_${SIZE}_1.vrt -srcwin ${SRCWIN} -of PNG  ${FN}_${SIZE}.256.png
-		gdal_translate -q -r lanczos ${FN}_${SIZE}_1.vrt -srcwin ${SRCWIN} -co LOSSLESS=True -of WEBP ${FN}_${SIZE}.webp
 
 		mogrify -dither none -antialias  -depth 8 -quality 00 -background white -alpha remove -colors 15 -format png8 ${FN}_${SIZE}.256.png # -unsharp 0x0
 		mv ${FN}_${SIZE}.256.png8 ${FN}_${SIZE}.16.png
+
+		## Webp using either gdal (to get the xml file) and imagemagick
+		gdal_translate -q -r lanczos ${FN}_${SIZE}_1.vrt -srcwin ${SRCWIN} -co LOSSLESS=True -of WEBP ${FN}_${SIZE}.webp
+		convert -format webp -define webp:lossless=true,method=6 ${FN}_${SIZE}.16.png ${FN}_${SIZE}.webp
 		
 		## mogrify -dither none -antialias  -depth 8 -quality 00 -background white -alpha remove ${FN}_${SIZE}.256.png # -unsharp 0x0
     		mv ${FN}_${SIZE}.256.png.aux.xml ${FN}_${SIZE}.png.aux.xml
@@ -102,7 +105,7 @@ if [[ $STEP -eq 0 ]]; then
 		
 		## Store the files
 		mv ${FN}_${SIZE}.png ${FN}_${SIZE}.png.aux.xml plates.archive/${CYCLE}/plates_${STATE}/${AIRPORT}/.
-    		mv ${FN}.pdf plates.archive/${CYCLE}/plates_${STATE}/${AIRPORT}/.
+    		## Already hardlinked there ## mv ${FN}.pdf plates.archive/${CYCLE}/plates_${STATE}/${AIRPORT}/.
 		mv ${FN}_${SIZE}.webp ${FN}_${SIZE}.webp.aux.xml plates.archive/${CYCLE}/plates_${STATE}/${AIRPORT}/.
 		
     	    else

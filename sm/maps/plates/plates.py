@@ -6,6 +6,10 @@ xmlfile = glob.glob('./DDTPP/*/d-TPP_Metafile.xml')
 import xml.etree.ElementTree as ET
 tree = ET.parse(xmlfile[-1])
 root = tree.getroot()
+
+nstates = root._children.__len__();
+cycle = root.attrib['cycle']
+
 ## import PythonMagick
 import os
 
@@ -47,6 +51,7 @@ def copy_files_to_state(state, cycle):
                         pdf = "./DDTPP/" + cycle +"/" + pdf
                         mydir = "/dev/shm/plates/" + airport.attrib['apt_ident']
                         fn = mydir + "/" + cn + ".pdf"
+                        linkname = "plates.archive/" + cycle + "/plates_" + state.attrib['ID'] + "/" + airport.attrib['apt_ident'] + "/" + cn + ".pdf"
                         png = mydir + "/" + cn + ".png"
                         
                         if not os.path.exists(mydir):
@@ -55,6 +60,8 @@ def copy_files_to_state(state, cycle):
                         if not os.path.isfile(fn):
                             if (os.path.isfile(pdf)):
                                 copyfile(pdf, fn);
+                                os.remove(linkname)
+                                os.link(pdf, linkname);
                             else:
                                 print ("missing:" + fn + " source: " + pdf)
                                     
@@ -66,8 +73,6 @@ def copy_files_to_state(state, cycle):
 
 #PWD=os.system('pwd')
 PWD=os.getcwd()
-nstates = root._children.__len__();
-cycle=root.attrib['cycle']
 cpus = 16
 
 ## A worker function which can be called in parallel
@@ -85,7 +90,7 @@ import multiprocessing as mp
 statecount=0;
 for state in root:
     ## If you want just one state for debugging, uncomment the next line
-    ## if (state.attrib['ID']=="AS"): # or state.attrib['ID']=="MI"
+    if (state.attrib['ID']=="AS"): # or state.attrib['ID']=="MI"
         print ("#" + state.attrib['ID'])
         statecount += 1;
         pdfimages, pngimages = copy_files_to_state(state, cycle)
