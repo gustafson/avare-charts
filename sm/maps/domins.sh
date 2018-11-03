@@ -29,6 +29,7 @@
 #
  
 NP=`cat /proc/cpuinfo |grep processor|wc -l`
+CYCLE=`./cyclenumber.sh`
 
 REGNS="AK EC1 EC2 EC3 NC1 NC2 NC3 NE1 NE2 NE3 NE4 NW1 PAC SC1 SC2 SC3 SC4 SC5 SE1 SE2 SE3 SE4 SW1 SW2 SW3 SW4"
 
@@ -58,10 +59,18 @@ done
 
 echo Converting to png in parallel.
 ls *TO.PDF |
-xargs -P $((NP/3)) -n 3 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png 
+    xargs -P $((NP/3)) -n 3 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png 
 ls *ALT.PDF |
-xargs -P $((NP/3)) -n 3 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png 
-wait
+    xargs -P $((NP/3)) -n 3 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png
+
+echo Converting to webp in parallel.
+## ls *png |
+##     xargs -P 16 -n1 mogrify -format webp -define webp:lossless=true,method=6
+ls *TO.PDF |
+    xargs -P $((NP/3)) -n 3 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format webp -define webp:lossless=true,method=6 
+ls *ALT.PDF |
+    xargs -P $((NP/3)) -n 3 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format webp -define webp:lossless=true,method=6
+
 
 echo Optimizing
 find . -name "*.png" | 
@@ -79,23 +88,28 @@ for REG in ${REGNS}; do
     ../mins.sh ${REG}ALT >> alt.csv
 done
 
-## mkdir minimums
-## mkdir minimums/A
-## mkdir minimums/E
-## mkdir minimums/N
-## mkdir minimums/P
-## mkdir minimums/S
-## mv A*.png minimums/A
-## mv E*.png minimums/E
-## mv N*.png minimums/N
-## mv P*.png minimums/P
-## mv S*.png minimums/S
-## 
-## echo Zipping
-## echo alternates > alternates
-## ls minimums/*png >> alternates
-## zip -r -i "*.png" -1 -T -q alternates.zip alternates minimums
-## 
-## cd ..
-## mv mins/alternates.zip final/
-## echo mins done
+mkdir minimums
+mkdir minimums/A
+mkdir minimums/E
+mkdir minimums/N
+mkdir minimums/P
+mkdir minimums/S
+mv A*.{png,webp} minimums/A
+mv E*.{png,webp} minimums/E
+mv N*.{png,webp} minimums/N
+mv P*.{png,webp} minimums/P
+mv S*.{png,webp} minimums/S
+
+echo Zipping
+for TYPE in png webp; do
+    echo ${CYCLE} > alternates
+    ls minimums/*/*${TYPE} >> alternates
+    zip -9 alternates.zip alternates minimums/*/*${TYPE}
+    
+    [[ -d ../final_${TYPE} ]] || mkdir ../final_${TYPE}
+    mv alternates.zip ../final_${TYPE}/.
+done
+
+cd ..
+mv final_png/alternates.zip final/.
+echo mins done
