@@ -199,8 +199,8 @@ elif [[ $STEP -eq 2 ]]; then
 		done
 	    fi
 	    popd ## Move back into the original directory
-	    [[ -d final_${FORMAT} ]] || mkdir final_${FORMAT}
-	    mv /dev/shm/${STATE}*.zip final_${FORMAT}/.
+	    [[ -d ../final_${FORMAT} ]] || mkdir ../final_${FORMAT}
+	    mv /dev/shm/${STATE}*.zip ../final_${FORMAT}/.
 	done
 	pushd /dev/shm/
 	rm -fr plates ${STATE}
