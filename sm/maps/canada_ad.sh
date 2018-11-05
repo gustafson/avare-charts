@@ -15,6 +15,9 @@
 # The navcan website has two versions, current and next, which update every 56
 # days. Get the next one when preparing charts.
 FILE=CanadianAirportCharts_Next.pdf
+CYCLE=$(./cyclenumber.sh)
+export FILE
+export CYCLE
 
 # This is a big download
 wget -N http://www.navcanada.ca/en/products-and-services/Documents/$FILE
@@ -23,37 +26,63 @@ wget -N http://www.navcanada.ca/en/products-and-services/Documents/$FILE
 
 # Find number of pages in this doc, for our FOR loop
 PAGES=`pdfinfo $FILE  | grep Pages | sed 's/Pages:\s*//'`
-echo Checking $PAGES
+export PAGES
 
-
-# Process all pages
-for i in `seq 1 $PAGES`;
-do
+rm -fr plates/C*
+function generateimages(){
+    i=${0}
+    echo Processing page $i of $PAGES
+    
     # Find the name of the airport, which is prefixed on airport diagram page
     # with -AD, many cases may exist, in which case take the last line
-    AD=`pdftotext -f $i -l $i $FILE - | grep '\-AD' | tail -n 1`
-    #AD=`pdf2txt -p $i $FILE  | grep '\-AD' | tail -n 1`
+    AD=`pdftotext -f ${i} -l ${i} ${FILE} - | grep '\-AD' | tail -n 1`
+    #AD=`pdf2txt -p ${i} ${FILE}  | grep '\-AD' | tail -n 1`
     # If not an AD page, continue to next page
-    if [[ $AD != *"-AD" ]]
-    then
-        continue
+    if [[ ${AD} ]]; then
+	if [[ $AD != *"-AD" ]]; then
+            return
+	fi
+
+	# Find airport name as in CYKD (all 4 digits/letters)
+	IMG=`echo $AD | cut -b 1-4`
+	# If already processed, continue to next
+	# This logic exists to also use English version of the chart as French
+	# follows English
+	if [[ -d plates/$IMG ]]; then
+	    return
+	fi
+	
+	#echo ${i} ${FILE} ${AD}
+
+	## # Avare plates format
+	mkdir -p plates/$IMG
+	# Page - 1 for convert
+	PAGE=`expr ${i} - 1`
+	
+	# Convert to ~1400x800 pixel image
+	convert -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage $FILE[$PAGE] plates/$IMG/AIRPORT-DIAGRAM.png && optipng -quiet plates/$IMG/AIRPORT-DIAGRAM.png
+	convert -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage -format webp -define webp:lossless=true,method=6 $FILE[$PAGE] plates/$IMG/AIRPORT-DIAGRAM.webp
+
     fi
-    # Find airport name as in CYKD (all 4 digits/letters)
-    IMG=`echo $AD | cut -b 1-4`
-    # If already processed, continue to next
-    # This logic exists to also use English version of the chart as French
-    # follows English
-    if [ -d plates/$IMG ]; then
-        continue
-    fi
-    # Avare plates format
-    mkdir -p plates/$IMG
-    # Page - 1 for convert
-    PAGE=`expr $i - 1`
-    # Convert to ~1400x800 pixel image
-    convert -density 150x150 $FILE[$PAGE] plates/$IMG/AIRPORT-DIAGRAM.png
-done
+
+}
+export -f generateimages
+
+# Process all pages
+for i in `seq 1 $PAGES`; do
+    echo $i
+done | xargs -n1 -P16 bash -c generateimages
+
+
+
 
 # Zip up the result
-rm final/CAN_ADS.zip
-zip final/CAN_ADS.zip -r -i*.png plates
+rm -f final/CAN_ADS.zip
+echo ${CYCLE} > CAN_ADS
+ls plates/*png >> CAN_ADS
+zip -9 final/CAN_ADS.zip plates/C???/AIRPORT-DIAGRAM.png CAN_ADS
+
+rm -f final_webp/CAN_ADS.zip
+echo ${CYCLE} > CAN_ADS
+ls plates/*webp >> CAN_ADS
+zip -9 final_webp/CAN_ADS.zip plates/C???/*webp CAN_ADS

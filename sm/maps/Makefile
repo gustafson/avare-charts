@@ -319,7 +319,8 @@ procedures.db:
 	echo This is currently done outside of the avare working directory
 
 canada:
-	./ourairports.sh
+	wget -N http://ourairports.com/data/airports.csv && ./ourairports.pl > ourairports.csv
+	# ./ourairports.sh
 	./canada_ad.sh
 
 qualitycontrol:
