@@ -68,7 +68,6 @@ fi
 [[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
 
 function mygroup(){
-    # echo $1 $2
     corners=`./extract_corners.sh $1`
     ./ziptiles.py $corners $2 meters $3 $4
 }
@@ -92,7 +91,7 @@ function cleanpngbylatlon () {
     ## echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs -n1 -P16 bash -c rmemptypng
     echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs mogrify -format png8
     echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | sed s/png/png8/g | xargs rename png8 png
-    echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs -n1 -P16 optipng
+    echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs -n1 -P16 optipng -quiet
     echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs mogrify -format webp -define webp:lossless=true,method=6:thread-level=16
 }
 
@@ -100,19 +99,19 @@ function cleanwholedirectory () {
     ## find $1 -name "*png" | xargs -n1 -P16 bash -c rmemptypng
     find $1 -name "*png" | xargs mogrify -format png8
     find $1 -name "*png" | sed s/png/png8/g | xargs rename png8 png
-    find $1 -name "*png" | xargs -n1 -P16 optipng
+    find $1 -name "*png" | xargs -n1 -P16 optipng -quiet
 }
 
 function cleanpngbyimage () {
     ## mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c rmemptypng
     mygroup $1 $2 png forclean | xargs mogrify -format png8
     mygroup $1 $2 png forclean | sed s/png/png8/g | xargs rename png8 png
-    mygroup $1 $2 png forclean | xargs -n1 -P16 optipng
+    mygroup $1 $2 png forclean | xargs -n1 -P16 optipng -quiet
     mygroup $1 $2 png forclean | xargs mogrify -format webp -define webp:lossless=true,method=6:thread-level=16
 }
 
 function createjpgfrompng_byimage () {
-    mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c rmemptypng
+    # mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c rmemptypng
     ## mygroup $1 $2 png forclean | xargs mogrify -unsharp 1x1 -format jpg -quality 85
     mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c guetzli_png_to_jpg
 }
@@ -120,6 +119,11 @@ function createjpgfrompng_byimage () {
 function createvfrwebpfrompng_byimage () {
     ## mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c rmemptypng
     mygroup $1 $2 png forclean | xargs mogrify -unsharp 1x1 -format webp -define webp:method=6:thread-level=16 -quality 60
+}
+
+function createifrwebpfrompng_byimage () {
+    ## mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c rmemptypng
+    mygroup $1 $2 png forclean | xargs mogrify -format webp -define webp:method=6:thread-level=16
 }
 
 export -f cleanpngbylatlon
@@ -196,16 +200,25 @@ elif [[ ${PBS_ARRAYID} -eq 1 ]]; then
     wait
 
 elif [[ ${PBS_ARRAYID} -eq 2 ]]; then
+
     for img in `ls merge/wac/*_c.vrt`; do
     	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
 	createjpgfrompng_byimage ${img} wac
 	createvfrwebpfrompng_byimage ${img} wac
+
+	rsync -avP /dev/shm/tiles/2/ tiles/2/ --del
 	echo ${CYCLE} > ${BASE}
 	mygroup ${img} wac jpg forzip >> ${BASE}
-
 	rm -f final/${BASE}.zip
 	tail -n+2 ${BASE} |xargs zip -9 final/${BASE}.zip ${BASE}
+	
+	echo ${CYCLE} > ${BASE}
+	mygroup ${img} wac jpg forzip |sed s/png/webp/ >> ${BASE}
+	rm -f final_webp/${BASE}.zip
+	tail -n+2 ${BASE} |xargs zip -9 final_webp/${BASE}.zip ${BASE}
+	
 	rm ${BASE}
+	
     done
     wait
 
@@ -416,32 +429,36 @@ elif [[ ${PBS_ARRAYID} -eq 9 ]]; then
 
     echo starting heli
     ## Hel
-    for img in `ls merge/hel/*2.vrt|grep -v North|grep -v South|grep -v East|grep -v West|grep -v NewYork_2` merge/hel/*3.vrt; do
+    for img in `ls merge/hel/*2.tif|grep -v North|grep -v South|grep -v East|grep -v West|grep -v NewYork_2` merge/hel/*3.vrt; do
 	IMG=`echo $img | cut -d\/ -f3 | sed 's/.\{6\}$//'`
 	if [[ ${IMG:0:11} == GrandCanyon ]]; then
 	    IMBASE=${IMG:0:11};
 	else
 	    IMBASE=${IMG}Heli
 	fi
-	ZIP=final/${IMBASE}.zip
-	rm -f $ZIP
 	FILE=`find merge/hel/${IMG}*|grep 3`
 
-	echo ${CYCLE} > ${IMBASE}
 	if [[ -f ${FILE} ]]; then
 	    cleanpngbyimage merge/hel/${IMG}*3.vrt heli meters
 	    TMP=`./extract_corners.sh merge/hel/${IMG}*3.vrt`
 	else
-	    cleanpngbyimage merge/hel/${IMG}*2.vrt heli meters
-	    TMP=`./extract_corners.sh merge/hel/${IMG}*2.vrt`
+	    cleanpngbyimage merge/hel/${IMG}*2.tif heli meters
+	    TMP=`./extract_corners.sh merge/hel/${IMG}*2.tif`
 	fi
-	./ziptiles.py ${TMP} heli meters png forzip >> ${IMBASE}
-	tail -n+2 ${IMBASE} | xargs zip -9 $ZIP ${IMBASE}
+
+	for TYPE in png webp; do 
+	    echo ${CYCLE} > ${IMBASE}
+	    ZIP=final_${TYPE}/${IMBASE}.zip
+	    rm -f $ZIP
+	    ./ziptiles.py ${TMP} heli meters png forzip | sed s/.png/.${TYPE}/ >> ${IMBASE}
+	    tail -n+2 ${IMBASE} | xargs zip -9 $ZIP ${IMBASE}
+	done
 	[[ -f ${IMBASE} ]] && rm ${IMBASE}
     done
     wait
     echo done heli
-
+    # paste <(ls final -lh|grep -i Heli|cut -c 23-) <(ls ~/avare/1811/ -lh |grep Heli|cut -c 23-)
+    
 elif [[ ${PBS_ARRAYID} -eq 10 ]]; then
     echo start TPC
     for img in `ls ../tpc/*2.vrt`; do
@@ -452,16 +469,6 @@ elif [[ ${PBS_ARRAYID} -eq 10 ]]; then
     done
     wait
     echo done topo
-
-elif [[ ${PBS_ARRAYID} -eq 98 ]]; then
-    ## Clean up for the database
-    find tiles/0/6 -name "*png" | xargs -n1 -P16 bash -c rmemptypng
-    find tiles/1/7 -name "*png" | xargs -n1 -P16 bash -c rmemptypng
-    find tiles/2/5 -name "*png" | xargs -n1 -P16 bash -c rmemptypng
-    find tiles/3/6 -name "*png" | xargs -n1 -P16 bash -c rmemptypng
-    find tiles/4/5 -name "*png" | xargs -n1 -P16 bash -c rmemptypng
-    find tiles/5/7 -name "*png" | xargs -n1 -P16 bash -c rmemptypng
-    find tiles/6/6 -name "*png" | xargs -n1 -P16 bash -c rmemptypng
 
 elif [[ ${PBS_ARRAYID} -eq 99 ]]; then
     cleanwholedirectory tiles/4/5

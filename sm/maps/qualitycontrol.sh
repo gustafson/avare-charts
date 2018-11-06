@@ -29,10 +29,13 @@
 #
 
 CYCLE=`./cyclenumber.sh`
+MTIME=`./cycledates.sh 28 lastcycle` ## Use to select IFR or not
+
 # pushd static
 pushd final
 
-for a in *zip; do
+## Only these require manifest updates (Includes IFR older than the last cycle conclusion) ## C?-[0-9]*zip 
+for a in Area*zip `find E[LH]US_* ENRA_* -mtime +${MTIME} -type f` AFD*zip; do
     b=`basename $a .zip`; zip -d $a $b #> /dev/null
     echo $b `unzip -l $a |tail -n1` > ${a}.count
     ../zip.py `basename ${a} .zip` ${CYCLE};

@@ -52,10 +52,14 @@ if [[ ${CYCLEDAYS} -eq 56 ]]; then
 elif [[ ${CYCLEDAYS} -eq 28 ]]; then
     SREF=$(( ($TOD-$REF)/86400%28 ))
     SREF=$((28-$SREF))
+    if [[ $2 = lastcycle ]]; then
+	SREF=$(($SREF-28))
+    fi
 else
     echo Length of cycle required as argument \(28 or 56\)
     exit
 fi
+
 
 ## If within 1 day of the prior cycle, choose it instead.
 if [[ $SREF -gt 27 ]]; then
@@ -86,6 +90,12 @@ elif [[ $2 = afd ]]; then
     echo `date -d "$TODAY + $SREF days" +"%Y%^m%d"`
 elif [[ $2 = vfrdl ]]; then 
     echo `date -d "$TODAY + $SREF days" +"%y%m%d"`
+elif [[ $2 = lastcycle ]]; then
+    if [[ ${CYCLEDAYS} -eq 28 ]]; then
+	echo $((TODAY-SREF))
+    else
+	echo 0
+    fi
 else
     echo `date -d "$TODAY + $SREF days" +"%d%^b%Y"`
 fi

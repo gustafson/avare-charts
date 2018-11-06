@@ -170,6 +170,8 @@ def main(argv):
                 ## print (fname)
                 if (os.path.isfile(fname)):
                     print (fname)
+                if (os.path.isfile("/dev/shm/"+fname)):
+                    print ("/dev/shm/"+fname)
 
 
 if __name__ == "__main__":

@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
     out(buffer);
 
     snprintf(buffer, sizeof(buffer),
-	     "gdalwarp -of vrt -r cubicspline -dstnodata '0 0 0' %s %s_1.vrt %s_2.vrt",
+	     "gdalwarp -of gtiff -r cubicspline -dstnodata '0 0 0' %s %s_1.vrt %s_2.tif",
 	     projstr, tmpstr, tmpstr);
     out(buffer);
 		
@@ -122,40 +122,52 @@ int main(int argc, char *argv[])
   // We'll have to deal with the special areas of New York and Boston later
   out("\n\n\n");
 //   snprintf(buffer, sizeof(buffer),
-//   	   "gdalbuildvrt -r cubicspline -resolution highest -srcnodata \"250\" merge/hel/BaltimoreWashington_4.vrt -overwrite merge/hel/Baltimore_3.vrt merge/hel/Washington_3.vrt");
+//   	   "gdalbuildvrt -r near -resolution highest -srcnodata \"250\" merge/hel/BaltimoreWashington_4.vrt -overwrite merge/hel/Baltimore_3.vrt merge/hel/Washington_3.vrt");
 //   out(buffer);
 // 
 //   snprintf(buffer, sizeof(buffer),
-//   	   "gdalbuildvrt -r cubicspline -resolution highest -srcnodata \"250\" merge/hel/Boston_4.vrt -overwrite merge/hel/Boston_3.vrt merge/hel/BostonDowntown_3.vrt");
+//   	   "gdalbuildvrt -r near -resolution highest -srcnodata \"250\" merge/hel/Boston_4.vrt -overwrite merge/hel/Boston_3.vrt merge/hel/BostonDowntown_3.vrt");
 //   out(buffer);
 // 
 //   snprintf(buffer, sizeof(buffer),
-//   	   "gdalbuildvrt -r cubicspline -resolution highest -srcnodata \"250\" merge/hel/Chicago_4.vrt -overwrite merge/hel/Chicago_3.vrt merge/hel/ChicagoOHareInset_3.vrt");
+//   	   "gdalbuildvrt -r near -resolution highest -srcnodata \"250\" merge/hel/Chicago_4.vrt -overwrite merge/hel/Chicago_3.vrt merge/hel/ChicagoOHareInset_3.vrt");
 //   out(buffer);
 // 
 //   // snprintf(buffer, sizeof(buffer),
-//   // 	   "gdalbuildvrt -r cubicspline -resolution highest merge/hel/Houston_4.vrt -overwrite merge/hel/USGulfCoast*3.vrt merge/hel/Houston*3.vrt");
+//   // 	   "gdalbuildvrt -r near -resolution highest merge/hel/Houston_4.vrt -overwrite merge/hel/USGulfCoast*3.vrt merge/hel/Houston*3.vrt");
 //   // out(buffer);
 // 
+
+  out("## Combine the ones that are close to each other that create overlaps in tile structure");
+  out("##   _3.vrt are just for eventual zip");
+  out("##   _4.vrt are just for overview");
   snprintf(buffer, sizeof(buffer),
-	   "gdalbuildvrt -r cubicspline -resolution highest merge/hel/Houston_3.vrt -overwrite merge/hel/Houston*2.vrt");
+	   "gdalbuildvrt -r near -resolution highest merge/hel/Houston_3.vrt -overwrite merge/hel/Houston*2.tif");
   out(buffer);
- 
+
   snprintf(buffer, sizeof(buffer),
-   	   "gdalbuildvrt -r cubicspline -resolution highest -srcnodata \"250\" merge/hel/LosAngeles_3.vrt -overwrite merge/hel/LosAngeles*_2.vrt");
+	   "gdalbuildvrt -r near -resolution highest merge/hel/USGulfHouston_4.vrt -overwrite merge/hel/USGulfCoast_2.tif merge/hel/Houston_3.vrt");
+  out(buffer);
+
+  snprintf(buffer, sizeof(buffer),
+	   "gdalbuildvrt -r near -resolution highest merge/hel/BaltimoreWashington_4.vrt -overwrite merge/hel/Baltimore_2.tif merge/hel/Washington_2.tif");
+  out(buffer);
+
+  snprintf(buffer, sizeof(buffer),
+   	   "gdalbuildvrt -r near -resolution highest -srcnodata \"250\" merge/hel/LosAngeles_3.vrt -overwrite merge/hel/LosAngeles*_2.tif");
   out(buffer);
  
 //  snprintf(buffer, sizeof(buffer),
-//   	   "gdalbuildvrt -r cubicspline -resolution highest -srcnodata \"250\" merge/hel/NewYork_4.vrt -overwrite merge/hel/EasternLongIsland*3.vrt merge/hel/NewYork_3.vrt merge/hel/DowntownManhattan*3.vrt ");
+//   	   "gdalbuildvrt -r near -resolution highest -srcnodata \"250\" merge/hel/NewYork_4.vrt -overwrite merge/hel/EasternLongIsland*3.vrt merge/hel/NewYork_3.vrt merge/hel/DowntownManhattan*3.vrt ");
 //  out(buffer);
 
   snprintf(buffer, sizeof(buffer),
-     	   "gdalbuildvrt -r cubicspline -resolution highest -srcnodata \"250\" merge/hel/NewYork_3.vrt -overwrite merge/hel/EasternLongIsland*2.vrt merge/hel/NewYork_2.vrt");
+     	   "gdalbuildvrt -r near -resolution highest -srcnodata \"250\" merge/hel/NewYork_3.vrt -overwrite merge/hel/EasternLongIsland*2.tif merge/hel/NewYork_2.tif");
   out(buffer);
 
-
+  // File order happens to work out on these
   snprintf(buffer, sizeof(buffer),
-   	   "gdalbuildvrt -r cubicspline -resolution highest -srcnodata \"250\" heli.vrt -overwrite merge/hel/*2.vrt");
+   	   "gdalbuildvrt -r near -resolution highest -srcnodata \"250\" heli.vrt -overwrite merge/hel/*2.tif");
   out(buffer);
   
 

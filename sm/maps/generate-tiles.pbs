@@ -72,11 +72,12 @@ TIME1="/usr/bin/time -v --append -o"
 ARRAY=`echo ${PBS_JOBID} | sed -e s/"\[..\]"/"\[\]"/g -e "s/.cs.wmich.edu//g"`
 
 function myfindwac (){
-    find tiles/2 -name "*png"|
-	while IFS=\/ read tiles type layer lat img; do
+    ## The purpose of this was to pick every other row and column to label with expired
+    find /dev/shm/tiles/2 -name "*png"|
+	while IFS=\/ read start dev shm tiles type layer lat img; do
 	    lon=$(basename $img .png)
-	    if [[ $(($lat % 2)) -eq 0 && $(($lon % 2)) -eq 0 ]]; then
-		echo $tiles/$type/$layer/$lat/$img
+	    if [[ $((($lat + $lon) % 2)) -eq 0 ]]; then
+		echo /$dev/$shm/$tiles/$type/$layer/$lat/$img
 	    fi
 	done
 }
@@ -117,9 +118,16 @@ elif [[ ${PBS_ARRAYID} -eq 1 ]]; then
 
 elif [[ ${PBS_ARRAYID} -eq 2 ]]; then
     rm -f time.wac.txt
-    ${TIME1} time.wac.txt ./gdal2tiles_512_parallel.py -t "VFR World" ${OPTIONS1} -r cubicspline wac.vrt tiles/2
-##    myfindwac | xargs mogrify -gravity center -pointsize 40 -fill white \
-##	      -draw "fill-opacity 0.25 rotate -45 text 0,0 'Discontinued'"
+    ${TIME1} time.wac.txt ./gdal2tiles_512_parallel.py -t "VFR World" ${OPTIONS1} -z 0-9 -r cubicspline wac.vrt /dev/shm/tiles/2
+    
+    ## Remove blank tiles
+    find /dev/shm/tiles/2/ -name "*png" |xargs md5sum > md5sums.txt; cut -f 1 -d" " md5sums.txt|sort |uniq -c|sort -n
+    grep -e 2416022fedd35f66c3f4272284f0eb71 -e 408f9a687171af1e975e3d9ebc292caa -e 8fc543693de4de3fa5b1e6c353376610 -e 7ee0240fba70752122eb8585edb525ea md5sums.txt|cut -f3 -d" "|xargs rm
+    find /dev/shm/tiles/2/ -name "*aux.xml"| xargs rm
+    
+    ## Mark every other row and column as expired in a checkerboard pattern
+    myfindwac | xargs -n 1 -P ${NP} mogrify -gravity center -pointsize 40 -fill white \
+		      -draw "fill-opacity 0.20 rotate -45 text 0,0 'Expired'" -stroke red -strokewidth 1 
     
 elif [[ ${PBS_ARRAYID} -eq 3 ]]; then
     rm -f time.ifr.txt
@@ -163,9 +171,36 @@ elif [[ ${PBS_ARRAYID} -eq 5 ]]; then
     
 elif [[ ${PBS_ARRAYID} -eq 9 ]]; then
     rm -f time.heli.txt
+    ## The images are sparse, only create those that are necessary
+    for vrt in `ls merge/hel/*tif | grep -vi -e houston -e losangeles -e EasternLongIsland -e newyork -e USGulfCoast -e Baltimore -e Washington` merge/hel/*3.vrt; do
+	${TIME1} time.ifa.txt ./gdal2tiles_512_parallel.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 8-12 ${vrt} /dev/shm/tiles/9
+    done
     ## Heli only on change
-    ${TIME1} time.heli.txt ./gdal2tiles_512_parallel.py -t "Helicoptor Route Chart" ${OPTIONS1} -r cubicspline heli.vrt tiles/9   
+    ${TIME1} time.heli.txt ./gdal2tiles_512_parallel.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 0-7 heli.vrt /dev/shm/tiles/9   
 
+    find /dev/shm/tiles/9 -name "*png"|xargs md5sum|grep -e a6b0c59ea29fac3637be5b57f5d79130 -e 7ee0240fba70752122eb8585edb525ea -e a5bb30ccd3d4935e77a91bc8aa38319f |cut -f3 -d" "|xargs rm
+    rsync -avP --del --exclude=*.xml /dev/shm/tiles/9/ tiles/9/
+    rm -fr /dev/shm/tiles/9
+    
+    ## find . -name "*png"|cut -f3- -d/|sort > sorted.txt
+    ## find . -name "*png"|cut -f3- -d/|sort -u > uniq.txt 
+    ## diff sorted.txt uniq.txt > difference.txt
+    ## grep png difference.txt |cut -c3-|sort -u > files.txt
+    ## find . -name "*png" |grep -f files.txt |rev|sort|rev
+    ## 
+    ## ./EasternLongIsland_2.tif/12/1210/2559.png
+    ## ./NewYork_2.tif/12/1210/2559.png
+    ## 
+    ## ./HoustonSouth_2.tif/12/960/2399.png
+    ## ./USGulfCoast_2.tif/12/960/2399.png
+    ## 
+    ## ./Baltimore_2.tif/12/1169/2529.png
+    ## ./Washington_2.tif/12/1169/2529.png
+    ## 
+    ## ./LosAngelesEast_2.tif/12/704/2459.png
+    ## ./LosAngelesWest_2.tif/12/704/2459.png
+
+    
 elif [[ ${PBS_ARRAYID} -eq 199 ]]; then
     ${TIME1} time.debug.txt ./gdal2tiles_512_parallel.py -t "DEBUG" ${OPTIONS1} -r lanczos plates.archive/1701/plates_MI/AZO/RNAV-GPS-RWY-17.pdf tiles/debug
     ## gdal_translate --config GDAL_PDF_DPI 150 -of Rasterlite RNAV-GPS-RWY-17.pdf RASTERLITE:my_db.sqlite,table=source -co DRIVER=WEBP
