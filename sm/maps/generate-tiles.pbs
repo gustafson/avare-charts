@@ -128,6 +128,9 @@ elif [[ ${PBS_ARRAYID} -eq 2 ]]; then
     ## Mark every other row and column as expired in a checkerboard pattern
     myfindwac | xargs -n 1 -P ${NP} mogrify -gravity center -pointsize 40 -fill white \
 		      -draw "fill-opacity 0.20 rotate -45 text 0,0 'Expired'" -stroke red -strokewidth 1 
+
+    rsync -avP /dev/shm/tiles/2/ tiles/2/ --del
+    rm -fr /dev/shm/tiles/2
     
 elif [[ ${PBS_ARRAYID} -eq 3 ]]; then
     rm -f time.ifr.txt

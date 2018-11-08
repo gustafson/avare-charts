@@ -32,6 +32,7 @@
 NP=16
 
 CYCLE=`./cycledates.sh 56`
+CYCLENUMBER=`./cyclenumber.sh`
 
 [[ -d afd ]] && rm -fr afd
 mkdir afd
@@ -42,9 +43,9 @@ perl tmp_dlafd.pl || exit
 ## DPI=240.9  #Android limited plates size 2400x
 DPI=225
 
-## Convert to png
+## ## Convert to png
 find afd -name "*.pdf" | 
-xargs -P ${NP} -n 1 mogrify -dither none -antialias -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png 
+xargs -P ${NP} -n 1 mogrify -trim +repage -dither none -antialias -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png 
 wait
 
 ## Optimize the png for file size and rendering
@@ -52,22 +53,23 @@ find afd -name "*.png" |
 xargs -P ${NP} -n 1 optipng -quiet
 wait
 
-##
+find afd -name "*.pdf" | 
+xargs -P ${NP} -n 1 mogrify -trim +repage -dither none -antialias -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format webp -define webp:lossless=true,method=6
+wait
 
-for a in NE NC NW SE SC SW EC AK PAC; do
-    if [[ -f final/AFD_${a}.zip ]]; then
-	rm final/AFD_${a}.zip; 
-    fi 
+
+
+## Zip the files
+for file in NE NC NW SE SC SW EC AK PAC; do
+    rm -f final/AFD_${file}.zip
+    echo $CYCLENUMBER > AFD_${file}
+    ls afd/*${file,,}*.png >> AFD_${file};
+    zip -9 final/AFD_${file}.zip afd/*${file,,}*.png AFD_${file}
+
+    rm -f final_webp/AFD_${file}.zip
+    echo $CYCLENUMBER > AFD_${file}
+    ls afd/*${file,,}*.webp >> AFD_${file};
+    zip -9 final_webp/AFD_${file}.zip afd/*${file,,}*.webp AFD_${file}
 done
-
-zip -r -i \*ne\*\*.png -9 -T -q final/AFD_NE.zip afd
-zip -r -i \*nc\*\*.png -9 -T -q final/AFD_NC.zip afd
-zip -r -i \*nw\*\*.png -9 -T -q final/AFD_NW.zip afd
-zip -r -i \*se\*\*.png -9 -T -q final/AFD_SE.zip afd
-zip -r -i \*sc\*\*.png -9 -T -q final/AFD_SC.zip afd
-zip -r -i \*sw\*\*.png -9 -T -q final/AFD_SW.zip afd
-zip -r -i \*ec\*\*.png -9 -T -q final/AFD_EC.zip afd
-zip -r -i \*ak\*\*.png -9 -T -q final/AFD_AK.zip afd
-zip -r -i \*pac\*\*.png -9 -T -q final/AFD_PAC.zip afd
 
 # rm -rf afd

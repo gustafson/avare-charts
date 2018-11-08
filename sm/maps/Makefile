@@ -258,16 +258,14 @@ temp:
 zipdatabase:
 	echo "Zipping cycle " $(CYCLE)
 	rm -f main.db
-	rm -f final/databases.zip
 	sqlite3 main.db < importother.sql
 	sqlite3 main.db "VACUUM;"
-	sqlite3 tiles.db "VACUUM;"
-	cp ~/CIFP/procedures.db .
 	sqlite3 procedures.db "VACUUM;"
 	rm obs.db; sqlite3 main.db ".dump obs" | sqlite3 obs.db
 	sqlite3 main.db "drop table obs; vacuum;"
 	sqlite3 obs.db "vacuum;"
-	zip -9 -r final/databases.zip procedures.db main.db obs.db
+	rm -f final/databases.zip
+	zip -9 final/databases.zip procedures.db main.db obs.db
 	zip -9 final/databases.zip `find tiles/0/6 -name "*jpg"`
 	zip -9 final/databases.zip `find tiles/1/7 -name "*jpg"`
 	zip -9 final/databases.zip `find tiles/2/5 -name "*jpg"` 
@@ -285,6 +283,20 @@ endif
 	## zip -9 final/databases.zip `find tiles/8/7 -name "*jpg"` ## Canada large and not wanted in US
 	## zip -9 final/databases.zip `find tiles/9/8 -name "*png"` ## Heli very large with gulf coast
 	pushd final; ../zip.py databases $(CYCLE); popd
+	##
+	rm -f final_webp/databases.zip
+	zip -9 final_webp/databases.zip procedures.db main.db obs.db
+	zip -9 final_webp/databases.zip `find tiles/0/6 -name "*webp"`
+	zip -9 final_webp/databases.zip `find tiles/1/7 -name "*webp"`
+	zip -9 final_webp/databases.zip `find tiles/2/5 -name "*webp"` 
+	zip -9 final_webp/databases.zip `find tiles/3/6 -name "*png"`
+	zip -9 final_webp/databases.zip `find tiles/4/5 -name "*png"` ## This should be tiles/4/5 but Z doesn't appear to use it
+	zip -9 final_webp/databases.zip `find tiles/5/7 -name "*png"`
+	zip -9 final_webp/databases.zip `find tiles/6/6 -name "*png"`
+	zip -9 final_webp/databases.zip `find tiles/7/5 -name "*webp"` 
+	## zip -9 final_webp/databases.zip `find tiles/8/7 -name "*webp"` ## Canada large and not wanted in US
+	## zip -9 final_webp/databases.zip `find tiles/9/8 -name "*png"` ## Heli very large with gulf coast
+	pushd final_webp; ../zip.py databases $(CYCLE); popd
 
 zipdatabase256:
 	echo "Zipping cycle " $(CYCLE)

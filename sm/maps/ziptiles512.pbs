@@ -191,34 +191,57 @@ elif [[ ${PBS_ARRAYID} -eq 1 ]]; then
 	    tail -n+2 |xargs zip -9 final/${BASE}.zip ${BASE}
 
 	echo ${CYCLE} > ${BASE}
-	mygroup ${img} tac webp forzip >> ${BASE}_webp
+	mygroup ${img} tac webp forzip >> ${BASE}
 	sort -u ${BASE}|
 	    tail -n+2 |xargs zip -9 final_webp/${BASE}.zip ${BASE}
-
 	rm ${BASE}
     done
     wait
 
 elif [[ ${PBS_ARRAYID} -eq 2 ]]; then
 
-    for img in `ls merge/wac/*_c.vrt`; do
-    	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
-	createjpgfrompng_byimage ${img} wac
-	createvfrwebpfrompng_byimage ${img} wac
+    images=`ls merge/wac/*_c.vrt`
+    ## Convert the files
+    for img in "${images}"; do
+    	createjpgfrompng_byimage ${BASE} wac
+    	createvfrwebpfrompng_byimage ${BASE} wac
+    done    
 
-	rsync -avP /dev/shm/tiles/2/ tiles/2/ --del
-	echo ${CYCLE} > ${BASE}
-	mygroup ${img} wac jpg forzip >> ${BASE}
-	rm -f final/${BASE}.zip
-	tail -n+2 ${BASE} |xargs zip -9 final/${BASE}.zip ${BASE}
-	
-	echo ${CYCLE} > ${BASE}
-	mygroup ${img} wac jpg forzip |sed s/png/webp/ >> ${BASE}
+    ## JPG FILES
+    ## Remove old zips
+    for img in ${images}; do
+    	BASE=`echo $img | sed -e s.merge/wac/..g -e s/_c.vrt//g|sed -e s/..C/C/g`
+    	rm -f final/${BASE}.zip
+    	rm -f ${BASE}
+    done
+    
+    ## This is done is a separate step to ensure CH-22 (which has to
+    ## parts) is completely pulled
+    for img in ${images}; do
+    	BASE=`echo $img | sed -e s.merge/wac/..g -e s/_c.vrt//g|sed -e s/..C/C/g`
+    	[[ -f ${BASE} ]] || echo ${CYCLE} > ${BASE}
+    	mygroup ${img} wac jpg forzip >> ${BASE}
+    	tail -n+2 ${BASE} |xargs zip -u -9 final/${BASE}.zip ${BASE}	
+    done
+    
+    ## WEBP FILES
+    ## Remove old zips
+    for img in ${images}; do
+	BASE=`echo $img | sed -e s.merge/wac/..g -e s/_c.vrt//g|sed -e s/..C/C/g`
 	rm -f final_webp/${BASE}.zip
-	tail -n+2 ${BASE} |xargs zip -9 final_webp/${BASE}.zip ${BASE}
-	
-	rm ${BASE}
-	
+	rm -f ${BASE}
+    done
+
+    for img in ${images}; do
+	BASE=`echo $img | sed -e s.merge/wac/..g -e s/_c.vrt//g|sed -e s/..C/C/g`
+	[[ -f ${BASE} ]] || echo ${CYCLE} > ${BASE}
+	mygroup ${img} wac webp forzip >> ${BASE}
+	tail -n+2 ${BASE} |xargs zip -u -9 final_webp/${BASE}.zip ${BASE}
+    done
+
+    for img in ${images}; do
+	BASE=`echo $img | sed -e s.merge/wac/..g -e s/_c.vrt//g|sed -e s/..C/C/g`
+	rm -f ${BASE}
     done
     wait
 
