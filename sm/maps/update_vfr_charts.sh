@@ -28,7 +28,7 @@
 #
 
 CYCLE=$(./cyclenumber.sh)
-VFRFILE=$(./cycledates.sh 56 vfrdl)
+VFRFILE=$(./cycledates.sh 28 vfrdl)
 echo ${VFRFILE}
 function rmtif {
     rm *tif

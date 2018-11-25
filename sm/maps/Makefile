@@ -142,7 +142,7 @@ download-plates:
 
 download-cifp: 
 	pushd CIFP && wget -c http://aeronav.faa.gov/Upload_313-d/cifp/cifp_$(CYCLECIFP).zip
-	pushd CIFP && unzip cifp_$(CYCLECIFP).zip && rm procedures.db
+	pushd CIFP && unzip cifp_$(CYCLECIFP).zip && rm -f procedures.db
 	pushd CIFP && make procedures.db && mv procedures.db ..
 
 download-afd:

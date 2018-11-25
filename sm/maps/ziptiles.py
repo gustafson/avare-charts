@@ -156,7 +156,8 @@ def main(argv):
         sys.exit()
 
     ## print "debug: " + ftype + "maxzoom" + str(maxzoom) + "minzoom" + str(minzoom)
-    for zoom in range (minzoom,maxzoom):
+    ## for zoom in range (minzoom,maxzoom):
+    for zoom in range (0,maxzoom):
         p1 = MetersToPixels(m1, zoom)
         t1 = PixelsToTile(p1)
         p2 = MetersToPixels(m2, zoom)

@@ -72,4 +72,4 @@ for file in NE NC NW SE SC SW EC AK PAC; do
     zip -9 final_webp/AFD_${file}.zip afd/*${file,,}*.webp AFD_${file}
 done
 
-# rm -rf afd
+rm -rf afd

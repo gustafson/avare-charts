@@ -107,13 +107,13 @@ if [[ ${PBS_ARRAYID} -eq 0 ]]; then
     rm -f time.sec.txt
     ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 -r cubicspline sec-west.vrt /dev/shm/tiles/0
     ${TIME1} time.sec.txt ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 -r cubicspline sec-east.vrt /dev/shm/tiles/0
-    rsync -avP --exclude=*.xml /dev/shm/tiles/0/ tiles/0/
+    rsync -avP /dev/shm/tiles/0/ tiles/0/ # --exclude=*.xml 
     rm -fr /dev/shm/tiles/0
     
 elif [[ ${PBS_ARRAYID} -eq 1 ]]; then
     rm -f time.wac.txt
     ${TIME1} time.tac.txt ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-11 -r cubicspline tac.vrt /dev/shm/tiles/1
-    rsync -avP --exclude=*.xml /dev/shm/tiles/1/ tiles/1/
+    rsync -avP /dev/shm/tiles/1/ tiles/1/ # --exclude=*.xml
     rm -fr /dev/shm/tiles/1
 
 elif [[ ${PBS_ARRAYID} -eq 2 ]]; then

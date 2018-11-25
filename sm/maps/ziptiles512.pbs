@@ -82,8 +82,11 @@ export -f rmemptypng
 
 function guetzli_png_to_jpg(){
     bname=`dirname $0`/`basename $0 .png`
-    convert -unsharp 1x1 -background white -alpha off ${bname}.png ${bname}_sharp.png
-    guetzli --quality 85 ${bname}_sharp.png ${bname}.jpg && rm ${bname}_sharp.png
+    ## convert -unsharp 1x1 -background white -alpha off ${bname}.png ${bname}_sharp.png
+    ## guetzli --quality 85 ${bname}_sharp.png ${bname}.jpg && rm ${bname}_sharp.png
+
+    convert -unsharp 1x1 -background white -alpha off ${bname}.png ppm:- |
+	cjpeg -quality 85 > ${bname}.jpg 
 }
 export -f guetzli_png_to_jpg
 
@@ -426,15 +429,27 @@ elif [[ ${PBS_ARRAYID} -eq 6 ]]; then
 elif [[ ${PBS_ARRAYID} -eq 7 ]]; then
     
     ## echo starting relief
-    rm -f static/REL_AK.zip; zip -9 --quiet static/REL_AK.zip $(./ziptiles.py -179.90  75.0 -128.45 50.50 rel latlon forzip) &
-    rm -f static/REL_HI.zip; zip -9 --quiet static/REL_HI.zip $(./ziptiles.py -165.00  25.0 -150.00 15.00 rel latlon forzip) &
-    rm -f static/REL_PR.zip; zip -9 --quiet static/REL_PR.zip $(./ziptiles.py  -68.00  19.5  -64.00 17.00 rel latlon forzip) &
-    rm -f static/REL_NE.zip; zip -9 --quiet static/REL_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 rel latlon forzip) &
-    rm -f static/REL_NC.zip; zip -9 --quiet static/REL_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 rel latlon forzip) &
-    rm -f static/REL_NW.zip; zip -9 --quiet static/REL_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 rel latlon forzip) &
-    rm -f static/REL_SE.zip; zip -9 --quiet static/REL_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 rel latlon forzip) &
-    rm -f static/REL_SC.zip; zip -9 --quiet static/REL_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 rel latlon forzip) &
-    rm -f static/REL_SW.zip; zip -9 --quiet static/REL_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 rel latlon forzip) &
+    ## png
+    rm -f static/REL_AK.zip; zip -9 --quiet static/REL_AK.zip $(./ziptiles.py -179.90  75.0 -128.45 50.50 rel latlon jpg forzip) &
+    rm -f static/REL_HI.zip; zip -9 --quiet static/REL_HI.zip $(./ziptiles.py -165.00  25.0 -150.00 15.00 rel latlon jpg forzip) &
+    rm -f static/REL_PR.zip; zip -9 --quiet static/REL_PR.zip $(./ziptiles.py  -68.00  19.5  -64.00 17.00 rel latlon jpg forzip) &
+    rm -f static/REL_NE.zip; zip -9 --quiet static/REL_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 rel latlon jpg forzip) &
+    rm -f static/REL_NC.zip; zip -9 --quiet static/REL_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 rel latlon jpg forzip) &
+    rm -f static/REL_NW.zip; zip -9 --quiet static/REL_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 rel latlon jpg forzip) &
+    rm -f static/REL_SE.zip; zip -9 --quiet static/REL_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 rel latlon jpg forzip) &
+    rm -f static/REL_SC.zip; zip -9 --quiet static/REL_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 rel latlon jpg forzip) &
+    rm -f static/REL_SW.zip; zip -9 --quiet static/REL_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 rel latlon jpg forzip) &
+    wait
+
+    rm -f static_webp/REL_AK.zip; zip -9 --quiet static_webp/REL_AK.zip $(./ziptiles.py -179.90  75.0 -128.45 50.50 rel latlon webp forzip) &
+    rm -f static_webp/REL_HI.zip; zip -9 --quiet static_webp/REL_HI.zip $(./ziptiles.py -165.00  25.0 -150.00 15.00 rel latlon webp forzip) &
+    rm -f static_webp/REL_PR.zip; zip -9 --quiet static_webp/REL_PR.zip $(./ziptiles.py  -68.00  19.5  -64.00 17.00 rel latlon webp forzip) &
+    rm -f static_webp/REL_NE.zip; zip -9 --quiet static_webp/REL_NE.zip $(./ziptiles.py  -85.00 50.15  -40.00 38.00 rel latlon webp forzip) &
+    rm -f static_webp/REL_NC.zip; zip -9 --quiet static_webp/REL_NC.zip $(./ziptiles.py -110.00 50.15  -85.00 38.00 rel latlon webp forzip) &
+    rm -f static_webp/REL_NW.zip; zip -9 --quiet static_webp/REL_NW.zip $(./ziptiles.py -131.21 50.15 -110.00 38.00 rel latlon webp forzip) &
+    rm -f static_webp/REL_SE.zip; zip -9 --quiet static_webp/REL_SE.zip $(./ziptiles.py  -85.00 38.00  -40.00 23.13 rel latlon webp forzip) &
+    rm -f static_webp/REL_SC.zip; zip -9 --quiet static_webp/REL_SC.zip $(./ziptiles.py -110.00 38.00  -85.00 23.13 rel latlon webp forzip) &
+    rm -f static_webp/REL_SW.zip; zip -9 --quiet static_webp/REL_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 rel latlon webp forzip) &
     wait
 
 elif [[ ${PBS_ARRAYID} -eq 8 ]]; then

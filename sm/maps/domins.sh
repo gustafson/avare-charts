@@ -48,8 +48,8 @@ rm -rf minimums
 
 echo Downloading TO and ALT mins
 for REG in ${REGNS}; do
-    cp -l ../plates/DDTPP/1812/${REG}TO.PDF .
-    cp -l ../plates/DDTPP/1812/${REG}ALT.PDF .
+    cp -l ../plates/DDTPP/${CYCLE}/${REG}TO.PDF .
+    cp -l ../plates/DDTPP/${CYCLE}/${REG}ALT.PDF .
 done
 
 for REG in ${REGNS}; do
