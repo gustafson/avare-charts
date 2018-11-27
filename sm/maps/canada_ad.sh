@@ -12,6 +12,8 @@
 
 # author zkhan
 
+NP=`cat /proc/cpuinfo |grep processor|wc -l`
+
 # The navcan website has two versions, current and next, which update every 56
 # days. Get the next one when preparing charts.
 FILE=CanadianAirportCharts_Next.pdf
@@ -51,17 +53,16 @@ function generateimages(){
 	if [[ -d plates/$IMG ]]; then
 	    return
 	fi
-	
-	#echo ${i} ${FILE} ${AD}
 
 	## # Avare plates format
 	mkdir -p plates/$IMG
 	# Page - 1 for convert
 	PAGE=`expr ${i} - 1`
+	echo ${i} ${FILE} ${AD} ${PAGE} $FILE[$PAGE]
 	
 	# Convert to ~1400x800 pixel image
-	convert -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage $FILE[$PAGE] plates/$IMG/AIRPORT-DIAGRAM.png && optipng -quiet plates/$IMG/AIRPORT-DIAGRAM.png
-	convert -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage -format webp -define webp:lossless=true,method=6 $FILE[$PAGE] plates/$IMG/AIRPORT-DIAGRAM.webp
+	convert $FILE[$PAGE] -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage plates/$IMG/AIRPORT-DIAGRAM.png && optipng -quiet plates/$IMG/AIRPORT-DIAGRAM.png
+	convert $FILE[$PAGE] -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage -format webp -define webp:lossless=true,method=6 plates/$IMG/AIRPORT-DIAGRAM.webp
 
     fi
 
@@ -71,7 +72,7 @@ export -f generateimages
 # Process all pages
 for i in `seq 1 $PAGES`; do
     echo $i
-done | xargs -n1 -P16 bash -c generateimages
+done | xargs -n1 -P${NP} bash -c generateimages
 
 
 

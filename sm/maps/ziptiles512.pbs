@@ -465,24 +465,34 @@ elif [[ ${PBS_ARRAYID} -eq 8 ]]; then
 
 elif [[ ${PBS_ARRAYID} -eq 9 ]]; then
 
+    HELI="
+    charts/hel/Baltimore.tif
+    charts/hel/Boston.tif
+    charts/hel/Chicago.tif
+    charts/hel/Dallas-FtWorth.tif
+    charts/hel/Detroit.tif
+    charts/hel/GrandCanyonGeneralAviation.tif
+    charts/hel/USGulfCoast.tif
+    charts/hel/Washington.tif
+    charts/hel/Houston.vrt
+    charts/hel/LosAngeles.vrt
+    charts/hel/NewYork.vrt
+    charts/hel/Houston.vrt
+    "
+
     echo starting heli
-    ## Hel
-    for img in `ls merge/hel/*2.tif|grep -v North|grep -v South|grep -v East|grep -v West|grep -v NewYork_2` merge/hel/*3.vrt; do
-	IMG=`echo $img | cut -d\/ -f3 | sed 's/.\{6\}$//'`
+    for FILE in ${HELI}; do
+	IMG=`basename ${FILE} .tif`
+	IMG=`basename ${IMG} .vrt`
+	# IMG=`echo $FILE | cut -d\/ -f3 | sed 's/.\{6\}$//'`
 	if [[ ${IMG:0:11} == GrandCanyon ]]; then
 	    IMBASE=${IMG:0:11};
 	else
 	    IMBASE=${IMG}Heli
 	fi
-	FILE=`find merge/hel/${IMG}*|grep 3`
 
-	if [[ -f ${FILE} ]]; then
-	    cleanpngbyimage merge/hel/${IMG}*3.vrt heli meters
-	    TMP=`./extract_corners.sh merge/hel/${IMG}*3.vrt`
-	else
-	    cleanpngbyimage merge/hel/${IMG}*2.tif heli meters
-	    TMP=`./extract_corners.sh merge/hel/${IMG}*2.tif`
-	fi
+	cleanpngbyimage ${FILE} heli meters
+	TMP=`./extract_corners.sh ${FILE}`
 
 	for TYPE in png webp; do 
 	    echo ${CYCLE} > ${IMBASE}
@@ -495,7 +505,6 @@ elif [[ ${PBS_ARRAYID} -eq 9 ]]; then
     done
     wait
     echo done heli
-    # paste <(ls final -lh|grep -i Heli|cut -c 23-) <(ls ~/avare/1811/ -lh |grep Heli|cut -c 23-)
     
 elif [[ ${PBS_ARRAYID} -eq 10 ]]; then
     echo start TPC

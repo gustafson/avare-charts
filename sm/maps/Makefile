@@ -237,9 +237,10 @@ stage-vfr-sec: charts/sec/*tif charts/tac/*tif #charts/wac/*tif
 	gcc -march=native -O3 -Wall stage-vfr-heli.c -o stage-vfr-heli
 	gcc -march=native -O3 -Wall stage-vfr-sec.c -o stage-vfr-sec
 	gcc -march=native -O3 -Wall stage-vfr-tac.c -o stage-vfr-tac
-	./stage-vfr-heli
-	./stage-vfr-sec
-	./stage-vfr-tac
+	# ./stage-vfr-heli
+	$(MAKE) -C charts/hel
+	#./stage-vfr-sec
+	#./stage-vfr-tac
 
 ziptiles:
 	## ./ziptiles.sh
@@ -265,37 +266,28 @@ zipdatabase:
 	sqlite3 main.db "drop table obs; vacuum;"
 	sqlite3 obs.db "vacuum;"
 	rm -f final/databases.zip
+	## As of 11/25/2018 the below SHOULD be simplified for vfr and fixed for ifr but has not yet been changed.  The intent is to distrubute all layers to 0, which are now created/cleaned in ziptiles but not selected here.  This transition would best be done during an ifr cycle so that all are created.  I believe there needs to be an accompanying change in the app zoom out code
 	zip -9 final/databases.zip procedures.db main.db obs.db
+	zip -9 final/databases.zip `find tiles/[0127]/[0-5] -name "*jpg"` 
+	zip -9 final/databases.zip `find tiles/[3456]/[0-5] -name "*png"`
 	zip -9 final/databases.zip `find tiles/0/6 -name "*jpg"`
-	zip -9 final/databases.zip `find tiles/1/7 -name "*jpg"`
-	zip -9 final/databases.zip `find tiles/2/5 -name "*jpg"` 
-ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
-	find tiles/3/6 -name "*png" |xargs -n8 optipng
-	find tiles/4/5 -name "*png" |xargs -n8 optipng ## This should be tiles/4/5 but Z doesn't appear to use it
-	find tiles/5/7 -name "*png" |xargs -n8 optipng
-endif
-	find tiles/6/6 -name "*png" |xargs -n8 optipng
+	zip -9 final/databases.zip `find tiles/1/[67] -name "*jpg"`
 	zip -9 final/databases.zip `find tiles/3/6 -name "*png"`
-	zip -9 final/databases.zip `find tiles/4/5 -name "*png"` ## This should be tiles/4/5 but Z doesn't appear to use it
-	zip -9 final/databases.zip `find tiles/5/7 -name "*png"`
-	zip -9 final/databases.zip `find tiles/6/6 -name "*png"`
-	zip -9 final/databases.zip `find tiles/7/5 -name "*jpg"` 
-	## zip -9 final/databases.zip `find tiles/8/7 -name "*jpg"` ## Canada large and not wanted in US
-	## zip -9 final/databases.zip `find tiles/9/8 -name "*png"` ## Heli very large with gulf coast
+	zip -9 final/databases.zip `find tiles/5/[67] -name "*png"`
+	zip -9 final/databases.zip `find tiles/6/6 -name "*png"` ## Elevation tiles have not been updated to include lower layers
+	## Canada (7) and Heli (8) large and not for general distribution
 	pushd final; ../zip.py databases $(CYCLE); popd
 	##
 	rm -f final_webp/databases.zip
+	zip -9 final_webp/databases.zip `find tiles/[0127]/[0-5] -name "*webp"` 
+	zip -9 final_webp/databases.zip `find tiles/[3456]/[0-5] -name "*png"` 
 	zip -9 final_webp/databases.zip procedures.db main.db obs.db
 	zip -9 final_webp/databases.zip `find tiles/0/6 -name "*webp"`
-	zip -9 final_webp/databases.zip `find tiles/1/7 -name "*webp"`
-	zip -9 final_webp/databases.zip `find tiles/2/5 -name "*webp"` 
+	zip -9 final_webp/databases.zip `find tiles/1/[67] -name "*webp"`
 	zip -9 final_webp/databases.zip `find tiles/3/6 -name "*png"`
-	zip -9 final_webp/databases.zip `find tiles/4/5 -name "*png"` ## This should be tiles/4/5 but Z doesn't appear to use it
-	zip -9 final_webp/databases.zip `find tiles/5/7 -name "*png"`
+	zip -9 final_webp/databases.zip `find tiles/5/[67] -name "*png"`
 	zip -9 final_webp/databases.zip `find tiles/6/6 -name "*png"`
-	zip -9 final_webp/databases.zip `find tiles/7/5 -name "*webp"` 
-	## zip -9 final_webp/databases.zip `find tiles/8/7 -name "*webp"` ## Canada large and not wanted in US
-	## zip -9 final_webp/databases.zip `find tiles/9/8 -name "*png"` ## Heli very large with gulf coast
+	## Canada (7) and Heli (8) large and not for general distribution
 	pushd final_webp; ../zip.py databases $(CYCLE); popd
 
 zipdatabase256:
@@ -304,10 +296,9 @@ zipdatabase256:
 	rm -f final/256/databases.zip
 	sqlite3 main.db < importother.sql
 	sqlite3 main.db "VACUUM;"
-	sqlite3 tiles.db "VACUUM;"
 	cp ~/CIFP/procedures.db .
 	sqlite3 procedures.db "VACUUM;"
-	zip -9 -r final/256/databases.zip procedures.db main.db tiles.db
+	zip -9 -r final/256/databases.zip procedures.db main.db
 	zip -9 final/256/databases.zip `find tiles/0/7 -name "*jpg"`
 	zip -9 final/256/databases.zip `find tiles/1/8 -name "*jpg"`
 	zip -9 final/256/databases.zip `find tiles/2/6 -name "*jpg"`

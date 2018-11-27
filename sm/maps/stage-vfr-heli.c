@@ -97,21 +97,21 @@ int main(int argc, char *argv[])
 	     "gdalwarp -of gtiff -r cubicspline -dstnodata '0 0 0' %s %s_1.vrt %s_2.tif",
 	     projstr, tmpstr, tmpstr);
     out(buffer);
-		
-//    if (!strncmp(maps[map].name,"ChicagoOHareInset",15) ||
-//	!strncmp(maps[map].name,"Houston",6) ||
-//	!strncmp(maps[map].name,"BostonDowntown",15) ||
-//	!strncmp(maps[map].name,"DowntownManhattan",15)){
-//      snprintf(buffer, sizeof(buffer), "mv %s_2.vrt %s_3.vrt", tmpstr, tmpstr);
-//	       
-//    } else {
-//      snprintf(buffer, sizeof(buffer),
-//	       "gdal_translate -of vrt -r cubicspline -q -projwin_srs WGS84 -projwin %f %f %f %f  %s_2.vrt %s_3.vrt",
-//	       maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd, tmpstr, tmpstr);
-//    }      
-//    out(buffer);
+    
+    if (!strncmp(maps[map].name,"ChicagoOHareInset",15) ||
+	!strncmp(maps[map].name,"Houston",6) ||
+	!strncmp(maps[map].name,"BostonDowntown",15) ||
+	!strncmp(maps[map].name,"DowntownManhattan",15)){
+      snprintf(buffer, sizeof(buffer), "mv %s_2.vrt %s_3.vrt", tmpstr, tmpstr);
+      
+    } else {
+      snprintf(buffer, sizeof(buffer),
+	       "gdal_translate -of vrt -r cubicspline -q -projwin_srs WGS84 -projwin %f %f %f %f  %s_2.vrt %s_3.vrt",
+	       maps[map].lonl, maps[map].latu, maps[map].lonr, maps[map].latd, tmpstr, tmpstr);
+    }      
+    out(buffer);
   }
-
+  
 
 //   snprintf(buffer, sizeof(buffer),
 //   	   "rename _3 _4 `ls merge/hel/*_3.vrt|grep -vi \"Baltimore\\|Boston\\|Chicago\\|York\\|LosAngeles\\|DowntownManhattan\\|EasternLongIsland\\|Houston\\|USGulf\\|Washington\\|inset\\|downtown\"`");
@@ -139,14 +139,15 @@ int main(int argc, char *argv[])
 // 
 
   out("## Combine the ones that are close to each other that create overlaps in tile structure");
+  out("##   _2.vrt are intermediate");
   out("##   _3.vrt are just for eventual zip");
   out("##   _4.vrt are just for overview");
   snprintf(buffer, sizeof(buffer),
-	   "gdalbuildvrt -r near -resolution highest merge/hel/Houston_3.vrt -overwrite merge/hel/Houston*2.tif");
+	   "gdalbuildvrt -r near -resolution highest merge/hel/Houston_2.vrt -overwrite merge/hel/Houston*2.tif");
   out(buffer);
 
   snprintf(buffer, sizeof(buffer),
-	   "gdalbuildvrt -r near -resolution highest merge/hel/USGulfHouston_4.vrt -overwrite merge/hel/USGulfCoast_2.tif merge/hel/Houston_3.vrt");
+	   "gdalbuildvrt -r near -resolution highest merge/hel/USGulfHouston_3.vrt -overwrite merge/hel/USGulfCoast_2.tif merge/hel/Houston_2.vrt");
   out(buffer);
 
   snprintf(buffer, sizeof(buffer),
@@ -169,7 +170,6 @@ int main(int argc, char *argv[])
   snprintf(buffer, sizeof(buffer),
    	   "gdalbuildvrt -r near -resolution highest -srcnodata \"250\" heli.vrt -overwrite merge/hel/*2.tif");
   out(buffer);
-  
 
   return 0;
 }

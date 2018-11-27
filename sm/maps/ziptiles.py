@@ -173,6 +173,18 @@ def main(argv):
                     print (fname)
                 if (os.path.isfile("/dev/shm/"+fname)):
                     print ("/dev/shm/"+fname)
+                if (os.path.isfile("../../"+fname)):
+                    print ("../../"+fname)
+        mystr2 = "tiles/%i-build/%i" % (chart, zoom) 
+        for i in range (t1[0], t2[0]+1):
+            for j in range (t2[1], t1[1]+1):
+                mystr3 = "%s/%s" % (i,j)
+                fname  = "%s/%s." % (mystr2,mystr3)
+                fname += ftype
+                if (os.path.isfile(fname)):
+                    print (fname)
+                if (os.path.isfile("../../"+fname)):
+                    print ("../../"+fname)
 
 
 if __name__ == "__main__":
