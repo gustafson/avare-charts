@@ -7,7 +7,7 @@
 #PBS -N ziptiles
 #PBS -e z-logs/z.${PBS_JOBID}.e_${PBS_JOBNAME}
 #PBS -o z-logs/z.${PBS_JOBID}.o_${PBS_JOBNAME}
-#PBS -t 0-5,99%3
+#PBS -t 0,1,3-5,9%3
 
 #!/bin/bash
 # Copyright (c) Peter A. Gustafson (peter.gustafson@wmich.edu) 2015-16
@@ -171,22 +171,22 @@ if [[ ${PBS_ARRAYID} -eq 0 ]]; then
     
 elif [[ ${PBS_ARRAYID} -eq 1 ]]; then
     ## Create the images
-    for img in `ls merge/tac/*_c.vrt`; do
-        BASE=`echo $img | cut -f3 -d/ | cut -c 4-|cut -f1 -d_`
+    for img in `ls merge/tac/*.tif`; do
+	BASE=`basename ${img} .tif`
     	createjpgfrompng_byimage ${img} tac
     	createvfrwebpfrompng_byimage ${img} tac
     done
     
     ## Remove the old zip file
-    for img in `ls merge/tac/*_c.vrt`; do
-        BASE=`echo $img | cut -f3 -d/ | cut -c 4-|cut -f1 -d_`
+    for img in `ls merge/tac/*.tif`; do
+	BASE=`basename ${img} .tif`
 	rm -f final/${BASE}.zip
 	rm -f final_webp/${BASE}.zip
     done
     
     ## Actually do the zip
-    for img in `ls merge/tac/*_c.vrt`; do
-        BASE=`echo $img | cut -f3 -d/ | cut -c 4-|cut -f1 -d_`
+    for img in `ls merge/tac/*.tif`; do
+	BASE=`basename ${img} .tif`
 
 	echo ${CYCLE} > ${BASE}
 	mygroup ${img} tac jpg  forzip >> ${BASE}

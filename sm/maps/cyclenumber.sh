@@ -21,4 +21,5 @@ NUM=$((DAY/28))
 ## Now convert it to the next cycle
 let NUM=${NUM}+1
 CYCLE=`printf "%02d" ${YR} ${NUM}`
-echo $CYCLE
+#echo $CYCLE
+echo 1901

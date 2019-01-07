@@ -111,7 +111,12 @@ if [[ ${PBS_ARRAYID} -eq 0 ]]; then
     rm -fr /dev/shm/tiles/0
     
 elif [[ ${PBS_ARRAYID} -eq 1 ]]; then
-    rm -f time.wac.txt
+    ## rm -f time.wac.txt
+
+    ## for vrt in merge/tac/*.tif; do
+    ##     ${TIME1} time.tac.txt nice ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} -r lanczos ${vrt} -z 7-11 /dev/shm/tiles/1/${vrt}
+    ## done
+
     ${TIME1} time.tac.txt nice ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-11 -r cubicspline tac.vrt /dev/shm/tiles/1
     rsync -avP /dev/shm/tiles/1/ tiles/1/ # --exclude=*.xml
     rm -fr /dev/shm/tiles/1
@@ -136,15 +141,16 @@ elif [[ ${PBS_ARRAYID} -eq 3 ]]; then
     rm -f time.ifr.txt
     ${TIME1} time.ifr.txt nice ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-east.vrt /dev/shm/tiles/3
     ${TIME1} time.ifr.txt nice ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-west.vrt /dev/shm/tiles/3
-    find /dev/shm/tiles/3 -name "*png"|xargs md5sum|grep 4023a0e7925b07a6be26e2cddb65f0cd|cut -f3 -d" "|xargs rm    rsync -avP --exclude=*.xml /dev/shm/tiles/3/ tiles/3/
-    rm -fr /dev/shm/tiles/3
+    # find /dev/shm/tiles/3 -name "*png"|xargs md5sum|grep 4023a0e7925b07a6be26e2cddb65f0cd|cut -f3 -d" "|xargs rm;
+    rsync -avP /dev/shm/tiles/3/ tiles/3-build/ # --exclude=*.xml 
+    # rm -fr /dev/shm/tiles/3
 
 elif [[ ${PBS_ARRAYID} -eq 4 ]]; then
     rm -f time.ifh.txt
     ${TIME1} time.ifh.txt nice ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r lanczos ifh-east.vrt /dev/shm/tiles/4
     ${TIME1} time.ifh.txt nice ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r lanczos ifh-west.vrt /dev/shm/tiles/4
     find /dev/shm/tiles/4 -name "*png"|xargs md5sum|grep 4023a0e7925b07a6be26e2cddb65f0cd|cut -f3 -d" "|xargs rm
-    rsync -avP --exclude=*.xml /dev/shm/tiles/4/ tiles/4/
+    rsync -avP /dev/shm/tiles/4/ tiles/4-build/ ## --exclude=*.xml 
     rm -fr /dev/shm/tiles/4
 
 elif [[ ${PBS_ARRAYID} -eq 5 ]]; then

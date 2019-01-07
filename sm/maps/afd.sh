@@ -37,15 +37,22 @@ CYCLENUMBER=`./cyclenumber.sh`
 [[ -d afd ]] && rm -fr afd
 mkdir afd
 
+## This used to download but now just creates the afd.csv file
 sed s/29MAY2014/${CYCLE}/ dlafd.pl > tmp_dlafd.pl
 perl tmp_dlafd.pl || exit
+Download
+cp -la ~/avare/afd/${CYCLE}/2_single_page_PDFs/*pdf afd/.
+for a in SE NE NC NW SC SW EC AK PAC; do
+    rename ${a} ${a,,} afd/*pdf
+done
+rename _${CYCLE} "" afd/*pdf
 
 ## DPI=240.9  #Android limited plates size 2400x
 DPI=225
 
 ## ## Convert to png
 find afd -name "*.pdf" | 
-xargs -P ${NP} -n 1 mogrify -trim +repage -dither none -antialias -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png 
+xargs -P ${NP} -n 1 mogrify -trim +repage -dither none -antialias -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png -verbose
 wait
 
 ## Optimize the png for file size and rendering
@@ -54,7 +61,7 @@ xargs -P ${NP} -n 1 optipng -quiet
 wait
 
 find afd -name "*.pdf" | 
-xargs -P ${NP} -n 1 mogrify -trim +repage -dither none -antialias -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format webp -define webp:lossless=true,method=6
+xargs -P ${NP} -n 1 mogrify -trim +repage -dither none -antialias -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format webp -define webp:lossless=true,method=6 -verbose
 wait
 
 
@@ -73,3 +80,4 @@ for file in NE NC NW SE SC SW EC AK PAC; do
 done
 
 rm -rf afd
+

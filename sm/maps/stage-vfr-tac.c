@@ -88,6 +88,7 @@ int main(int argc, char *argv[])
   }
 
   out ("\n\n\n");
+  out ("sleep 10\n\n\n");
   
 //  out ("pushd merge/tac; gdalbuildvrt -r cubicspline -srcnodata '0 0 0' -vrtnodata '0 0 0' -resolution highest runtacgroup_1_c.vrt -overwrite T1*_c.vrt; popd");
 //  out ("pushd merge/tac; gdalbuildvrt -r cubicspline -srcnodata '0 0 0' -vrtnodata '0 0 0' -resolution highest runtacgroup_2_c.vrt -overwrite T2*_c.vrt; popd");

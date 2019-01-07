@@ -32,6 +32,7 @@
 
 CYCLE=$(shell ./cyclenumber.sh)
 CYCLECIFP=$(shell ./cycledates.sh 28 vfrdl)
+CYCLEPLATES=$(shell ./cycledates.sh 28 plates)
 CYCLEDATE28BASE=$(shell ./cycledates.sh 28 base)
 CYCLEDATE56BASE=$(shell ./cycledates.sh 56 base)
 CYCLEDATE28=$(shell ./cycledates.sh 28)
@@ -67,7 +68,6 @@ else
 	@echo "  make stage-vfr #$(CYCLEDATE28)"
 endif
 	@echo
-	@echo "  make download-cifp #$(CYCLE)"
 	@echo "  make procedures.db #$(CYCLEDATE28)"
 	@echo
 	@echo "  make download-plates #$(CYCLE)"
@@ -133,14 +133,14 @@ plates-png:
 
 download-plates:
 	[[ -d plates/DDTPP ]] || mkdir -p plates/DDTPP
-	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPA_20$(CYCLE).zip
-	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPB_20$(CYCLE).zip
-	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPC_20$(CYCLE).zip
-	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPD_20$(CYCLE).zip
-	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPE_20$(CYCLE).zip
+	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPA_$(CYCLEPLATES).zip
+	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPB_$(CYCLEPLATES).zip
+	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPC_$(CYCLEPLATES).zip
+	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPD_$(CYCLEPLATES).zip
+	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPE_$(CYCLEPLATES).zip
 	cd plates/DDTPP && ../unzip_DDTPP.sh $(CYCLE)
 
-download-cifp: 
+procedures.db: 
 	pushd CIFP && wget -c http://aeronav.faa.gov/Upload_313-d/cifp/cifp_$(CYCLECIFP).zip
 	pushd CIFP && unzip cifp_$(CYCLECIFP).zip && rm -f procedures.db
 	pushd CIFP && make procedures.db && mv procedures.db ..
@@ -220,7 +220,7 @@ stage-ifr: stage-ifr-low
 	cat generate-tiles.pbs| qsub -t 3-5%1 #| sed s/ppn=16/ppn=$(NP)/
 
 stage-vfr: stage-vfr-sec
-	cat generate-tiles.pbs| qsub -t 0-1%1 #| sed s/ppn=16/ppn=$(NP)/	
+	cat generate-tiles.pbs| qsub -t 0-1,9%1 #| sed s/ppn=16/ppn=$(NP)/	
 
 stage-ifr-low: charts/ifr/*zip  # charts/ifa/*zip charts/ifh/*zip
 	if [[ ! -d merge ]]; then mkdir merge; fi
@@ -239,15 +239,15 @@ stage-vfr-sec: charts/sec/*tif charts/tac/*tif #charts/wac/*tif
 	gcc -march=native -O3 -Wall stage-vfr-tac.c -o stage-vfr-tac
 	# ./stage-vfr-heli
 	$(MAKE) -C charts/hel
-	#./stage-vfr-sec
-	#./stage-vfr-tac
+	./stage-vfr-sec
+	./stage-vfr-tac
 
 ziptiles:
 	## ./ziptiles.sh
 ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
-	qsub -t 0,1,3,4,5,98%3 ziptiles512.pbs
+	qsub -t 0,1,3,4,5,9%1 ziptiles512.pbs
 else
-	qsub -t 0,1,98 ziptiles512.pbs
+	qsub -t 0,1,9%1 ziptiles512.pbs
 endif
 
 temp:
@@ -317,9 +317,6 @@ geolist:
 	mv list_plates.txt final/.
 
 chartpoly.txt:
-
-procedures.db:
-	echo This is currently done outside of the avare working directory
 
 canada:
 	wget -N http://ourairports.com/data/airports.csv && ./ourairports.pl > ourairports.csv
