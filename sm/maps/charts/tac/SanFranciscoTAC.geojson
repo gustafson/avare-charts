@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "SanFranciscoTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "SanFranciscoTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -13781352.960207272320986, 4607717.759142002090812 ], [ -13509733.402671683579683, 4607717.759142002090812 ], [ -13509733.402671683579683, 4425177.227865093387663 ], [ -13781352.960207272320986, 4425177.227865093387663 ], [ -13781352.960207272320986, 4607717.759142002090812 ] ] ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "Baltimore-WashingtonTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "Baltimore-WashingtonTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -8721149.621403565630317, 4836921.246399850584567 ], [ -8434677.81740633957088, 4836921.246399850584567 ], [ -8434677.81740633957088, 4603001.770965472795069 ], [ -8721149.621403565630317, 4603001.770965472795069 ], [ -8721149.621403565630317, 4836921.246399850584567 ] ] ] } }
+]
+}

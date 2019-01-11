@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "AtlantaTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "AtlantaTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -9496239.405924430117011, 4070288.167334891390055 ], [ -9306309.430317671969533, 4070288.167334891390055 ], [ -9306309.430317671969533, 3895303.963393894489855 ], [ -9496239.405924430117011, 3895303.963393894489855 ], [ -9496239.405924430117011, 4070288.167334891390055 ] ] ] } }
+]
+}

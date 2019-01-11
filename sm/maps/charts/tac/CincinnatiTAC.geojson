@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "CincinnatiTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "CincinnatiTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -9562344.259142203256488, 4880484.665662283077836 ], [ -9317441.379397001117468, 4880484.665662283077836 ], [ -9317441.379397001117468, 4644613.748702690005302 ], [ -9562344.259142203256488, 4644613.748702690005302 ], [ -9562344.259142203256488, 4880484.665662283077836 ] ] ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "PittsburghTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "PittsburghTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -9016878.754255160689354, 5019719.452103293500841 ], [ -8794239.772668614983559, 5019719.452103293500841 ], [ -8794239.772668614983559, 4858679.07377125043422 ], [ -9016878.754255160689354, 4858679.07377125043422 ], [ -9016878.754255160689354, 5019719.452103293500841 ] ] ] } }
+]
+}

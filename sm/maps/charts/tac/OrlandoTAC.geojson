@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "OrlandoTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "OrlandoTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -9183857.990445071831346, 3401126.264066490344703 ], [ -8927823.161620542407036, 3401126.264066490344703 ], [ -8927823.161620542407036, 3223781.685498555656523 ], [ -9183857.990445071831346, 3223781.685498555656523 ], [ -9183857.990445071831346, 3401126.264066490344703 ] ] ] } }
+]
+}

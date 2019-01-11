@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "BostonTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "BostonTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -8001227.550130031071603, 5296763.192592258565128 ], [ -7743231.271877724677324, 5296763.192592258565128 ], [ -7743231.271877724677324, 5049286.834623009897768 ], [ -8001227.550130031071603, 5049286.834623009897768 ], [ -8001227.550130031071603, 5296763.192592258565128 ] ] ] } }
+]
+}

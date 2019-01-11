@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "SanDiegoTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "SanDiegoTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -13124567.964526955038309, 3975217.429260808508843 ], [ -12946456.779257718473673, 3975217.429260808508843 ], [ -12946456.779257718473673, 3829123.837028440553695 ], [ -13124567.964526955038309, 3829123.837028440553695 ], [ -13124567.964526955038309, 3975217.429260808508843 ] ] ] } }
+]
+}

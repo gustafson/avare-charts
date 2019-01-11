@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "FairbanksTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "FairbanksTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -16764715.313467, 9674532.835821580141783 ], [ -16230381.757659289985895, 9674532.835821580141783 ], [ -16230381.757659289985895, 9387957.651385659351945 ], [ -16764715.313467, 9387957.651385659351945 ], [ -16764715.313467, 9674532.835821580141783 ] ] ] } }
+]
+}

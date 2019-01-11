@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "KansasCityTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "KansasCityTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -10686671.116154264658689, 4865942.279503175988793 ], [ -10464032.134567717090249, 4865942.279503175988793 ], [ -10464032.134567717090249, 4673085.847655734047294 ], [ -10686671.116154264658689, 4673085.847655734047294 ], [ -10686671.116154264658689, 4865942.279503175988793 ] ] ] } }
+]
+}

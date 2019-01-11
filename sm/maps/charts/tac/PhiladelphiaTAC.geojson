@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "PhiladelphiaTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "PhiladelphiaTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -8451004.713162517175078, 4938869.175786294974387 ], [ -8295157.426051933318377, 4938869.175786294974387 ], [ -8295157.426051933318377, 4776729.99886014405638 ], [ -8451004.713162517175078, 4776729.99886014405638 ], [ -8451004.713162517175078, 4938869.175786294974387 ] ] ] } }
+]
+}

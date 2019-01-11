@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "SeattleTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "SeattleTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -13759089.062048615887761, 6131845.868039042688906 ], [ -13480790.335065431892872, 6131845.868039042688906 ], [ -13480790.335065431892872, 5896490.103795172646642 ], [ -13759089.062048615887761, 5896490.103795172646642 ], [ -13759089.062048615887761, 6131845.868039042688906 ] ] ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "ColoradoSpringsTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "ColoradoSpringsTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -11822129.922245655208826, 4757545.456296020187438 ], [ -11516001.322564153000712, 4757545.456296020187438 ], [ -11516001.322564153000712, 4530099.858111375011504 ], [ -11822129.922245655208826, 4530099.858111375011504 ], [ -11822129.922245655208826, 4757545.456296020187438 ] ] ] } }
+]
+}

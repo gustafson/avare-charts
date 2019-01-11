@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "PuertoRico-VITAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "PuertoRico-VITAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -7541895.501244285143912, 2126700.079190467949957 ], [ -7148937.698744029738009, 2126700.079190467949957 ], [ -7148937.698744029738009, 1994285.767626464832574 ], [ -7541895.501244285143912, 1994285.767626464832574 ], [ -7541895.501244285143912, 2126700.079190467949957 ] ] ] } }
+]
+}

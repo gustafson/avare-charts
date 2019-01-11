@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "Dallas-FtWorthTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "Dallas-FtWorthTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -10964969.843137448653579, 3984576.69424295052886 ], [ -10669973.192535273730755, 3984576.69424295052886 ], [ -10669973.192535273730755, 3769875.695081888698041 ], [ -10964969.843137448653579, 3769875.695081888698041 ], [ -10964969.843137448653579, 3984576.69424295052886 ] ] ] } }
+]
+}

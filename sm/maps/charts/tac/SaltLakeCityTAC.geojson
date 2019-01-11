@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "SaltLakeCityTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "SaltLakeCityTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -12601366.357798570767045, 5086373.649287361651659 ], [ -12317501.656275723129511, 5086373.649287361651659 ], [ -12317501.656275723129511, 4880484.665662283077836 ], [ -12601366.357798570767045, 4880484.665662283077836 ], [ -12601366.357798570767045, 5086373.649287361651659 ] ] ] } }
+]
+}

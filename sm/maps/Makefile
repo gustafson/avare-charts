@@ -236,11 +236,12 @@ stage-vfr-sec: charts/sec/*tif charts/tac/*tif #charts/wac/*tif
 	## gcc -march=native -O3 -Wall stagefly.c -o stagefly
 	gcc -march=native -O3 -Wall stage-vfr-heli.c -o stage-vfr-heli
 	gcc -march=native -O3 -Wall stage-vfr-sec.c -o stage-vfr-sec
-	gcc -march=native -O3 -Wall stage-vfr-tac.c -o stage-vfr-tac
+	## gcc -march=native -O3 -Wall stage-vfr-tac.c -o stage-vfr-tac
 	# ./stage-vfr-heli
 	$(MAKE) -C charts/hel
 	./stage-vfr-sec
-	./stage-vfr-tac
+	$(MAKE) -f Makefile.tac
+	# ./stage-vfr-tac
 
 ziptiles:
 	## ./ziptiles.sh

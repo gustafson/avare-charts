@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "AnchorageTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "AnchorageTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -16904292.143803238868713, 8776624.597409155219793 ], [ -16508525.750550271943212, 8776624.597409155219793 ], [ -16508525.750550271943212, 8526995.936594992876053 ], [ -16904292.143803238868713, 8526995.936594992876053 ], [ -16904292.143803238868713, 8776624.597409155219793 ] ] ] } }
+]
+}

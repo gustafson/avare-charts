@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "LosAngelesTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "LosAngelesTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -13375036.818811822682619, 4096139.040447236504406 ], [ -12963154.702876711264253, 4096139.040447236504406 ], [ -12963154.702876711264253, 3944518.885793167166412 ], [ -13375036.818811822682619, 3944518.885793167166412 ], [ -13375036.818811822682619, 4096139.040447236504406 ] ] ] } }
+]
+}

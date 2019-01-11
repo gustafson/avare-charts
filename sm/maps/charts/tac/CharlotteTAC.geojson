@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "CharlotteTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "CharlotteTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -9109261.686469592154026, 4286870.236044280230999 ], [ -8914464.822725350037217, 4286870.236044280230999 ], [ -8914464.822725350037217, 4106950.294863093178719 ], [ -9109261.686469592154026, 4106950.294863093178719 ], [ -9109261.686469592154026, 4286870.236044280230999 ] ] ] } }
+]
+}

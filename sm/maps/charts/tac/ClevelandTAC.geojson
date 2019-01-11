@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "ClevelandTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "ClevelandTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -9228385.786762380972505, 5153492.626588187180459 ], [ -8972350.957937851548195, 5153492.626588187180459 ], [ -8972350.957937851548195, 4988770.268053384497762 ], [ -9228385.786762380972505, 4988770.268053384497762 ], [ -9228385.786762380972505, 5153492.626588187180459 ] ] ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "HoustonTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "HoustonTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -10731198.912471573799849, 3574444.943726517725736 ], [ -10519691.879964355379343, 3574444.943726517725736 ], [ -10519691.879964355379343, 3388379.961372782010585 ], [ -10731198.912471573799849, 3388379.961372782010585 ], [ -10731198.912471573799849, 3574444.943726517725736 ] ] ] } }
+]
+}

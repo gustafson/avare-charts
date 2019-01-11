@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "StLouisTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "StLouisTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -10174601.458505207672715, 4764735.556168863549829 ], [ -9935264.55329966917634, 4764735.556168863549829 ], [ -9935264.55329966917634, 4600637.506952160038054 ], [ -10174601.458505207672715, 4600637.506952160038054 ], [ -10174601.458505207672715, 4764735.556168863549829 ] ] ] } }
+]
+}

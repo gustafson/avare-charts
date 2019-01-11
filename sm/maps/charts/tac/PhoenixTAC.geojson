@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "PhoenixTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "PhoenixTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -12634762.205036552622914, 4048961.188708809670061 ], [ -12374274.596580291166902, 4048961.188708809670061 ], [ -12374274.596580291166902, 3862167.464912444818765 ], [ -12634762.205036552622914, 3862167.464912444818765 ], [ -12634762.205036552622914, 4048961.188708809670061 ] ] ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "MemphisTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "MemphisTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -10146771.585806889459491, 4273136.46238505654037 ], [ -9874038.833363367244601, 4273136.46238505654037 ], [ -9874038.833363367244601, 4082639.550140598323196 ], [ -10146771.585806889459491, 4082639.550140598323196 ], [ -10146771.585806889459491, 4273136.46238505654037 ] ] ] } }
+]
+}

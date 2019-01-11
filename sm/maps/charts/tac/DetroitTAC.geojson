@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "DetroitTAC.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "DetroitTAC.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -9439892.819269601255655, 5273996.38361220061779 ], [ -9201669.108971994370222, 5273996.38361220061779 ], [ -9201669.108971994370222, 5074490.348485559225082 ], [ -9439892.819269601255655, 5074490.348485559225082 ], [ -9439892.819269601255655, 5273996.38361220061779 ] ] ] } }
+]
+}
