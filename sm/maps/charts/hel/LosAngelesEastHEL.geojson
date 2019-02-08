@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "LosAngelesEast",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "LosAngelesEast.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -13143788.387807322666049, 4062790.877781247720122 ], [ -13024299.159584730863571, 4062790.877781247720122 ], [ -13024299.159584730863571, 3949555.866916820406914 ], [ -13143788.387807322666049, 3949555.866916820406914 ], [ -13143788.387807322666049, 4062790.877781247720122 ] ] ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "HoustonSouth",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "HoustonSouth.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -10658228.986256582662463, 3490840.926494967192411 ], [ -10553963.811594879254699, 3490840.926494967192411 ], [ -10553963.811594879254699, 3399355.060147190932184 ], [ -10658228.986256582662463, 3399355.060147190932184 ], [ -10658228.986256582662463, 3490840.926494967192411 ] ] ] } }
+]
+}

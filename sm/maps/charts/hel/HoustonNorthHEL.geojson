@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "HoustonNorth",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "HoustonNorth.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -10658450.512043261900544, 3545739.975019562989473 ], [ -10553855.831688810139894, 3545739.975019562989473 ], [ -10553855.831688810139894, 3456152.18365755258128 ], [ -10658450.512043261900544, 3456152.18365755258128 ], [ -10658450.512043261900544, 3545739.975019562989473 ] ] ] } }
+]
+}

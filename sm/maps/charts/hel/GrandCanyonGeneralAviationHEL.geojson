@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "GrandCanyonGeneralAviation",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "GrandCanyonGeneralAviation.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -12704668.618864912539721, 4389644.863888024352491 ], [ -12391573.645449567586184, 4389644.863888024352491 ], [ -12391573.645449567586184, 4247207.575431762263179 ], [ -12704668.618864912539721, 4247207.575431762263179 ], [ -12704668.618864912539721, 4389644.863888024352491 ] ] ] } }
+]
+}

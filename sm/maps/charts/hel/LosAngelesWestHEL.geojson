@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "LosAngelesWest",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "LosAngelesWest.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -13272865.563771940767765, 4096494.295362246688455 ], [ -13139829.866714714094996, 4096494.295362246688455 ], [ -13139829.866714714094996, 3982554.448684202507138 ], [ -13272865.563771940767765, 3982554.448684202507138 ], [ -13272865.563771940767765, 4096494.295362246688455 ] ] ] } }
+]
+}
