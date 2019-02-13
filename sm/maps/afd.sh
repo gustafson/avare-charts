@@ -1,5 +1,13 @@
 #!/bin/bash
+#SBATCH --mem-per-cpu=2000
+#SBATCH --ntasks=8
+#SBATCH --time=1000:00:00
+#SBATCH --job-name=AFD
+#SBATCH --output=z-logs/AFD_%A_%a.out
+#SBATCH --error=z-logs/AFD_%A_%a.out
+
 # Copyright (c) 2012-2014, Apps4av Inc. (apps4av@gmail.com) 
+# Copyright (c) 2014-2019, Peter A. Gustafson
 # Author: Zubair Khan (governer@gmail.com)
 # Author: Peter A. Gustafson (peter.gustafson@wmich.edu)
 # All rights reserved.
@@ -29,55 +37,85 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-NP=16
+if [[ ${SLURM_NTASKS} ]]; then
+    NP=${SLURM_NTASKS}
+else
+    NP=`cat /proc/cpuinfo |grep processor|wc -l`
+fi
+
+echo "SLURM_JOBID: $SLURM_JOBID"
+echo "SLURM_JOB_NODELIST: $SLURM_JOB_NODELIST"
+echo "SLURM_NNODES: $SLURM_NNODES"
+echo "SLURM_NTASKS: $SLURM_NTASKS"
+echo "SLURMTMPDIR: $SLURMTMPDIR"
+echo "working directory = $SLURM_SUBMIT_DIR"
+
+if [[ ${SLURM_SUBMIT_DIR} ]]; then
+    cd ${SLURM_SUBMIT_DIR}
+else
+    SLURM_SUBMIT_DIR=`pwd`
+fi
 
 CYCLE=`./cycledates.sh 56`
+CYCLEDATE=`./cycledates.sh 56 afd`
 CYCLENUMBER=`./cyclenumber.sh`
 
-[[ -d afd ]] && rm -fr afd
-mkdir afd
+[[ -d /dev/shm/afd ]] && rm -fr /dev/shm/afd
+mkdir -p /dev/shm/afd/afd
 
-## This used to download but now just creates the afd.csv file
-sed s/29MAY2014/${CYCLE}/ dlafd.pl > tmp_dlafd.pl
-perl tmp_dlafd.pl || exit
-Download
-cp -la ~/avare/afd/${CYCLE}/2_single_page_PDFs/*pdf afd/.
+pushd /dev/shm/afd/afd
+wget -c http://aeronav.faa.gov/upload_313-d/supplements/DCS_${CYCLEDATE}.zip
+unzip -o DCS_${CYCLEDATE}.zip
+
 for a in SE NE NC NW SC SW EC AK PAC; do
-    rename ${a} ${a,,} afd/*pdf
+    rename ${a} ${a,,} ${a}*pdf
 done
-rename _${CYCLE} "" afd/*pdf
+rename _${CYCLE} "" *pdf
+rm *front*pdf *rear*pdf
+
+## deal with september typo
+rename seP SEP *pdf
+
+popd
+pushd /dev/shm/afd
+
+perl ${SLURM_SUBMIT_DIR}/afd.pl ${CYCLE} afd/*xml
+cp afd.csv ${SLURM_SUBMIT_DIR}/.
+
+## Divide and conquer
+NPDF=`ls afd/*.pdf|wc -l`
+NPDFPER=$((NPDF/NP+1))
+echo $NPDF pdf files at $NPDFPER per task with $NP tasks
 
 ## DPI=240.9  #Android limited plates size 2400x
 DPI=225
 
 ## ## Convert to png
 find afd -name "*.pdf" | 
-xargs -P ${NP} -n 1 mogrify -trim +repage -dither none -antialias -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png -verbose
+xargs -P ${NP} -n ${NPDFPER} mogrify -trim +repage -dither none -antialias -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png
 wait
 
 ## Optimize the png for file size and rendering
 find afd -name "*.png" | 
-xargs -P ${NP} -n 1 optipng -quiet
+xargs -P ${NP} -n ${NPDFPER} optipng -quiet
 wait
 
 find afd -name "*.pdf" | 
-xargs -P ${NP} -n 1 mogrify -trim +repage -dither none -antialias -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format webp -define webp:lossless=true,method=6 -verbose
+xargs -P ${NP} -n ${NPDFPER} mogrify -trim +repage -dither none -antialias -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format webp -define webp:lossless=true,method=6
 wait
-
-
 
 ## Zip the files
 for file in NE NC NW SE SC SW EC AK PAC; do
-    rm -f final/AFD_${file}.zip
+    rm -f ${SLURM_SUBMIT_DIR}/final/AFD_${file}.zip
     echo $CYCLENUMBER > AFD_${file}
     ls afd/*${file,,}*.png >> AFD_${file};
-    zip -9 final/AFD_${file}.zip afd/*${file,,}*.png AFD_${file}
+    zip -9 ${SLURM_SUBMIT_DIR}/final/AFD_${file}.zip afd/*${file,,}*.png AFD_${file}
 
-    rm -f final_webp/AFD_${file}.zip
+    rm -f ${SLURM_SUBMIT_DIR}/final_webp/AFD_${file}.zip
     echo $CYCLENUMBER > AFD_${file}
     ls afd/*${file,,}*.webp >> AFD_${file};
-    zip -9 final_webp/AFD_${file}.zip afd/*${file,,}*.webp AFD_${file}
+    zip -9 ${SLURM_SUBMIT_DIR}/final_webp/AFD_${file}.zip afd/*${file,,}*.webp AFD_${file}
 done
 
-rm -rf afd
-
+popd
+rm -rf /dev/shm/afd

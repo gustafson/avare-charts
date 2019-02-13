@@ -1,5 +1,16 @@
 #!/usr/bin/python2.7
 
+## import PythonMagick
+import os
+import sys
+
+if ((len(sys.argv)) > 2) :
+    node = int(sys.argv[1])
+    nnodes = int(sys.argv[2])
+else:
+    node = 0
+    nnodes = 1
+
 import glob
 xmlfile = glob.glob('./DDTPP/*/d-TPP_Metafile.xml')
 
@@ -10,8 +21,8 @@ root = tree.getroot()
 nstates = root._children.__len__();
 cycle = root.attrib['cycle']
 
-## import PythonMagick
-import os
+## Create a file to save info
+logfile = open('logfile_' + str(node) + '.txt','w')
 
 from shutil import copyfile
 
@@ -73,11 +84,12 @@ def copy_files_to_state(state, cycle):
                         pngimages.append(png)
                                     
     print ("#state has %s files" % (len(pdfimages)));
+    logfile.write("#state has %s files" % (len(pdfimages)));
     return pdfimages, pngimages
 
 #PWD=os.system('pwd')
 PWD=os.getcwd()
-cpus = 16
+cpus = 40
 
 ## A worker function which can be called in parallel
 def worker(pdf):
@@ -91,8 +103,9 @@ def worker(pdf):
 
 ## This is where the action really happens
 import multiprocessing as mp
+
 statecount=0;
-for state in root:
+for state in root[node::nnodes]:
     ## If you want just one state for debugging, uncomment the next line
     ## if (state.attrib['ID']=="AS"): # or state.attrib['ID']=="MI"
         print ("#" + state.attrib['ID'])
@@ -113,3 +126,4 @@ for state in root:
 os.system ("./plates.sh 1 %s" % cycle)
 ## Extract database info
 os.system ("./plates.sh 2 %s" % cycle)
+

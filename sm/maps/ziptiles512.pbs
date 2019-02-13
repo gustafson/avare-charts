@@ -75,11 +75,6 @@ function mygroup(){
 export -f mygroup
 CYCLE=$(./cyclenumber.sh)
 
-function rmemptypng(){
-    [[ `convert $0 -format '%@' info: 2> /dev/null|cut -c 1-3` == "0x0" ]] && rm $0
-}
-export -f rmemptypng
-
 function guetzli_png_to_jpg(){
     bname=`dirname $0`/`basename $0 .png`
     ## convert -unsharp 1x1 -background white -alpha off ${bname}.png ${bname}_sharp.png
@@ -91,7 +86,6 @@ function guetzli_png_to_jpg(){
 export -f guetzli_png_to_jpg
 
 function cleanpngbylatlon () {
-    ## echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs -n1 -P16 bash -c rmemptypng
     echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs mogrify -format png8
     echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | sed s/png/png8/g | xargs rename png8 png
     echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs -n1 -P16 optipng -quiet
@@ -99,14 +93,12 @@ function cleanpngbylatlon () {
 }
 
 function cleanwholedirectory () {
-    ## find $1 -name "*png" | xargs -n1 -P16 bash -c rmemptypng
     find $1 -name "*png" | xargs mogrify -format png8
     find $1 -name "*png" | sed s/png/png8/g | xargs rename png8 png
     find $1 -name "*png" | xargs -n1 -P16 optipng -quiet
 }
 
 function cleanpngbyimage () {
-    ## mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c rmemptypng
     mygroup $1 $2 png forclean | xargs mogrify -format png8
     mygroup $1 $2 png forclean | sed s/png/png8/g | xargs rename png8 png
     mygroup $1 $2 png forclean | xargs -n1 -P16 optipng -quiet
@@ -114,18 +106,15 @@ function cleanpngbyimage () {
 }
 
 function createjpgfrompng_byimage () {
-    # mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c rmemptypng
     ## mygroup $1 $2 png forclean | xargs mogrify -unsharp 1x1 -format jpg -quality 85
     mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c guetzli_png_to_jpg
 }
 
 function createvfrwebpfrompng_byimage () {
-    ## mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c rmemptypng
     mygroup $1 $2 png forclean | xargs mogrify -unsharp 1x1 -format webp -define webp:method=6:thread-level=16 -quality 60
 }
 
 function createifrwebpfrompng_byimage () {
-    ## mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c rmemptypng
     mygroup $1 $2 png forclean | xargs mogrify -format webp -define webp:method=6:thread-level=16
 }
 

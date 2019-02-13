@@ -28,11 +28,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+## paste <(du  ~/avare/1901/*|cut -f1 -d/) <(du  ~/avare/1902/*)|awk '{a=100*($2-$1)/$1; if (a>10){printf ("%g %s\n", a, $3)}}'
+
 CYCLE=`./cyclenumber.sh`
 MTIME=`./cycledates.sh 28 lastcycle` ## Use to select IFR or not
 
 # pushd static
-pushd final_webp
+pushd final
 
 ## Only these require manifest updates (Includes IFR older than the last cycle conclusion) ## C?-[0-9]*zip 
 #for a in Area*zip `find E[LH]US_* ENRA_* -mtime +${MTIME} -type f` AFD*zip; do

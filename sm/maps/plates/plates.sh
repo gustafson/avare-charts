@@ -1,7 +1,7 @@
 #!/bin/bash
 STEP=$1
 CYCLE=$2
-
+NP=40
 
 ## A function to extract the database information
 ## Parallelizable extraction
@@ -23,6 +23,8 @@ function extract_db() {
 	
     else
 	## If gdal geocode isn't available, write an old one from when manual tagging was done
+	echo WARNING: gdalinfo is not available for ${ARG}
+	
 	PROC=`echo ${ARG} | cut -f2 -d_ | cut -c 4-`
 	
 	sqlite3 geoplates.db "select dx, dy, lon, lat from geoplates where proc like '$PROC'" |
@@ -163,10 +165,10 @@ elif [[ $STEP -eq 1 ]]; then
 	for FORMAT in png webp; do
 	    if [[ ${SINGLESIZE} ]]; then
 		find ${STATE} -name "*.${FORMAT}" 
-		find ${STATE} -name "*.${FORMAT}" | xargs -n 1 -P 16 bash -c 'extract_db "$@ $SINGLESIZE"' | tee -a updated_db_vals_${SINGLESIZE}.txt
+		find ${STATE} -name "*.${FORMAT}" | xargs -n 1 -P ${NP} bash -c 'extract_db "$@ $SINGLESIZE"' | tee -a updated_db_vals_${SINGLESIZE}.txt
 	    else
 		for SIZE in 1240 1860 2480; do
-		    find ${STATE} -name "*${SIZE}*.${FORMAT}" | xargs -n 1 -P 16 bash -c 'extract_db "$@ $SIZE""' | tee -a updated_db_vals_${SIZE}.txt
+		    find ${STATE} -name "*${SIZE}*.${FORMAT}" | xargs -n 1 -P ${NP} bash -c 'extract_db "$@ $SIZE""' | tee -a updated_db_vals_${SIZE}.txt
 		done
 	    fi
 	done

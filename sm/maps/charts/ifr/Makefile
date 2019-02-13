@@ -1,10 +1,11 @@
 WARP=gdalwarp -multi -wm 512 -dstnodata 51 -overwrite -of gtiff -t_srs 'EPSG:3857'
 
 IFHEAST = \
-/dev/shm/ENR_AKH02_east.tif \
-/dev/shm/ENR_P01_east.tif
+/dev/shm/ENR_P01_east.tif \
+/dev/shm/ENR_AKH02_east.tif
 
 IFHWEST = \
+/dev/shm/ENR_P01_west.tif \
 /dev/shm/ENR_AKH01_west.tif \
 /dev/shm/ENR_AKH02_west.tif \
 /dev/shm/ENR_H01_west.tif \
@@ -17,10 +18,9 @@ IFHWEST = \
 /dev/shm/ENR_H08_west.tif \
 /dev/shm/ENR_H09_west.tif \
 /dev/shm/ENR_H10_west.tif \
-/dev/shm/ENR_H11_west.tif \
-/dev/shm/ENR_P01_west.tif
+/dev/shm/ENR_H11_west.tif
 
-VRT = ../../ifr_east.vrt ../../ifr_west.vrt ../../ifh_east.vrt ../../ifh_west.vrt
+VRT = ../../ifr-east.vrt ../../ifr-west.vrt ../../ifh-east.vrt ../../ifh-west.vrt
 
 ALL = $(IFHEAST) $(IFHWEST) $(VRT)
 
@@ -62,22 +62,22 @@ clean:
 	../../ziptiles.py `../../extract_corners.sh $@` ifh meters png forzip  | xargs --no-run-if-empty rm
 	../../ziptiles.py `../../extract_corners.sh $@` ifh meters webp forzip | xargs --no-run-if-empty rm
 
-../../ifr_east.vrt: $(IFREAST)
+../../ifr-east.vrt: $(IFREAST)
 	cd ../../
-	gdalbuildvrt -r near -resolution highest -overwrite ifr_east.vrt $(IFREAST)
+	gdalbuildvrt -r near -resolution highest -overwrite $@ $(IFREAST)
 
-../../ifr_west.vrt: $(IFRWEST)
+../../ifr-west.vrt: $(IFRWEST)
 	cd ../../
-	gdalbuildvrt -r near -resolution highest -overwrite ifr_east.vrt $(IFRWEST)
+	gdalbuildvrt -r near -resolution highest -overwrite $@ $(IFRWEST)
 
-../../ifh_east.vrt: $(IFHEAST)
+../../ifh-east.vrt: $(IFHEAST)
 	cd ../../
-	gdalbuildvrt -r near -resolution highest -overwrite ifr_east.vrt $(IFHEAST)
+	gdalbuildvrt -r near -resolution highest -overwrite $@ $(IFHEAST)
 
-../../ifh_west.vrt: $(IFHWEST)
+../../ifh-west.vrt: $(IFHWEST)
 	cd ../../
-	gdalbuildvrt -r near -resolution highest -overwrite ifr_east.vrt $(IFHWEST)
+	gdalbuildvrt -r near -resolution highest -overwrite $@ $(IFHWEST)
 
-#rm -f ifh_west.vrt; gdal_translate -r near -projwin_srs WGS84 -projwin -180.0 72.2 -62.7 -5.25 -a_nodata 51 -of vrt merge/${TYPE}/ifh_west.vrt ifh_west.vrt
+#rm -f ifh-west.vrt; gdal_translate -r near -projwin_srs WGS84 -projwin -180.0 72.2 -62.7 -5.25 -a_nodata 51 -of vrt merge/${TYPE}/ifh-west.vrt ifh-west.vrt
 #rm -f ${TYPE}-east.vrt; gdal_translate -r near -projwin_srs WGS84 -projwin  123.5 62.0 180.0 -5.25 -a_nodata 51 -of vrt merge/${TYPE}/${TYPE}-east.vrt ${TYPE}-east.vrt
 

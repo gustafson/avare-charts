@@ -1,6 +1,13 @@
 #!/bin/bash
+#SBATCH --mem-per-cpu=2000
+#SBATCH --ntasks=8
+#SBATCH --time=1000:00:00
+#SBATCH --job-name=Mins
+#SBATCH --output=z-logs/Mins_%A_%a.out
+#SBATCH --error=z-logs/Mins_%A_%a.out
+
 # Copyright (c) 2012, Zubair Khan (governer@gmail.com)
-# Copyright (c) 2013, Peter A. Gustafson (peter.gustafson@wmich.edu)
+# Copyright (c) 2013-2019, Peter A. Gustafson (peter.gustafson@wmich.edu)
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,8 +34,22 @@
 # WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
- 
-NP=`cat /proc/cpuinfo |grep processor|wc -l`
+
+if [[ ${SLURM_NTASKS} ]]; then
+    NP=${SLURM_NTASKS}
+else
+    NP=`cat /proc/cpuinfo |grep processor|wc -l`
+fi
+
+echo "SLURM_JOBID: $SLURM_JOBID"
+echo "SLURM_JOB_NODELIST: $SLURM_JOB_NODELIST"
+echo "SLURM_NNODES: $SLURM_NNODES"
+echo "SLURM_NTASKS: $SLURM_NTASKS"
+echo "SLURMTMPDIR: $SLURMTMPDIR"
+echo "working directory = $SLURM_SUBMIT_DIR"
+
+[[ ${SLURM_SUBMIT_DIR} ]] && cd ${SLURM_SUBMIT_DIR}
+
 CYCLE=`./cyclenumber.sh`
 
 REGNS="AK EC1 EC2 EC3 NC1 NC2 NC3 NE1 NE2 NE3 NE4 NW1 PAC SC1 SC2 SC3 SC4 SC5 SE1 SE2 SE3 SE4 SW1 SW2 SW3 SW4"
@@ -59,17 +80,17 @@ done
 
 echo Converting to png in parallel.
 ls *TO.PDF |
-    xargs -P $((NP/3)) -n 3 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png 
+    xargs -P ${NP} -n 1 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png 
 ls *ALT.PDF |
-    xargs -P $((NP/3)) -n 3 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png
+    xargs -P ${NP} -n 1 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png
 
 echo Converting to webp in parallel.
 ## ls *png |
 ##     xargs -P 16 -n1 mogrify -format webp -define webp:lossless=true,method=6
 ls *TO.PDF |
-    xargs -P $((NP/3)) -n 3 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format webp -define webp:lossless=true,method=6 
+    xargs -P ${NP} -n 1 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format webp -define webp:lossless=true,method=6 
 ls *ALT.PDF |
-    xargs -P $((NP/3)) -n 3 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format webp -define webp:lossless=true,method=6
+    xargs -P ${NP} -n 1 mogrify -dither none -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format webp -define webp:lossless=true,method=6
 
 
 echo Optimizing

@@ -75,12 +75,9 @@ endif
 	@echo "  make mins-data #$(CYCLEDATE28)"
 ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
 	@echo
-	@echo "  make download-afd #$(CYCLEDATE56)"
-	@echo "  make afd-data #$(CYCLEDATE56)"
+	@echo "  make afd.csv #$(CYCLEDATE56)"
 endif
-	@echo
-	@echo "  make download-base-data #$(CYCLEDATE56BASE) $$(./cycledates.sh 28 dof)"
-	@echo "  make process-data #$(CYCLEDATE56BASE)"
+	@echo "  make download-and-process-base-data #$(CYCLEDATE56BASE) $$(./cycledates.sh 28 dof)"
 	@echo
 	@echo "  make geolist #$(CYCLEDATE28)"
 	@echo "  make ziptiles"
@@ -88,8 +85,8 @@ endif
 	@echo "  make zipdatabase"
 	@echo "  make qualitycontrol"
 
-scratch: download-ifr download-vfr rename stage-all plates download-base-data process-data zipdatabase
-update: download-ifr update-vfr rename stage-all plates download-base-data process-data zipdatabase
+scratch: download-ifr download-vfr rename stage-all plates download-and-process-base-data zipdatabase
+update: download-ifr update-vfr rename stage-all plates download-and-process-base-data zipdatabase
 
 clean:
 	find final -type f|grep -v "CAN_\|REL_\|ELEV_"| xargs rm # \|ELUS_\|EHUS\|AFD_
@@ -98,7 +95,7 @@ clean:
 	rm -f files*.csv logfile.txt *.log
 	rm -f ifr-gps-currency*{kmz,json,txt}
 
-download-base-data:
+download-and-process-base-data:
 	$$(rm -f APT.txt AWOS.txt FIX.txt TWR.txt DOF.DAT NAV.txt AWY.txt aixm5.0.zip DAILY_DOF.ZIP)
 	## obstacles file.  Get this first as it is usually last posted... will thus not download the rest unless successful.
 	## https://nfdc.faa.gov/tod/public/TOD_DOF.html
@@ -115,8 +112,6 @@ download-base-data:
 	wget -N https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/AWY.zip && unzip AWY.zip && rm -f AWY.zip
 	./saa.sh							     $(CYCLEDATE28BASE)
 	wget -N https://www.outerworldapps.com/WairToNowWork/avare_aptdiags.php && mv avare_aptdiags.php airdiags/aptdiags.csv
-
-process-data:
 	./saa.pl > saa.csv
 	./airport.pl > airport.csv
 	./runway.pl > runway.csv
@@ -129,6 +124,7 @@ process-data:
 	./aw.pl > aw.csv
 
 plates-png: 
+	# cd plates/DDTPP && unzip DDTPPE*zip d-TPP_Metafile.xml
 	cd plates && qsub plates.pbs
 
 download-plates:
@@ -145,14 +141,9 @@ procedures.db:
 	pushd CIFP && unzip cifp_$(CYCLECIFP).zip && rm -f procedures.db
 	pushd CIFP && make procedures.db && mv procedures.db ..
 
-download-afd:
-	@echo This is currently done on eagle:
-	@echo "  wget -c http://aeronav.faa.gov/upload_313-d/supplements/DCS_$(shell ./cycledates.sh 56 afd).zip"
-
-afd-data:
-	echo http://aeronav.faa.gov/upload_313-d/supplements/DCS_20160526.zip
+afd.csv:
 	rm -f afd.csv
-	./afd.sh
+	sbatch -n 40 afd.sh
 
 mins-data:
 	./domins.sh $(CYCLE)
@@ -234,13 +225,13 @@ stage-ifr-low: charts/ifr/*zip  # charts/ifa/*zip charts/ifh/*zip
 stage-vfr-sec: charts/sec/*tif charts/tac/*tif #charts/wac/*tif 
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	## gcc -march=native -O3 -Wall stagefly.c -o stagefly
-	gcc -march=native -O3 -Wall stage-vfr-heli.c -o stage-vfr-heli
+	## gcc -march=native -O3 -Wall stage-vfr-heli.c -o stage-vfr-heli
 	gcc -march=native -O3 -Wall stage-vfr-sec.c -o stage-vfr-sec
 	## gcc -march=native -O3 -Wall stage-vfr-tac.c -o stage-vfr-tac
-	# ./stage-vfr-heli
 	$(MAKE) -C charts/hel
-	./stage-vfr-sec
 	$(MAKE) -f Makefile.tac
+	./stage-vfr-sec
+	# ./stage-vfr-heli
 	# ./stage-vfr-tac
 
 ziptiles:

@@ -77,8 +77,11 @@ my $parser = new XML::Parser (Handlers => {
 
 my $response;
 
-my $cycle = "29MAY2014";
-my $name = "afd_$cycle.xml";
+print "$ARGV[0]\n";
+print "$ARGV[1]\n";
+
+my $cycle = $ARGV[0]; ##"03JAN2019";
+my $name = $ARGV[1]; ##afd_*xml
 
 # Dates coincide with IFR charts every 56 days 
 ## This is dated now... the link doesn't work and we're paying for the xml file.
@@ -100,7 +103,7 @@ foreach(@list) {
 		print scalar @list;
 		print " $_ $nm \n"; 
 #		print "http://aeronav.faa.gov/afd/$cycle/$_ ";
-		print "http://eagle.ceas.wmich.edu/avare/afd/$cycle/$_ ";
+#		print "http://eagle.ceas.wmich.edu/avare/afd/$cycle/$_ ";
 		print "afd/$nm \n"; 
 #		getstore("http://aeronav.faa.gov/afd/$cycle/$_", "afd/$nm");
 		getstore("http://eagle.ceas.wmich.edu/avare/afd/$cycle/$_", "afd/$nm");

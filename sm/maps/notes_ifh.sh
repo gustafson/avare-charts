@@ -101,16 +101,23 @@ for TYPE in ifh; do # ifr
     	## fi
     	
     	TRR=$TR
-    	
-    	echo "merge/${TYPE}/${a}.tif.time gdalwarp -multi -wm 512 -r bilinear -cutline merge/${TYPE}/$a -crop_to_cutline -dstnodata 51 -tr $TRR $TRR -t_srs ${EPSG} charts/ifr/$b.pdf merge/${TYPE}/${a}.tif -of gtiff -overwrite" 
-    done |xargs -L1 -P8 /usr/bin/time -v -o 
+
+	## Pacific files are tifs not pdfs
+	## charts/ifr/ENR_P01.pdf
+	if [[ $b =~ .*P01.* ]]; then
+	    SRCFILE=charts/ifr/${b}.tif
+	else
+	    SRCFILE=charts/ifr/${b}.pdf
+	fi
+	echo "merge/${TYPE}/${a}.tif.time gdalwarp -multi -wm 512 -r lanczos -cutline merge/${TYPE}/$a -crop_to_cutline -dstnodata 51 -tr $TRR $TRR -t_srs ${EPSG} ${SRCFILE} merge/${TYPE}/${a}.vrt -of vrt -overwrite" 
+    done |xargs -L1 -P20 /usr/bin/time -v -o 
     
-    rm -f merge/${TYPE}/${TYPE}-west.vrt; gdalbuildvrt merge/${TYPE}/${TYPE}-west.vrt merge/${TYPE}/*west*shp*tif
-    rm -f merge/${TYPE}/${TYPE}-east.vrt; gdalbuildvrt merge/${TYPE}/${TYPE}-east.vrt merge/${TYPE}/*east*shp*tif
+    rm -f merge/${TYPE}/${TYPE}-west.vrt; gdalbuildvrt merge/${TYPE}/${TYPE}-west.vrt merge/${TYPE}/*west*shp*vrt
+    rm -f merge/${TYPE}/${TYPE}-east.vrt; gdalbuildvrt merge/${TYPE}/${TYPE}-east.vrt merge/${TYPE}/*east*shp*vrt
     
     rm -f ${TYPE}-east.vrt; gdal_translate -r near -projwin_srs WGS84 -projwin  123.5 62.0 180.0 -5.25 -a_nodata 51 -of vrt merge/${TYPE}/${TYPE}-east.vrt ${TYPE}-east.vrt
     rm -f ${TYPE}-west.vrt; gdal_translate -r near -projwin_srs WGS84 -projwin -180.0 72.2 -62.7 -5.25 -a_nodata 51 -of vrt merge/${TYPE}/${TYPE}-west.vrt ${TYPE}-west.vrt
 
 done
 
-qsub -t4 generate-tiles.pbs
+# qsub -t4 generate-tiles.pbs
