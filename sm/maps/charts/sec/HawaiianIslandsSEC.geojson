@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "17HawaiianIslands_c.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "17HawaiianIslands_c.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -17866778.272320412099361, 2632018.637586425058544 ], [ -17198861.327560771256685, 2632018.637586425058544 ], [ -17198861.327560771256685, 2096156.538466286379844 ], [ -17866778.272320412099361, 2096156.538466286379844 ], [ -17866778.272320412099361, 2632018.637586425058544 ] ] ] } }
+]
+}

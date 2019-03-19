@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "08Dallas-FtWorth_c.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "08Dallas-FtWorth_c.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -11354588.060913905501366, 4300621.372044270858169 ], [ -10575351.62536099180579, 4300621.372044270858169 ], [ -10575351.62536099180579, 3763310.627144652418792 ], [ -11354588.060913905501366, 3763310.627144652418792 ], [ -11354588.060913905501366, 4300621.372044270858169 ] ] ] } }
+]
+}

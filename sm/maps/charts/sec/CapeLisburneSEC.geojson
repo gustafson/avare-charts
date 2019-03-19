@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "42CapeLisburne_c.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "42CapeLisburne_c.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -19091292.671046420931816, 11753184.615338450297713 ], [ -17477160.054543953388929, 11753184.615338450297713 ], [ -17477160.054543953388929, 10446997.314774937927723 ], [ -19091292.671046420931816, 10446997.314774937927723 ], [ -19091292.671046420931816, 11753184.615338450297713 ] ] ] } }
+]
+}

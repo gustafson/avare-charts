@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "09Caribbean1_c.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "09Caribbean1_c.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -9517816.462824892252684, 2753408.10936497990042 ], [ -8126322.827908972278237, 2753408.10936497990042 ], [ -8126322.827908972278237, 1804722.766257291892543 ], [ -9517816.462824892252684, 1804722.766257291892543 ], [ -9517816.462824892252684, 2753408.10936497990042 ] ] ] } }
+]
+}

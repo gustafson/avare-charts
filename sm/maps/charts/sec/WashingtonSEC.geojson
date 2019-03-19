@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "38Washington_c.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "38Washington_c.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -8682920.281875340268016, 4865942.279503175988793 ], [ -8015003.337115698494017, 4865942.279503175988793 ], [ -8015003.337115698494017, 4300621.372044270858169 ], [ -8682920.281875340268016, 4300621.372044270858169 ], [ -8682920.281875340268016, 4865942.279503175988793 ] ] ] } }
+]
+}

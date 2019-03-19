@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "61MarianaIslandsInset_c.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "61MarianaIslandsInset_c.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 15918687.183438124135137, 1746891.557075357763097 ], [ 16252645.655817944556475, 1746891.557075357763097 ], [ 16252645.655817944556475, 1459732.27188049745746 ], [ 15918687.183438124135137, 1459732.27188049745746 ], [ 15918687.183438124135137, 1746891.557075357763097 ] ] ] } }
+]
+}

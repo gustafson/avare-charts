@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "00Albuquerque_c.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "00Albuquerque_c.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -12133824.496466821059585, 4300621.372044270858169 ], [ -11354588.060913905501366, 4300621.372044270858169 ], [ -11354588.060913905501366, 3763310.627144652418792 ], [ -12133824.496466821059585, 3763310.627144652418792 ], [ -12133824.496466821059585, 4300621.372044270858169 ] ] ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "03Brownsville_c.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "03Brownsville_c.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -11465907.551707180216908, 3248973.789650976192206 ], [ -10797990.606947539374232, 3248973.789650976192206 ], [ -10797990.606947539374232, 2753408.10936497990042 ], [ -11465907.551707180216908, 2753408.10936497990042 ], [ -11465907.551707180216908, 3248973.789650976192206 ] ] ] } }
+]
+}

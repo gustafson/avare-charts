@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "60SamoanIslandsInset_c.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "60SamoanIslandsInset_c.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -19258271.907236330211163, -1345708.408409109804779 ], [ -18812993.944063238799572, -1345708.408409109804779 ], [ -18812993.944063238799572, -1804722.766257292591035 ], [ -19258271.907236330211163, -1804722.766257292591035 ], [ -19258271.907236330211163, -1345708.408409109804779 ] ] ] } }
+]
+}

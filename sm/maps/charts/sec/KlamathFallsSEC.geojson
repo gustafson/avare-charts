@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "21KlamathFalls_c.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "21KlamathFalls_c.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -13914936.349159199744463, 5543147.203861799091101 ], [ -13024380.422813, 5543147.203861799091101 ], [ -13024380.422813, 4865942.279503175988793 ], [ -13914936.349159199744463, 4865942.279503175988793 ], [ -13914936.349159199744463, 5543147.203861799091101 ] ] ] } }
+]
+}

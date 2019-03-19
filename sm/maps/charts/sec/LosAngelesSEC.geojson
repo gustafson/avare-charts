@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "24LosAngeles_c.tif",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "24LosAngeles_c.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -13580977.87677937746048, 4300621.372044270858169 ], [ -12913060.932019738480449, 4300621.372044270858169 ], [ -12913060.932019738480449, 3763310.627144652418792 ], [ -13580977.87677937746048, 3763310.627144652418792 ], [ -13580977.87677937746048, 4300621.372044270858169 ] ] ] } }
+]
+}
