@@ -138,9 +138,10 @@ if [[ $STEP -eq 0 ]]; then
 		## Convert and optimize
 		convert -density ${DENS} -dither none -antialias -depth 8 -quality 00 -background white -alpha remove ${TRIM} -colors 15 ${FN}.pdf -format png8 ${FN}_${SIZE}.png
     		optipng -quiet ${FN}_${SIZE}*.png
+		convert -format webp -define webp:lossless=true,method=6 -density ${DENS} -dither none -antialias -depth 8 -quality 00 -background white -alpha remove ${TRIM} -colors 15 ${FN}.pdf ${FN}_${SIZE}.webp
 
 		## Store the files
-		mv ${FN}_${SIZE}*.png plates.archive/${CYCLE}/plates_${STATE}/${AIRPORT}/.
+		mv ${FN}_${SIZE}*.{webp,png} plates.archive/${CYCLE}/plates_${STATE}/${AIRPORT}/.
     		mv ${FN}.pdf plates.archive/${CYCLE}/plates_${STATE}/${AIRPORT}/.
     		
     	    fi

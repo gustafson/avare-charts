@@ -1,0 +1,19 @@
+TR := $(shell bc -l <<< 20026376.39/512/2^5)
+
+sec10.vrt: warped
+	gdalbuildvrt -r near -resolution highest sec10.vrt -overwrite /dev/shm/merge/10/sec/*SEC.tif # -srcnodata 51 -vrtnodata 51 
+	gdalbuildvrt -r near -resolution highest sec10-wai.vrt -overwrite /dev/shm/merge/10/sec/{WesternAleutianIslandsEast2EastSEC.tif,WesternAleutianIslandsWestSEC.tif} # -srcnodata 51 -vrtnodata 51 
+	gdalbuildvrt -r near -resolution highest sec10-east.vrt -overwrite /dev/shm/merge/10/sec/{WesternAleutianIslandsEast2EastSEC.tif,WesternAleutianIslandsWestSEC.tif,MarianaIslandsInsetSEC.tif} # -srcnodata 51 -vrtnodata 51 
+	## rm -f sec10-east.vrt; gdal_translate -r near -projwin_srs WGS84 -projwin  143.0 53.25 180.0 13.0 -of vrt sec10.vrt sec10-east.vrt # -a_nodata none 
+	rm -f sec10-west.vrt; gdal_translate -r near -projwin_srs WGS84 -projwin -180.0 72   -61.0 -16.0 -of vrt sec10.vrt sec10-west.vrt # -a_nodata none 
+	
+
+warped: $(subst .geojson,.tif,$(subst charts,/dev/shm/merge/10,$(wildcard charts/sec/*.geojson)))
+
+/dev/shm/merge/10/sec/%.tif: charts/sec/%.tif
+	echo $<
+	if [[ ! -d /dev/shm/merge/10/sec/ ]]; then mkdir -p /dev/shm/merge/10/sec/; fi
+	rm -f $@ $(@:.tif=.vrt)
+	gdal_translate -of vrt -r cubicspline -expand rgb $< $(@:.tif=.rgb.vrt)
+	gdalwarp -dstalpha -dstnodata "0 0 0 255" -r cubicspline -t_srs 'EPSG:3857' -cutline $(<:.tif=.geojson) -crop_to_cutline -tr $(TR) $(TR) $(@:.tif=.rgb.vrt) $@ 
+	rm $(@:.tif=.rgb.vrt)

@@ -1,16 +1,14 @@
-#!/bin/sh -login
-#PBS -l mem=8gb
-#PBS -l nodes=1:ppn=8
-#PBS -l walltime=1000:00:00
-#PBS -m abe 
-#PBS -V 
-#PBS -N ChartTiling
-#PBS -e z-logs/z.${PBS_JOBID}.e_${PBS_JOBNAME}
-#PBS -o z-logs/z.${PBS_JOBID}.o_${PBS_JOBNAME}
-#PBS -t 0,1,3-5%1
+#!/bin/bash
+#SBATCH --mem-per-cpu=2000
+#SBATCH --ntasks=40
+#SBATCH --time=1000:00:00
+#SBATCH --job-name=ChartTiling
+#SBATCH --output=z-logs/ChartTiling_%A_%a.out
+#SBATCH --error=z-logs/ChartTiling_%A_%a.out
+#SBATCH --array=0,1,3-5,9
 
 #!/bin/bash
-# Copyright (c) 2015, Peter A. Gustafson (peter.gustafson@wmich.edu)
+# Copyright (c) 2015-2019, Peter A. Gustafson (peter.gustafson@wmich.edu)
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,39 +35,14 @@
 # WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-if [[ ${PBS_NODEFILE} ]]; then
-    echo ------------------------------------------------------
-    NODE=`sort ${PBS_NODEFILE} | uniq`
-    HOST=`echo ${PBS_O_HOST} |cut -f1 -d.`
-    echo Job is running on node ${NODE} from host ${HOST}
-    echo ------------------------------------------------------
-    echo PBS: qsub was run on ${PBS_O_HOST}
-    echo PBS: originating queue is ${PBS_O_QUEUE}
-    echo PBS: executing queue is ${PBS_QUEUE}
-    echo PBS: working directory is ${PBS_O_WORKDIR}
-    echo PBS: execution mode is ${PBS_ENVIRONMENT}
-    echo PBS: job identifier is ${PBS_JOBID}
-    echo PBS: job name is ${PBS_JOBNAME}
-    echo PBS: node file is ${PBS_NODEFILE}
-    echo PBS: current home directory is ${PBS_O_HOME}
-    echo PBS: PATH = ${PBS_O_PATH}
-    echo ------------------------------------------------------
+echo "SLURM_JOBID: $SLURM_JOBID"
+echo "SLURM_JOB_NODELIST: $SLURM_JOB_NODELIST"
+echo "SLURM_NNODES: $SLURM_NNODES"
+echo "SLURMTMPDIR: $SLURMTMPDIR"
+echo "working directory = $SLURM_SUBMIT_DIR"
 
-    NP=$(cat ${PBS_NODEFILE} | wc -l)
-    # NP=$((NP*2))
-    export TMPDIR=/scratch
-else
-    NP=8
-    export PBS_ARRAYID=0
-    export TMPDIR=/data/home/pi/gustafson
-fi
-
-[[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
-CYCLE=$(./cyclenumber.sh)
-
-OPTIONS1="--verbose -w openlayers -c MUAVLLC --no-kml --resume --processes ${NP}"
-TIME1="/usr/bin/time -v --append -o"
-ARRAY=`echo ${PBS_JOBID} | sed -e s/"\[..\]"/"\[\]"/g -e "s/.cs.wmich.edu//g"`
+NP=$((${SLURM_NTASKS}*2))
+[[ ${SLURM_SUBMIT_DIR} ]] && cd ${SLURM_SUBMIT_DIR}
 
 function myfindwac (){
     ## The purpose of this was to pick every other row and column to label with expired
@@ -103,85 +76,118 @@ function rmemptypng(){
 }
 export -f rmemptypng
 
-if [[ ${PBS_ARRAYID} -eq 0 ]]; then
-    rm -f time.sec.txt
-    ${TIME1} time.sec.txt nice ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 -r cubicspline sec-west.vrt /dev/shm/tiles/0
-    ${TIME1} time.sec.txt nice ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 -r cubicspline sec-east.vrt /dev/shm/tiles/0
-    rsync -avP --del /dev/shm/tiles/0/ tiles/0/ # --exclude=*.xml 
-    rm -fr /dev/shm/tiles/0
+OPTIONS1="-x --verbose -w openlayers -c MUAVLLC --no-kml --resume --processes ${NP}"  ## -x would not generate blank tiles, but seems to bomb.
+TIME1="/usr/bin/time -v --append -o"
+
+function gentiles(){
     
-elif [[ ${PBS_ARRAYID} -eq 1 ]]; then
-    ## rm -f time.wac.txt
+    if [[ ${1} -eq 0 ]]; then
+	make -f Makefile.sec -j ${NP}
+	rm -f time.sec.txt
+	GUAM=/dev/shm/merge/sec10/MarianaIslandsInsetSEC.tif
 
-    ## for vrt in merge/tac/*.tif; do
-    ##     ${TIME1} time.tac.txt nice ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} -r lanczos ${vrt} -z 7-11 /dev/shm/tiles/1/${vrt}
-    ## done
+	rm -fr /dev/shm/tiles/0
+	## ${TIME1} time.sec.txt nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-5 -r near ${GUAM}      /dev/shm/tiles/0
+	## ${TIME1} time.sec.txt nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 1-5 -r near sec10-wai.vrt  /dev/shm/tiles/0
+	## ${TIME1} time.sec.txt nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-5 -r near sec10-east.vrt /dev/shm/tiles/0
+	## ${TIME1} time.sec.txt nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-5 -r near sec10-west.vrt /dev/shm/tiles/0
+	${TIME1} time.sec.txt nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-5 -r near sec10.vrt /dev/shm/tiles/0
 
-    ${TIME1} time.tac.txt nice ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-11 -r cubicspline tac.vrt /dev/shm/tiles/1
-    rsync -avP --del /dev/shm/tiles/1/ tiles/1/ # --exclude=*.xml
-    rm -fr /dev/shm/tiles/1
+	## TEMP GUAM=merge/sec/MarianaIslandsInsetSEC.tif
+	## TEMP ## rm -fr /dev/shm/tiles/0
+	## TEMP ${TIME1} time.sec.txt nice ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -a 51 -z 0-10 -r cubicspline ${GUAM}      /dev/shm/tiles/0
+	## TEMP #${TIME1} time.sec.txt nice ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -a 51 -z 1-10 -r cubicspline sec-wai.vrt  /dev/shm/tiles/0
+	## TEMP ${TIME1} time.sec.txt nice ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -a 51 -z 0-10 -r cubicspline sec-east.vrt /dev/shm/tiles/0
+	## TEMP ${TIME1} time.sec.txt nice ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -a 51 -z 0-10 -r cubicspline sec-west.vrt /dev/shm/tiles/0
+	## TEMP 
+	## TEMP rsync -rcv --del /dev/shm/tiles/0/ tiles/0/ --exclude=*.xml 
+	## TEMP # rsync -avP --del /dev/shm/tiles/0/ tiles/0/ # --exclude=*.xml 
+	## TEMP rm -fr /dev/shm/tiles/0
+	
+    elif [[ ${1} -eq 1 ]]; then
+	## rm -f time.wac.txt
 
-elif [[ ${PBS_ARRAYID} -eq 2 ]]; then
-    rm -f time.wac.txt
-    ${TIME1} time.wac.txt nice ./gdal2tiles_512_parallel.py -t "VFR World" ${OPTIONS1} -z 0-9 -r cubicspline wac.vrt /dev/shm/tiles/2
-    
-    ## Remove blank tiles
-    find /dev/shm/tiles/2/ -name "*png" |xargs md5sum > md5sums.txt; cut -f 1 -d" " md5sums.txt|sort |uniq -c|sort -n
-    grep -e 2416022fedd35f66c3f4272284f0eb71 -e 408f9a687171af1e975e3d9ebc292caa -e 8fc543693de4de3fa5b1e6c353376610 -e 7ee0240fba70752122eb8585edb525ea md5sums.txt|cut -f3 -d" "|xargs rm
-    find /dev/shm/tiles/2/ -name "*aux.xml"| xargs rm
-    
-    ## Mark every other row and column as expired in a checkerboard pattern
-    myfindwac | xargs -n 1 -P ${NP} mogrify -gravity center -pointsize 40 -fill white \
-		      -draw "fill-opacity 0.20 rotate -45 text 0,0 'Expired'" -stroke red -strokewidth 1 
+	## for vrt in merge/tac/*.tif; do
+	##     ${TIME1} time.tac.txt nice ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} -r lanczos ${vrt} -z 7-11 /dev/shm/tiles/1/${vrt}
+	## done
 
-    rsync -avP /dev/shm/tiles/2/ tiles/2/ --del
-    rm -fr /dev/shm/tiles/2
-    
-elif [[ ${PBS_ARRAYID} -eq 3 ]]; then
-    rm -f time.ifr.txt
-    ${TIME1} time.ifr.txt nice ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-east.vrt /dev/shm/tiles/3
-    ${TIME1} time.ifr.txt nice ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-west.vrt /dev/shm/tiles/3
-    # find /dev/shm/tiles/3 -name "*png"|xargs md5sum|grep 4023a0e7925b07a6be26e2cddb65f0cd|cut -f3 -d" "|xargs rm;
-    rsync -avP /dev/shm/tiles/3/ tiles/3-build/ # --exclude=*.xml 
-    # rm -fr /dev/shm/tiles/3
+	${TIME1} time.tac.txt nice ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-11 -r cubicspline tac.vrt /dev/shm/tiles/1
+	rsync -avP --del /dev/shm/tiles/1/ tiles/1/ # --exclude=*.xml
+	rm -fr /dev/shm/tiles/1
 
-elif [[ ${PBS_ARRAYID} -eq 4 ]]; then
-    rm -f time.ifh.txt
-    ${TIME1} time.ifh.txt nice ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r lanczos ifh-east.vrt /dev/shm/tiles/4
-    ${TIME1} time.ifh.txt nice ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r lanczos ifh-west.vrt /dev/shm/tiles/4
-    find /dev/shm/tiles/4 -name "*png"|xargs md5sum|grep 4023a0e7925b07a6be26e2cddb65f0cd|cut -f3 -d" "|xargs rm
-    rsync -avP /dev/shm/tiles/4/ tiles/4-build/ ## --exclude=*.xml 
-    rm -fr /dev/shm/tiles/4
+    elif [[ ${1} -eq 2 ]]; then
+	rm -f time.wac.txt
+	${TIME1} time.wac.txt nice ./gdal2tiles_512_parallel.py -t "VFR World" ${OPTIONS1} -z 0-9 -r cubicspline wac.vrt /dev/shm/tiles/2
+	
+	## Remove blank tiles
+	find /dev/shm/tiles/2/ -name "*png" |xargs md5sum > md5sums.txt; cut -f 1 -d" " md5sums.txt|sort |uniq -c|sort -n
+	grep -e 2416022fedd35f66c3f4272284f0eb71 -e 408f9a687171af1e975e3d9ebc292caa -e 8fc543693de4de3fa5b1e6c353376610 -e 7ee0240fba70752122eb8585edb525ea md5sums.txt|cut -f3 -d" "|xargs rm
+	find /dev/shm/tiles/2/ -name "*aux.xml"| xargs rm
+	
+	## Mark every other row and column as expired in a checkerboard pattern
+	myfindwac | xargs -n 1 -P ${NP} mogrify -gravity center -pointsize 40 -fill white \
+			  -draw "fill-opacity 0.20 rotate -45 text 0,0 'Expired'" -stroke red -strokewidth 1 
 
-elif [[ ${PBS_ARRAYID} -eq 5 ]]; then
-    rm -f time.ifa.txt
+	rsync -avP /dev/shm/tiles/2/ tiles/2/ --del
+	rm -fr /dev/shm/tiles/2
+	
+    elif [[ ${1} -eq 3 ]]; then
+	rm -f time.ifr.txt
+	${TIME1} time.ifr.txt nice ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-east.vrt /dev/shm/tiles/3
+	${TIME1} time.ifr.txt nice ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-west.vrt /dev/shm/tiles/3
+	find /dev/shm/tiles/3 -name "*png"|xargs md5sum|grep 4023a0e7925b07a6be26e2cddb65f0cd|cut -f3 -d" "|xargs rm;
+	rsync -avP /dev/shm/tiles/3/ tiles/3/ --exclude=*.xml
+	rm -fr /dev/shm/tiles/3
 
-    ## The images are sparse, only create those that are necessary
-    for vrt in merge/ifa/*vrt; do
-	${TIME1} time.ifa.txt nice ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos ${vrt} -z 7-11 /dev/shm/tiles/5
-    done
-    
-    ## Extend Guam which stands completely isolated
-    ${TIME1} time.ifa.txt nice ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-11 merge/ifa/ENR_P01_GUA.vrt /dev/shm/tiles/5
-    
-    ## Extend the rest... there were a total of 213 images at this level including guam.  ifa.vrt excludes guam
-    ${TIME1} time.ifa.txt nice ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-6 ifa.vrt /dev/shm/tiles/5
+    elif [[ ${1} -eq 4 ]]; then
 
-    find /dev/shm/tiles/5 -name "*png"|xargs md5sum|grep 4023a0e7925b07a6be26e2cddb65f0cd|cut -f3 -d" "|xargs rm
-    rsync -avP --exclude=*.xml /dev/shm/tiles/5/ tiles/5/
-    rm -fr /dev/shm/tiles/5
+	make -C charts/ifr/ -j${NP} -f Makefile.ifh
+	
+	rm -f time.ifh.txt
+	${TIME1} time.ifh.txt nice ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r near ifh-east.vrt /dev/shm/tiles/4
+	${TIME1} time.ifh.txt nice ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r near ifh-west.vrt /dev/shm/tiles/4
 
-    ## This was how level 6 was identified as the key level after creating tiles for individual images
-    ## find . -name "*png"|cut -f3- -d/|sort > sorted.txt
-    ## find . -name "*png"|cut -f3- -d/|sort -u > uniq.txt 
-    ## diff sorted.txt uniq.txt > difference.txt
-    ## grep png difference.txt |cut -c3-|sort -u > files.txt
-    ## find . -name "*png" |grep -f files.txt |rev|sort|rev|grep .vrt\/6
-    
-elif [[ ${PBS_ARRAYID} -eq 9 ]]; then
-    rm -f time.heli.txt
+	find /dev/shm/tiles/4 -name "*png"| xargs md5sum | grep 4023a0e7925b07a6be26e2cddb65f0cd | cut -f3 -d" " | xargs rm
+	find /dev/shm/tiles/4 -name "*aux.xml" | xargs rm
+	
+	find /dev/shm/tiles/4 -name "*png"  | xargs ${XARGS} -n1 -P${NP} mogrify -format png8
+	find /dev/shm/tiles/4 -name "*png8" | xargs rename png8 png
+	find /dev/shm/tiles/4 -name "*png"  | xargs ${XARGS} -n1 -P${NP}  optipng -quiet
+	find /dev/shm/tiles/4 -name "*png"  | xargs ${XARGS} -n1 -P${NP}  mogrify -format webp -define webp:lossless=true,method=6:thread-level=1
 
-    HELI="
+	rsync -rcv --del /dev/shm/tiles/4/ tiles/4/ --exclude=*aux.xml
+	rm -fr /dev/shm/tiles/4
+	rm -fr /dev/shm/{ENR_H*tif,ENR_AKH*tif,ENR_P*tif}
+
+    elif [[ ${1} -eq 5 ]]; then
+	rm -f time.ifa.txt
+
+	## The images are sparse, only create those that are necessary
+	for vrt in merge/ifa/*vrt; do
+	    ${TIME1} time.ifa.txt nice ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r near ${vrt} -z 7-11 /dev/shm/tiles/5
+	done
+	
+	## Extend Guam which stands completely isolated
+	${TIME1} time.ifa.txt nice ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r near -z 0-11 merge/ifa/ENR_P01_GUA.vrt /dev/shm/tiles/5
+	
+	## Extend the rest... there were a total of 213 images at this level including guam.  ifa.vrt excludes guam
+	${TIME1} time.ifa.txt nice ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r near -z 0-6 ifa.vrt /dev/shm/tiles/5
+
+	find /dev/shm/tiles/5 -name "*png"|xargs md5sum|grep 4023a0e7925b07a6be26e2cddb65f0cd|cut -f3 -d" "|xargs rm
+	rsync -avP --exclude=*.xml /dev/shm/tiles/5/ tiles/5/
+	rm -fr /dev/shm/tiles/5
+
+	## This was how level 6 was identified as the key level after creating tiles for individual images
+	## find . -name "*png"|cut -f3- -d/|sort > sorted.txt
+	## find . -name "*png"|cut -f3- -d/|sort -u > uniq.txt 
+	## diff sorted.txt uniq.txt > difference.txt
+	## grep png difference.txt |cut -c3-|sort -u > files.txt
+	## find . -name "*png" |grep -f files.txt |rev|sort|rev|grep .vrt\/6
+	
+    elif [[ ${1} -eq 9 ]]; then
+	rm -f time.heli.txt
+
+	HELI="
     charts/hel/BaltimoreWashington.vrt
     charts/hel/LosAngeles.vrt
     charts/hel/NewYork.vrt
@@ -193,66 +199,75 @@ elif [[ ${PBS_ARRAYID} -eq 9 ]]; then
     charts/hel/GrandCanyonGeneralAviation.tif
     charts/hel/Houston.vrt
     "   
-    ## charts/hel/heli.vrt
-    ## charts/hel/Baltimore.tif
-    ## charts/hel/BostonDowntown.tif
-    ## charts/hel/ChicagoOHareInset.tif
-    ## charts/hel/DowntownManhattan.tif
-    ## charts/hel/EasternLongIsland.tif
-    ## charts/hel/HoustonNorth.tif
-    ## charts/hel/HoustonSouth.tif
-    ## charts/hel/LosAngelesEast.tif
-    ## charts/hel/LosAngelesWest.tif
-    ## charts/hel/NewYork.tif
-    ## charts/hel/USGulfCoast.tif
-    ## charts/hel/Washington.tif
-   
-    ## The images are sparse, only create those that are necessary
-    for vrt in ${HELI}; do
-	${TIME1} time.ifa.txt nice ./gdal2tiles_512_parallel.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 8-12 ${vrt} tiles/9-build
-    done
-    ## Heli only on change
-    ${TIME1} time.heli.txt nice ./gdal2tiles_512_parallel.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 0-7 charts/hel/heli.vrt tiles/9-build
+	## charts/hel/heli.vrt
+	## charts/hel/Baltimore.tif
+	## charts/hel/BostonDowntown.tif
+	## charts/hel/ChicagoOHareInset.tif
+	## charts/hel/DowntownManhattan.tif
+	## charts/hel/EasternLongIsland.tif
+	## charts/hel/HoustonNorth.tif
+	## charts/hel/HoustonSouth.tif
+	## charts/hel/LosAngelesEast.tif
+	## charts/hel/LosAngelesWest.tif
+	## charts/hel/NewYork.tif
+	## charts/hel/USGulfCoast.tif
+	## charts/hel/Washington.tif
+	
+	## The images are sparse, only create those that are necessary
+	echo Creating sparse tiles based on individual images
+	for vrt in ${HELI}; do
+	    echo Creating image ${vrt}
+	    ${TIME1} time.ifa.txt nice ./gdal2tiles_512_parallel.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 8-12 ${vrt} tiles/9-build
+	done
+	## Heli only on change
+	echo Creating overview tiles based on all images
+	${TIME1} time.heli.txt nice ./gdal2tiles_512_parallel.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 0-7 charts/hel/heli.vrt tiles/9-build
 
-    rdfind -makehardlinks true tiles/9-build
+	find tiles/9-build -name "*aux.xml" |xargs rm
+	rdfind -makehardlinks true tiles/9-build
 
-    ## low cost copy (hardlinks)
-    rm -fr tiles/9
-    cp -al tiles/9-build tiles/9
-    
-    find tiles/9 -name "*png"|xargs md5sum|grep -e a6b0c59ea29fac3637be5b57f5d79130 -e 7ee0240fba70752122eb8585edb525ea -e a5bb30ccd3d4935e77a91bc8aa38319f |cut -f3 -d" "|xargs rm
+	## low cost copy (hardlinks)
+	rm -fr tiles/9
+	cp -al tiles/9-build tiles/9
+	
+	find tiles/9 -name "*png"|xargs md5sum|
+	    grep -e a6b0c59ea29fac3637be5b57f5d79130 -e 7ee0240fba70752122eb8585edb525ea -e a5bb30ccd3d4935e77a91bc8aa38319f |
+	    cut -f3 -d" "|xargs rm
 
-    # rsync -avP --del /dev/shm/tiles/9/ tiles/9/
-    # rm -fr /dev/shm/tiles/9
-    
-    ## find . -name "*png"|cut -f3- -d/|sort > sorted.txt
-    ## find . -name "*png"|cut -f3- -d/|sort -u > uniq.txt 
-    ## diff sorted.txt uniq.txt > difference.txt
-    ## grep png difference.txt |cut -c3-|sort -u > files.txt
-    ## find . -name "*png" |grep -f files.txt |rev|sort|rev
-    ## 
-    ## ./EasternLongIsland_2.tif/12/1210/2559.png
-    ## ./NewYork_2.tif/12/1210/2559.png
-    ## 
-    ## ./HoustonSouth_2.tif/12/960/2399.png
-    ## ./USGulfCoast_2.tif/12/960/2399.png
-    ## 
-    ## ./Baltimore_2.tif/12/1169/2529.png
-    ## ./Washington_2.tif/12/1169/2529.png
-    ## 
-    ## ./LosAngelesEast_2.tif/12/704/2459.png
-    ## ./LosAngelesWest_2.tif/12/704/2459.png
+	# rsync -avP --del /dev/shm/tiles/9/ tiles/9/
+	# rm -fr /dev/shm/tiles/9
+	
+	## find . -name "*png"|cut -f3- -d/|sort > sorted.txt
+	## find . -name "*png"|cut -f3- -d/|sort -u > uniq.txt 
+	## diff sorted.txt uniq.txt > difference.txt
+	## grep png difference.txt |cut -c3-|sort -u > files.txt
+	## find . -name "*png" |grep -f files.txt |rev|sort|rev
+	## 
+	## ./EasternLongIsland_2.tif/12/1210/2559.png
+	## ./NewYork_2.tif/12/1210/2559.png
+	## 
+	## ./HoustonSouth_2.tif/12/960/2399.png
+	## ./USGulfCoast_2.tif/12/960/2399.png
+	## 
+	## ./Baltimore_2.tif/12/1169/2529.png
+	## ./Washington_2.tif/12/1169/2529.png
+	## 
+	## ./LosAngelesEast_2.tif/12/704/2459.png
+	## ./LosAngelesWest_2.tif/12/704/2459.png
 
-    
-elif [[ ${PBS_ARRAYID} -eq 199 ]]; then
-    ${TIME1} time.debug.txt nice ./gdal2tiles_512_parallel.py -t "DEBUG" ${OPTIONS1} -r lanczos plates.archive/1701/plates_MI/AZO/RNAV-GPS-RWY-17.pdf tiles/debug
-    ## gdal_translate --config GDAL_PDF_DPI 150 -of Rasterlite RNAV-GPS-RWY-17.pdf RASTERLITE:my_db.sqlite,table=source -co DRIVER=WEBP
-    ## find tiles/debug -name "*png"| xargs mogrify -unsharp 1x1 -format png8
-    ## find tiles/debug -name "*png8"| xargs rename png8 png
-    ## find tiles/debug -name "*png" |xargs -n1 -P16 optipng
+	
+    elif [[ ${1} -eq 199 ]]; then
+	${TIME1} time.debug.txt nice ./gdal2tiles_512_parallel.py -t "DEBUG" ${OPTIONS1} -r lanczos plates.archive/1701/plates_MI/AZO/RNAV-GPS-RWY-17.pdf tiles/debug
+	## gdal_translate --config GDAL_PDF_DPI 150 -of Rasterlite RNAV-GPS-RWY-17.pdf RASTERLITE:my_db.sqlite,table=source -co DRIVER=WEBP
+	## find tiles/debug -name "*png"| xargs mogrify -unsharp 1x1 -format png8
+	## find tiles/debug -name "*png8"| xargs rename png8 png
+	## find tiles/debug -name "*png" |xargs -n1 -P16 optipng
 
-    gdal_translate -of GPKG byte.tif byte.gpkg -co TILING_SCHEME=GoogleMapsCompatible -co RESAMPLING LANCZOS
-fi
+	gdal_translate -of GPKG byte.tif byte.gpkg -co TILING_SCHEME=GoogleMapsCompatible -co RESAMPLING LANCZOS
+    fi
+}
+
+gentiles ${SLURM_ARRAY_TASK_ID}
 
 ## 0 Sectional
 ## 1 TAC

@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
   if (argc>=2){debug=1;}
 
   out("rm -fr merge/sec; mkdir -p merge/sec"); // Alaska sec
-  out("rm -fr merge/wac; mkdir -p merge/wac"); // WAC Alaska
+  // out("rm -fr merge/wac; mkdir -p merge/wac"); // WAC Alaska
   int entries = sizeof(maps) / sizeof(maps[0]);
 
   for(map = 0; map < entries; map++)
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
       snprintf(filestr, sizeof(filestr), "merge/%s/%02i%s", dir_ptr, map, maps[map].name);
  
       snprintf(buffer, sizeof(buffer),
-	       "gdal_translate -of vrt -r cubicspline -expand rgb -srcwin %i %i %i %i charts/%s/%s*.tif %s_1.vrt;\n",
+	       "gdal_translate -of vrt -r cubicspline -expand rgb -srcwin %i %i %i %i charts/%s/%sSEC[0-9]*.tif %s_1.vrt;\n",
 	       maps[map].x, maps[map].y, maps[map].dx, maps[map].dy, dir_ptr, n_ptr, filestr);
       strcat(cmdstr, buffer);
 

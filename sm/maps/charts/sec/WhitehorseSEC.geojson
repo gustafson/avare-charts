@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "WhitehorseSEC",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "59Whitehorse_c.vrt" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -15640388.456454940140247, 9349764.174146920442581 ], [ -14471533.803125567734241, 9349764.174146920442581 ], [ -14471533.803125567734241, 8399737.889818361029029 ], [ -15640388.456454940140247, 8399737.889818361029029 ], [ -15640388.456454940140247, 9349764.174146920442581 ] ] ] } }
+]
+}

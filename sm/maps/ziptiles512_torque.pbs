@@ -1,14 +1,16 @@
-#!/bin/bash
-#SBATCH --mem-per-cpu=1000
-#SBATCH --ntasks=40
-#SBATCH --time=1000:00:00
-#SBATCH --job-name=ZipTiles
-#SBATCH --output=z-logs/ZipTiles_%A_%a.out
-#SBATCH --error=z-logs/ZipTiles_%A_%a.out
-#SBATCH --array=0,1,3-5,9
+#!/bin/sh -login
+#PBS -l mem=12gb
+#PBS -l nodes=1:ppn=8
+#PBS -l walltime=1000:00:00
+#PBS -m abe 
+#PBS -V 
+#PBS -N ziptiles
+#PBS -e z-logs/z.${PBS_JOBID}.e_${PBS_JOBNAME}
+#PBS -o z-logs/z.${PBS_JOBID}.o_${PBS_JOBNAME}
+#PBS -t 0,1,3-5,9%3
 
 #!/bin/bash
-# Copyright (c) Peter A. Gustafson (peter.gustafson@wmich.edu) 2015-19
+# Copyright (c) Peter A. Gustafson (peter.gustafson@wmich.edu) 2015-16
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,14 +38,34 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-echo "SLURM_JOBID: $SLURM_JOBID"
-echo "SLURM_JOB_NODELIST: $SLURM_JOB_NODELIST"
-echo "SLURM_NNODES: $SLURM_NNODES"
-echo "SLURM_NTASKS: $SLURM_NTASKS"
-echo "SLURMTMPDIR: $SLURMTMPDIR"
-echo "working directory = $SLURM_SUBMIT_DIR"
+if [[ ${PBS_NODEFILE} ]]; then
+    echo ------------------------------------------------------
+    NODE=`sort ${PBS_NODEFILE} | uniq`
+    HOST=`echo ${PBS_O_HOST} |cut -f1 -d.`
+    echo Job is running on node ${NODE} from host ${HOST}
+    echo ------------------------------------------------------
+    echo PBS: qsub was run on ${PBS_O_HOST}
+    echo PBS: originating queue is ${PBS_O_QUEUE}
+    echo PBS: executing queue is ${PBS_QUEUE}
+    echo PBS: working directory is ${PBS_O_WORKDIR}
+    echo PBS: execution mode is ${PBS_ENVIRONMENT}
+    echo PBS: job identifier is ${PBS_JOBID}
+    echo PBS: job name is ${PBS_JOBNAME}
+    echo PBS: node file is ${PBS_NODEFILE}
+    echo PBS: current home directory is ${PBS_O_HOME}
+    echo PBS: PATH = ${PBS_O_PATH}
+    PATH=${PBS_O_PATH}
+    echo ------------------------------------------------------
 
-[[ ${SLURM_SUBMIT_DIR} ]] && cd ${SLURM_SUBMIT_DIR}
+    NP=$(cat ${PBS_NODEFILE} | wc -l)
+    export TMPDIR=/scratch
+else
+    PBS_ARRAYID=1
+    NP=8
+    export TMPDIR=/data/home/pi/gustafson
+fi
+
+[[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
 
 function mygroup(){
     corners=`./extract_corners.sh $1`
@@ -53,7 +75,7 @@ function mygroup(){
 export -f mygroup
 CYCLE=$(./cyclenumber.sh)
 
-function pngtojpg(){
+function guetzli_png_to_jpg(){
     bname=`dirname $0`/`basename $0 .png`
     ## convert -unsharp 1x1 -background white -alpha off ${bname}.png ${bname}_sharp.png
     ## guetzli --quality 85 ${bname}_sharp.png ${bname}.jpg && rm ${bname}_sharp.png
@@ -61,42 +83,39 @@ function pngtojpg(){
     convert -unsharp 1x1 -background white -alpha off ${bname}.png ppm:- |
 	cjpeg -quality 85 > ${bname}.jpg 
 }
-export -f pngtojpg
-
-XARGS="-n1 -P${SLURM_NTASKS}"
+export -f guetzli_png_to_jpg
 
 function cleanpngbylatlon () {
-    echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs ${XARGS} mogrify -format png8
+    echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs mogrify -format png8
     echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | sed s/png/png8/g | xargs rename png8 png
-    echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs ${XARGS} optipng -quiet
-    echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs ${XARGS} mogrify -format webp -define webp:lossless=true,method=6:thread-level=1
+    echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs -n1 -P16 optipng -quiet
+    echo $(./ziptiles.py $1 $2 $3 $4 $5 $6 png forclean) | xargs mogrify -format webp -define webp:lossless=true,method=6:thread-level=16
 }
 
 function cleanwholedirectory () {
-    find $1 -name "*png" | xargs ${XARGS} mogrify -format png8
+    find $1 -name "*png" | xargs mogrify -format png8
     find $1 -name "*png" | sed s/png/png8/g | xargs rename png8 png
-    find $1 -name "*png" | xargs ${XARGS} optipng -quiet
-    find $1 -name "*png" | xargs ${XARGS} mogrify -format webp -define webp:lossless=true,method=6:thread-level=1
+    find $1 -name "*png" | xargs -n1 -P16 optipng -quiet
 }
 
 function cleanpngbyimage () {
-    mygroup $1 $2 png forclean | xargs ${XARGS} mogrify -format png8
+    mygroup $1 $2 png forclean | xargs mogrify -format png8
     mygroup $1 $2 png forclean | sed s/png/png8/g | xargs rename png8 png
-    mygroup $1 $2 png forclean | xargs ${XARGS} optipng -quiet
-    mygroup $1 $2 png forclean | xargs ${XARGS} mogrify -format webp -define webp:lossless=true,method=6:thread-level=1
+    mygroup $1 $2 png forclean | xargs -n1 -P16 optipng -quiet
+    mygroup $1 $2 png forclean | xargs mogrify -format webp -define webp:lossless=true,method=6:thread-level=16
 }
 
 function createjpgfrompng_byimage () {
-    ## mygroup $1 $2 png forclean | xargs ${XARGS} mogrify -unsharp 1x1 -format jpg -quality 85
-    mygroup $1 $2 png forclean | xargs ${XARGS} bash -c pngtojpg
+    ## mygroup $1 $2 png forclean | xargs mogrify -unsharp 1x1 -format jpg -quality 85
+    mygroup $1 $2 png forclean | xargs -n1 -P16 bash -c guetzli_png_to_jpg
 }
 
 function createvfrwebpfrompng_byimage () {
-    mygroup $1 $2 png forclean | xargs ${XARGS} mogrify -unsharp 1x1 -format webp -define webp:method=6:thread-level=1 -quality 60
+    mygroup $1 $2 png forclean | xargs mogrify -unsharp 1x1 -format webp -define webp:method=6:thread-level=16 -quality 60
 }
 
 function createifrwebpfrompng_byimage () {
-    mygroup $1 $2 png forclean | xargs ${XARGS} mogrify -format webp -define webp:method=6:thread-level=1
+    mygroup $1 $2 png forclean | xargs mogrify -format webp -define webp:method=6:thread-level=16
 }
 
 export -f cleanpngbylatlon
@@ -106,12 +125,11 @@ export -f createjpgfrompng_byimage
 export -f createvfrwebpfrompng_byimage
 export -f createifrwebpfrompng_byimage
 
-if [[ ${SLURM_ARRAY_TASK_ID} -eq 0 ]]; then
+
+if [[ ${PBS_ARRAYID} -eq 0 ]]; then
     ## Create the images
     for img in `ls merge/sec/*_c.vrt`; do
     	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
-    ## for img in `ls merge/sec/*.tif`; do
-    ## 	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
     	createjpgfrompng_byimage ${img} sec
     	createvfrwebpfrompng_byimage ${img} sec
     done
@@ -119,8 +137,6 @@ if [[ ${SLURM_ARRAY_TASK_ID} -eq 0 ]]; then
     ## Remove the old zip file
     for img in `ls merge/sec/*_c.vrt`; do
     	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
-    ## for img in `ls merge/sec/*.tif`; do
-    ## 	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
 	rm -f final/${BASE}.zip
 	rm -f final_webp/${BASE}.zip
     done
@@ -128,8 +144,6 @@ if [[ ${SLURM_ARRAY_TASK_ID} -eq 0 ]]; then
     ## Actually do the zip
     for img in `ls merge/sec/*_c.vrt`; do
     	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
-    ## for img in `ls merge/sec/*.tif`; do
-    ## 	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
 
 	echo ${CYCLE} > ${BASE}
 	mygroup ${img} sec jpg forzip >> ${BASE}
@@ -144,7 +158,7 @@ if [[ ${SLURM_ARRAY_TASK_ID} -eq 0 ]]; then
     done
     wait
     
-elif [[ ${SLURM_ARRAY_TASK_ID} -eq 1 ]]; then
+elif [[ ${PBS_ARRAYID} -eq 1 ]]; then
     ## Create the images
     for img in `ls merge/tac/*.tif`; do
 	BASE=`basename ${img} .tif`
@@ -176,7 +190,7 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 1 ]]; then
     done
     wait
 
-elif [[ ${SLURM_ARRAY_TASK_ID} -eq 2 ]]; then
+elif [[ ${PBS_ARRAYID} -eq 2 ]]; then
 
     images=`ls merge/wac/*_c.vrt`
     ## Convert the files
@@ -223,7 +237,7 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 2 ]]; then
     done
     wait
 
-elif [[ ${SLURM_ARRAY_TASK_ID} -eq 3 ]]; then
+elif [[ ${PBS_ARRAYID} -eq 3 ]]; then
     
     cleanpngbylatlon -179.90  75.0 -128.45 50.50 ifr latlon
     cleanpngbylatlon -165.00  25.0 -150.00 15.00 ifr latlon
@@ -270,18 +284,17 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 3 ]]; then
     rm -f ELUS_SC
     rm -f ELUS_SW
 
-elif [[ ${SLURM_ARRAY_TASK_ID} -eq 4 ]]; then
+elif [[ ${PBS_ARRAYID} -eq 4 ]]; then
 
-    ## ## Cleaning now done in generate-tiles.pbs
-    ## cleanpngbylatlon -179.90  75.0 -128.45 50.50 ifh latlon
-    ## ## cleanpngbylatlon -165.00  25.0 -150.00 15.00 ifh latlon
-    ## ## cleanpngbylatlon  -68.00  19.5  -64.00 17.00 ifh latlon
-    ## cleanpngbylatlon  -85.00 50.15  -40.00 38.00 ifh latlon
-    ## cleanpngbylatlon -110.00 50.15  -85.00 38.00 ifh latlon
-    ## cleanpngbylatlon -131.21 50.15 -110.00 38.00 ifh latlon
-    ## cleanpngbylatlon  -85.00 38.00  -40.00 23.13 ifh latlon
-    ## cleanpngbylatlon -110.00 38.00  -85.00 23.13 ifh latlon
-    ## cleanpngbylatlon -131.21 38.00 -110.00 23.13 ifh latlon
+    cleanpngbylatlon -179.90  75.0 -128.45 50.50 ifh latlon
+    ## cleanpngbylatlon -165.00  25.0 -150.00 15.00 ifh latlon
+    ## cleanpngbylatlon  -68.00  19.5  -64.00 17.00 ifh latlon
+    cleanpngbylatlon  -85.00 50.15  -40.00 38.00 ifh latlon
+    cleanpngbylatlon -110.00 50.15  -85.00 38.00 ifh latlon
+    cleanpngbylatlon -131.21 50.15 -110.00 38.00 ifh latlon
+    cleanpngbylatlon  -85.00 38.00  -40.00 23.13 ifh latlon
+    cleanpngbylatlon -110.00 38.00  -85.00 23.13 ifh latlon
+    cleanpngbylatlon -131.21 38.00 -110.00 23.13 ifh latlon
     
     wait
     echo png
@@ -318,7 +331,7 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 4 ]]; then
     rm -f EHUS_SC
     rm -f EHUS_SW
 
-elif [[ ${SLURM_ARRAY_TASK_ID} -eq 5 ]]; then
+elif [[ ${PBS_ARRAYID} -eq 5 ]]; then
 
     ## IFR AREA Tiles
     for img in `ls merge/ifa/*vrt`; do
@@ -347,7 +360,7 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 5 ]]; then
 	rm ${BASE}
     done
 
-elif [[ ${SLURM_ARRAY_TASK_ID} -eq 6 ]]; then
+elif [[ ${PBS_ARRAYID} -eq 6 ]]; then
 
     ## 
     ## TEMP ## ## echo starting terrain
@@ -402,7 +415,7 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 6 ]]; then
     ## TEMP ## 
     ## TEMP ## ## echo done terrain
 
-elif [[ ${SLURM_ARRAY_TASK_ID} -eq 7 ]]; then
+elif [[ ${PBS_ARRAYID} -eq 7 ]]; then
     
     ## echo starting relief
     ## png
@@ -428,7 +441,7 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 7 ]]; then
     rm -f static_webp/REL_SW.zip; zip -9 --quiet static_webp/REL_SW.zip $(./ziptiles.py -131.21 38.00 -110.00 23.13 rel latlon webp forzip) &
     wait
 
-elif [[ ${SLURM_ARRAY_TASK_ID} -eq 8 ]]; then
+elif [[ ${PBS_ARRAYID} -eq 8 ]]; then
 
     echo start Candian topo
     for img in `ls ../can-topo/[0-9]*vrt`; do
@@ -439,7 +452,7 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 8 ]]; then
     done
     wait
 
-elif [[ ${SLURM_ARRAY_TASK_ID} -eq 9 ]]; then
+elif [[ ${PBS_ARRAYID} -eq 9 ]]; then
 
     HELI="
     charts/hel/Baltimore.tif
@@ -482,7 +495,7 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 9 ]]; then
     wait
     echo done heli
     
-elif [[ ${SLURM_ARRAY_TASK_ID} -eq 10 ]]; then
+elif [[ ${PBS_ARRAYID} -eq 10 ]]; then
     echo start TPC
     for img in `ls ../tpc/*2.vrt`; do
 	BASE=`echo $img|cut -f3 -d/|cut -f1 -d.|sed s/_2//`
@@ -493,7 +506,7 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 10 ]]; then
     wait
     echo done topo
 
-elif [[ ${SLURM_ARRAY_TASK_ID} -eq 99 ]]; then
+elif [[ ${PBS_ARRAYID} -eq 99 ]]; then
     cleanwholedirectory tiles/4/5
     cleanwholedirectory tiles/5/7
     ## cleanwholedirectory tiles/3_overlay/6

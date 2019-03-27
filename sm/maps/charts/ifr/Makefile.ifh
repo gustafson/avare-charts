@@ -20,7 +20,7 @@ IFHWEST = \
 /dev/shm/ENR_H10_west.tif \
 /dev/shm/ENR_H11_west.tif
 
-VRT = ../../ifr-east.vrt ../../ifr-west.vrt ../../ifh-east.vrt ../../ifh-west.vrt
+VRT = ../../ifh-east.vrt ../../ifh-west.vrt
 
 ALL = $(IFHEAST) $(IFHWEST) $(VRT)
 
@@ -77,7 +77,3 @@ clean:
 ../../ifh-west.vrt: $(IFHWEST)
 	cd ../../
 	gdalbuildvrt -r near -resolution highest -overwrite $@ $(IFHWEST)
-
-#rm -f ifh-west.vrt; gdal_translate -r near -projwin_srs WGS84 -projwin -180.0 72.2 -62.7 -5.25 -a_nodata 51 -of vrt merge/${TYPE}/ifh-west.vrt ifh-west.vrt
-#rm -f ${TYPE}-east.vrt; gdal_translate -r near -projwin_srs WGS84 -projwin  123.5 62.0 180.0 -5.25 -a_nodata 51 -of vrt merge/${TYPE}/${TYPE}-east.vrt ${TYPE}-east.vrt
-

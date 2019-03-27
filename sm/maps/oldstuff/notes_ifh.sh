@@ -1,3 +1,7 @@
+## This file was useful prior to having the Makefile.ifh file and the
+## now existing geojson files.  It is now outdated and left for
+## interest sake only.
+
 echo EPSG:900913 is formally EPS:3857 but a bug means it is using EPSG:3395 hence we use EPS:3857 instead
 EPSG=EPSG:3857
 
@@ -120,4 +124,4 @@ for TYPE in ifh; do # ifr
 
 done
 
-# qsub -t4 generate-tiles.pbs
+# sbatch -a4 generate-tiles.pbs

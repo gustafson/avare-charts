@@ -2573,9 +2573,9 @@ class GDAL2Tiles(object):
                       tmsoverlay.setOpacity(0.7);
                   }
 
-                  map.addLayers([gmap, gsat, ghyb, gter,
+                  map.addLayers([osm, gmap, gsat, ghyb, gter,
                                  broad, baer, bhyb,
-                                 osm, tmsoverlay]);
+                                 tmsoverlay]);
 
                   var switcherControl = new OpenLayers.Control.LayerSwitcher();
                   map.addControl(switcherControl);

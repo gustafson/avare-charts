@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "PointBarrowSEC",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "57PointBarrow_c.vrt" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -17477160.054543953388929, 11753184.615338450297713 ], [ -15696048.201851576566696, 11753184.615338450297713 ], [ -15696048.201851576566696, 10446997.314774937927723 ], [ -17477160.054543953388929, 10446997.314774937927723 ], [ -17477160.054543953388929, 11753184.615338450297713 ] ] ] } }
+]
+}

@@ -44,7 +44,7 @@ all:
 	@echo
 	@echo
 	@echo "Build instructions for Avare charts"
-	@echo "  Minimum gdal version is 2.0"
+	@echo "  Minimum gdal version is 2.4"
 	@echo "  -- Current gdal version is $(GDALVERSION)"
 	@echo "  Machine has $(NP) processors, assuming all may be used."
 	@echo
@@ -125,7 +125,7 @@ download-and-process-base-data:
 
 plates-png: 
 	# cd plates/DDTPP && unzip DDTPPE*zip d-TPP_Metafile.xml
-	cd plates && qsub plates.pbs
+	cd plates && sbatch plates.pbs
 
 download-plates:
 	[[ -d plates/DDTPP ]] || mkdir -p plates/DDTPP
@@ -146,7 +146,7 @@ afd.csv:
 	sbatch -n 40 afd.sh
 
 mins-data:
-	./domins.sh $(CYCLE)
+	sbatch domins.pbs
 
 download-vfr:
 	echo Downloading vfr for cycle $(CYCLE)
@@ -204,22 +204,22 @@ rename:
 
 
 stage-all: stage-vfr-sec stage-ifr-low
-	## NOTE current limit is disk IO and open files, it is inadvisable to do all at the same time
-	cat generate-tiles.pbs| qsub -t 0,1,3,4,5%1 #| sed s/ppn=16/ppn=$(NP)/
+	sbatch --array=0,1,3-5,9 generate-tiles.pbs
 
 stage-ifr: stage-ifr-low
-	cat generate-tiles.pbs| qsub -t 3-5%1 #| sed s/ppn=16/ppn=$(NP)/
+	sbatch --array=3-5 generate-tiles.pbs
 
 stage-vfr: stage-vfr-sec
-	cat generate-tiles.pbs| qsub -t 0-1,9%1 #| sed s/ppn=16/ppn=$(NP)/	
+	sbatch --array=0,1 generate-tiles.pbs
 
 stage-ifr-low: charts/ifr/*zip  # charts/ifa/*zip charts/ifh/*zip
+	## ifh now staged in generate-tiles
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	gcc -march=native -O3 -Wall stage-ifr-low.c -o stage-ifr-low
-	gcc -march=native -O3 -Wall stage-ifr-high.c -o stage-ifr-high
+	## gcc -march=native -O3 -Wall stage-ifr-high.c -o stage-ifr-high 
 	gcc -march=native -O3 -Wall stage-ifr-area.c -o stage-ifr-area
 	./stage-ifr-low
-	./stage-ifr-high
+	## ./stage-ifr-high
 	./stage-ifr-area
 
 stage-vfr-sec: charts/sec/*tif charts/tac/*tif #charts/wac/*tif 
@@ -228,18 +228,19 @@ stage-vfr-sec: charts/sec/*tif charts/tac/*tif #charts/wac/*tif
 	## gcc -march=native -O3 -Wall stage-vfr-heli.c -o stage-vfr-heli
 	gcc -march=native -O3 -Wall stage-vfr-sec.c -o stage-vfr-sec
 	## gcc -march=native -O3 -Wall stage-vfr-tac.c -o stage-vfr-tac
+	./stage-vfr-sec
+	## ./stage-vfr-heli
+	## ./stage-vfr-tac
 	$(MAKE) -C charts/hel
 	$(MAKE) -f Makefile.tac
-	./stage-vfr-sec
-	# ./stage-vfr-heli
-	# ./stage-vfr-tac
+	## $(MAKE) -f Makefile.sec
 
 ziptiles:
 	## ./ziptiles.sh
 ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
-	qsub -t 0,1,3,4,5,9%1 ziptiles512.pbs
+	sbatch --array=0,1,3,4,5,9 ziptiles512_slurm.pbs
 else
-	qsub -t 0,1,9%1 ziptiles512.pbs
+	sbatch --array=0,1,9 ziptiles512_slurm.pbs
 endif
 
 temp:

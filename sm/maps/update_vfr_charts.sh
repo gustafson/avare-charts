@@ -160,7 +160,11 @@ rm *tif
 VFRFILE=DDVC_${VFRFILE}_Changes.zip
 ## wget -c https://aeronav.faa.gov/Upload_313-d/visual/DDVC_20${CYCLE}_Changes.zip
 wget -c https://aeronav.faa.gov/Upload_313-d/visual/${VFRFILE}
-unzip ${VFRFILE} *tif
+## unzip ${VFRFILE} *tif
+
+## Unzip all but the fly files
+unzip -l ${VFRFILE} *tif|grep -v FLY|cut -c 31-|grep tif|xargs -n1 -I {} -d "\n" unzip ${VFRFILE} {}
+
 ## if [[ ! -f *tif ]]; then
 ##     echo no tiff files
 ##     echo trying zip files
@@ -172,7 +176,8 @@ echo Renaming files
 for a in `seq 10`; do
     rename " " "" *
 done
-rm *FLY*tif
+rename \' "" Chicago*
+
 
 echo Fixing filenames for Caribbean charts
 rename VFRChart SEC Caribbean[12]*tif
@@ -187,6 +192,16 @@ for type in TAC SEC HEL; do
 	    echo removing ../${type,,}/${OLDFILE}*tif
 	    rm -f ../${type,,}/${OLDFILE}*tif
 	    mv $file ../${type,,}/.
+	    pushd ../${type,,}
+	    
+	    ## Create symbolic link
+	    echo s/${type}[0-9]*/${type}/g
+	    newfile=`echo $file |sed s/${type}[0-9]*/${type}/g`
+	    echo $file $newfile
+	    #rm -f $PWD/$newfile
+	    echo ln -s $PWD/$file $PWD/$newfile
+	    ln -s $PWD/$file $PWD/$newfile
+	    popd
 	done
     fi
 done
