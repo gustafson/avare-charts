@@ -1,21 +1,21 @@
-TR := $(shell bc -l <<< 20026376.39/512/2^10)
+TR := $(shell bc -l <<< 20026376.39/512/2^11)
 
 ## None of the sectional images have 51,51,51 gray, so it will be used for nodata to save space
 
-sec.vrt: warped
-	gdalbuildvrt -srcnodata 51 -vrtnodata 51 -r near -resolution highest sec.vrt -overwrite merge/sec/*SEC.png # 
+fly.vrt: warped
+	gdalbuildvrt -srcnodata 51 -vrtnodata 51 -r near -resolution highest fly.vrt -overwrite merge/fly/*FLY.png # 
 
-warped: $(subst .geojson,.png,$(subst charts,merge,$(wildcard charts/sec/*.geojson)))
+warped: $(subst .geojson,.png,$(subst charts,merge,$(wildcard charts/fly/*.geojson)))
 
-merge/sec/%.png: charts/sec/%.tif
+merge/fly/%.png: charts/fly/%.tif
 	echo $<
-	if [[ ! -d merge/sec/ ]]; then mkdir -p merge/sec/; fi
+	if [[ ! -d merge/fly/ ]]; then mkdir -p merge/fly/; fi
 	rm -f $@ $(@:.png=.vrt) $(@:.png=.warp.vrt) $(@:.png=.rgb.vrt)
 	gdal_translate -of vrt -r cubicspline -expand rgb $< $(@:.png=.rgb.vrt)
 	gdalwarp -of vrt -dstnodata 51 -r cubicspline -t_srs 'EPSG:3857' -cutline $(<:.tif=.geojson) -crop_to_cutline -tr $(TR) $(TR) $(@:.png=.rgb.vrt) $(@:.png=.warp.vrt)
 	gdal_translate -r cubicspline $(@:.png=.warp.vrt) $@
-	#rm $(@:.png=.rgb.vrt) $(@:.png=.warp.vrt)
-	#./ziptiles.py `./extract_corners.sh $<` sec meters webp forzip 
+	rm $(@:.png=.rgb.vrt) $(@:.png=.warp.vrt)
+	#./ziptiles.py `./extract_corners.sh $<` fly meters webp forzip 
 
 ## optpngtiles: $(subst 0-build,0,$(wildcard tiles/0-build/*/*/*png))
 ## 
@@ -25,7 +25,7 @@ merge/sec/%.png: charts/sec/%.tif
 
 
 ## ## Create tile manifests by state:
-## TR=$(bc -l <<< 20026376.39/512/2^10)
+## TR=$(bc -l <<< 20026376.39/512/2^11)
 ## for state in `ls shapefiles/state/*convexhull.geojson`; do
-##     gdalwarp -of vrt -dstnodata 51 -r near -t_srs EPSG:3857 -cutline ${state} -crop_to_cutline -tr ${TR} ${TR} sec.vrt ${state}.vrt
+##     gdalwarp -of vrt -dstnodata 51 -r near -t_srs EPSG:3857 -cutline ${state} -crop_to_cutline -tr ${TR} ${TR} fly.vrt ${state}.vrt
 ## done

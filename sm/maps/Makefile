@@ -91,7 +91,7 @@ update: download-ifr update-vfr rename stage-all plates download-and-process-bas
 clean:
 	find final -type f|grep -v "CAN_\|REL_\|ELEV_"| xargs rm # \|ELUS_\|EHUS\|AFD_
 	rm -rf merge ads.txt
-	rm -f sepsec septac stage-vfr-sec stage-ifr-low stage-ifr-area stage-ifr-high stage-vfr-tac *.tif *.jpg *.xml
+	rm -f sepsec septac stage-vfr stage-ifr stage-ifr-area stage-ifr-high stage-vfr-tac *.tif *.jpg *.xml
 	rm -f files*.csv logfile.txt *.log
 	rm -f ifr-gps-currency*{kmz,json,txt}
 
@@ -150,11 +150,13 @@ mins-data:
 
 download-vfr:
 	echo Downloading vfr for cycle $(CYCLE)
+	echo This code is old and not recently tested
 	mkdir merge
 	## mkdir -p charts/wac  
 	mkdir -p charts/sec 
 	mkdir -p charts/tac
 	mkdir -p charts/oth
+	mkdir -p charts/fly
 	cd charts/sec && \
 	perl ../../reapfiles.pl -f zip http://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/vfr/
 	rm -f *_P.zip *NFN.zip
@@ -163,15 +165,13 @@ download-vfr:
 	mv *Heli.zip ../oth
 
 update-vfr:
-	./update_vfr_charts.sh ## New process gets only updates
+	./update_vfr_charts.sh ## Get updates, clean out old files for any updates
 
 download-ifr:
 	## echo Downloading ifr for cycle $(CYCLE)
-	if [[ -d charts/ifr ]]; then rm -fr charts/ifr; fi
-	mkdir -p charts/ifr
+	rm -f charts/ifr/*tif charts/ifr/*pdf charts/ifr/*zip
 	cd charts/ifr && wget -N http://aeronav.faa.gov/enroute/$$(../../cycledates.sh 56 ifr)/DDECUS.zip
 	## ./dlifr.sh $$(./cycledates.sh 56 ifr)  ## Currently this only gets the carribean
-	## cd charts/ifr && rm -f *pdf*zip *tif
 	cd charts/ifr && unzip -o -j DDECUS.zip
 	## 
 	## ## Chart L06 requires special treatment... it is tagged for north but contains north and south
@@ -179,6 +179,7 @@ download-ifr:
 	cd charts/ifr && ls *zip | grep -e DE[HL] | xargs -n1 -P$(NP) -I {} unzip -o -j {} "*pdf" ## Don't use carribean which isn't geotagged
 	cd charts/ifr && mv ENR_L06.pdf ENR_L06N.pdf
 	cd charts/ifr && ls *zip | grep -e L06 -e AKL -e ENR_ | xargs -n1 -P$(NP) -I {} unzip -o -j {} "*tif"
+	rm charts/ifr/*zip
 	@echo Done downloading and unziping ifr charts
 
 rename:
@@ -203,44 +204,27 @@ rename:
 	@echo Files are renamed
 
 
-stage-all: stage-vfr-sec stage-ifr-low
-	sbatch --array=0,1,3-5,9 generate-tiles.pbs
+stage-all: stage-vfr stage-ifr
 
-stage-ifr: stage-ifr-low
-	sbatch --array=3-5 generate-tiles.pbs
-
-stage-vfr: stage-vfr-sec
-	sbatch --array=0,1 generate-tiles.pbs
-
-stage-ifr-low: charts/ifr/*zip  # charts/ifa/*zip charts/ifh/*zip
-	## ifh now staged in generate-tiles
+stage-ifr: charts/ifr/*zip
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	gcc -march=native -O3 -Wall stage-ifr-low.c -o stage-ifr-low
-	## gcc -march=native -O3 -Wall stage-ifr-high.c -o stage-ifr-high 
 	gcc -march=native -O3 -Wall stage-ifr-area.c -o stage-ifr-area
-	./stage-ifr-low
-	## ./stage-ifr-high
-	./stage-ifr-area
+	## ./stage-ifr-low
+	## ./stage-ifr-area
+	./ifr-slurm.sh ## This generates ifr low tiles
+	sbatch --array=3-5 generate-tiles.pbs
 
-stage-vfr-sec: charts/sec/*tif charts/tac/*tif #charts/wac/*tif 
+stage-vfr: charts/sec/*tif charts/tac/*tif #charts/wac/*tif 
 	if [[ ! -d merge ]]; then mkdir merge; fi
-	## gcc -march=native -O3 -Wall stagefly.c -o stagefly
-	## gcc -march=native -O3 -Wall stage-vfr-heli.c -o stage-vfr-heli
-	gcc -march=native -O3 -Wall stage-vfr-sec.c -o stage-vfr-sec
-	## gcc -march=native -O3 -Wall stage-vfr-tac.c -o stage-vfr-tac
-	./stage-vfr-sec
-	## ./stage-vfr-heli
-	## ./stage-vfr-tac
-	$(MAKE) -C charts/hel
-	$(MAKE) -f Makefile.tac
-	## $(MAKE) -f Makefile.sec
+	sbatch --array=0,1,9 generate-tiles.pbs
 
 ziptiles:
 	## ./ziptiles.sh
 ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
-	sbatch --array=0,1,3,4,5,9 ziptiles512_slurm.pbs
+	sbatch --array=0,1,3,4,5,9 ziptiles512.pbs
 else
-	sbatch --array=0,1,9 ziptiles512_slurm.pbs
+	sbatch --array=0,1,9 ziptiles512.pbs
 endif
 
 temp:

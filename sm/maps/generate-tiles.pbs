@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --mem-per-cpu=2000
-#SBATCH --ntasks=40
+#SBATCH --ntasks=20
 #SBATCH --time=1000:00:00
 #SBATCH --job-name=ChartTiling
 #SBATCH --output=z-logs/ChartTiling_%A_%a.out
@@ -41,6 +41,33 @@ echo "SLURM_NNODES: $SLURM_NNODES"
 echo "SLURMTMPDIR: $SLURMTMPDIR"
 echo "working directory = $SLURM_SUBMIT_DIR"
 
+
+
+function updatevfr () {
+    PNG=$0
+    WBP=`echo ${PNG} |sed s/-build// | sed s/png/webp/`
+
+    if [[ ! -f ${WBP} || ${PNG} -nt ${WBP} ]] ; then
+	D=`dirname ${WBP}`
+	[[ ! -d ${D} ]] && mkdir -p ${D}
+	convert -unsharp 1x1 -format webp -define webp:method=6:thread-level=1 -quality 60 ${PNG} ${WBP}
+
+	## Webp lossless
+	## convert -format webp -define webp:lossless=true,method=6:thread-level=1 ${PNG} ${WBP}
+    fi
+
+    ## Create JPG, deprecated
+    ## JPG=`echo ${WBP} |sed s/webp/jpg/`
+    ## if [[ ! -f ${JPG} || ${PNG} -nt ${JPG} ]] ; then
+    ## 	D=`dirname ${JPG}`
+    ## 	[[ ! -d ${D} ]] && mkdir -p ${D}
+    ## 	convert -unsharp 1x1 -background white -alpha off ${PNG} ppm:- | cjpeg -quality 85 > ${JPG}
+    ## fi
+}
+
+export -f updatevfr
+
+
 NP=$((${SLURM_NTASKS}*2))
 [[ ${SLURM_SUBMIT_DIR} ]] && cd ${SLURM_SUBMIT_DIR}
 
@@ -55,73 +82,57 @@ function myfindwac (){
 	done
 }
 
-function deleteidentical (){
-    find $0 -type f |xargs -n1000 -P16 md5sum > /dev/shm/md5sums.txt
-
-    ## Find repetitive images of more than 1000 instances and delete these
-    ## cut -f1 -d" " /dev/shm/md5sums.txt |sort|uniq -c |sort -n |awk '{if ($1>1000) print $2, $1}' > /dev/shm/delete.txt
-    ## cut -f1 /dev/shm/delete.txt -d" "|xargs -I{} grep {} /dev/shm/md5sums.txt |cut -f3 -d" "|xargs rm
-
-    ## Above bad!!! deletes all white from 3.  This should get only all black
-    cut -f1 -d" " /dev/shm/md5sums.txt |sort|uniq -c |sort -n |tail -n1|awk '{print $2}'|xargs -I{} grep {} /dev/shm/md5sums.txt |awk '{print $2}' |xargs rm 
-    
-    ## gimp `cut -f1 /dev/shm/delete.txt -d" "|xargs -I{} grep -m1 {} /dev/shm/md5sums.txt |cut -f3 -d" "`
-    ## for a in `cut -f1 /dev/shm/delete.txt -d" "|xargs -I{} grep -m1 {} /dev/shm/md5sums.txt |cut -f3 -d" "`; do echo $a; convert ${a} -format %c histogram:info:;done
-
-}
-
-function rmemptypng(){
-    ## echo $0
-    [[ `convert $0 -format '%@' info: 2> /dev/null|cut -c 1-3` == "0x0" ]] && rm $0
-}
-export -f rmemptypng
-
 OPTIONS1="-x --verbose -w openlayers -c MUAVLLC --no-kml --resume --processes ${NP}"  ## -x would not generate blank tiles, but seems to bomb.
 TIME1="/usr/bin/time -v --append -o"
 
 function gentiles(){
     
     if [[ ${1} -eq 0 ]]; then
-	make -f Makefile.sec -j ${NP}
 	rm -f time.sec.txt
-	GUAM=/dev/shm/merge/sec10/MarianaIslandsInsetSEC.tif
-
-	rm -fr /dev/shm/tiles/0
-	## ${TIME1} time.sec.txt nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-5 -r near ${GUAM}      /dev/shm/tiles/0
-	## ${TIME1} time.sec.txt nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 1-5 -r near sec10-wai.vrt  /dev/shm/tiles/0
-	## ${TIME1} time.sec.txt nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-5 -r near sec10-east.vrt /dev/shm/tiles/0
-	## ${TIME1} time.sec.txt nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-5 -r near sec10-west.vrt /dev/shm/tiles/0
-	${TIME1} time.sec.txt nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-5 -r near sec10.vrt /dev/shm/tiles/0
-
-	## TEMP GUAM=merge/sec/MarianaIslandsInsetSEC.tif
-	## TEMP ## rm -fr /dev/shm/tiles/0
-	## TEMP ${TIME1} time.sec.txt nice ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -a 51 -z 0-10 -r cubicspline ${GUAM}      /dev/shm/tiles/0
-	## TEMP #${TIME1} time.sec.txt nice ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -a 51 -z 1-10 -r cubicspline sec-wai.vrt  /dev/shm/tiles/0
-	## TEMP ${TIME1} time.sec.txt nice ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -a 51 -z 0-10 -r cubicspline sec-east.vrt /dev/shm/tiles/0
-	## TEMP ${TIME1} time.sec.txt nice ./gdal2tiles_512_parallel.py -t "VFR Sectional" ${OPTIONS1} -a 51 -z 0-10 -r cubicspline sec-west.vrt /dev/shm/tiles/0
-	## TEMP 
-	## TEMP rsync -rcv --del /dev/shm/tiles/0/ tiles/0/ --exclude=*.xml 
-	## TEMP # rsync -avP --del /dev/shm/tiles/0/ tiles/0/ # --exclude=*.xml 
-	## TEMP rm -fr /dev/shm/tiles/0
+	${TIME1} time.sec.txt make -f Makefile.sec -j ${SLURM_NTASKS}
+	${TIME1} time.sec.txt nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 --srcnodata=51 -r near sec.vrt tiles/0-build
 	
-    elif [[ ${1} -eq 1 ]]; then
-	## rm -f time.wac.txt
+	rdfind -makehardlinks true -n false tiles/0-build
+	find tiles/0-build -name "*png" | xargs -n1 -P${NP} bash -c updatevfr
+	rdfind -makehardlinks true -n false tiles/0
 
-	## for vrt in merge/tac/*.tif; do
-	##     ${TIME1} time.tac.txt nice ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} -r lanczos ${vrt} -z 7-11 /dev/shm/tiles/1/${vrt}
+	## Used to create manifest
+	## for a in merge/sec/*png; do 
+	##     nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 --srcnodata=51 -r near $a /dev/shm/$a
 	## done
 
-	${TIME1} time.tac.txt nice ./gdal2tiles_512_parallel.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-11 -r cubicspline tac.vrt /dev/shm/tiles/1
-	rsync -avP --del /dev/shm/tiles/1/ tiles/1/ # --exclude=*.xml
-	rm -fr /dev/shm/tiles/1
+	## Used to create manifest by state
+	## for a in `ls shapefiles/state/*convexhull.geojson.vrt`; do
+	##     nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 --srcnodata=51 -r near $a /dev/shm/$a
+	## done
+	    
+    elif [[ ${1} -eq 1 ]]; then
+	rm -f time.tac.txt
+	${TIME1} time.tac.txt make -f Makefile.tac -j ${SLURM_NTASKS}
+	${TIME1} time.tac.txt nice ./gdal2tiles.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near tac.vrt tiles/1-build
+	
+	rdfind -makehardlinks true -n false tiles/1-build
+	find tiles/1-build -name "*png" | xargs -n1 -P${NP} bash -c updatevfr
+	rdfind -makehardlinks true -n false tiles/1
+
+	## for vrt in merge/tac/*.tif; do
+	##     ${TIME1} time.tac.txt nice ./gdal2tiles.py -t "VFR Terminal Area" ${OPTIONS1} -r lanczos ${vrt} -z 7-11 /dev/shm/tiles/1/${vrt}
+	## done
+
+	## ${TIME1} time.tac.txt nice ./gdal2tiles.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-11 -r cubicspline tac.vrt /dev/shm/tiles/1
+	## rsync -avP --del /dev/shm/tiles/1/ tiles/1/ # --exclude=*.xml
+	## rm -fr /dev/shm/tiles/1
+
+	## Used to create manifest
+	## for a in merge/tac/*tif; do 
+	##     nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near $a /dev/shm/$a
+	## done
 
     elif [[ ${1} -eq 2 ]]; then
 	rm -f time.wac.txt
-	${TIME1} time.wac.txt nice ./gdal2tiles_512_parallel.py -t "VFR World" ${OPTIONS1} -z 0-9 -r cubicspline wac.vrt /dev/shm/tiles/2
+	${TIME1} time.wac.txt nice ./gdal2tiles.py -t "VFR World" ${OPTIONS1} -z 0-9 -r cubicspline wac.vrt /dev/shm/tiles/2
 	
-	## Remove blank tiles
-	find /dev/shm/tiles/2/ -name "*png" |xargs md5sum > md5sums.txt; cut -f 1 -d" " md5sums.txt|sort |uniq -c|sort -n
-	grep -e 2416022fedd35f66c3f4272284f0eb71 -e 408f9a687171af1e975e3d9ebc292caa -e 8fc543693de4de3fa5b1e6c353376610 -e 7ee0240fba70752122eb8585edb525ea md5sums.txt|cut -f3 -d" "|xargs rm
+	## Remove xml
 	find /dev/shm/tiles/2/ -name "*aux.xml"| xargs rm
 	
 	## Mark every other row and column as expired in a checkerboard pattern
@@ -133,19 +144,20 @@ function gentiles(){
 	
     elif [[ ${1} -eq 3 ]]; then
 	rm -f time.ifr.txt
-	${TIME1} time.ifr.txt nice ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-east.vrt /dev/shm/tiles/3
-	${TIME1} time.ifr.txt nice ./gdal2tiles_512_parallel.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-west.vrt /dev/shm/tiles/3
-	find /dev/shm/tiles/3 -name "*png"|xargs md5sum|grep 4023a0e7925b07a6be26e2cddb65f0cd|cut -f3 -d" "|xargs rm;
-	rsync -avP /dev/shm/tiles/3/ tiles/3/ --exclude=*.xml
-	rm -fr /dev/shm/tiles/3
+	${TIME1} time.ifr.txt nice ./gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-east.vrt /dev/shm/tiles/3
+	${TIME1} time.ifr.txt nice ./gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-west.vrt /dev/shm/tiles/3
+
+	rsync -rcv --del /dev/shm/tiles/3/ tiles/3-build/ --exclude=*.xml
+	## rsync -avP /dev/shm/tiles/3/ tiles/3/ --exclude=*.xml
+	## rm -fr /dev/shm/tiles/3
 
     elif [[ ${1} -eq 4 ]]; then
 
-	make -C charts/ifr/ -j${NP} -f Makefile.ifh
+	make -C charts/ifr/ -j${SLURM_NTASKS} -f Makefile.ifh
 	
 	rm -f time.ifh.txt
-	${TIME1} time.ifh.txt nice ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r near ifh-east.vrt /dev/shm/tiles/4
-	${TIME1} time.ifh.txt nice ./gdal2tiles_512_parallel.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r near ifh-west.vrt /dev/shm/tiles/4
+	${TIME1} time.ifh.txt nice ./gdal2tiles.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r near ifh-east.vrt /dev/shm/tiles/4
+	${TIME1} time.ifh.txt nice ./gdal2tiles.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r near ifh-west.vrt /dev/shm/tiles/4
 
 	find /dev/shm/tiles/4 -name "*png"| xargs md5sum | grep 4023a0e7925b07a6be26e2cddb65f0cd | cut -f3 -d" " | xargs rm
 	find /dev/shm/tiles/4 -name "*aux.xml" | xargs rm
@@ -164,14 +176,14 @@ function gentiles(){
 
 	## The images are sparse, only create those that are necessary
 	for vrt in merge/ifa/*vrt; do
-	    ${TIME1} time.ifa.txt nice ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r near ${vrt} -z 7-11 /dev/shm/tiles/5
+	    ${TIME1} time.ifa.txt nice ./gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r near ${vrt} -z 7-11 /dev/shm/tiles/5
 	done
 	
 	## Extend Guam which stands completely isolated
-	${TIME1} time.ifa.txt nice ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r near -z 0-11 merge/ifa/ENR_P01_GUA.vrt /dev/shm/tiles/5
+	${TIME1} time.ifa.txt nice ./gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r near -z 0-11 merge/ifa/ENR_P01_GUA.vrt /dev/shm/tiles/5
 	
 	## Extend the rest... there were a total of 213 images at this level including guam.  ifa.vrt excludes guam
-	${TIME1} time.ifa.txt nice ./gdal2tiles_512_parallel.py -t "IFR Area" ${OPTIONS1} -r near -z 0-6 ifa.vrt /dev/shm/tiles/5
+	${TIME1} time.ifa.txt nice ./gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r near -z 0-6 ifa.vrt /dev/shm/tiles/5
 
 	find /dev/shm/tiles/5 -name "*png"|xargs md5sum|grep 4023a0e7925b07a6be26e2cddb65f0cd|cut -f3 -d" "|xargs rm
 	rsync -avP --exclude=*.xml /dev/shm/tiles/5/ tiles/5/
@@ -186,7 +198,8 @@ function gentiles(){
 	
     elif [[ ${1} -eq 9 ]]; then
 	rm -f time.heli.txt
-
+	make -C charts/hel -j${SLURM_NTASKS}
+	
 	HELI="
     charts/hel/BaltimoreWashington.vrt
     charts/hel/LosAngeles.vrt
@@ -217,11 +230,11 @@ function gentiles(){
 	echo Creating sparse tiles based on individual images
 	for vrt in ${HELI}; do
 	    echo Creating image ${vrt}
-	    ${TIME1} time.ifa.txt nice ./gdal2tiles_512_parallel.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 8-12 ${vrt} tiles/9-build
+	    ${TIME1} time.ifa.txt nice ./gdal2tiles.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 8-12 ${vrt} tiles/9-build
 	done
 	## Heli only on change
 	echo Creating overview tiles based on all images
-	${TIME1} time.heli.txt nice ./gdal2tiles_512_parallel.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 0-7 charts/hel/heli.vrt tiles/9-build
+	${TIME1} time.heli.txt nice ./gdal2tiles.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 0-7 charts/hel/heli.vrt tiles/9-build
 
 	find tiles/9-build -name "*aux.xml" |xargs rm
 	rdfind -makehardlinks true tiles/9-build
@@ -255,9 +268,28 @@ function gentiles(){
 	## ./LosAngelesEast_2.tif/12/704/2459.png
 	## ./LosAngelesWest_2.tif/12/704/2459.png
 
+    elif [[ ${1} -eq 11 ]]; then
+	rm -f time.fly.txt
+	${TIME1} time.fly.txt make -f Makefile.fly -j ${SLURM_NTASKS}
+	${TIME1} time.fly.txt nice ./gdal2tiles.py -t "VFR Flyways" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near fly.vrt tiles/11-build
+	
+	rdfind -makehardlinks true -n false tiles/11-build
+	find tiles/11-build -name "*png" | xargs -n1 -P${NP} bash -c updatevfr
+	rdfind -makehardlinks true -n false tiles/11
+
+	## Used to create manifest
+	## for a in merge/fly/*png; do 
+	##     nice ./gdal2tiles.py -t "VFR Flyway" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near $a /dev/shm/$a
+	## done
+
+	## Used to create manifest by state
+	## for a in `ls shapefiles/state/*convexhull.geojson.vrt`; do
+	##     nice ./gdal2tiles.py -t "VFR Flyway" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near $a /dev/shm/$a
+	## done
+	    
 	
     elif [[ ${1} -eq 199 ]]; then
-	${TIME1} time.debug.txt nice ./gdal2tiles_512_parallel.py -t "DEBUG" ${OPTIONS1} -r lanczos plates.archive/1701/plates_MI/AZO/RNAV-GPS-RWY-17.pdf tiles/debug
+	${TIME1} time.debug.txt nice ./gdal2tiles.py -t "DEBUG" ${OPTIONS1} -r lanczos plates.archive/1701/plates_MI/AZO/RNAV-GPS-RWY-17.pdf tiles/debug
 	## gdal_translate --config GDAL_PDF_DPI 150 -of Rasterlite RNAV-GPS-RWY-17.pdf RASTERLITE:my_db.sqlite,table=source -co DRIVER=WEBP
 	## find tiles/debug -name "*png"| xargs mogrify -unsharp 1x1 -format png8
 	## find tiles/debug -name "*png8"| xargs rename png8 png
@@ -280,3 +312,4 @@ gentiles ${SLURM_ARRAY_TASK_ID}
 ## 8 Topographic
 ## 9 Heli/Other
 ## 10 Tactical Pilotage Chart/World
+## 11 Flyways

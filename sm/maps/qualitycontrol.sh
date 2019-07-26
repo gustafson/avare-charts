@@ -34,7 +34,7 @@ CYCLE=`./cyclenumber.sh`
 MTIME=`./cycledates.sh 28 lastcycle` ## Use to select IFR or not
 
 # pushd static
-pushd final_webp
+pushd final
 
 ## Only these require manifest updates (Includes IFR older than the last cycle conclusion) ## C?-[0-9]*zip 
 #for a in Area*zip `find E[LH]US_* ENRA_* -mtime +${MTIME} -type f` AFD*zip; do

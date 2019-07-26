@@ -107,71 +107,51 @@ export -f createvfrwebpfrompng_byimage
 export -f createifrwebpfrompng_byimage
 
 if [[ ${SLURM_ARRAY_TASK_ID} -eq 0 ]]; then
-    ## Create the images
-    for img in `ls merge/sec/*_c.vrt`; do
-    	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
-    ## for img in `ls merge/sec/*.tif`; do
-    ## 	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
-    	createjpgfrompng_byimage ${img} sec
-    	createvfrwebpfrompng_byimage ${img} sec
-    done
-    
-    ## Remove the old zip file
-    for img in `ls merge/sec/*_c.vrt`; do
-    	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
-    ## for img in `ls merge/sec/*.tif`; do
-    ## 	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
+    ## Images created in generate_tiles.pbs
+
+    ## These are the zip file names
+    BASES=`cut -f1 -d: charts/sec/TileManifest.sec.list|sort -u`
+
+    for BASE in ${BASES}; do
+	## Remove the old zip file
 	rm -f final/${BASE}.zip
 	rm -f final_webp/${BASE}.zip
-    done
-    
-    ## Actually do the zip
-    for img in `ls merge/sec/*_c.vrt`; do
-    	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
-    ## for img in `ls merge/sec/*.tif`; do
-    ## 	BASE=`echo $img | cut -f3 -d/ | cut -c 3-|cut -f1 -d_`
 
+	## Create jpg zips (deprecated)
 	echo ${CYCLE} > ${BASE}
-	mygroup ${img} sec jpg forzip >> ${BASE}
-	sort -u ${BASE}|
-	    tail -n+2 |xargs zip -9 final/${BASE}.zip ${BASE}
+	grep $BASE charts/sec/TileManifest.sec.list |cut -f2 -d: | awk '{printf ("tiles/0/%s\n", $1)}' | sed s/png/jpg/ >> ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final/${BASE}.zip ${BASE}
+
+	## Create webp zips
+	echo ${CYCLE} > ${BASE}
+	grep $BASE charts/sec/TileManifest.sec.list |cut -f2 -d: | awk '{printf ("tiles/0/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final_webp/${BASE}.zip ${BASE}
 	
-	echo ${CYCLE} > ${BASE}
-	mygroup ${img} sec webp forzip >> ${BASE}
-    	sort -u ${BASE}|
-	    tail -n+2 |xargs zip -9 final_webp/${BASE}.zip ${BASE}
 	rm ${BASE}
     done
     wait
     
 elif [[ ${SLURM_ARRAY_TASK_ID} -eq 1 ]]; then
-    ## Create the images
-    for img in `ls merge/tac/*.tif`; do
-	BASE=`basename ${img} .tif`
-    	createjpgfrompng_byimage ${img} tac
-    	createvfrwebpfrompng_byimage ${img} tac
-    done
-    
-    ## Remove the old zip file
-    for img in `ls merge/tac/*.tif`; do
-	BASE=`basename ${img} .tif`
+    ## Images created in generate_tiles.pbs
+
+    ## These are the zip file names
+    BASES=`cut -f1 -d: charts/tac/TileManifest.tac.list|sort -u`
+
+    for BASE in ${BASES}; do
+	## Remove the old zip file
 	rm -f final/${BASE}.zip
 	rm -f final_webp/${BASE}.zip
-    done
-    
-    ## Actually do the zip
-    for img in `ls merge/tac/*.tif`; do
-	BASE=`basename ${img} .tif`
 
+	## Create jpg zips (deprecated)
 	echo ${CYCLE} > ${BASE}
-	mygroup ${img} tac jpg  forzip >> ${BASE}
-	sort -u ${BASE}|
-	    tail -n+2 |xargs zip -9 final/${BASE}.zip ${BASE}
-
+	grep $BASE charts/tac/TileManifest.tac.list |cut -f2 -d: | awk '{printf ("tiles/1/%s\n", $1)}' | sed s/png/jpg/ >> ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final/${BASE}.zip ${BASE}
+	
+	## Create webp zips
 	echo ${CYCLE} > ${BASE}
-	mygroup ${img} tac webp forzip >> ${BASE}
-	sort -u ${BASE}|
-	    tail -n+2 |xargs zip -9 final_webp/${BASE}.zip ${BASE}
+	grep $BASE charts/tac/TileManifest.tac.list |cut -f2 -d: | awk '{printf ("tiles/1/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final_webp/${BASE}.zip ${BASE}
+	
 	rm ${BASE}
     done
     wait

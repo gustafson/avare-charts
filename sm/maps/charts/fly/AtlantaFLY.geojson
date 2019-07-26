@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "AtlantaFLY",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "location": "AtlantaFLY.tif" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -9496206.746815498918295, 4070227.211253186222166 ], [ -9305674.908380150794983, 4070471.56187257450074 ], [ -9307102.762683402746916, 3892496.300174735020846 ], [ -9494325.748373489826918, 3892258.448242037091404 ], [ -9496206.746815498918295, 4070227.211253186222166 ] ] ] } }
+]
+}

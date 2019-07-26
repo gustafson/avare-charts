@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2013, Peter A. Gustafson (peter.gustafson@wmich.edu)
+# Copyright (c) 2013-2019 Peter A. Gustafson (peter.gustafson@wmich.edu)
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -162,8 +162,8 @@ VFRFILE=DDVC_${VFRFILE}_Changes.zip
 wget -c https://aeronav.faa.gov/Upload_313-d/visual/${VFRFILE}
 ## unzip ${VFRFILE} *tif
 
-## Unzip all but the fly files
-unzip -l ${VFRFILE} *tif|grep -v FLY|cut -c 31-|grep tif|xargs -n1 -I {} -d "\n" unzip ${VFRFILE} {}
+## Unzip tiff files
+unzip -l ${VFRFILE} *tif|cut -c 31-|grep tif|xargs -n1 -I {} -d "\n" unzip ${VFRFILE} {}
 
 ## if [[ ! -f *tif ]]; then
 ##     echo no tiff files
@@ -182,28 +182,42 @@ rename \' "" Chicago*
 echo Fixing filenames for Caribbean charts
 rename VFRChart SEC Caribbean[12]*tif
 
-for type in TAC SEC HEL; do
+for type in TAC SEC HEL FLY; do
     echo Working on $type
 
+    TYPE=${type,,}
+    
     if [[ `ls *${type}*tif 2> /dev/null |wc -l` -gt 0 ]]; then
 	for file in *${type}*tif; do
+
+	    echo
+	    echo
 	    echo working on $file
 	    OLDFILE=$(echo $file|rev|cut -c 8-|rev)
-	    echo removing ../${type,,}/${OLDFILE}*tif
-	    rm -f ../${type,,}/${OLDFILE}*tif
-	    mv $file ../${type,,}/.
-	    pushd ../${type,,}
+	    echo removing ../${TYPE}/${OLDFILE}*tif
+	    rm -f ../${TYPE}/${OLDFILE}*tif
+	    mv $file ../${TYPE}/.
+	    pushd ../${TYPE}
 	    
 	    ## Create symbolic link
 	    echo s/${type}[0-9]*/${type}/g
 	    newfile=`echo $file |sed s/${type}[0-9]*/${type}/g`
+	    pngfile=`echo $newfile | sed s/tif/png/`
+	    
 	    echo $file $newfile
 	    #rm -f $PWD/$newfile
 	    echo ln -s $PWD/$file $PWD/$newfile
 	    ln -s $PWD/$file $PWD/$newfile
+
+	    ## Need to remove any png files created in merge/
+	    [[ -f ../../merge/${TYPE}/$pngfile ]] && rm ../../merge/${TYPE}/$pngfile
+	    echo $pngfile $PWD
+	    grep $pngfile TileManifest.${TYPE}.list |
+		cut -f2- -d/ | sed "s/.png$//" |
+		awk '{printf ("../../tiles/0-build/%s.png\n../../tiles/0/%s.webp\n../../tiles/0/%s.jpg\n", $1, $1, $1)}' |
+		xargs --no-run-if-empty rm -f
 	    popd
 	done
     fi
 done
 popd
-    
