@@ -8,14 +8,16 @@ sec.vrt: warped
 warped: $(subst .geojson,.png,$(subst charts,merge,$(wildcard charts/sec/*.geojson)))
 
 merge/sec/%.png: charts/sec/%.tif
-	echo $<
+	@echo Working on $<
+	@echo Erasing tiles that need to be replaced
+	grep $(notdir $(@:SEC.png=)) ./charts/sec/TileManifest.sec.list |cut -f2 -d: |xargs -I {} rm -f tiles/0-build/{}
 	if [[ ! -d merge/sec/ ]]; then mkdir -p merge/sec/; fi
 	rm -f $@ $(@:.png=.vrt) $(@:.png=.warp.vrt) $(@:.png=.rgb.vrt)
 	gdal_translate -of vrt -r cubicspline -expand rgb $< $(@:.png=.rgb.vrt)
 	gdalwarp -of vrt -dstnodata 51 -r cubicspline -t_srs 'EPSG:3857' -cutline $(<:.tif=.geojson) -crop_to_cutline -tr $(TR) $(TR) $(@:.png=.rgb.vrt) $(@:.png=.warp.vrt)
 	gdal_translate -r cubicspline $(@:.png=.warp.vrt) $@
-	#rm $(@:.png=.rgb.vrt) $(@:.png=.warp.vrt)
-	#./ziptiles.py `./extract_corners.sh $<` sec meters webp forzip 
+	rm $(@:.png=.rgb.vrt) $(@:.png=.warp.vrt)
+	
 
 ## optpngtiles: $(subst 0-build,0,$(wildcard tiles/0-build/*/*/*png))
 ## 

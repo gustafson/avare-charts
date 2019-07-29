@@ -7,8 +7,8 @@ bash /dev/shm/tmp.sh && rm /dev/shm/tmp.sh
 
 cat <<EOF > /dev/shm/job.pbs
 #!/bin/sh -login
-#SBATCH --mem-per-cpu=2000
-#SBATCH --ntasks=2
+#SBATCH --mem-per-cpu=4000
+#SBATCH --ntasks=4
 #SBATCH --time=1000:00:00
 #SBATCH --job-name=ifr-warp
 #SBATCH --output=z-logs/arrayJob_%A_%a.out

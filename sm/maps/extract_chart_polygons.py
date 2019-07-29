@@ -69,7 +69,7 @@ def main(argv):
     x = float(argv[0])
     y = float(argv[1])
     y, x = MetersToLatLon(x,y)
-    print "%g %g" % (x,y)
+    print ("%g %g" % (x,y))
 
 if __name__ == "__main__":
     main(sys.argv[1:])

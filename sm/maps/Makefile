@@ -211,9 +211,9 @@ stage-ifr: charts/ifr/*zip
 	gcc -march=native -O3 -Wall stage-ifr-low.c -o stage-ifr-low
 	gcc -march=native -O3 -Wall stage-ifr-area.c -o stage-ifr-area
 	## ./stage-ifr-low
-	## ./stage-ifr-area
-	./ifr-slurm.sh ## This generates ifr low tiles
-	sbatch --array=3-5 generate-tiles.pbs
+	./stage-ifr-area
+	./ifr-slurm.sh ## This generates ifr low tiles (submitting to generate-tiles.pbs)
+	sbatch --array=4-5 generate-tiles.pbs
 
 stage-vfr: charts/sec/*tif charts/tac/*tif #charts/wac/*tif 
 	if [[ ! -d merge ]]; then mkdir merge; fi
@@ -243,29 +243,15 @@ zipdatabase:
 	sqlite3 main.db "drop table obs; vacuum;"
 	sqlite3 obs.db "vacuum;"
 	rm -f final/databases.zip
-	## As of 11/25/2018 the below SHOULD be simplified for vfr and fixed for ifr but has not yet been changed.  The intent is to distrubute all layers to 0, which are now created/cleaned in ziptiles but not selected here.  This transition would best be done during an ifr cycle so that all are created.  I believe there needs to be an accompanying change in the app zoom out code
+	## 
 	zip -9 final/databases.zip procedures.db main.db obs.db
-	zip -9 final/databases.zip `find tiles/[0127]/[0-5] -name "*jpg"` 
-	zip -9 final/databases.zip `find tiles/[3456]/[0-5] -name "*png"`
-	zip -9 final/databases.zip `find tiles/0/6 -name "*jpg"`
-	zip -9 final/databases.zip `find tiles/1/[67] -name "*jpg"`
-	zip -9 final/databases.zip `find tiles/3/6 -name "*png"`
-	zip -9 final/databases.zip `find tiles/5/[67] -name "*png"`
+	zip -9 final/databases.zip `find tiles/[0123457]/[0-5] -name "*webp"` 
+	zip -9 final/databases.zip `find tiles/[03]/6 -name "*webp"`
+	zip -9 final/databases.zip `find tiles/[15]/[67] -name "*webp"`
+	zip -9 final/databases.zip `find tiles/13/[0-7] -name "*webp"` ## Flyway
 	zip -9 final/databases.zip `find tiles/6/6 -name "*png"` ## Elevation tiles have not been updated to include lower layers
 	## Canada (7) and Heli (8) large and not for general distribution
 	pushd final; ../zip.py databases $(CYCLE); popd
-	##
-	rm -f final_webp/databases.zip
-	zip -9 final_webp/databases.zip `find tiles/[0127]/[0-5] -name "*webp"` 
-	zip -9 final_webp/databases.zip `find tiles/[3456]/[0-5] -name "*png"` 
-	zip -9 final_webp/databases.zip procedures.db main.db obs.db
-	zip -9 final_webp/databases.zip `find tiles/0/6 -name "*webp"`
-	zip -9 final_webp/databases.zip `find tiles/1/[67] -name "*webp"`
-	zip -9 final_webp/databases.zip `find tiles/3/6 -name "*png"`
-	zip -9 final_webp/databases.zip `find tiles/5/[67] -name "*png"`
-	zip -9 final_webp/databases.zip `find tiles/6/6 -name "*png"`
-	## Canada (7) and Heli (8) large and not for general distribution
-	pushd final_webp; ../zip.py databases $(CYCLE); popd
 
 zipdatabase256:
 	echo "Zipping cycle " $(CYCLE)

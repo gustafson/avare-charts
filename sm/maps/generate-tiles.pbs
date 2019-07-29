@@ -65,7 +65,22 @@ function updatevfr () {
     ## fi
 }
 
+function updateifr () {
+    PNG=$0
+    WBP=`echo ${PNG} |sed s/-build// | sed s/png/webp/`
+
+    if [[ ! -f ${WBP} || ${PNG} -nt ${WBP} ]] ; then
+	D=`dirname ${WBP}`
+	[[ ! -d ${D} ]] && mkdir -p ${D}
+	convert -format webp -define webp:method=6:thread-level=1 -quality 60 ${PNG} ${WBP}
+
+	## Webp lossless
+	## convert -format webp -define webp:lossless=true,method=6:thread-level=1 ${PNG} ${WBP}
+    fi
+}
+
 export -f updatevfr
+export -f updateifr
 
 
 NP=$((${SLURM_NTASKS}*2))
@@ -148,9 +163,12 @@ function gentiles(){
 	${TIME1} time.ifr.txt nice ./gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-west.vrt /dev/shm/tiles/3
 
 	rsync -rcv --del /dev/shm/tiles/3/ tiles/3-build/ --exclude=*.xml
-	## rsync -avP /dev/shm/tiles/3/ tiles/3/ --exclude=*.xml
-	## rm -fr /dev/shm/tiles/3
-
+	rm -fr /dev/shm/tiles/3
+	
+	rdfind -makehardlinks true -n false tiles/3-build
+	find tiles/3-build -name "*png" | xargs -n1 -P${NP} bash -c updateifr
+	rdfind -makehardlinks true -n false tiles/3
+	
     elif [[ ${1} -eq 4 ]]; then
 
 	make -C charts/ifr/ -j${SLURM_NTASKS} -f Makefile.ifh
@@ -159,34 +177,35 @@ function gentiles(){
 	${TIME1} time.ifh.txt nice ./gdal2tiles.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r near ifh-east.vrt /dev/shm/tiles/4
 	${TIME1} time.ifh.txt nice ./gdal2tiles.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r near ifh-west.vrt /dev/shm/tiles/4
 
-	find /dev/shm/tiles/4 -name "*png"| xargs md5sum | grep 4023a0e7925b07a6be26e2cddb65f0cd | cut -f3 -d" " | xargs rm
-	find /dev/shm/tiles/4 -name "*aux.xml" | xargs rm
-	
-	find /dev/shm/tiles/4 -name "*png"  | xargs ${XARGS} -n1 -P${NP} mogrify -format png8
-	find /dev/shm/tiles/4 -name "*png8" | xargs rename png8 png
-	find /dev/shm/tiles/4 -name "*png"  | xargs ${XARGS} -n1 -P${NP}  optipng -quiet
-	find /dev/shm/tiles/4 -name "*png"  | xargs ${XARGS} -n1 -P${NP}  mogrify -format webp -define webp:lossless=true,method=6:thread-level=1
+	rsync -rcv --del /dev/shm/tiles/4/ tiles/4-build/ --exclude=*.xml
 
-	rsync -rcv --del /dev/shm/tiles/4/ tiles/4/ --exclude=*aux.xml
+	rdfind -makehardlinks true -n false tiles/4-build
+	find tiles/4-build -name "*png" | xargs -n1 -P${NP} bash -c updateifr
+	rdfind -makehardlinks true -n false tiles/4
+
 	rm -fr /dev/shm/tiles/4
-	rm -fr /dev/shm/{ENR_H*tif,ENR_AKH*tif,ENR_P*tif}
 
     elif [[ ${1} -eq 5 ]]; then
 	rm -f time.ifa.txt
 
 	## The images are sparse, only create those that are necessary
 	for vrt in merge/ifa/*vrt; do
-	    ${TIME1} time.ifa.txt nice ./gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r near ${vrt} -z 7-11 /dev/shm/tiles/5
+	    ${TIME1} time.ifa.txt nice ./gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r lanczos ${vrt} -z 7-11 /dev/shm/tiles/5
 	done
 	
 	## Extend Guam which stands completely isolated
-	${TIME1} time.ifa.txt nice ./gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r near -z 0-11 merge/ifa/ENR_P01_GUA.vrt /dev/shm/tiles/5
+	${TIME1} time.ifa.txt nice ./gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-11 merge/ifa/ENR_P01_GUA.vrt /dev/shm/tiles/5
 	
 	## Extend the rest... there were a total of 213 images at this level including guam.  ifa.vrt excludes guam
-	${TIME1} time.ifa.txt nice ./gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r near -z 0-6 ifa.vrt /dev/shm/tiles/5
+	${TIME1} time.ifa.txt nice ./gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-6 ifa.vrt /dev/shm/tiles/5
+	
+	## find /dev/shm/tiles/5 -name "*png"|xargs md5sum|grep 4023a0e7925b07a6be26e2cddb65f0cd|cut -f3 -d" "|xargs rm
+	rsync -rcv --del /dev/shm/tiles/5/ tiles/5-build/ --exclude=*.xml
 
-	find /dev/shm/tiles/5 -name "*png"|xargs md5sum|grep 4023a0e7925b07a6be26e2cddb65f0cd|cut -f3 -d" "|xargs rm
-	rsync -avP --exclude=*.xml /dev/shm/tiles/5/ tiles/5/
+	rdfind -makehardlinks true -n false tiles/5-build
+	find tiles/5-build -name "*png" | xargs -n1 -P${NP} bash -c updateifr
+	rdfind -makehardlinks true -n false tiles/5
+
 	rm -fr /dev/shm/tiles/5
 
 	## This was how level 6 was identified as the key level after creating tiles for individual images
@@ -195,6 +214,9 @@ function gentiles(){
 	## diff sorted.txt uniq.txt > difference.txt
 	## grep png difference.txt |cut -c3-|sort -u > files.txt
 	## find . -name "*png" |grep -f files.txt |rev|sort|rev|grep .vrt\/6
+
+	## ${TIME1} time.ifa.txt nice ./gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-11 ifa.vrt /dev/shm/tiles/5
+	## rsync -avP --exclude=*.xml /dev/shm/tiles/5/ tiles/5/ --del
 	
     elif [[ ${1} -eq 9 ]]; then
 	rm -f time.heli.txt
@@ -268,14 +290,14 @@ function gentiles(){
 	## ./LosAngelesEast_2.tif/12/704/2459.png
 	## ./LosAngelesWest_2.tif/12/704/2459.png
 
-    elif [[ ${1} -eq 11 ]]; then
+    elif [[ ${1} -eq 13 ]]; then
 	rm -f time.fly.txt
 	${TIME1} time.fly.txt make -f Makefile.fly -j ${SLURM_NTASKS}
-	${TIME1} time.fly.txt nice ./gdal2tiles.py -t "VFR Flyways" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near fly.vrt tiles/11-build
+	${TIME1} time.fly.txt nice ./gdal2tiles.py -t "VFR Flyways" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near fly.vrt tiles/13-build
 	
-	rdfind -makehardlinks true -n false tiles/11-build
-	find tiles/11-build -name "*png" | xargs -n1 -P${NP} bash -c updatevfr
-	rdfind -makehardlinks true -n false tiles/11
+	rdfind -makehardlinks true -n false tiles/13-build
+	find tiles/13-build -name "*png" | xargs -n1 -P${NP} bash -c updatevfr
+	rdfind -makehardlinks true -n false tiles/13
 
 	## Used to create manifest
 	## for a in merge/fly/*png; do 
@@ -311,5 +333,7 @@ gentiles ${SLURM_ARRAY_TASK_ID}
 ## 7 Shaded Relief
 ## 8 Topographic
 ## 9 Heli/Other
-## 10 Tactical Pilotage Chart/World
-## 11 Flyways
+## 10 ONC World
+## 11 Tactical Pilotage Chart/World
+## 12 Misc
+## 13 Flyways

@@ -22,6 +22,7 @@ for tif in $*; do
 	imgsize=`gdalinfo $tif | grep "Size is"| cut -c 8-|sed s/,//`
 	STR=`./extract_chart_polygons.py $lonmin $latmax $lonmax $latmin $imgsize $tif|cut -f2-5 -d\|`
 	exiftool -overwrite_original_in_place -q -Comment="$STR" $tif
+	exiv2 -M"set Exif.Photo.UserComment charset=Ascii $STR" $tif 
 	PROC=`echo ${tif} |rev|cut -f1-2 -d"/"|rev`
 	echo "${PROC}|${STR}"
 	## IFS=\| read DUMP DX DY LON LAT <<< `echo $STR`
