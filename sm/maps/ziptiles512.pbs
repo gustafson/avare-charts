@@ -205,128 +205,75 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 2 ]]; then
 
 elif [[ ${SLURM_ARRAY_TASK_ID} -eq 3 ]]; then
     
-    ## CLEAN NOT NEEDED WITH WEBP CHARTS ## cleanpngbylatlon -179.90  75.0 -128.45 50.50 ifr latlon
-    ## CLEAN NOT NEEDED WITH WEBP CHARTS ## cleanpngbylatlon -165.00  25.0 -150.00 15.00 ifr latlon
-    ## CLEAN NOT NEEDED WITH WEBP CHARTS ## cleanpngbylatlon  -68.00  19.5  -64.00 17.00 ifr latlon
-    ## CLEAN NOT NEEDED WITH WEBP CHARTS ## cleanpngbylatlon  -85.00 50.15  -40.00 38.00 ifr latlon
-    ## CLEAN NOT NEEDED WITH WEBP CHARTS ## cleanpngbylatlon -110.00 50.15  -85.00 38.00 ifr latlon
-    ## CLEAN NOT NEEDED WITH WEBP CHARTS ## cleanpngbylatlon -131.21 50.15 -110.00 38.00 ifr latlon
-    ## CLEAN NOT NEEDED WITH WEBP CHARTS ## cleanpngbylatlon  -85.00 38.00  -40.00 23.13 ifr latlon
-    ## CLEAN NOT NEEDED WITH WEBP CHARTS ## cleanpngbylatlon -110.00 38.00  -85.00 23.13 ifr latlon
-    ## CLEAN NOT NEEDED WITH WEBP CHARTS ## cleanpngbylatlon -131.21 38.00 -110.00 23.13 ifr latlon
-    ## CLEAN NOT NEEDED WITH WEBP CHARTS ## wait
+    ## These are the zip file names
+    BASES=`cut -f1 -d: charts/ifr/TileManifest.ifr.list|sort -u`
 
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## echo png
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## rm -f final/ELUS_AK.zip; echo ${CYCLE} > ELUS_AK; ./ziptiles.py -179.90  75.0 -128.45 50.50 ifr latlon png forzip >> ELUS_AK; tail -n+2 ELUS_AK |xargs zip -9 final/ELUS_AK.zip ELUS_AK & 
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## rm -f final/ELUS_HI.zip; echo ${CYCLE} > ELUS_HI; ./ziptiles.py -165.00  25.0 -150.00 15.00 ifr latlon png forzip >> ELUS_HI; tail -n+2 ELUS_HI |xargs zip -9 final/ELUS_HI.zip ELUS_HI & 
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## ## rm -f final/ELUS_PR.zip; echo ${CYCLE} > ELUS_PR; ./ziptiles.py  -68.00  19.5  -64.00 17.00 ifr latlon png forzip >> ELUS_PR; tail -n+2 ELUS_PR |xargs zip -9 final/ELUS_PR.zip ELUS_PR & 
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## rm -f final/ELUS_NE.zip; echo ${CYCLE} > ELUS_NE; ./ziptiles.py  -85.00 50.15  -40.00 38.00 ifr latlon png forzip >> ELUS_NE; tail -n+2 ELUS_NE |xargs zip -9 final/ELUS_NE.zip ELUS_NE & 
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## rm -f final/ELUS_NC.zip; echo ${CYCLE} > ELUS_NC; ./ziptiles.py -110.00 50.15  -85.00 38.00 ifr latlon png forzip >> ELUS_NC; tail -n+2 ELUS_NC |xargs zip -9 final/ELUS_NC.zip ELUS_NC & 
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## rm -f final/ELUS_NW.zip; echo ${CYCLE} > ELUS_NW; ./ziptiles.py -131.21 50.15 -110.00 38.00 ifr latlon png forzip >> ELUS_NW; tail -n+2 ELUS_NW |xargs zip -9 final/ELUS_NW.zip ELUS_NW & 
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## rm -f final/ELUS_SE.zip; echo ${CYCLE} > ELUS_SE; ./ziptiles.py  -85.00 38.00  -40.00 23.13 ifr latlon png forzip >> ELUS_SE; tail -n+2 ELUS_SE |xargs zip -9 final/ELUS_SE.zip ELUS_SE & 
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## rm -f final/ELUS_SC.zip; echo ${CYCLE} > ELUS_SC; ./ziptiles.py -110.00 38.00  -85.00 23.13 ifr latlon png forzip >> ELUS_SC; tail -n+2 ELUS_SC |xargs zip -9 final/ELUS_SC.zip ELUS_SC & 
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## rm -f final/ELUS_SW.zip; echo ${CYCLE} > ELUS_SW; ./ziptiles.py -131.21 38.00 -110.00 23.13 ifr latlon png forzip >> ELUS_SW; tail -n+2 ELUS_SW |xargs zip -9 final/ELUS_SW.zip ELUS_SW &
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## wait
+    for BASE in ${BASES}; do
+	## Remove the old zip file
+	rm -f final/${BASE}.zip
+	rm -f final_webp/${BASE}.zip
 
-    echo webp
-    rm -f final_webp/ELUS_AK.zip; echo ${CYCLE} > ELUS_AK; ./ziptiles.py -179.90  75.0 -128.45 50.50 ifr latlon png forzip | sed s/png/webp/ >> ELUS_AK; tail -n+2 ELUS_AK |xargs zip -9 final_webp/ELUS_AK.zip ELUS_AK & 
-    rm -f final_webp/ELUS_HI.zip; echo ${CYCLE} > ELUS_HI; ./ziptiles.py -165.00  25.0 -150.00 15.00 ifr latlon png forzip | sed s/png/webp/ >> ELUS_HI; tail -n+2 ELUS_HI |xargs zip -9 final_webp/ELUS_HI.zip ELUS_HI & 
-    ## rm -f final_webp/ELUS_PR.zip; echo ${CYCLE} > ELUS_PR; ./ziptiles.py  -68.00  19.5  -64.00 17.00 ifr latlon png forzip | sed s/png/webp/ >> ELUS_PR; tail -n+2 ELUS_PR |xargs zip -9 final_webp/ELUS_PR.zip ELUS_PR & 
-    rm -f final_webp/ELUS_NE.zip; echo ${CYCLE} > ELUS_NE; ./ziptiles.py  -85.00 50.15  -40.00 38.00 ifr latlon png forzip | sed s/png/webp/ >> ELUS_NE; tail -n+2 ELUS_NE |xargs zip -9 final_webp/ELUS_NE.zip ELUS_NE & 
-    rm -f final_webp/ELUS_NC.zip; echo ${CYCLE} > ELUS_NC; ./ziptiles.py -110.00 50.15  -85.00 38.00 ifr latlon png forzip | sed s/png/webp/ >> ELUS_NC; tail -n+2 ELUS_NC |xargs zip -9 final_webp/ELUS_NC.zip ELUS_NC & 
-    rm -f final_webp/ELUS_NW.zip; echo ${CYCLE} > ELUS_NW; ./ziptiles.py -131.21 50.15 -110.00 38.00 ifr latlon png forzip | sed s/png/webp/ >> ELUS_NW; tail -n+2 ELUS_NW |xargs zip -9 final_webp/ELUS_NW.zip ELUS_NW & 
-    rm -f final_webp/ELUS_SE.zip; echo ${CYCLE} > ELUS_SE; ./ziptiles.py  -85.00 38.00  -40.00 23.13 ifr latlon png forzip | sed s/png/webp/ >> ELUS_SE; tail -n+2 ELUS_SE |xargs zip -9 final_webp/ELUS_SE.zip ELUS_SE & 
-    rm -f final_webp/ELUS_SC.zip; echo ${CYCLE} > ELUS_SC; ./ziptiles.py -110.00 38.00  -85.00 23.13 ifr latlon png forzip | sed s/png/webp/ >> ELUS_SC; tail -n+2 ELUS_SC |xargs zip -9 final_webp/ELUS_SC.zip ELUS_SC & 
-    rm -f final_webp/ELUS_SW.zip; echo ${CYCLE} > ELUS_SW; ./ziptiles.py -131.21 38.00 -110.00 23.13 ifr latlon png forzip | sed s/png/webp/ >> ELUS_SW; tail -n+2 ELUS_SW |xargs zip -9 final_webp/ELUS_SW.zip ELUS_SW &
+	## Create png zips (deprecated)
+	echo ${CYCLE} > ${BASE}
+	grep $BASE charts/ifr/TileManifest.ifr.list |cut -f2 -d: | awk '{printf ("tiles/3/%s\n", $1)}' | sed s/png/png/ >> ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final/${BASE}.zip ${BASE}
+
+	## Create webp zips
+	echo ${CYCLE} > ${BASE}
+	grep $BASE charts/ifr/TileManifest.ifr.list |cut -f2 -d: | awk '{printf ("tiles/3/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final_webp/${BASE}.zip ${BASE}
+	
+	rm ${BASE}
+    done
     wait
-
-    rm -f ELUS_AK
-    rm -f ELUS_HI
-    rm -f ELUS_PR
-    rm -f ELUS_NE
-    rm -f ELUS_NC
-    rm -f ELUS_NW
-    rm -f ELUS_SE
-    rm -f ELUS_SC
-    rm -f ELUS_SW
 
 elif [[ ${SLURM_ARRAY_TASK_ID} -eq 4 ]]; then
 
-    ## ## Cleaning now done in generate-tiles.pbs
-    ## cleanpngbylatlon -179.90  75.0 -128.45 50.50 ifh latlon
-    ## ## cleanpngbylatlon -165.00  25.0 -150.00 15.00 ifh latlon
-    ## ## cleanpngbylatlon  -68.00  19.5  -64.00 17.00 ifh latlon
-    ## cleanpngbylatlon  -85.00 50.15  -40.00 38.00 ifh latlon
-    ## cleanpngbylatlon -110.00 50.15  -85.00 38.00 ifh latlon
-    ## cleanpngbylatlon -131.21 50.15 -110.00 38.00 ifh latlon
-    ## cleanpngbylatlon  -85.00 38.00  -40.00 23.13 ifh latlon
-    ## cleanpngbylatlon -110.00 38.00  -85.00 23.13 ifh latlon
-    ## cleanpngbylatlon -131.21 38.00 -110.00 23.13 ifh latlon
-    
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## wait
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## echo png
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## rm -f final/EHUS_AK.zip; echo ${CYCLE} > EHUS_AK; ./ziptiles.py -179.90  75.0 -128.45 50.50 ifh latlon png forzip >> EHUS_AK; tail -n+2 EHUS_AK |xargs zip -9 final/EHUS_AK.zip EHUS_AK &
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## ## rm -f final/EHUS_HI.zip; echo ${CYCLE} > EHUS_HI; ./ziptiles.py -165.00  25.0 -150.00 15.00 ifh latlon png forzip >> EHUS_HI; tail -n+2 EHUS_HI |xargs zip -9 final/EHUS_HI.zip EHUS_HI &
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## ## rm -f final/EHUS_PR.zip; echo ${CYCLE} > EHUS_PR; ./ziptiles.py  -68.00  19.5  -64.00 17.00 ifh latlon png forzip >> EHUS_PR; tail -n+2 EHUS_PR |xargs zip -9 final/EHUS_PR.zip EHUS_PR &
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## rm -f final/EHUS_NE.zip; echo ${CYCLE} > EHUS_NE; ./ziptiles.py  -85.00 50.15  -40.00 38.00 ifh latlon png forzip >> EHUS_NE; tail -n+2 EHUS_NE |xargs zip -9 final/EHUS_NE.zip EHUS_NE &
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## rm -f final/EHUS_NC.zip; echo ${CYCLE} > EHUS_NC; ./ziptiles.py -110.00 50.15  -85.00 38.00 ifh latlon png forzip >> EHUS_NC; tail -n+2 EHUS_NC |xargs zip -9 final/EHUS_NC.zip EHUS_NC &
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## rm -f final/EHUS_NW.zip; echo ${CYCLE} > EHUS_NW; ./ziptiles.py -131.21 50.15 -110.00 38.00 ifh latlon png forzip >> EHUS_NW; tail -n+2 EHUS_NW |xargs zip -9 final/EHUS_NW.zip EHUS_NW &
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## rm -f final/EHUS_SE.zip; echo ${CYCLE} > EHUS_SE; ./ziptiles.py  -85.00 38.00  -40.00 23.13 ifh latlon png forzip >> EHUS_SE; tail -n+2 EHUS_SE |xargs zip -9 final/EHUS_SE.zip EHUS_SE &
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## rm -f final/EHUS_SC.zip; echo ${CYCLE} > EHUS_SC; ./ziptiles.py -110.00 38.00  -85.00 23.13 ifh latlon png forzip >> EHUS_SC; tail -n+2 EHUS_SC |xargs zip -9 final/EHUS_SC.zip EHUS_SC &
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## rm -f final/EHUS_SW.zip; echo ${CYCLE} > EHUS_SW; ./ziptiles.py -131.21 38.00 -110.00 23.13 ifh latlon png forzip >> EHUS_SW; tail -n+2 EHUS_SW |xargs zip -9 final/EHUS_SW.zip EHUS_SW &
-    ## PNG NOT NEEDED WITH WEBP CHARTS ## wait
+    ## These are the zip file names
+    BASES=`cut -f1 -d: charts/ifr/TileManifest.ifh.list|sort -u`
 
-    echo webp
-    rm -f final_webp/EHUS_AK.zip; echo ${CYCLE} > EHUS_AK; ./ziptiles.py -179.90  75.0 -128.45 50.50 ifh latlon png forzip | sed s/png/webp/ >> EHUS_AK; tail -n+2 EHUS_AK |xargs zip -9 final_webp/EHUS_AK.zip EHUS_AK &
-    ## rm -f final_webp/EHUS_HI.zip; echo ${CYCLE} > EHUS_HI; ./ziptiles.py -165.00  25.0 -150.00 15.00 ifh latlon png forzip | sed s/png/webp/ >> EHUS_HI; tail -n+2 EHUS_HI |xargs zip -9 final_webp/EHUS_HI.zip EHUS_HI &
-    ## rm -f final_webp/EHUS_PR.zip; echo ${CYCLE} > EHUS_PR; ./ziptiles.py  -68.00  19.5  -64.00 17.00 ifh latlon png forzip | sed s/png/webp/ >> EHUS_PR; tail -n+2 EHUS_PR |xargs zip -9 final_webp/EHUS_PR.zip EHUS_PR &
-    rm -f final_webp/EHUS_NE.zip; echo ${CYCLE} > EHUS_NE; ./ziptiles.py  -85.00 50.15  -40.00 38.00 ifh latlon png forzip | sed s/png/webp/ >> EHUS_NE; tail -n+2 EHUS_NE |xargs zip -9 final_webp/EHUS_NE.zip EHUS_NE &
-    rm -f final_webp/EHUS_NC.zip; echo ${CYCLE} > EHUS_NC; ./ziptiles.py -110.00 50.15  -85.00 38.00 ifh latlon png forzip | sed s/png/webp/ >> EHUS_NC; tail -n+2 EHUS_NC |xargs zip -9 final_webp/EHUS_NC.zip EHUS_NC &
-    rm -f final_webp/EHUS_NW.zip; echo ${CYCLE} > EHUS_NW; ./ziptiles.py -131.21 50.15 -110.00 38.00 ifh latlon png forzip | sed s/png/webp/ >> EHUS_NW; tail -n+2 EHUS_NW |xargs zip -9 final_webp/EHUS_NW.zip EHUS_NW &
-    rm -f final_webp/EHUS_SE.zip; echo ${CYCLE} > EHUS_SE; ./ziptiles.py  -85.00 38.00  -40.00 23.13 ifh latlon png forzip | sed s/png/webp/ >> EHUS_SE; tail -n+2 EHUS_SE |xargs zip -9 final_webp/EHUS_SE.zip EHUS_SE &
-    rm -f final_webp/EHUS_SC.zip; echo ${CYCLE} > EHUS_SC; ./ziptiles.py -110.00 38.00  -85.00 23.13 ifh latlon png forzip | sed s/png/webp/ >> EHUS_SC; tail -n+2 EHUS_SC |xargs zip -9 final_webp/EHUS_SC.zip EHUS_SC &
-    rm -f final_webp/EHUS_SW.zip; echo ${CYCLE} > EHUS_SW; ./ziptiles.py -131.21 38.00 -110.00 23.13 ifh latlon png forzip | sed s/png/webp/ >> EHUS_SW; tail -n+2 EHUS_SW |xargs zip -9 final_webp/EHUS_SW.zip EHUS_SW &
+    for BASE in ${BASES}; do
+	## Remove the old zip file
+	rm -f final/${BASE}.zip
+	rm -f final_webp/${BASE}.zip
+
+	## Create png zips (deprecated)
+	echo ${CYCLE} > ${BASE}
+	grep $BASE charts/ifr/TileManifest.ifh.list |cut -f2 -d: | awk '{printf ("tiles/4/%s\n", $1)}' | sed s/png/png/ >> ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final/${BASE}.zip ${BASE}
+
+	## Create webp zips
+	echo ${CYCLE} > ${BASE}
+	grep $BASE charts/ifr/TileManifest.ifh.list |cut -f2 -d: | awk '{printf ("tiles/4/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final_webp/${BASE}.zip ${BASE}
+	
+	rm ${BASE}
+    done
     wait
-    
-    rm -f EHUS_AK
-    rm -f EHUS_HI
-    rm -f EHUS_PR
-    rm -f EHUS_NE
-    rm -f EHUS_NC
-    rm -f EHUS_NW
-    rm -f EHUS_SE
-    rm -f EHUS_SC
-    rm -f EHUS_SW
 
 elif [[ ${SLURM_ARRAY_TASK_ID} -eq 5 ]]; then
 
-    ## IFR AREA Tiles
-    for img in `ls merge/ifa/*vrt`; do
-    	BASE=ENRA_`echo ${img} | cut -f3 -d/|cut -f3 -d_|cut -f1 -d.`
-	echo $BASE
+    ## These are the zip file names
+    BASES=`cut -f1 -d: charts/ifr/TileManifest.ifa.list|sort -u`
 
-    	## cleanpngbyimage ${img} ifa
-	## 
-	## echo png
-	## echo ${CYCLE} > ${BASE}
-	## mygroup ${img} ifa png forzip >> ${BASE}
-	## 
-	## rm -f final/${BASE}.zip
-	## tail -n+2 ${BASE} |xargs zip -9 final/${BASE}.zip ${BASE}
-
-    	echo webp
-	echo ${CYCLE} > ${BASE}
-	mygroup ${img} ifa png forzip |sed s/png/webp/ >> ${BASE}
-	
+    for BASE in ${BASES}; do
+	## Remove the old zip file
+	rm -f final/${BASE}.zip
 	rm -f final_webp/${BASE}.zip
-	tail -n+2 ${BASE} |xargs zip -9 final_webp/${BASE}.zip ${BASE}
 
-    done
-    wait
-    for img in `ls merge/ifa/*vrt`; do
-    	BASE=ENRA_`echo ${img} | cut -f3 -d/|cut -f3 -d_|cut -f1 -d.`
+	## Create png zips (deprecated)
+	echo ${CYCLE} > ${BASE}
+	grep $BASE charts/ifr/TileManifest.ifa.list |cut -f2 -d: | awk '{printf ("tiles/5/%s\n", $1)}' | sed s/png/png/ >> ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final/${BASE}.zip ${BASE}
+
+	## Create webp zips
+	echo ${CYCLE} > ${BASE}
+	grep $BASE charts/ifr/TileManifest.ifa.list |cut -f2 -d: | awk '{printf ("tiles/5/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final_webp/${BASE}.zip ${BASE}
+	
 	rm ${BASE}
     done
+    wait
 
 elif [[ ${SLURM_ARRAY_TASK_ID} -eq 6 ]]; then
 
