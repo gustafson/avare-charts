@@ -29,7 +29,7 @@ for a in `ls EHUS*.zip|grep -v webp`; do
     			## Update all but the elevation tiles
     			if [[ ! `echo ${FILE} |grep tiles/6` ]]; then
     			    NEWFILE=`dirname $FILE`/`basename $FILE .png`
-    			    echo "-quiet -quiet -lossless -m 6 ${FILE} -o ${NEWFILE}.webp" >> ${TMP2}
+    			    echo "-quiet -lossless -m 6 ${FILE} -o ${NEWFILE}.webp" >> ${TMP2}
     			fi
     		    fi
     		done 

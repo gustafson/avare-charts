@@ -94,7 +94,10 @@ elif [[ $2 = vfrdl ]]; then
     echo `date -d "$TODAY + $SREF days" +"%y%m%d"`
 elif [[ $2 = lastcycle ]]; then
     if [[ ${CYCLEDAYS} -eq 28 ]]; then
-	echo $((TODAY-SREF))
+	#echo $TODAY
+	#echo $SREF
+	echo `date -d "$TODAY + $SREF days" +"%d%^b%Y"`
+	#echo $((TODAY - SREF))
     else
 	echo 0
     fi

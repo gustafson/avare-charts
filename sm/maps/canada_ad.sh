@@ -61,8 +61,11 @@ function generateimages(){
 	echo ${i} ${FILE} ${AD} ${PAGE} $FILE[$PAGE]
 	
 	# Convert to ~1400x800 pixel image
-	convert -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage $FILE[$PAGE] plates/$IMG/AIRPORT-DIAGRAM.png && optipng -quiet plates/$IMG/AIRPORT-DIAGRAM.png
-	convert -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage $FILE[$PAGE] -format webp -define webp:lossless=true,method=6 plates/$IMG/AIRPORT-DIAGRAM.webp
+	## PNG not used anymore
+	## convert -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage $FILE[$PAGE] plates/$IMG/AIRPORT-DIAGRAM.png && optipng -quiet plates/$IMG/AIRPORT-DIAGRAM.png
+
+	# convert to efficient webp via stream
+	convert -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage $FILE[$PAGE] png:- | cwebp -quiet -z 9 -lossless -o plates/$IMG/AIRPORT-DIAGRAM.webp -- -
 
     fi
 
@@ -75,12 +78,13 @@ for i in `seq 1 $PAGES`; do
 done | xargs -n1 -P${NP} bash -c generateimages
 
 # Zip up the result
+## PNG no longer created
+## rm -f final/CAN_ADS.zip
+## echo ${CYCLE} > CAN_ADS
+## ls plates/C???/*png >> CAN_ADS
+## zip -9 final/CAN_ADS.zip plates/C???/AIRPORT-DIAGRAM.png CAN_ADS
+
 rm -f final/CAN_ADS.zip
 echo ${CYCLE} > CAN_ADS
-ls plates/C???/*png >> CAN_ADS
-zip -9 final/CAN_ADS.zip plates/C???/AIRPORT-DIAGRAM.png CAN_ADS
-
-rm -f final_webp/CAN_ADS.zip
-echo ${CYCLE} > CAN_ADS
 ls plates/C???/*webp >> CAN_ADS
-zip -9 final_webp/CAN_ADS.zip plates/C???/*webp CAN_ADS
+zip -9 final/CAN_ADS.zip plates/C???/*webp CAN_ADS

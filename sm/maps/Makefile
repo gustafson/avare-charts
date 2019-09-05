@@ -84,6 +84,12 @@ endif
 	@echo "  make canada"
 	@echo "  make zipdatabase"
 	@echo "  make qualitycontrol"
+	@echo
+	@echo "Note as of 1909 all VFR/IFR tiles are webp lossy.  Some other tiles are still png lossless"
+	@echo "Plates are still png because we can't add the appropriate exiftag to webp yet."
+	@echo "AFD are webp"
+	@echo "Canada airport diagrams are webp but are not geotagged (nor were the png)"
+
 
 scratch: download-ifr download-vfr rename stage-all plates download-and-process-base-data zipdatabase
 update: download-ifr update-vfr rename stage-all plates download-and-process-base-data zipdatabase
@@ -222,9 +228,9 @@ stage-vfr: charts/sec/*tif charts/tac/*tif #charts/wac/*tif
 ziptiles:
 	## ./ziptiles.sh
 ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
-	sbatch --array=0,1,3,4,5,9 ziptiles512.pbs
+	sbatch --array=0,1,3,4,5,9,13 ziptiles512.pbs
 else
-	sbatch --array=0,1,9 ziptiles512.pbs
+	sbatch --array=0,1,9,13 ziptiles512.pbs
 endif
 
 temp:
