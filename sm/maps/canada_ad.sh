@@ -62,10 +62,10 @@ function generateimages(){
 	
 	# Convert to ~1400x800 pixel image
 	## PNG not used anymore
-	## convert -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage $FILE[$PAGE] plates/$IMG/AIRPORT-DIAGRAM.png && optipng -quiet plates/$IMG/AIRPORT-DIAGRAM.png
+	convert -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage $FILE[$PAGE] plates/$IMG/AIRPORT-DIAGRAM.png && optipng -quiet plates/$IMG/AIRPORT-DIAGRAM.png
 
 	# convert to efficient webp via stream
-	convert -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage $FILE[$PAGE] png:- | cwebp -quiet -z 9 -lossless -o plates/$IMG/AIRPORT-DIAGRAM.webp -- -
+	## convert -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage $FILE[$PAGE] png:- | cwebp -quiet -z 9 -lossless -o plates/$IMG/AIRPORT-DIAGRAM.webp -- -
 
     fi
 
@@ -86,5 +86,5 @@ done | xargs -n1 -P${NP} bash -c generateimages
 
 rm -f final/CAN_ADS.zip
 echo ${CYCLE} > CAN_ADS
-ls plates/C???/*webp >> CAN_ADS
-zip -9 final/CAN_ADS.zip plates/C???/*webp CAN_ADS
+ls plates/C???/*png >> CAN_ADS
+zip -9 final/CAN_ADS.zip plates/C???/*png CAN_ADS

@@ -37,13 +37,12 @@ MTIME=`./cycledates.sh 28 lastcycle` ## Use to select IFR or not
 pushd final
 
 ## Only these require manifest updates (Includes IFR older than the last cycle conclusion) ## C?-[0-9]*zip 
-#for a in Area*zip `find E[LH]US_* ENRA_* -mtime +${MTIME} -type f` AFD*zip; do
-for a in *zip; do
+for a in C?-*zip Area*zip; do # AFD_*zip ENRA_* ELUS_* EHUS_*; do #
+    echo Updating $a
     b=`basename $a .zip`; zip -d $a $b #> /dev/null
     echo $b `unzip -l $a |tail -n1` > ${a}.count
     ../zip.py `basename ${a} .zip` ${CYCLE};
 done
-
 
 echo Unzipping reference data
 rm -f *ref 

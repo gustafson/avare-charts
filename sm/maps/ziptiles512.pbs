@@ -204,12 +204,12 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 3 ]]; then
 	## Create png zips (deprecated)
 	echo ${CYCLE} > ${BASE}
 	grep $BASE charts/ifr/TileManifest.ifr.list |cut -f2 -d: | awk '{printf ("tiles/3/%s\n", $1)}' | sed s/png/png/ >> ${BASE}
-	tail -n+2 ${BASE} | xargs zip -9 final/${BASE}.zip ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final_png/${BASE}.zip ${BASE}
 
 	## Create webp zips
 	echo ${CYCLE} > ${BASE}
 	grep $BASE charts/ifr/TileManifest.ifr.list |cut -f2 -d: | awk '{printf ("tiles/3/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
-	tail -n+2 ${BASE} | xargs zip -9 final_webp/${BASE}.zip ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final/${BASE}.zip ${BASE}
 	
 	rm ${BASE}
     done
@@ -228,12 +228,12 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 4 ]]; then
 	## Create png zips (deprecated)
 	echo ${CYCLE} > ${BASE}
 	grep $BASE charts/ifr/TileManifest.ifh.list |cut -f2 -d: | awk '{printf ("tiles/4/%s\n", $1)}' | sed s/png/png/ >> ${BASE}
-	tail -n+2 ${BASE} | xargs zip -9 final/${BASE}.zip ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final_png/${BASE}.zip ${BASE}
 
 	## Create webp zips
 	echo ${CYCLE} > ${BASE}
 	grep $BASE charts/ifr/TileManifest.ifh.list |cut -f2 -d: | awk '{printf ("tiles/4/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
-	tail -n+2 ${BASE} | xargs zip -9 final_webp/${BASE}.zip ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final/${BASE}.zip ${BASE}
 	
 	rm ${BASE}
     done
@@ -252,12 +252,12 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 5 ]]; then
 	## Create png zips (deprecated)
 	echo ${CYCLE} > ${BASE}
 	grep $BASE charts/ifr/TileManifest.ifa.list |cut -f2 -d: | awk '{printf ("tiles/5/%s\n", $1)}' | sed s/png/png/ >> ${BASE}
-	tail -n+2 ${BASE} | xargs zip -9 final/${BASE}.zip ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final_png/${BASE}.zip ${BASE}
 
 	## Create webp zips
 	echo ${CYCLE} > ${BASE}
 	grep $BASE charts/ifr/TileManifest.ifa.list |cut -f2 -d: | awk '{printf ("tiles/5/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
-	tail -n+2 ${BASE} | xargs zip -9 final_webp/${BASE}.zip ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final/${BASE}.zip ${BASE}
 	
 	rm ${BASE}
     done
@@ -383,14 +383,15 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 9 ]]; then
 	    IMBASE=${IMG}Heli
 	fi
 
-	cleanpngbyimage ${FILE} heli meters
-	TMP=`./extract_corners.sh ${FILE}`
-
 	for TYPE in png webp; do 
 	    echo ${CYCLE} > ${IMBASE}
-	    ZIP=final_${TYPE}/${IMBASE}.zip
+	    if [[ $TYPE == png ]]; then
+		ZIP=final_${TYPE}/${IMBASE}.zip
+	    else
+		ZIP=final/${IMBASE}.zip
+	    fi
 	    rm -f $ZIP
-	    ./ziptiles.py ${TMP} heli meters png forzip | sed s/.png/.${TYPE}/ >> ${IMBASE}
+	    grep ${IMBASE} charts/hel/TileManifest.hel.list |cut -f2 -d: | xargs -I{} -n1 echo tiles/9/{} | sed s/.png/.${TYPE}/ >> ${IMBASE}
 	    tail -n+2 ${IMBASE} | xargs zip -9 $ZIP ${IMBASE}
 	done
 	[[ -f ${IMBASE} ]] && rm ${IMBASE}

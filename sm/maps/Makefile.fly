@@ -8,7 +8,9 @@ fly.vrt: warped
 warped: $(subst .geojson,.png,$(subst charts,merge,$(wildcard charts/fly/*.geojson)))
 
 merge/fly/%.png: charts/fly/%.tif
-	echo $<
+	@echo Working on $<
+	@echo Erasing tiles that need to be replaced
+	grep $(notdir $(@:FLY.png=)) ./charts/fly/TileManifest.fly.list |cut -f2 -d: |xargs -I {} rm -f tiles/13-build/{}
 	if [[ ! -d merge/fly/ ]]; then mkdir -p merge/fly/; fi
 	rm -f $@ $(@:.png=.vrt) $(@:.png=.warp.vrt) $(@:.png=.rgb.vrt)
 	gdal_translate -of vrt -r cubicspline -expand rgb $< $(@:.png=.rgb.vrt)

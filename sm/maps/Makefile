@@ -63,9 +63,9 @@ endif
 	@echo "  make update-vfr #$(CYCLEDATE28)"
 ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
 	@echo "  make rename"
-	@echo "  make stage-all #$(CYCLEDATE56)"
+	@echo "  make stage-all #$(CYCLEDATE56) ## Makefile deletes expired tiles for 0,1,13 overwrites expired tiles in 3,4,5"
 else
-	@echo "  make stage-vfr #$(CYCLEDATE28)"
+	@echo "  make stage-vfr #$(CYCLEDATE28) ## Makefile deletes expired tiles for 0,1,13"
 endif
 	@echo
 	@echo "  make procedures.db #$(CYCLEDATE28)"
@@ -85,10 +85,11 @@ endif
 	@echo "  make zipdatabase"
 	@echo "  make qualitycontrol"
 	@echo
-	@echo "Note as of 1909 all VFR/IFR tiles are webp lossy.  Some other tiles are still png lossless"
+	@echo "Notes:"
+	@echo "As of 1909 all VFR/IFR tiles are webp lossy.  Some other tiles are still png lossless"
 	@echo "Plates are still png because we can't add the appropriate exiftag to webp yet."
-	@echo "AFD are webp"
-	@echo "Canada airport diagrams are webp but are not geotagged (nor were the png)"
+	@echo "AFD and canada are png because in-app doesn't look for webp"
+	@echo "Canada airport diagrams could be webp because the png are not geotagged."
 
 
 scratch: download-ifr download-vfr rename stage-all plates download-and-process-base-data zipdatabase
@@ -212,18 +213,22 @@ rename:
 
 stage-all: stage-vfr stage-ifr
 
-stage-ifr: charts/ifr/*zip
+stage-ifr: charts/ifr/*tif
 	if [[ ! -d merge ]]; then mkdir merge; fi
-	gcc -march=native -O3 -Wall stage-ifr-low.c -o stage-ifr-low
+	@echo Compiling old c code which is still used!
+	gcc -march=native -O3 -Wall stage-ifr-low.c -o stage-ifr-low 
 	gcc -march=native -O3 -Wall stage-ifr-area.c -o stage-ifr-area
-	## ./stage-ifr-low
 	./stage-ifr-area
-	./ifr-slurm.sh ## This generates ifr low tiles (submitting to generate-tiles.pbs)
+	## This following generates ifr low tiles
+	##   * it submits to generate-tiles.pbs
+	##   * it uses ./stage-ifr-low above
+	./ifr-slurm.sh ## This submits IFR low array 3
 	sbatch --array=4-5 generate-tiles.pbs
+	@echo I dont think the Makefile.ifr file does anything yet
 
-stage-vfr: charts/sec/*tif charts/tac/*tif #charts/wac/*tif 
+stage-vfr: charts/sec/*tif charts/tac/*tif charts/fly/*tif #charts/wac/*tif 
 	if [[ ! -d merge ]]; then mkdir merge; fi
-	sbatch --array=0,1,9 generate-tiles.pbs
+	sbatch --array=0,1,9,13 generate-tiles.pbs
 
 ziptiles:
 	## ./ziptiles.sh
