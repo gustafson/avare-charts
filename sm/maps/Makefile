@@ -216,15 +216,14 @@ stage-all: stage-vfr stage-ifr
 stage-ifr: charts/ifr/*tif
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	@echo Compiling old c code which is still used!
-	gcc -march=native -O3 -Wall stage-ifr-low.c -o stage-ifr-low 
-	gcc -march=native -O3 -Wall stage-ifr-area.c -o stage-ifr-area
+	## gcc -march=native -O3 -Wall stage-ifr-low.c -o stage-ifr-low 
+	## gcc -march=native -O3 -Wall stage-ifr-area.c -o stage-ifr-area
 	./stage-ifr-area
 	## This following generates ifr low tiles
 	##   * it submits to generate-tiles.pbs
 	##   * it uses ./stage-ifr-low above
-	./ifr-slurm.sh ## This submits IFR low array 3
-	sbatch --array=4-5 generate-tiles.pbs
-	@echo I dont think the Makefile.ifr file does anything yet
+	#./ifr-slurm.sh ## This submits IFR low array 3
+	sbatch --array=3-5 generate-tiles.pbs
 
 stage-vfr: charts/sec/*tif charts/tac/*tif charts/fly/*tif #charts/wac/*tif 
 	if [[ ! -d merge ]]; then mkdir merge; fi

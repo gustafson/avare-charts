@@ -53,20 +53,21 @@ runthis \${SLURM_ARRAY_TASK_ID}
 echo $?
 EOF
 
-JOBID1=$(sbatch --parsable -w osprey /dev/shm/job1.pbs)
-
-cat << EOF > /dev/shm/job2.pbs
-#!/bin/sh -login
-rm -fr /dev/shm/tiles/3
-EOF
-echo cd $PWD >> /dev/shm/job2.pbs
-
-cat << EOF >> /dev/shm/job2.pbs
-rm -f merge/ifr/westernhemisphere.vrt; gdalbuildvrt merge/ifr/westernhemisphere.vrt merge/ifr/*westernhemisphere*tif
-rm -f merge/ifr/easternhemisphere.vrt; gdalbuildvrt merge/ifr/easternhemisphere.vrt merge/ifr/*easternhemisphere*tif
-rm -f ifr-west.vrt; gdal_translate -r near -projwin_srs WGS84 -projwin -180.0 72   -62.5 -5.25 -a_nodata 51 -of vrt merge/ifr/westernhemisphere.vrt ifr-west.vrt
-rm -f ifr-east.vrt; gdal_translate -r near -projwin_srs WGS84 -projwin  127.5 55.0 180.0 -5.25 -a_nodata 51 -of vrt merge/ifr/easternhemisphere.vrt ifr-east.vrt
-EOF
-
-JOBID2=$(sbatch --parsable -w osprey --dependency=afterok:$JOBID1 /dev/shm/job2.pbs)
-sbatch --parsable -w osprey --dependency=afterok:$JOBID2 -a 3 generate-tiles.pbs
+##  JOBID1=$(sbatch --parsable -w osprey /dev/shm/job1.pbs)
+##  
+##  cat << EOF > /dev/shm/job2.pbs
+##  #!/bin/sh -login
+##  rm -fr /dev/shm/tiles/3
+##  EOF
+##  echo cd $PWD >> /dev/shm/job2.pbs
+##  
+##  cat << EOF >> /dev/shm/job2.pbs
+##  rm -f merge/ifr/westernhemisphere.vrt; gdalbuildvrt merge/ifr/westernhemisphere.vrt merge/ifr/*westernhemisphere*tif
+##  rm -f merge/ifr/easternhemisphere.vrt; gdalbuildvrt merge/ifr/easternhemisphere.vrt merge/ifr/*easternhemisphere*tif
+##  rm -f ifr-west.vrt; gdal_translate -r near -projwin_srs WGS84 -projwin -180.0 72   -62.5 -5.25 -a_nodata 51 -of vrt merge/ifr/westernhemisphere.vrt ifr-west.vrt
+##  rm -f ifr-east.vrt; gdal_translate -r near -projwin_srs WGS84 -projwin  127.5 55.0 180.0 -5.25 -a_nodata 51 -of vrt merge/ifr/easternhemisphere.vrt ifr-east.vrt
+##  EOF
+##  
+##  JOBID2=$(sbatch --parsable -w osprey --dependency=afterok:$JOBID1 /dev/shm/job2.pbs)
+##  sbatch --parsable -w osprey --dependency=afterok:$JOBID2 -a 3 generate-tiles.pbs
+##  

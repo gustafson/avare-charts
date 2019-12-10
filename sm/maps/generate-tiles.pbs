@@ -161,7 +161,10 @@ function gentiles(){
 	rm -fr /dev/shm/tiles/2
 	
     elif [[ ${1} -eq 3 ]]; then
+
 	rm -f time.ifr.txt
+	${TIME1} time.ifr.txt make -f Makefile.ifr -j ${SLURM_NTASKS}
+
 	${TIME1} time.ifr.txt nice ./gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-east.vrt /dev/shm/tiles/3
 	${TIME1} time.ifr.txt nice ./gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-west.vrt /dev/shm/tiles/3
 	
