@@ -51,14 +51,14 @@ clean:
 ## 	../../ziptiles.py `../../extract_corners.sh $@` heli meters png forzip  | xargs --no-run-if-empty rm
 ## 	../../ziptiles.py `../../extract_corners.sh $@` heli meters webp forzip | xargs --no-run-if-empty rm
 ## 
-## GrandCanyonGeneralAviation.tif: GrandCanyonGeneralAviation??.tif
-## 	rm -f $@ GrandCanyonGeneralAviation*.vrt
-## 	$(EXPD) $< GrandCanyonGeneralAviation_1.vrt
-## 	$(WARP) GrandCanyonGeneralAviation_1.vrt GrandCanyonGeneralAviation.vrt
-## 	$(CROP) $$(grep -i "GrandCanyonGeneralAviation " HeliBounds.txt |cut -d" " -f2-) $(patsubst %.tif,%.vrt,$@) $@ && rm GrandCanyonGeneralAviation_1.vrt GrandCanyonGeneralAviation.vrt
-## 	../../ziptiles.py `../../extract_corners.sh $@` heli meters png forzip  | xargs --no-run-if-empty rm
-## 	../../ziptiles.py `../../extract_corners.sh $@` heli meters webp forzip | xargs --no-run-if-empty rm
-## 
+GrandCanyonGeneralAviation.tif: GrandCanyonGeneralAviation??.tif
+	rm -f $@ GrandCanyonGeneralAviation*.vrt
+	$(EXPD) $< GrandCanyonGeneralAviation_1.vrt
+	$(WARP) GrandCanyonGeneralAviation_1.vrt GrandCanyonGeneralAviation.vrt
+	$(CROP) $$(grep -i "GrandCanyonGeneralAviation " HeliBounds.txt |cut -d" " -f2-) $(patsubst %.tif,%.vrt,$@) $@ && rm GrandCanyonGeneralAviation_1.vrt GrandCanyonGeneralAviation.vrt
+	../../ziptiles.py `../../extract_corners.sh $@` heli meters png forzip  | xargs --no-run-if-empty rm
+	../../ziptiles.py `../../extract_corners.sh $@` heli meters webp forzip | xargs --no-run-if-empty rm
+
 ## HoustonNorth.tif: HoustonNorth*HEL*.tif
 ## 	rm -f $@ HoustonNorth*.vrt
 ## 	$(EXPD) $< HoustonNorth_1.vrt
