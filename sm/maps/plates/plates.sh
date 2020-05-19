@@ -16,9 +16,8 @@ function extract_db() {
 	SCALE=1.0 #1240 1860 2480
     fi
 	
-    if [[ `gdalinfo ${ARG} 2> /dev/null | grep -i PROJCS` ]]; then
+    if [[ `gdalinfo ${ARG} 2> /dev/null | grep -io PROJCRS` ]]; then
 	## Write gdal geotag information into the file
-	echo TAGGING ${ARG}
 	./extract_corners.sh ${ARG}
 	
     else
@@ -81,7 +80,7 @@ if [[ $STEP -eq 0 ]]; then
 	for SIZE in ${SINGLESIZE}; do # 1240 1860 2480
     	    [[ -d plates.archive/${CYCLE}/plates_${STATE}/${AIRPORT} ]] || mkdir -p plates.archive/${CYCLE}/plates_${STATE}/${AIRPORT}
 
-    	    if [[ `gdalinfo ${FN}.pdf 2> /dev/null | grep -i PROJCS` ]]; then ##
+    	    if [[ `gdalinfo ${FN}.pdf 2> /dev/null | grep -io PROJCRS` ]]; then ##
 	    ## if [[ $NO ]]; then
     		gdalwarp -q -dstalpha -r lanczos -t_srs 'EPSG:3857' -ts 0 ${SIZE} ${FN}.pdf -of VRT ${FN}_${SIZE}_1.vrt 
     		gdal_translate -q -r lanczos ${FN}_${SIZE}_1.vrt -of PNG  ${FN}_${SIZE}.256.png
@@ -113,7 +112,6 @@ if [[ $STEP -eq 0 ]]; then
     	    else
 		## NO GDAL info available
 		## PAGES=`pdfinfo  HOT-SPOT.pdf |grep -i pages|awk '{print $2}'`
-
 		if [[ ${SIZE} -eq 1240 ]]; then
 		    DENS=150
 		elif [[ ${SIZE} -eq 1860 ]]; then

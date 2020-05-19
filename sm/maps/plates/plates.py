@@ -107,7 +107,7 @@ import multiprocessing as mp
 statecount=0;
 for state in root[node::nnodes]:
     ## If you want just one state for debugging, uncomment the next line
-    ## if (state.attrib['ID']=="AS"): # or state.attrib['ID']=="MI"
+    ## if (state.attrib['ID']=="MI"):
         print ("#" + state.attrib['ID'])
         statecount += 1;
         pdfimages, pngimages = copy_files_to_state(state, cycle)

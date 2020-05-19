@@ -63,9 +63,9 @@ endif
 	@echo "  make update-vfr #$(CYCLEDATE28)"
 ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
 	@echo "  make rename"
-	@echo "  make stage-all #$(CYCLEDATE56) ## Makefile deletes expired tiles for 0,1,13 overwrites expired tiles in 3,4,5"
+	@echo "  make stage-all #$(CYCLEDATE56) ## Makefile deletes expired tiles for 0,1,9,13 overwrites expired tiles in 3,4,5"
 else
-	@echo "  make stage-vfr #$(CYCLEDATE28) ## Makefile deletes expired tiles for 0,1,13"
+	@echo "  make stage-vfr #$(CYCLEDATE28) ## Makefile deletes expired tiles for 0,1,9,13"
 endif
 	@echo
 	@echo "  make procedures.db #$(CYCLEDATE28)"
@@ -131,11 +131,11 @@ download-and-process-base-data:
 	./aw.pl > aw.csv
 
 plates-png: 
-	# cd plates/DDTPP && unzip DDTPPE*zip d-TPP_Metafile.xml
+	cd plates/DDTPP && unzip DDTPPE*zip d-TPP_Metafile.xml
 	cd plates && sbatch plates.pbs
 
 download-plates:
-	[[ -d plates/DDTPP ]] || mkdir -p plates/DDTPP
+	rm -fr plates/DDTPP/*zip && mkdir -p plates/DDTPP
 	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPA_$(CYCLEPLATES).zip
 	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPB_$(CYCLEPLATES).zip
 	cd plates/DDTPP && wget -c http://aeronav.faa.gov/upload_313-d/terminal/DDTPPC_$(CYCLEPLATES).zip
@@ -145,7 +145,9 @@ download-plates:
 
 procedures.db: 
 	pushd CIFP && wget -c http://aeronav.faa.gov/Upload_313-d/cifp/cifp_$(CYCLECIFP).zip
-	pushd CIFP && unzip cifp_$(CYCLECIFP).zip && rm -f procedures.db
+	pushd CIFP && rm -fr $(CYCLECIFP) && mkdir $(CYCLECIFP)
+	pushd CIFP/$(CYCLECIFP) && unzip ../cifp_$(CYCLECIFP).zip
+	pushd CIFP && rm -f procedures.db
 	pushd CIFP && make procedures.db && mv procedures.db ..
 
 afd.csv:

@@ -7,6 +7,6 @@ for zip in ../*zip; do
     [[ `unzip -qqo ${zip} "*PDF"; echo $?` -eq 0 ]] || RETURN=1
 done
 
-unzip ../DDTPPE*.zip d-TPP_Metafile.xml || RETURN 1
+unzip ../DDTPPE*.zip d-TPP_Metafile.xml || RETURN=1
 
 echo $RETURN
