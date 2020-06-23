@@ -39,5 +39,5 @@ Building charts without slurm workload management is likely possible but is not 
 * **Building all charts from scratch is not yet supported.**  
 	* Each cycle build relies on successful completion of the prior build cycle.
 	* Building all VFR charts from scratch requires manual download of all charts from the FAA site.  Building subsequent cycles should update properly with less manual intervention.
-	* **This issue will not be fixed until the FAA moves sectional charts to a 56 day cycle on [February 25, 2021](https://www.aopa.org/news-and-media/all-news/2020/april/16/vfr-charts-to-go-on-56-day-publication-cycle-in-2021).  It is likely to take an additional cycle past then before support for build-from-scratch will be contemplated.
+	* **This issue will not be fixed until the FAA moves sectional charts to a 56 day cycle on [February 25, 2021](https://www.aopa.org/news-and-media/all-news/2020/april/16/vfr-charts-to-go-on-56-day-publication-cycle-in-2021).**  It is likely to take an additional cycle past then before support for build-from-scratch will be contemplated.
 	* IFR charts can likely be built from scratch in any 56 day IFR cycle (assuming you overcome the issues mentioned above)
