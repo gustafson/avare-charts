@@ -86,10 +86,9 @@ endif
 	@echo "  make qualitycontrol"
 	@echo
 	@echo "Notes:"
-	@echo "As of 1909 all VFR/IFR tiles are webp lossy.  Some other tiles are still png lossless"
-	@echo "Plates are still png because we can't add the appropriate exiftag to webp yet."
-	@echo "AFD and canada are png because in-app doesn't look for webp"
-	@echo "Canada airport diagrams could be webp because the png are not geotagged."
+	@echo "* As of 1909 all VFR/IFR tiles are webp lossy.  Some other tiles are still png lossless"
+	@echo "* Plates are still png because in-app doesn't look for webp and webp exiftag hasn't been tested"
+	@echo "* AFD and canada are png because in-app doesn't look for webp of these"
 
 
 scratch: download-ifr download-vfr rename stage-all plates download-and-process-base-data zipdatabase
