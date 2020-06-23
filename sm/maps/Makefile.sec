@@ -14,7 +14,7 @@ merge/sec/%.tif: charts/sec/%.tif charts/sec/%.geojson
 	if [[ ! -d merge/sec/ ]]; then mkdir -p merge/sec/; fi
 	rm -f $@ $(@:.tif=.vrt) $(@:.tif=.warp.vrt) $(@:.tif=.rgb.vrt)
 	gdal_translate -of vrt -r cubicspline -expand rgb $< $(@:.tif=.rgb.vrt)
-	gdalwarp -of vrt -dstnodata 51 -r cubicspline -t_srs 'EPSG:3857' -cutline $(<:.tif=.geojson) -crop_to_cutline -tr $(TR) $(TR) $(@:.tif=.rgb.vrt) $(@:.tif=.warp.vrt)
+	GDAL_DATA=/home/pete/software/gdal/gdal/data /home/pete/software/gdal/gdal/apps/gdalwarp -of vrt -dstnodata 51 -r cubicspline -t_srs 'EPSG:3857' -cutline $(<:.tif=.geojson) -crop_to_cutline -tr $(TR) $(TR) $(@:.tif=.rgb.vrt) $(@:.tif=.warp.vrt)
 	gdal_translate -r cubicspline $(@:.tif=.warp.vrt) $@
 	rm $(@:.tif=.rgb.vrt) $(@:.tif=.warp.vrt)
 

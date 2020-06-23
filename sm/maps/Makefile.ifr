@@ -71,7 +71,7 @@ merge/ifr/easternhemisphere.vrt: \
 	rm -f $@
 	gdalbuildvrt $@ $^
 
-STR1 = gdalwarp -co BIGTIFF=YES -overwrite -wo NUM_THREADS=2 -multi -cutline
+STR1 = GDAL_DATA=/home/pete/software/gdal/gdal/data /home/pete/software/gdal/gdal/apps/gdalwarp -co BIGTIFF=YES -overwrite -wo NUM_THREADS=2 -multi -cutline
 STR2 = -crop_to_cutline -of gtiff -dstnodata 51 -r cubic
 
 mergeall: \
@@ -130,8 +130,8 @@ merge/ifr/11ENR_L36_westernhemisphere.tif
 merge/ifr/02ENR_P01east_easternhemisphere.tif: charts/ifr/02ENR_P01east_easternhemisphere.geojson charts/ifr/ENR_P01.tif
 	$(STR1) charts/ifr/02ENR_P01east_easternhemisphere.geojson $(STR2) -tr $(TR07) $(TR07) -t_srs EPSG:3857 charts/ifr/ENR_P01.tif merge/ifr/02ENR_P01east_easternhemisphere.tif
 
-merge/ifr/02ENR_P01east_westernhemisphere.tif: charts/ifr/02ENR_P01west_easternhemisphere.geojson charts/ifr/ENR_P01.tif
-	$(STR1) charts/ifr/02ENR_P01west_easternhemisphere.geojson $(STR2) -tr $(TR07) $(TR07) -t_srs EPSG:3857 charts/ifr/ENR_P01.tif merge/ifr/02ENR_P01east_westernhemisphere.tif
+merge/ifr/02ENR_P01east_westernhemisphere.tif: charts/ifr/02ENR_P01east_westernhemisphere.geojson charts/ifr/ENR_P01.tif
+	$(STR1) charts/ifr/02ENR_P01east_westernhemisphere.geojson $(STR2) -tr $(TR07) $(TR07) -t_srs EPSG:3857 charts/ifr/ENR_P01.tif merge/ifr/02ENR_P01east_westernhemisphere.tif
 
 merge/ifr/02ENR_P01west_easternhemisphere.tif: charts/ifr/02ENR_P01west_easternhemisphere.geojson charts/ifr/ENR_P01.tif
 	$(STR1) charts/ifr/02ENR_P01west_easternhemisphere.geojson $(STR2) -tr $(TR07) $(TR07) -t_srs EPSG:3857 charts/ifr/ENR_P01.tif merge/ifr/02ENR_P01west_easternhemisphere.tif

@@ -37,7 +37,7 @@ MTIME=`./cycledates.sh 28 lastcycle` ## Use to select IFR or not
 pushd final
 
 ## Only these require manifest updates (Includes IFR older than the last cycle conclusion) ## C?-[0-9]*zip 
-for a in C?-*zip Area*zip; do # AFD_*zip ENRA_* ELUS_* EHUS_*; do #
+for a in ENRA_* ELUS_* EHUS_* C?-*zip Area*zip AFD_*zip alternates.zip; do #  
     echo Updating $a
     b=`basename $a .zip`; zip -d $a $b #> /dev/null
     echo $b `unzip -l $a |tail -n1` > ${a}.count
@@ -54,7 +54,7 @@ unzip -q ../qualitycontrol.zip
 
 ## 
 for a in *zip.qc.ref; do
-## for a in CAN_*zip; do  ## For adding new files to record -- use this and ignore errors
+#for a in WesternAleutianIslands.zip; do  ## For adding new files to record -- use this and ignore errors
     b=`basename $a .qc.ref`;
 
     ## Count files and total file size
