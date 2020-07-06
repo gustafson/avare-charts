@@ -7,7 +7,7 @@
 #SBATCH --error=z-logs/AFD_%A_%a.out
 
 # Copyright (c) 2012-2014, Apps4av Inc. (apps4av@gmail.com) 
-# Copyright (c) 2014-2019, Peter A. Gustafson
+# Copyright (c) 2014-2020, Peter A. Gustafson
 # Author: Zubair Khan (governer@gmail.com)
 # Author: Peter A. Gustafson (peter.gustafson@wmich.edu)
 # All rights reserved.
@@ -66,6 +66,9 @@ mkdir -p /dev/shm/afd/afd
 pushd /dev/shm/afd/afd
 wget -c http://aeronav.faa.gov/upload_313-d/supplements/DCS_${CYCLEDATE}.zip
 unzip -o DCS_${CYCLEDATE}.zip
+
+## Format change 2008 cycle
+[[ -d DCS_${CYCLEDATE} ]] && mv DCS_${CYCLEDATE}/*pdf DCS_${CYCLEDATE}/*xml .
 
 for a in SE NE NC NW SC SW EC AK PAC; do
     rename ${a} ${a,,} ${a}*pdf
