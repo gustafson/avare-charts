@@ -159,17 +159,15 @@ mins-data:
 download-vfr:
 	echo Downloading vfr for cycle $(CYCLE)
 	echo This code is old and not recently tested
-	mkdir merge
-	## mkdir -p charts/wac  
-	mkdir -p charts/sec 
-	mkdir -p charts/tac
-	mkdir -p charts/oth
-	mkdir -p charts/fly
+	if [ ! -d merge ]; then mkdir merge; fi
+	if [ ! -d charts/sec ]; then mkdir -p charts/sec; fi
+	if [ ! -d charts/tac ]; then mkdir -p charts/tac; fi
+	if [ ! -d charts/oth ]; then mkdir -p charts/oth; fi
+	if [ ! -d charts/fly ]; then mkdir -p charts/fly; fi
 	cd charts/sec && \
 	perl ../../reapfiles.pl -f zip http://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/vfr/
 	rm -f *_P.zip *NFN.zip
 	mv *TAC*zip ../tac
-	## mv C[CDEFGHJ]* ../wac
 	mv *Heli.zip ../oth
 
 update-vfr:
