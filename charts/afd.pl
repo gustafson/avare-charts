@@ -99,6 +99,7 @@ foreach(@list) {
     my $nm = $_;
     $nm =~ s/([a-z]*_[0-9]*).*/$1.pdf/;
 	if (!(-e "afd/$nm")) {
+	    ## Get the pdf file only if it doesn't exist
 		print "$count of ";
 		print scalar @list;
 		print " $_ $nm \n"; 
@@ -106,6 +107,6 @@ foreach(@list) {
 #		print "http://eagle.ceas.wmich.edu/avare/afd/$cycle/$_ ";
 		print "afd/$nm \n"; 
 #		getstore("http://aeronav.faa.gov/afd/$cycle/$_", "afd/$nm");
-		getstore("http://eagle.ceas.wmich.edu/avare/afd/$cycle/$_", "afd/$nm");
+#		getstore("http://eagle.ceas.wmich.edu/avare/afd/$cycle/$_", "afd/$nm");
 	}
 }
