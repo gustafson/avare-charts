@@ -67,9 +67,9 @@ for layer in range(11):
             jpg = sec.replace("tiles/0","tiles/999").replace(".webp",".jpg")
             web = sec.replace("tiles/0","tiles/999")
 
-            ## Create a new tile only if the target is missing and an
-            ## equivalent sectional exists
-            if (not (os.path.exists(png))) and (os.path.exists(sec)):
+            ## Create a new tile only if the target is missing and (an
+            ## equivalent sectional exist or it is a low level tile)
+            if ((layer<6) or (os.path.exists(sec))) and (not (os.path.exists(png))):
                 ## png file name
                 ## create the path
                 os.makedirs("/".join(png.split("/")[0:-1]),exist_ok=True)
