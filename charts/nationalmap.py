@@ -28,6 +28,15 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 
+import sys
+
+if (len(sys.argv)==3):
+    CPU = int(sys.argv[-2])
+    CPUS = int(sys.argv[-1])
+else:
+    CPU = 0
+    CPUS = 1
+
 import os
 import tempfile
 import urllib.request
@@ -57,19 +66,37 @@ def TMSvals(layer):
 ## Location baseline
 b = "https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/"
 
+count = 0
 ## Do the work for each layer
-for layer in range(12):
+for layer in range(0,13):
     x, X, y, Y = TMSvals(layer)
     for i in range(len(x)):
         for j in range(len(y)):
+            count += 1
+            if not (count%CPUS == CPU):
+                continue
+            
             sec = "tiles/0/"+ "/".join(map(str,[layer,x[i],y[j]])) + ".webp"
             png = sec.replace("tiles/0","tiles/999").replace(".webp",".png")
             jpg = sec.replace("tiles/0","tiles/999").replace(".webp",".jpg")
             web = sec.replace("tiles/0","tiles/999")
 
+            CREATE=False
+            if ((layer<7) or (os.path.exists(sec))) and (not (os.path.exists(jpg))):
+                CREATE=True
+            elif (layer>10):
+                ## We're really interested if sec exists at level
+                div = 2**(layer-10)
+                nx = int(x[i]/div)
+                ny = int(y[j]/div)
+                sec2 = "tiles/0/"+ "/".join(map(str,[10,nx,ny])) + ".webp"
+                CREATE = (os.path.exists(sec2)) and (not (os.path.exists(jpg)))
+                if CREATE: print("Creating " + jpg + " for " + sec2)
+
+
             ## Create a new tile only if the target is missing and (an
             ## equivalent sectional exist or it is a low level tile)
-            if ((layer<7) or (os.path.exists(sec))) and (not (os.path.exists(jpg))):
+            if CREATE:
                 ## png file name
                 ## create the path
                 os.makedirs("/".join(png.split("/")[0:-1]),exist_ok=True)
@@ -108,9 +135,11 @@ for layer in range(12):
 
                 ## As long as there was one successful download, create the tile
                 if not ( fn == ["xc:transparent","xc:transparent","xc:transparent","xc:transparent"] ):
-                    if (not (os.path.exists(png))):
-                        ms = "montage " + (" ".join(fn)) + " -geometry 256x256+0+0 " + png
-                        os.system(ms)
+
+                    ## ## No longer creating png since conversion to lossy webp will diminish quality and others are bigger than jpg
+                    ## if (not (os.path.exists(png))):
+                    ##     ms = "montage " + (" ".join(fn)) + " -geometry 256x256+0+0 " + png
+                    ##     os.system(ms)
                     
                     if (not (os.path.exists(jpg))):
                         for k in range(4):
