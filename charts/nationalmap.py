@@ -58,7 +58,7 @@ def TMSvals(layer):
 b = "https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/"
 
 ## Do the work for each layer
-for layer in range(11):
+for layer in range(12):
     x, X, y, Y = TMSvals(layer)
     for i in range(len(x)):
         for j in range(len(y)):
@@ -69,11 +69,12 @@ for layer in range(11):
 
             ## Create a new tile only if the target is missing and (an
             ## equivalent sectional exist or it is a low level tile)
-            if ((layer<6) or (os.path.exists(sec))) and (not (os.path.exists(png))):
+            if ((layer<7) or (os.path.exists(sec))) and (not (os.path.exists(jpg))):
                 ## png file name
                 ## create the path
                 os.makedirs("/".join(png.split("/")[0:-1]),exist_ok=True)
 
+                ## Create a safe tmp directory
                 td = tempfile.TemporaryDirectory()
 
                 fn = [
@@ -97,11 +98,27 @@ for layer in range(11):
                     except:
                         fn[k] = "xc:transparent"
 
+                ## Commands for creating jpgs
+                jpegtran = [
+                    "/home/pete/software/jpeg-9d/jpegtran -crop 512x512+0+0 -optimize -progressive -outfile ",
+                    "/home/pete/software/jpeg-9d/jpegtran -drop +256+0 " + fn[1] + " -optimize -progressive -outfile ",
+                    "/home/pete/software/jpeg-9d/jpegtran -drop +0+256 " + fn[2] + " -optimize -progressive -outfile ",
+                    "/home/pete/software/jpeg-9d/jpegtran -drop +256+256 " + fn[3] + " -optimize -progressive -outfile "
+                ]
+
                 ## As long as there was one successful download, create the tile
                 if not ( fn == ["xc:transparent","xc:transparent","xc:transparent","xc:transparent"] ):
-                    ms = "montage " + (" ".join(fn)) + " -geometry 256x256+0+0 " + png
-                    os.system(ms)
-                
+                    if (not (os.path.exists(png))):
+                        ms = "montage " + (" ".join(fn)) + " -geometry 256x256+0+0 " + png
+                        os.system(ms)
+                    
+                    if (not (os.path.exists(jpg))):
+                        for k in range(4):
+                            # print(jpegtran[k] + fn[0] + " " + fn[0])
+                            os.system(jpegtran[k] + fn[0] + " " + fn[0])
+
+                        os.system("mv " + fn[0] + " " + jpg)
+
                 ## Print relevant log info and delete the tmp directory
                 print(png)
                 print(urls)
