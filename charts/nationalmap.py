@@ -122,26 +122,40 @@ for layer in range(0,13):
                 b + "/".join(map(str,[layer+1,Y[j]+1,X[i]+1]))]
 
             ## This code now helps to document why the tiles were problematic (available, not available, etc)
-            if (QUALITYCONTROL):
-                if (os.path.exists(jpg) and not os.path.exists(empty)):
-                    print(jpg)
-                    im = Image.open(jpg)
+            if (QUALITYCONTROL) and (not os.path.exists(empty)):
+
+                if (os.path.exists(jpg)):
+                    testimg = jpg
+                    testpixel = True
+                elif (os.path.exists(png)):
+                    testimg = png
+                    testpixel = True
+                else:
+                    testpixel = False
+                    CREATE=True
+
+                if (testpixel):
+                    im = Image.open(testimg)
                     ## im.show()
                     pix = im.load()
-                    
-                    ## Remake the image if one of the subimages is gray (empty)
+
+                    ## Remake the image if one of the subimages is gray or black (empty)
                     try:
                         if (pix[255,255]==(128,128,128) or
                             pix[255,256]==(128,128,128) or
                             pix[256,255]==(128,128,128) or
-                            pix[255,256]==(128,128,128)):
+                            pix[255,256]==(128,128,128) or
+                            pix[255,255]==(0,0,0) or
+                            pix[255,256]==(0,0,0) or
+                            pix[256,255]==(0,0,0) or
+                            pix[255,256]==(0,0,0)):
                             CREATE=True
-                            os.system("rm " + jpg)
-                            print("Attempting to update image "+jpg)
+                            os.system("rm " + testimg)
+                            print("Attempting to update image "+testimg)
                     except: # Necessary for the images that came back as png
                         CREATE=True
 
-            if ((layer<7) or (os.path.exists(sec))) and (not (os.path.exists(jpg))):
+            if ((layer<7) or (os.path.exists(sec))) and (not (os.path.exists(jpg) or os.path.exists(png))):
                 CREATE=True
             elif (layer>10):
                 ## We're really interested if sec exists at level
@@ -178,56 +192,60 @@ for layer in range(0,13):
                         with open(fn[k], "wb") as f:
                             f.write(resp.read())
                             f.close()
-                            if(imghdr.what(fn[k])=="png"):
-                                print("PNG image returned, sub black image")
-                                if (k==0) and (not fn[1:] == [blackimage,blackimage,blackimage]):
-                                    ## If the 0 image is empty but the
-                                    ## others are not, a new image is
-                                    ## needed because it will be
-                                    ## uncropped in the next step
-                                    os.system("convert -size 256x256 xc:black " + fn[k])
-                                else:
-                                    fn[k] = blackimage
-                                comment+="0"
-                            else:
+                            ftype = imghdr.what(fn[k])
+                            if(ftype=="png"):
+                                ## Change to a png extension
+                                os.system("mv " + fn[k] + " " + fn[k] + ".png")
+                                fn[k]+=".png"
                                 comment+="1"
+                            elif(ftype=="jpeg"):
+                                ## Change to a jpg extension
+                                os.system("mv " + fn[k] + " " + fn[k] + ".jpg")
+                                fn[k]+=".jpg"
+                                comment+="1"
+                            else:
+                                print ("Image format is " + ftype)
+                                comment+="-2"
+
                     except urllib.error.URLError:
                         print("File not available on server, sub black image")
-                        fn[k] = blackimage
+                        fn[k]+=".jpg"
+                        os.system("cp " + blackimage + " " + fn[k])
                         comment+="0"
+
                     except urllib.error.HTTPError:
                         print("Unknown HTTP Error")
                         comment+="-1"
-                            
-                ## Commands for creating jpgs
-                jpegtran = [
-                    "/home/pete/software/jpeg-9d/jpegtran -crop 512x512+0+0 -optimize -progressive -outfile ",
-                    "/home/pete/software/jpeg-9d/jpegtran -drop +256+0 " + fn[1] + " -optimize -progressive -outfile ",
-                    "/home/pete/software/jpeg-9d/jpegtran -drop +0+256 " + fn[2] + " -optimize -progressive -outfile ",
-                    "/home/pete/software/jpeg-9d/jpegtran -drop +256+256 " + fn[3] + " -optimize -progressive -outfile "
-                ]
 
                 ## As long as there was one successful download, create the tile
                 # if not ( fn == ["xc:transparent","xc:transparent","xc:transparent","xc:transparent"] ): ## This for png
                 if not ( fn == [blackimage,blackimage,blackimage,blackimage] ):
 
-                    ## ## No longer creating png since conversion to lossy webp will diminish quality and others are bigger than jpg
-                    ## if (not (os.path.exists(png))):
-                    ##     ms = "montage " + (" ".join(fn)) + " -geometry 256x256+0+0 " + png
-                    ##     os.system(ms)
+                    if (str(fn).find("png")>0): ## If a png image exists, create a png image
+                        if (not (os.path.exists(png))):
+                            ms = "montage " + (" ".join(fn)) + " -geometry 256x256+0+0 " + png
+                            os.system(ms)
+                            comment = "exiftool -Comment=" + comment + " " + png
+                            os.system(comment)
 
-                    ## Don't need to check fo path here because we aren't making png anymore
-                    #if (not (os.path.exists(jpg))):
-                    if True: 
-                        for k in range(4):
-                            # print(jpegtran[k] + fn[0] + " " + fn[0])
-                            os.system(jpegtran[k] + fn[0] + " " + fn[0])
+                    else: # For jpg only images
+                        if (not (os.path.exists(jpg))):
+                            ## Commands for creating jpgs
+                            jpegtran = [
+                                "/home/pete/software/jpeg-9d/jpegtran -crop 512x512+0+0 -optimize -progressive -outfile ",
+                                "/home/pete/software/jpeg-9d/jpegtran -drop +256+0 " + fn[1] + " -optimize -progressive -outfile ",
+                                "/home/pete/software/jpeg-9d/jpegtran -drop +0+256 " + fn[2] + " -optimize -progressive -outfile ",
+                                "/home/pete/software/jpeg-9d/jpegtran -drop +256+256 " + fn[3] + " -optimize -progressive -outfile "
+                            ]
 
-                        comment = "exiftool -Comment=" + comment + " " + fn[0]
-                        print(comment)
-                        os.system(comment)
-                        
-                        os.system("mv " + fn[0] + " " + jpg)
+                            ## Run the jpegtran commands
+                            for k in range(4):
+                                os.system(jpegtran[k] + fn[0] + " " + fn[0])
+
+                            ## Finalize the comment
+                            comment = "exiftool -Comment=" + comment + " " + fn[0]
+                            os.system(comment)
+                            os.system("mv " + fn[0] + " " + jpg)
 
                 ## Record that no images were found
                 else:
