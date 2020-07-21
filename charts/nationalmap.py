@@ -29,23 +29,53 @@
 
 
 import sys
+import os
+import tempfile
+import urllib.request
+import urllib.error
 
-if (len(sys.argv)==3):
+from PIL import Image
+import imghdr ## For checking image type
+
+from pathlib import Path  ## for touch
+
+QUALITYCONTROL=False
+
+print(sys.argv)
+
+if (len(sys.argv)==4):
+    QUALITYCONTROL=True
+    CPU = int(sys.argv[-3])
+    CPUS = int(sys.argv[-2])
+elif (len(sys.argv)==3):
     CPU = int(sys.argv[-2])
     CPUS = int(sys.argv[-1])
 else:
     CPU = 0
     CPUS = 1
 
-import os
-import tempfile
-import urllib.request
+## Create a directory to store a single black image representing tiles
+## don't download correctly (returned as transparent png or just missing).
+## The app background color is black.
+
+bd = tempfile.TemporaryDirectory()
+blackimage = bd.name  + "/black.jpg"
+blackimage = "/dev/shm/black.jpg"
+os.system("convert -size 256x256 xc:black " + blackimage)
+
 
 ## estimate the cumulative total number of tiles by layer
+print("Estimations of number of tiles by layer:")
 total=0
 for i in range(16):
     total+=(2**i)**2
     print([i,(2**i)**2,total])
+
+
+## Resolution by layer
+print("Layer resolutions:")
+for i in range(16):    
+    print([i,2*20026376.39/512/(2**i)])
 
 
 ## Define a function which relates TMS to our own
@@ -76,12 +106,41 @@ for layer in range(0,13):
             if not (count%CPUS == CPU):
                 continue
             
-            sec = "tiles/0/"+ "/".join(map(str,[layer,x[i],y[j]])) + ".webp"
-            png = sec.replace("tiles/0","tiles/999").replace(".webp",".png")
-            jpg = sec.replace("tiles/0","tiles/999").replace(".webp",".jpg")
-            web = sec.replace("tiles/0","tiles/999")
+            sec   = "tiles/0/"+ "/".join(map(str,[layer,x[i],y[j]])) + ".webp"
+            png   = sec.replace("tiles/0","tiles/999").replace(".webp",".png")
+            jpg   = sec.replace("tiles/0","tiles/999").replace(".webp",".jpg")
+            web   = sec.replace("tiles/0","tiles/999")
+            empty = sec.replace("tiles/0","tiles/999").replace(".webp",".empty")
 
             CREATE=False
+
+            ## Image URLS.  Their rows go across  (Not this could be faster if delayed but I want it for QC
+            urls = [
+                b + "/".join(map(str,[layer+1,Y[j]+0,X[i]+0])),
+                b + "/".join(map(str,[layer+1,Y[j]+0,X[i]+1])),
+                b + "/".join(map(str,[layer+1,Y[j]+1,X[i]+0])),
+                b + "/".join(map(str,[layer+1,Y[j]+1,X[i]+1]))]
+
+            ## This code now helps to document why the tiles were problematic (available, not available, etc)
+            if (QUALITYCONTROL):
+                if (os.path.exists(jpg) and not os.path.exists(empty)):
+                    print(jpg)
+                    im = Image.open(jpg)
+                    ## im.show()
+                    pix = im.load()
+                    
+                    ## Remake the image if one of the subimages is gray (empty)
+                    try:
+                        if (pix[255,255]==(128,128,128) or
+                            pix[255,256]==(128,128,128) or
+                            pix[256,255]==(128,128,128) or
+                            pix[255,256]==(128,128,128)):
+                            CREATE=True
+                            os.system("rm " + jpg)
+                            print("Attempting to update image "+jpg)
+                    except: # Necessary for the images that came back as png
+                        CREATE=True
+
             if ((layer<7) or (os.path.exists(sec))) and (not (os.path.exists(jpg))):
                 CREATE=True
             elif (layer>10):
@@ -93,13 +152,12 @@ for layer in range(0,13):
                 CREATE = (os.path.exists(sec2)) and (not (os.path.exists(jpg)))
                 if CREATE: print("Creating " + jpg + " for " + sec2)
 
-
             ## Create a new tile only if the target is missing and (an
             ## equivalent sectional exist or it is a low level tile)
             if CREATE:
                 ## png file name
                 ## create the path
-                os.makedirs("/".join(png.split("/")[0:-1]),exist_ok=True)
+                os.makedirs("/".join(jpg.split("/")[0:-1]),exist_ok=True)
 
                 ## Create a safe tmp directory
                 td = tempfile.TemporaryDirectory()
@@ -111,20 +169,36 @@ for layer in range(0,13):
                     td.name + "/" + "_".join(map(str,[layer+1,Y[j]+1,X[i]+1])) + ".jpg"
                     ]
 
-                ## Their rows go across
-                urls = [
-                    b + "/".join(map(str,[layer+1,Y[j]+0,X[i]+0])),
-                    b + "/".join(map(str,[layer+1,Y[j]+0,X[i]+1])),
-                    b + "/".join(map(str,[layer+1,Y[j]+1,X[i]+0])),
-                    b + "/".join(map(str,[layer+1,Y[j]+1,X[i]+1]))]
-
-                for k in range(len(fn)):
-                    ## If the download fails, create a transparent tile to replace the missing info
+                ## Do the downloads and handle errors
+                comment=""
+                for k in range(3,-1,-1): ## Go backwards
+                    ## If the download fails, Use the black background tile to represent missing data
                     try:
-                        urllib.request.urlretrieve(urls[k],fn[k])
-                    except:
-                        fn[k] = "xc:transparent"
-
+                        resp = urllib.request.urlopen(urls[k])
+                        with open(fn[k], "wb") as f:
+                            f.write(resp.read())
+                            f.close()
+                            if(imghdr.what(fn[k])=="png"):
+                                print("PNG image returned, sub black image")
+                                if (k==0) and (not fn[1:] == [blackimage,blackimage,blackimage]):
+                                    ## If the 0 image is empty but the
+                                    ## others are not, a new image is
+                                    ## needed because it will be
+                                    ## uncropped in the next step
+                                    os.system("convert -size 256x256 xc:black " + fn[k])
+                                else:
+                                    fn[k] = blackimage
+                                comment+="0"
+                            else:
+                                comment+="1"
+                    except urllib.error.URLError:
+                        print("File not available on server, sub black image")
+                        fn[k] = blackimage
+                        comment+="0"
+                    except urllib.error.HTTPError:
+                        print("Unknown HTTP Error")
+                        comment+="-1"
+                            
                 ## Commands for creating jpgs
                 jpegtran = [
                     "/home/pete/software/jpeg-9d/jpegtran -crop 512x512+0+0 -optimize -progressive -outfile ",
@@ -134,22 +208,37 @@ for layer in range(0,13):
                 ]
 
                 ## As long as there was one successful download, create the tile
-                if not ( fn == ["xc:transparent","xc:transparent","xc:transparent","xc:transparent"] ):
+                # if not ( fn == ["xc:transparent","xc:transparent","xc:transparent","xc:transparent"] ): ## This for png
+                if not ( fn == [blackimage,blackimage,blackimage,blackimage] ):
 
                     ## ## No longer creating png since conversion to lossy webp will diminish quality and others are bigger than jpg
                     ## if (not (os.path.exists(png))):
                     ##     ms = "montage " + (" ".join(fn)) + " -geometry 256x256+0+0 " + png
                     ##     os.system(ms)
-                    
-                    if (not (os.path.exists(jpg))):
+
+                    ## Don't need to check fo path here because we aren't making png anymore
+                    #if (not (os.path.exists(jpg))):
+                    if True: 
                         for k in range(4):
                             # print(jpegtran[k] + fn[0] + " " + fn[0])
                             os.system(jpegtran[k] + fn[0] + " " + fn[0])
 
+                        comment = "exiftool -Comment=" + comment + " " + fn[0]
+                        print(comment)
+                        os.system(comment)
+                        
                         os.system("mv " + fn[0] + " " + jpg)
 
+                ## Record that no images were found
+                else:
+                    print ("No image found, recording empty")
+                    Path(empty).touch()
+
                 ## Print relevant log info and delete the tmp directory
-                print(png)
+                print(jpg)
                 print(urls)
-                print(fn)
+                # print(fn)
                 td.cleanup()
+
+## Clean up the extra tile
+bd.cleanup()

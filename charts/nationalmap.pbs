@@ -50,4 +50,5 @@ echo "working directory = $SLURM_SUBMIT_DIR"
 
 [[ ${SLURM_SUBMIT_DIR} ]] && cd ${SLURM_SUBMIT_DIR}
 
-./nationalmap.py ${SLURM_ARRAY_TASK_ID} 4
+## Run quality control
+./nationalmap.py ${SLURM_ARRAY_TASK_ID} 4 1
