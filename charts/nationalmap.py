@@ -155,7 +155,7 @@ for layer in range(0,13):
                     except: # Necessary for the images that came back as png
                         CREATE=True
 
-            if ((layer<7) or (os.path.exists(sec))) and (not (os.path.exists(jpg) or os.path.exists(png))):
+            if ((layer<8) or (os.path.exists(sec))) and (not (os.path.exists(jpg) or os.path.exists(png))):
                 CREATE=True
             elif (layer>10):
                 ## We're really interested if sec exists at level
