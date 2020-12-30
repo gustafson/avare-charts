@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python
 
 ## import PythonMagick
 import os
@@ -18,7 +18,7 @@ import xml.etree.ElementTree as ET
 tree = ET.parse(xmlfile[-1])
 root = tree.getroot()
 
-nstates = root._children.__len__();
+nstates = len(root.getchildren())
 cycle = root.attrib['cycle']
 
 ## Create a file to save info
@@ -50,7 +50,7 @@ def copy_files_to_state(state, cycle):
         ## print city.tag, city.attrib
         for airport in city:
             ## print airport.tag, airport.attrib
-            for record in airport._children:
+            for record in airport.getchildren():
                 if (switch(record)):
                     cn = record.find("chart_name").text.replace(" ","-")
                     cn = cn.replace("(","").replace(")","").replace("/","-")
@@ -126,4 +126,3 @@ for state in root[node::nnodes]:
 os.system ("./plates.sh 1 %s" % cycle)
 ## Extract database info
 os.system ("./plates.sh 2 %s" % cycle)
-

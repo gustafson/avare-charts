@@ -69,9 +69,12 @@ rm -rf minimums
 
 echo Downloading TO and ALT mins
 for REG in ${REGNS}; do
-    cp -l ../plates/DDTPP/${CYCLE}/${REG}TO.PDF .
-    cp -l ../plates/DDTPP/${CYCLE}/${REG}ALT.PDF .
+    cp -al ../plates/DDTPP/${CYCLE}/${REG}TO.{PDF,pdf} .
+    cp -al ../plates/DDTPP/${CYCLE}/${REG}ALT.{PDF,pdf} .
 done
+
+rename pdf PDF *TO.pdf
+rename pdf PDF *ALT.pdf
 
 for REG in ${REGNS}; do
     [[ -f ${REG}TO.PDF ]]  || echo ${REG}TO.PDF not found.

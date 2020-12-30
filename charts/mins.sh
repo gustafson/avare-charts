@@ -37,6 +37,7 @@
 
 export PG=`pdfinfo $1.PDF | grep Pages | sed "s/Pages:\s*//"`
 
+## Split by column and combine into one text file.  This is done on a per pdf basis
 for (( c=1; c<=${PG}; c++ )); do
     pdftotext -f $c -l $c -nopgbrk -W 194 -x 0 -H 594 -y 0 $1.PDF tmp1.txt
     pdftotext -f $c -l $c -nopgbrk -W 194 -x 194 -H 594 -y 0 $1.PDF tmp2.txt
