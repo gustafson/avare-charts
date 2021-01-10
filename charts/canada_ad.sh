@@ -17,7 +17,7 @@ NP=`cat /proc/cpuinfo |grep processor|wc -l`
 # The navcan website has two versions, current and next, which update every 56
 # days. Get the next one when preparing charts.
 FILE=CanadianAirportCharts_Next.pdf
-CYCLE=$(./cyclenumber.sh)
+CYCLE=$(./cyclenumber.py)
 export FILE
 export CYCLE
 

@@ -16,7 +16,7 @@
 ## export -f rmemptypng
 ## find . -name "*png" | xargs -n1 -P64 bash -c rmemptypng
 
-CYCLE=$(cyclenumber.sh)
+CYCLE=$(cyclenumber.py)
 
 ## The following compresses only the files that are remade
 

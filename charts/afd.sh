@@ -58,7 +58,7 @@ fi
 
 CYCLE=`./cycledates.sh 56`
 CYCLEDATE=`./cycledates.sh 56 afd`
-CYCLENUMBER=`./cyclenumber.sh`
+CYCLENUMBER=`./cyclenumber.py`
 
 [[ -d /dev/shm/afd ]] && rm -fr /dev/shm/afd
 mkdir -p /dev/shm/afd/afd

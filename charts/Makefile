@@ -30,7 +30,7 @@
 ## ToDo for "normal" machines.
 ## 1) Update NP variable in scripts
 
-CYCLE=$(shell ./cyclenumber.sh)
+CYCLE=$(shell ./cyclenumber.py)
 CYCLECIFP=$(shell ./cycledates.sh 28 vfrdl)
 CYCLEPLATES=$(shell ./cycledates.sh 28 plates)
 CYCLEDATE28BASE=$(shell ./cycledates.sh 28 base)

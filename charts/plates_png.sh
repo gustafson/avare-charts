@@ -17,7 +17,7 @@ export DPI=248.3
 export DPI=300
 export DPI=150
 
-CYCLE=`./cyclenumber.sh`
+CYCLE=`./cyclenumber.py`
 
 sed s/1404/${CYCLE}/ DownloadPlates.pl > tmp_DownloadPlates.pl
 

@@ -65,7 +65,7 @@ else
 fi
 
 [[ ${PBS_O_WORKDIR} ]] && cd ${PBS_O_WORKDIR}
-CYCLE=$(./cyclenumber.sh)
+CYCLE=$(./cyclenumber.py)
 
 OPTIONS1="--verbose -w openlayers -c MUAVLLC --no-kml --resume --processes ${NP}"
 TIME1="/usr/bin/time -v --append -o"

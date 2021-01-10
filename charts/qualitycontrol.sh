@@ -30,7 +30,7 @@
 
 ## paste <(du  ~/avare/1901/*|cut -f1 -d/) <(du  ~/avare/1902/*)|awk '{a=100*($2-$1)/$1; if (a>10){printf ("%g %s\n", a, $3)}}'
 
-CYCLE=`./cyclenumber.sh`
+CYCLE=`./cyclenumber.py`
 MTIME=`./cycledates.sh 28 lastcycle` ## Use to select IFR or not
 
 # pushd static

@@ -9,7 +9,7 @@ NP=$1
 ARRAYID=$2
 ARRAYSIZE=$3
 
-CYCLE=`./cyclenumber.sh`
+CYCLE=`./cyclenumber.py`
 
 function svgtext(){
 cat << EOF

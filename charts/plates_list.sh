@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CYCLE=$(./cyclenumber.sh)
+CYCLE=$(./cyclenumber.py)
 
 find plates/plates.archive/${CYCLE}/plates_* -name '*pdf' |
     sort | awk -F _ '{print $2}' | sed s/.pdf/.png/ > list${CYCLE}.txt

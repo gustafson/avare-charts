@@ -1,5 +1,6 @@
-#!/bin/bash
-#Copyright (c) 2014, Apps4av Inc. (apps4av@gmail.com) 
+#!/usr/bin/python
+
+#Copyright (c) 2020, Apps4av Inc.
 # Author: Peter A. Gustafson (peter.gustafson@wmich.edu)
 #All rights reserved.
 #
@@ -11,14 +12,15 @@
 #THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import datetime
+refdate = datetime.datetime(2015, 8, 20)
+today = datetime.datetime.today().replace(microsecond=0,second=0,minute=0,hour=0)
 
-DATE=`./cycledates.sh 28`
+## 28 days cycles
+daysinfuture = 28-((datetime.datetime.today()-refdate).days+28)%28
+cycleDate = today+datetime.timedelta(days=daysinfuture)
 
-DAY=`date -d ${DATE} +"%-j"`
-YR=`date -d ${DATE} +"%y"`
-NUM=$((DAY/28))
-
-## Now convert it to the next cycle
-let NUM=${NUM}+1
-CYCLE=`printf "%02d" ${YR} ${NUM}`
-echo $CYCLE
+## Determine the cyclenumber
+import math
+cyclenumber = math.floor((cycleDate-datetime.datetime(cycleDate.year,1,1)).days/28)+1
+print("%s%02d" % (cycleDate.strftime("%y"), cyclenumber))

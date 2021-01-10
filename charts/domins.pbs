@@ -50,7 +50,7 @@ echo "working directory = $SLURM_SUBMIT_DIR"
 
 [[ ${SLURM_SUBMIT_DIR} ]] && cd ${SLURM_SUBMIT_DIR}
 
-CYCLE=`./cyclenumber.sh`
+CYCLE=`./cyclenumber.py`
 
 REGNS="AK EC1 EC2 EC3 NC1 NC2 NC3 NE1 NE2 NE3 NE4 NW1 PAC SC1 SC2 SC3 SC4 SC5 SE1 SE2 SE3 SE4 SW1 SW2 SW3 SW4"
 

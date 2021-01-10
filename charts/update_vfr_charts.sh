@@ -27,7 +27,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-CYCLE=$(./cyclenumber.sh)
+CYCLE=$(./cyclenumber.py)
 VFRFILE=$(./cycledates.sh 28 vfrdl)
 echo ${VFRFILE}
 function rmtif {
