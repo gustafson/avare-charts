@@ -1,15 +1,17 @@
 #!/usr/bin/python
 
-
-
-###
+import gdal
+import os
 import sys
-import os.path
+from wand.image import Image
+import tempfile
+import math
+import glob
+import xml.etree.ElementTree as ET
 
 def printf(format, *args):
     sys.stdout.write(format % args)
 
-import math
 tileSize = 512
 originShift = 2 * math.pi * 6378137.0 / 2.0
 initialResolution = 20037508.342789244 * 2.0 / tileSize
@@ -78,36 +80,20 @@ def getcornercoords(argv):
         y1 = float(argv[3])
         dx = float(argv[4])
         dy = float(argv[5])
-        #proc = argv[6]
-        #stateloc = proc.find("plates_")
-        #state = proc[stateloc+7:stateloc+9]
-        #proc=proc.split("/")[-2:]
         y1, x1 = MetersToLatLon(x1,y1)
     y, x = MetersToLatLon(x,y)
     if (len(argv)>2):
-        ## THIS FOR ENHANCED DATA INCLUDING STATE ETC
-        #printf ("%s|%.5f|%.5f|%.5f|%.5f|||%s|\n" % ("/".join(proc), dx/(x1-x), dy/(y1-y), x, y, state))  # ,x1,y1,(x1-x),(y1-y),
-        #printf ("%s|%.5f|%.5f|%.5f|%.5f\n" % ("/".join(proc), dx/(x1-x), dy/(y1-y), x, y))
         return ("%.5f|%.5f|%.5f|%.5f" % (dx/(x1-x), dy/(y1-y), x, y))
     else:
         return ("%.5f %.5f" % (x,y))
-        
-    #print ("\n#.import file.csv geoplates.db")
-        
 
-## if __name__ == "__main__":
-##     main(sys.argv[1:])
+################################################
 
-
-
-#import wand
-import gdal
-import os
-import sys
-
+## This overcomes an emacs quirk and is meaningless if not using emacs
 if os.path.exists("charts/plates"):
     os.chdir("charts/plates")
 
+## Code which may allow splitting to different machines in the future
 if ((len(sys.argv)) > 2) :
     node = int(sys.argv[1])
     nnodes = int(sys.argv[2])
@@ -115,58 +101,15 @@ else:
     node = 0
     nnodes = 1
 
-import glob
+##
 xmlfile = glob.glob('./DDTPP/*/d-TPP_Metafile.xml')
-
-import xml.etree.ElementTree as ET
-
 root = ET.parse(xmlfile[-1]).getroot()
 cycle = root.attrib['cycle']
 
-## PWD=os.getcwd()
-## cpus = 40
-## 
-## ## A worker function which can be called in parallel
-## def worker(pdf):
-##     str = ("0 %s %s %s" % (cycle, state, pdf))
-##     syscommand = ("./plates.sh %s" % (str))
-##     print (syscommand)
-##     ### os.system (syscommand)
-## 
-## ## Note we can eventually use pbs with environment variables
-## ## print os.environ['HOME']
-## 
-## ## This is where the action really happens
-## import multiprocessing as mp
-## 
-## statecount=0;
-## for state in root[node::nnodes]:
-##     ## If you want just one state for debugging, uncomment the next line
-##     if (state.attrib['ID']=="MI"):
-##         print ("#" + state.attrib['ID'])
-##         statecount += 1;
-##         pdfimages, pngimages = copy_files_to_state(state, cycle)
-## 
-##         state = state.attrib['ID']
-##         ## Create a pool of jobs to run in parallel
-##         pool = mp.Pool(processes=cpus) #processes=4
-## 
-##         ## Do all the pdf images in the state
-##         pool.map(worker, pdfimages)
-##         
-##         ## Do only one
-##         ## pool.map(worker, [pdfimages[0]])
-## 
-## ## Create zip files
-## print ("./plates.sh 1 %s" % cycle)
-## ## Extract database info
-## print ("./plates.sh 2 %s" % cycle)
-## 
-## ## ## Create zip files
-## ## os.system ("./plates.sh 1 %s" % cycle)
-## ## ## Extract database info
-## ## os.system ("./plates.sh 2 %s" % cycle)
+PWD=os.getcwd()
+cpus = 16
 
+## Utility functions for working on records
 def code(r):
     return(r.find("chart_code").text.replace(" ","-"))
 def name(r):
@@ -177,12 +120,11 @@ def name(r):
 def pdf(r):
     return(r.find("pdf_name").text.replace(" ","-"))
 def destdir(r):
-    ## return("plates.archive/%s/plates_%s/%s" % (cycle, r[3], r[2]))
     return("plates.archive/%s/plates/%s" % (cycle, r[2]))
 def destimg(r):
     return("%s/%s.png" % (destdir(r), r[0]))
     ## return("plates.archive/%s/plates_%s/%s/%s.png" % (cycle, r[3], r[2], r[0]))
-def srcdir(r):
+def srcimg(r):
     return("DDTPP/%s/%s" % (cycle, r[1]))
 def cornerme(r):
     ## Get the strings necessary for writing gps coords as metadata into the png file
@@ -194,79 +136,154 @@ def cornerme(r):
     commenstr = getcornercoords([upperleft[0], upperleft[1], lowerright[0], lowerright[1], size[0], size[1]])
     return(commenstr)
 
-## Get all records that aren't alternate mins
+## Get all records that aren't alternate mins which are managed by separate code within Avare and chart prep
 records = [[name(r),pdf(r),airport.attrib['apt_ident'],state.attrib['ID'],code(r)]
-           for state in root for city in state for airport in city for r in airport if not code(r)=="MIN"]
+           for state in root for city in state for airport in city for r in airport
+           if (not code(r)=="MIN") and (not pdf(r)=="DELETED_JOB.PDF")]
 
-from wand.image import Image
-import tempfile
+def worker(r):
+    try:
+        writepng(r)
+    except:
+        print("error on record: ", record)
 
+DEBUG=0
+### This is the big utility function where all the action happends
 def writepng(r):
-    ## Make sure the appropriate directory exists
-    if not os.path.isdir(destdir(r)):
-        os.makedirs (destdir(r))
+    ## Note the destination directories must already exist!
+
+    ## If the image or images already exists, assume it is good and skip it
+    ## if (os.path.isfile(destimg(r))):
+    if (len(glob.glob(destimg(r).replace(".png","*.png")))>0):
+        ## print("file exists: %s" % destimg(r))
+        return (None)
 
     ## Work in a temporary directory that gets automagically deleted upon completion
     with tempfile.TemporaryDirectory() as path:
         path += "/"
         tmpfile = path+"tmp.tif"
+        srcfile = gdal.Open(srcimg(r))
 
-        ## Deal with hotspots and airport diagrams
-        if (r[4] in ["HOT", "APD"]):
-            if r[4]=="HOT":
-                trim = "-trim +repage"
-            else:
+        if DEBUG:
+            print (srcfile)
+
+        ## Check if the source file has a gdal projection
+        noproj = gdal.Info(srcfile)
+        noproj = (noproj.find("PROJCRS") < 0)
+        
+        ## Deal with hotspots and airport diagrams etc.  This is everything but plates
+        ## if (r[4] in ["APD", "DAU", "DP", "HOT", "LAH", "ODP", "STAR"] or noproj):
+        if (noproj):
+            if DEBUG:
+                print ("No projection")
+
+            if r[4]=="APD": ## Airport directories aren't trimmed for now
                 trim = ""
+            else:
+                trim = "-trim +repage"
 
-            commstr = "convert -quiet -density 150 -dither none -antialias -depth 8 -quality 00 -background white -alpha remove %s -colors 15 %s -format png8 %s" % (trim, srcdir(r), path+"tmp.png")
-            commstr += ("&& optipng -quiet %s" % path+"tmp.png")
-            os.system(commstr)
+            commstr = "convert -quiet -density 150 -dither none -antialias -depth 8 -quality 00 -background white -alpha remove %s -colors 15 %s -format png8 %s" % (trim, srcimg(r), path+r[0]+".png")
+            commstr += ("&& optipng -quiet %s" % path+r[0]+"*.png")
+            if (os.system(commstr)):
+                print ("Failed noproj image conversion")
+            if DEBUG:
+                print (commstr)
             
         else:
             ## Warp the image
-            ds = gdal.Warp(tmpfile, gdal.Open(srcdir(r)), dstSRS='EPSG:3857', height=str(1860), dstAlpha=True, format="GTiff", resampleAlg="lanczos")
+            ds = gdal.Warp(tmpfile, srcfile, dstSRS='EPSG:3857',
+                           height=str(1860), dstAlpha=True, format="GTiff", resampleAlg="lanczos")
             ds = None ## This is needed to ensure it is written
+
+            ## Get the corner strings for the geotag
             cornerstr = cornerme(tmpfile)
 
             ## Write the png image
             with Image(filename=tmpfile) as img:
 
                 img.format="png"
-                #img.sharpen(radius=1.0,sigma=2.0)
-                img.save(filename=path+"tmp.png")
+                img.sharpen(radius=1.0,sigma=2.0)
+                img.save(filename=path+r[0]+".png")
 
                 ## Reduce the color count
-                commstr = "convert -quiet -dither none -antialias  -depth 8 -quality 00 -background white -alpha remove -colors 15 -format png8 %s %s" % (path+"tmp.tif", path+"tmp.png")
+                commstr = "convert -quiet -dither none -antialias  -depth 8 -quality 00 -background white -alpha remove -colors 15 -format png8 %s %s" % (path+"tmp.tif", path+r[0]+".png")
+                if (os.system(commstr)):
+                    print("Failed a color count conversion %s %s %s %s" % (r))
+                if DEBUG:
+                    print (commstr)
+
+                ## Write avare geotag into file.  Suppress the warning
+                commstr='exiftool -overwrite_original_in_place -q -Comment="%s" %s 2> /dev/null && ' % (cornerstr, path+r[0]+".png")
+                commstr+='exiv2 -M"set Exif.Photo.UserComment charset=Ascii %s" %s' % (cornerstr, path+r[0]+".png")
                 os.system(commstr)
+                if (os.system(commstr)):
+                    print("Failed at exif writing %s %s %s %s" % (r))
+                if DEBUG:
+                    print (commstr)
 
-                ## Write avare geotag into file
-                commstr='exiftool -overwrite_original_in_place -q -Comment="%s" %s 2> /dev/null && ' % (cornerstr, path+"tmp.png")
-                commstr+='exiv2 -M"set Exif.Photo.UserComment charset=Ascii %s" %s' % (cornerstr, path+"tmp.png")
-                ## print(commstr)
-                os.system(commstr)
-            
-        ## Finally move it into place
-        ## print ("mv %s %s" % (path+"tmp.png", destimg(r)))
-        os.system("mv %s %s" % (path+"tmp.png", destimg(r)))
+        ## Finally move the resulting file(*) into place
+        commstr = "mv %s %s" % (path+r[0]+"*.png", destdir(r)+"/")
+        if os.system(commstr):
+            print("Move failed for " + path+r[0]+"*.png")
+        if DEBUG:
+            print (commstr)
+        import time
 
-## demo it on Kalamazoo            
-rec = [r for r in records if r[2]=="AZO"]
-for r in rec:
-    writepng(r)
+## demo it on Kalamazoo or MI
+## records = [r for r in records if r[3]=="MI"] # if r[2]=="AZO" and 
 
+## Make sure all the appropriate directories exist.
+## The prevents directory creation collisions in multiprocessing
+for r in records:
+    if not os.path.isdir(destdir(r)):
+        os.makedirs (destdir(r))
+
+## Create the state list
 states = list(set([r[3] for r in records]))
 
-for state in states:
-    1
-    state = "MI"
-    
-tmp = ["plates/%s/%s.png" % (r[2],r[0]) for r in records if r[3]=="MI" and r[2]=="AZO"]
-manifest = "%s\n%s" % (cycle,"\n".join(tmp))
+## Divide the states by machine
+states = states[node::nnodes]
+records = [r for r in records if r[3] in states]
+print("%s states and %s records to be processed on this node" % (len(states),len(records)))
+print(states)
 
-import zipfile
-zn = ("%s_PLATES.zip" % state)
-zf=zipfile.ZipFile("../final/" + zn, mode='w')
-zf.writestr(zn.replace(".zip",""), manifest)
-for f in tmp:
-    zf.write("plates.archive/%s/%s" %(cycle, f), arcname=f, compresslevel=9)
-zf.close()
+## Run the jobs in parallel
+import multiprocessing as mp
+## Create a pool of jobs to run in parallel
+
+## Bookkeeping to estimate time remaining... not great.
+count = []
+total = len(records)
+with mp.Pool(processes=cpus) as pool:
+    # pool.map(worker, records)
+    for instance in pool.imap_unordered(worker, records):
+        count.append(instance)
+        if (len(count)%100==0):
+            print ("Approximately %2.2f%% complete" % (100*len(count)/total))
+
+#worker(records[0])
+
+states.sort()
+for state in states:
+    print("Zipping %s" % state)
+
+    ## Must deal with multiple images per record.  Grab all at each airport
+    tmp = [glob.glob("plates.archive/%s/plates/%s/*" % (cycle,r[2])) for r in records if r[3]==state]
+
+    ## Flattent the list
+    tmp = [i for sub in tmp for i in sub]
+
+    ## Remove duplicate airports
+    tmp = list(set(tmp))
+
+    ## Create manifest string
+    manifest = "%s\n%s" % (cycle,"\n".join(tmp))
+
+    ## Do the zipping
+    import zipfile
+    zn = ("%s_PLATES.zip" % state)
+    zf=zipfile.ZipFile("../final/" + zn, mode='w')
+    zf.writestr(zn.replace(".zip",""), manifest)
+    for f in tmp:
+        zf.write(f, arcname=f.replace("plates.archive/%s/" %(cycle),""), compresslevel=9)
+    zf.close()
