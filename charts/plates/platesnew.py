@@ -115,20 +115,26 @@ cpus = 16
 ## Utility functions for working on records
 def code(r):
     return(r.find("chart_code").text.replace(" ","-"))
+
 def name(r):
     cn = r.find("chart_name").text.replace(" ","-")
     cn = cn.replace("(","").replace(")","").replace("/","-")
     cn = cn.replace("---","-").replace(",","")
     return(cn)
+
 def pdf(r):
     return(r.find("pdf_name").text.replace(" ","-"))
+
 def destdir(r):
     return("plates.archive/%s/plates/%s" % (cycle, r[2]))
+
 def destimg(r):
     return("%s/%s.png" % (destdir(r), r[0]))
     ## return("plates.archive/%s/plates_%s/%s/%s.png" % (cycle, r[3], r[2], r[0]))
+
 def srcimg(r):
     return("DDTPP/%s/%s" % (cycle, r[1]))
+
 def cornerme(r):
     ## Get the strings necessary for writing gps coords as metadata into the png file
     tmp = gdal.Info(gdal.Open(r))
@@ -139,10 +145,52 @@ def cornerme(r):
     commenstr = getcornercoords([upperleft[0], upperleft[1], lowerright[0], lowerright[1], size[0], size[1]])
     return(commenstr)
 
-## Get all records that aren't alternate mins which are managed by separate code within Avare and chart prep
-records = [[name(r),pdf(r),airport.attrib['apt_ident'],state.attrib['ID'],code(r)]
-           for state in root for city in state for airport in city for r in airport
-           if (not code(r)=="MIN") and (not pdf(r)=="DELETED_JOB.PDF")]
+def nowarp(pdf, out, trim=True):
+    with Image(filename=pdf,resolution=150) as pdf:
+
+        pages = len(pdf.sequence)
+        height=0
+        width=0
+        for j in range(pages):
+            ## Go through the sequence and trim them individually
+            with pdf.sequence.index_context(j):
+                pdf.trim()
+                height+=pdf.height+10
+                if (width<pdf.width):
+                    width=pdf.width
+
+        i = Image(
+            width=width,
+            height=height
+        )
+
+        height = [r.height for r in pdf.sequence]
+        height = height[::-1]
+        height.append(0)
+        height = height[::-1]
+        width = [math.floor((width-r.width)/2) for r in pdf.sequence]
+
+        for j in range(pages):
+            i.composite(
+                pdf.sequence[j],
+                top=height[j]+j*10,
+                left=width[j]
+            )
+        i.background_color = Color('white') # Set white background.
+        i.alpha_channel = 'remove'
+        if trim:
+            i.trim()
+        i.sharpen(radius=5.0,sigma=5.0)
+        i.posterize(16,"no")
+        i.normalize()
+        i.compression_quality=00
+        i.save(filename=out.replace(".png",".png8"))
+        tmp = out.replace(".png","")+"*"
+        out = glob.glob(tmp)
+        if (os.system("rename .png8 .png %s*" % tmp)):
+            print("Error in saving file.")
+        if (os.system("optipng -quiet %s*" % tmp)):
+            print("Error in optipng.")
 
 def gettrims(tmpfile):
     with Image(filename=tmpfile) as img:
@@ -190,16 +238,20 @@ def writepng(r):
                 print ("No projection")
 
             if r[4]=="APD": ## Airport directories aren't trimmed for now
-                trim = ""
+                #trim = ""
+                trim = False
             else:
-                trim = "-trim +repage"
+                #trim = "-trim +repage"
+                trim = True
 
-            commstr = "convert -quiet -density 150 -dither none -antialias -depth 8 -quality 00 -background white -alpha remove %s -colors 15 %s -format png8 %s" % (trim, srcimg(r), path+r[0]+".png")
-            commstr += ("&& optipng -quiet %s" % path+r[0]+"*.png")
-            if (os.system(commstr)):
-                print ("Failed noproj image conversion")
-            if DEBUG:
-                print (commstr)
+            nowarp(srcimg(r), path+r[0]+".png", trim=trim)
+
+            ## commstr = "convert -quiet -density 150 -dither none -antialias -depth 8 -quality 00 -background white -alpha remove %s -colors 15 %s -format png8 %s" % (trim, srcimg(r), path+r[0]+".png")
+            ## commstr += ("&& optipng -quiet %s" % path+r[0]+"*.png")
+            ## if (os.system(commstr)):
+            ##     print ("Failed noproj image conversion")
+            ## if DEBUG:
+            ##     print (commstr)
             
         else:
             tmpfile1 = path+"tmp1.tif"
@@ -222,14 +274,14 @@ def writepng(r):
                 img.background_color = Color('white') # Set white background.
                 img.alpha_channel = 'remove' 
                 img.posterize(16,"no")
-                ending = "png8"
-                img.format=ending
+                extension = "png8"
+                img.format=extension
                 img.normalize()
-                img.save(filename=path+r[0]+ending)
+                img.save(filename=path+r[0]+extension)
 
                 ## Write avare geotag into file.  Suppress the warning
-                if (ending=="png8"):
-                    commstr=("mv %s %s" % (path+r[0]+ending, path+r[0]+".png &&"))
+                if (extension=="png8"):
+                    commstr=("mv %s %s" % (path+r[0]+extension, path+r[0]+".png &&"))
                 else:
                     commstr=""
                 commstr+='exiftool -overwrite_original_in_place -q -Comment="%s" %s 2> /dev/null && ' % (cornerstr, path+r[0]+".png")
@@ -246,6 +298,11 @@ def writepng(r):
         if DEBUG:
             print (commstr)
         import time
+
+## Get all records that aren't alternate mins which are managed by separate code within Avare and chart prep
+records = [[name(r),pdf(r),airport.attrib['apt_ident'],state.attrib['ID'],code(r)]
+           for state in root for city in state for airport in city for r in airport
+           if (not code(r)=="MIN") and (not pdf(r)=="DELETED_JOB.PDF")]
 
 ## demo it on Kalamazoo or MI
 ## records = [r for r in records if r[3]=="MI"] # if r[2]=="AZO" and 
