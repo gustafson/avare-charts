@@ -3,11 +3,14 @@
 import gdal
 import os
 import sys
-from wand.image import Image
+from wand.image import Image, Color
 import tempfile
 import math
 import glob
 import xml.etree.ElementTree as ET
+
+## Image target size (approximate due to trimming)
+size = 1860
 
 def printf(format, *args):
     sys.stdout.write(format % args)
@@ -141,6 +144,16 @@ records = [[name(r),pdf(r),airport.attrib['apt_ident'],state.attrib['ID'],code(r
            for state in root for city in state for airport in city for r in airport
            if (not code(r)=="MIN") and (not pdf(r)=="DELETED_JOB.PDF")]
 
+def gettrims(tmpfile):
+    with Image(filename=tmpfile) as img:
+        img.format = 'png'
+        img.background_color = Color('white') # Set white background.
+        img.alpha_channel = 'remove' 
+        img.trim()
+        ## -format "%X %Y %w %h" info:
+        ## comes back as something like +17 +95 1180 1728
+        return([img.page_x,img.page_y,img.width,img.height])
+
 def worker(r):
     try:
         writepng(r)
@@ -161,7 +174,6 @@ def writepng(r):
     ## Work in a temporary directory that gets automagically deleted upon completion
     with tempfile.TemporaryDirectory() as path:
         path += "/"
-        tmpfile = path+"tmp.tif"
         srcfile = gdal.Open(srcimg(r))
 
         if DEBUG:
@@ -190,32 +202,38 @@ def writepng(r):
                 print (commstr)
             
         else:
+            tmpfile1 = path+"tmp1.tif"
+            tmpfile2 = path+"tmp.tif"
+
             ## Warp the image
-            ds = gdal.Warp(tmpfile, srcfile, dstSRS='EPSG:3857',
-                           height=str(1860), dstAlpha=True, format="GTiff", resampleAlg="lanczos")
+            ds = gdal.Warp(tmpfile1, srcfile, dstSRS='EPSG:3857',
+                           height=str(size), dstAlpha=True, format="GTiff", resampleAlg="lanczos")
             ds = None ## This is needed to ensure it is written
+            ds = gdal.Translate(tmpfile2,gdal.Open(tmpfile1),srcWin=gettrims(tmpfile1))
+            ds = None
 
             ## Get the corner strings for the geotag
-            cornerstr = cornerme(tmpfile)
+            cornerstr = cornerme(tmpfile2)
 
             ## Write the png image
-            with Image(filename=tmpfile) as img:
+            with Image(filename=tmpfile2) as img:
 
-                img.format="png"
-                img.sharpen(radius=1.0,sigma=2.0)
-                img.save(filename=path+r[0]+".png")
-
-                ## Reduce the color count
-                commstr = "convert -quiet -dither none -antialias  -depth 8 -quality 00 -background white -alpha remove -colors 15 -format png8 %s %s" % (path+"tmp.tif", path+r[0]+".png")
-                if (os.system(commstr)):
-                    print("Failed a color count conversion %s %s %s %s" % (r))
-                if DEBUG:
-                    print (commstr)
+                img.sharpen(radius=5.0,sigma=5.0)
+                img.background_color = Color('white') # Set white background.
+                img.alpha_channel = 'remove' 
+                img.posterize(16,"no")
+                ending = "png8"
+                img.format=ending
+                img.normalize()
+                img.save(filename=path+r[0]+ending)
 
                 ## Write avare geotag into file.  Suppress the warning
-                commstr='exiftool -overwrite_original_in_place -q -Comment="%s" %s 2> /dev/null && ' % (cornerstr, path+r[0]+".png")
+                if (ending=="png8"):
+                    commstr=("mv %s %s" % (path+r[0]+ending, path+r[0]+".png &&"))
+                else:
+                    commstr=""
+                commstr+='exiftool -overwrite_original_in_place -q -Comment="%s" %s 2> /dev/null && ' % (cornerstr, path+r[0]+".png")
                 commstr+='exiv2 -M"set Exif.Photo.UserComment charset=Ascii %s" %s' % (cornerstr, path+r[0]+".png")
-                os.system(commstr)
                 if (os.system(commstr)):
                     print("Failed at exif writing %s %s %s %s" % (r))
                 if DEBUG:
@@ -263,27 +281,39 @@ with mp.Pool(processes=cpus) as pool:
 
 #worker(records[0])
 
+def zipit(state):
+     print("Zipping %s" % state)
+ 
+     ## Must deal with multiple images per record.  Grab all at each airport
+     tmp = [glob.glob("plates.archive/%s/plates/%s/*" % (cycle,r[2])) for r in records if r[3]==state]
+ 
+     ## Flattent the list
+     tmp = [i for sub in tmp for i in sub]
+ 
+     ## Remove duplicate airports
+     tmp = list(set(tmp))
+ 
+     ## Create manifest string
+     manifest = "%s\n%s" % (cycle,"\n".join(tmp))
+ 
+     ## Do the zipping
+     import zipfile
+     zn = ("%s_PLATES.zip" % state)
+     zf=zipfile.ZipFile("../final/" + zn, mode='w')
+     zf.writestr(zn.replace(".zip",""), manifest)
+     for f in tmp:
+         zf.write(f, arcname=f.replace("plates.archive/%s/" %(cycle),""), compresslevel=9)
+     zf.close()
+     print("Zipping %s complete" % state)
+
 states.sort()
-for state in states:
-    print("Zipping %s" % state)
+## for state in states:
+##     zipit(state)
 
-    ## Must deal with multiple images per record.  Grab all at each airport
-    tmp = [glob.glob("plates.archive/%s/plates/%s/*" % (cycle,r[2])) for r in records if r[3]==state]
-
-    ## Flattent the list
-    tmp = [i for sub in tmp for i in sub]
-
-    ## Remove duplicate airports
-    tmp = list(set(tmp))
-
-    ## Create manifest string
-    manifest = "%s\n%s" % (cycle,"\n".join(tmp))
-
-    ## Do the zipping
-    import zipfile
-    zn = ("%s_PLATES.zip" % state)
-    zf=zipfile.ZipFile("../final/" + zn, mode='w')
-    zf.writestr(zn.replace(".zip",""), manifest)
-    for f in tmp:
-        zf.write(f, arcname=f.replace("plates.archive/%s/" %(cycle),""), compresslevel=9)
-    zf.close()
+count = []
+total = len(states)
+with mp.Pool(processes=cpus) as pool:
+    for instance in pool.imap_unordered(zipit, states):
+        count.append(instance)
+        if (len(count)%100==0):
+            print ("Approximately %2.2f%% complete" % (100*len(count)/total))
