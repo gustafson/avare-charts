@@ -231,15 +231,18 @@ def writeImageNoWarp(pdf, out, resolution=pdfDense, trim=True):
             i.trim()
         i.sharpen(radius=5.0,sigma=5.0)
         i.normalize()
-        i.posterize(15,"no")
+        i.quantize(16, dither=False)
         i.compression_quality=00
         i.save(filename=out.replace(".png",".png8"))
         tmp = out.replace(".png","")+"*"
-        out = glob.glob(tmp)
+        #out = glob.glob(tmp)
         if (os.system("rename .png8 .png %s*" % tmp)):
             print("Error in saving file.")
         if (os.system("optipng -quiet %s*" % tmp)):
             print("Error in optipng.")
+        commstr='cwebp -quiet -lossless -z 9 -metadata exif %s -o %s' % (out, out.replace(".png",".webp"))
+        if (os.system(commstr)):
+            print("Error in cwebp")
 
 def getTrims(tmpfile):
     with Image(filename=tmpfile) as img:
@@ -325,20 +328,24 @@ def ProcessRecord(r):
                     #img.sharpen(radius=5.0,sigma=5.0)
                     img.background_color = Color('white') # Set white background.
                     img.alpha_channel = 'remove' 
-                    img.posterize(15,"no")
                     extension = "png8"
                     img.format=extension
                     img.normalize()
+                    img.quantize(16, dither=False)
+                    # img.type = 'palette'
                     img.save(filename=thedest+"."+extension)
 
                     ## Write avare geotag into file.  Suppress the warning
                     if (extension=="png8"):
-                        commstr=("mv %s %s & " % (thedest+"."+extension, thedest))
+                        commstr=("mv %s %s" % (thedest+"."+extension, thedest))
                     else:
-                        commstr=""
-                    commstr+='optipng -quiet %s && ' % (thedest)
-                    commstr+='exiftool -overwrite_original_in_place -q -Comment="%s" %s 2> /dev/null && ' % (cornerstr, thedest)
-                    commstr+='exiv2 -M"set Exif.Photo.UserComment charset=Ascii %s" %s' % (cornerstr, thedest)
+                        commstr="echo -n"
+                    commstr+=' && optipng -quiet %s' % (thedest)
+                    commstr+=' && exiftool -overwrite_original_in_place -q -Comment="%s" %s 2> /dev/null ' % (cornerstr, thedest)
+                    commstr+=' && exiv2 -M"set Exif.Photo.UserComment charset=Ascii %s" %s' % (cornerstr, thedest)
+                    ## commstr+=' && identify %s' % (thedest)
+                    commstr+=' && cwebp -quiet -lossless -z 9 -metadata exif %s -o %s' % (thedest, thedest.replace(".png",".webp"))
+                    ## commstr+=' && identify %s' % (thedest)
                     if (os.system(commstr)):
                         print("Failed at exif writing %s %s %s %s" % (r))
                     if DEBUG:
@@ -347,6 +354,7 @@ def ProcessRecord(r):
         ## Finally move the resulting file(*) into place
         for p in ["lowres","highres"]:
             commstr = "mv %s %s" % (tmpDest(path,r,p), destDir(r,base=p)+"/")
+            commstr += " && mv %s %s" % (tmpDest(path,r,p).replace(".png",".webp"), destDir(r,base=p)+"/")
             if os.system(commstr):
                 print("Move failed for " + path+runwayID(r)+"*.png")
                 if DEBUG:
@@ -383,8 +391,8 @@ records = [[recordName(r),pdfFileName(r),airport.attrib['apt_ident'],state.attri
            if (not recordCode(r)=="MIN") and (not pdfFileName(r)=="DELETED_JOB.PDF")]
 
 ## demo it on Kalamazoo or MI
-records = [r for r in records if recordState(r)=="MI" and recordAirportID(r)=="AZO"] # if recordAirportID(r)=="AZO" and 
-print(records)
+## records = [r for r in records if recordState(r)=="MI" and recordAirportID(r)=="AZO"] # if recordAirportID(r)=="AZO" and 
+## print(records)
 
 ## Create the state list
 states = list(set([recordState(r) for r in records]))
@@ -420,15 +428,15 @@ with mp.Pool(processes=cpus) as pool:
         count.append(instance)
         if (len(count)%100==0):
             print ("Approximately %2.2f%% complete" % (100*len(count)/total))
-
-#worker(records[0])
+#records[33]
+#worker(records[33])
 
 def ZipStateTiles(state):
      print("Zipping %s" % state)
 
      for p in ["lowres","highres"]:
          ## Must deal with multiple images per record.  Grab all at each airport
-         tmp = [glob.glob("plates.archive/%s/%s/plates/%s/*" % (cycle,p,recordAirportID(r))) for r in records if recordState(r)==state]
+         tmp = [glob.glob("plates.archive/%s/%s/plates/%s/*png" % (cycle,p,recordAirportID(r))) for r in records if recordState(r)==state]
 
          ## Flattent the list
          tmp = [i for sub in tmp for i in sub]
