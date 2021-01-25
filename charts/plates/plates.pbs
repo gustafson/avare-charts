@@ -45,3 +45,7 @@ echo "SLURM_SUBMIT_DIR: $SLURM_SUBMIT_DIR"
 
 [[ ${SLURM_SUBMIT_DIR} ]] && cd ${SLURM_SUBMIT_DIR}
 ./plates.py ${SLURM_ARRAY_TASK_ID} 2 ${SLURM_NTASKS}
+
+# Rudimentary quality control
+echo Unique color counts of files produced
+find plates.archive/ -name "*png" | xargs identify|cut -f5-7 -d" "|sort -u

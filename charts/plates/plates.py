@@ -453,7 +453,10 @@ def ZipStateTiles(state):
          if not os.path.isdir("../final-%s" % p):
              os.makedirs ("../final-%s" % p)
          zf=zipfile.ZipFile("../final-%s/%s" % (p, zn), mode='w')
-         zf.writestr(zn.replace(".zip",""), manifest)
+
+         ## Write the manifest
+         zf.writestr(zn.replace(".zip",""), manifest.replace("plates.archive/%s/%s/" %(cycle,p),""))
+
          for f in tmp:
              zf.write(f, arcname=f.replace("plates.archive/%s/%s/" %(cycle,p),""), compresslevel=9)
          zf.close()

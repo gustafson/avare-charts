@@ -37,7 +37,8 @@ MTIME=`./cycledates.sh 28 lastcycle` ## Use to select IFR or not
 pushd final
 
 ## Only these require manifest updates (Includes IFR older than the last cycle conclusion) ## C?-[0-9]*zip 
-for a in ENRA_* ELUS_* EHUS_* C?-*zip Area*zip AFD_*zip alternates.zip; do #  
+## for a in ENRA_* ELUS_* EHUS_* C?-*zip Area*zip AFD_*zip alternates.zip; do #
+for a in `ls *|grep -v PLATES -e list_plates`; do #    
     echo Updating $a
     b=`basename $a .zip`; zip -d $a $b #> /dev/null
     echo $b `unzip -l $a |tail -n1` > ${a}.count
