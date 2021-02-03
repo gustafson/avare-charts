@@ -203,10 +203,14 @@ def writeImageNoWarp(pdf, out, resolution=pdfDense, trim=True):
         for j in range(pages):
             ## Go through the sequence and trim them individually
             with pdf.sequence.index_context(j):
-                pdf.trim()
-                height+=pdf.height+10
-                if (width<pdf.width):
+                if trim:
+                    pdf.trim()
+                    height+=pdf.height+10
+                    if (width<pdf.width):
+                        width=pdf.width
+                else:
                     width=pdf.width
+                    height=pdf.height
 
         i = Image(
             width=width,
@@ -227,7 +231,7 @@ def writeImageNoWarp(pdf, out, resolution=pdfDense, trim=True):
             )
         i.background_color = Color('white') # Set white background.
         i.alpha_channel = 'remove'
-        if trim:
+        if trim: ## This is necessary because of stacked charts (above)
             i.trim()
         i.sharpen(radius=5.0,sigma=5.0)
         i.normalize()
@@ -290,6 +294,7 @@ def ProcessRecord(r):
 
             if recordType(r)=="APD": ## Airport directories aren't trimmed for now
                 trim = False
+                pdfDense = 150 ## Temporary until such time as airport directory database can be updated.
             else:
                 trim = True # -trim +repage
 
