@@ -1,3 +1,32 @@
+#!/usr/bin/python
+
+# Copyright (c) 2021, Peter A. Gustafson (pgustafson@gmail.com)
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in
+#   the documentation and/or other materials provided with the
+#   distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+# WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
 import fitz #PyMuPDF
 import numpy as np
 import math
@@ -5,15 +34,32 @@ import sys
 import os
 from shapely.geometry import LineString ## Useful for line intersections
 
+if (len(sys.argv)<2):
+    print("AirportDigrams.py infile")
+    quit()
+
+infile  = sys.argv[1]
+if (len(sys.argv)>2):
+    outfile = "/dev/shm/tmp.tif" # sys.argv[2]
+else:
+    outfile=None
+
+### READ IN PDF
+doc = fitz.open(infile)
+page = doc[0]
+
+## Some parameters to be consistent with plates
+resampling = "bilinear"
+size = 1900
+pdfDense = (size/page.MediaBox[-1])*72
+srcImg=infile
+highDensityTmp=outfile
+
 degrees = "°"
 minutes = "'"
 
 degrees.encode("utf-8").strip()
 minutes.encode("utf-8").strip()
-
-### READ IN PDF
-doc = fitz.open("/dev/shm/ABQ.pdf")
-page = doc[0]
 
 ### Search for latitude and longitude text lines
 text = page.getTextBlocks()
@@ -159,21 +205,24 @@ fitlon = np.polyfit(x=lonx,y=lons,deg=1)
 fitlat = np.polyfit(x=laty,y=lats,deg=1)
 
 ## Assign control points to the pdf file
-commstr = "gdal_edit.py ABQ.pdf -a_srs EPSG:4326"
+## gdaltranslate assumes a density of 150dpi in its gcp calculation for pdf, standard density is 72dpi
+denseRatio = 150/72
+commstr = "gdal_edit.py %s -a_srs EPSG:4326" % infile
 for x in page.MediaBox[0::2]:
     for y in page.MediaBox[1::2]:
         X0 = np.polyval(fitlon, x=x)
         Y0 = np.polyval(fitlat, x=y)
-        commstr += " -gcp %s %s %.12f %.12f 0" % (x, y, X0, Y0)
+        commstr += " -gcp %s %s %.12f %.12f 0" % (x*denseRatio, y*denseRatio, X0, Y0)
+## print(commstr)
 os.system(commstr)
 
-## Some parameters to be consistent with plates
-resampling = "bilinear"
-size = 1900
-pdfDense = (size/page.MediaBox[-1])*72
-srcImg="ABQ.pdf"
-highDensityTmp="tmp.tif"
 
-## Warp the image
-commstr = "rm tmp.tif; gdalwarp -r %s -q -dstalpha --config GDAL_PDF_DPI %s -t_srs EPSG:3857 %s %s" % (resampling, pdfDense, srcImg, highDensityTmp)
+## Now actually warp the image if and outfile is provided
+commstr = "rm -f %s" % outfile
+## print(commstr)
 os.system(commstr)
+
+commstr = "gdalwarp -r %s -q -dstalpha --config GDAL_PDF_DPI %s -t_srs EPSG:3857 %s %s" % (resampling, pdfDense, srcImg, highDensityTmp)
+if (outfile):
+    #print(commstr)
+    os.system(commstr)
