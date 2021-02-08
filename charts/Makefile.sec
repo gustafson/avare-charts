@@ -7,20 +7,9 @@ sec.vrt: warped
 
 warped: $(subst .geojson,.tif,$(subst charts,merge,$(wildcard charts/sec/*.geojson)))
 
-charts/sec/SewardGlacierSEC.tif: charts/sec/JuneauSec.tif
-	convert -crop 2858x1252+1589+2705 +repage JuneauSec.tif SewardGlacier.tif
-	gdal_edit.py -a_srs EPSG:4326 SewardGlacier.tif \
-	        -gcp 99 1109 -141.0 60 0 \ 
-		-gcp 757 1114 -140.5 60 0 \
-		-gcp 1416 1115 -140.0 60 0 \
-		-gcp 2074 1111 -139.5 60 0 \
-		-gcp 2732 1101 -139.0 60 0 \
-		-gcp 105 671 -141.0 60.16666666666666666 0 \ 
-		-gcp 1414 677.5 -140.0 60.16666666666666666 0 \
-		-gcp 2724 664.5 -139.0 60.16666666666666666 0 \
-		-gcp 111 101 -141.0 60.38333333333333 0 \ 
-		-gcp 1413 107 -140.0 60.38333333333333 0 \
-		-gcp 2715 138 -139.0 60.36666666666667 0
+charts/sec/SewardGlacierSEC.tif: charts/sec/JuneauSEC.tif
+	convert -crop 2858x1252+1589+2705 +repage $< $@
+	gdal_edit.py -a_srs EPSG:4326 $@ -gcp 99 1109 -141.0 60 0 -gcp 757 1114 -140.5 60 0 -gcp 1416 1115 -140.0 60 0 -gcp 2074 1111 -139.5 60 0 -gcp 2732 1101 -139.0 60 0 -gcp 105 671 -141.0 60.16666666666666666 0 -gcp 1414 677.5 -140.0 60.16666666666666666 0 -gcp 2724 664.5 -139.0 60.16666666666666666 0 -gcp 111 101 -141.0 60.38333333333333 0 -gcp 1413 107 -140.0 60.38333333333333 0 -gcp 2715 138 -139.0 60.36666666666667 0
 
 merge/sec/%.tif: charts/sec/%.tif charts/sec/%.geojson
 	@echo Working on $<

@@ -41,6 +41,7 @@ if (len(sys.argv) > 1):
 ## Set the time zone to UTC
 UTC = datetime.timezone(offset=datetime.timedelta(0))
 
+## Set the reference date and now
 refdate = datetime.datetime(2015, 8, 20, 9, 1, tzinfo=UTC)
 now = datetime.datetime.now(tz=UTC)
 
@@ -52,12 +53,13 @@ daysInFuture = ((refdate-now).days)%28
 if CURRENT:
     daysInFuture -= 28
 
+## Identify the cycle change
 cycleDate = now+datetime.timedelta(days=daysInFuture)
 
-## Days since the start of the year
+## Track days since the start of the year in the cycle
 daysinYear = (cycleDate-datetime.datetime(cycleDate.year, 1, 1, 0, 0, tzinfo=UTC))
 
-## Determine the next cyclenumberimport math
+## Determine the next cyclenumber
 import math
 cyclenumber = math.floor(daysinYear.days/28)+1
 cyclestr = ("%s%02d"  % (cycleDate.strftime("%y"), cyclenumber))
