@@ -1,4 +1,3 @@
-## WARP=GDAL_DATA=/home/pete/software/gdal/gdal/data /home/pete/software/gdal/gdal/apps/gdalwarp -multi -wm 512 -dstnodata 51 -overwrite -of gtiff -t_srs 'EPSG:3857'
 WARP=gdalwarp -multi -wm 512 -dstnodata 51 -overwrite -of gtiff -t_srs 'EPSG:3857'
 
 IFHEAST = \

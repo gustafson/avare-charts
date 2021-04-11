@@ -56,11 +56,11 @@ pushd $TMP
 
 rm -f *tif
 echo $VFRFILE
-## wget -c https://aeronav.faa.gov/visual/${VFRFILE}/All_Files/Sectional.zip
-## wget -c https://aeronav.faa.gov/visual/${VFRFILE}/All_Files/Terminal.zip
-## wget -c https://aeronav.faa.gov/visual/${VFRFILE}/All_Files/Helicopter.zip
-## wget -c https://aeronav.faa.gov/visual/${VFRFILE}/All_Files/Grand_Canyon.zip
-## wget -c https://aeronav.faa.gov/visual/${VFRFILE}/All_Files/Caribbean.zip
+wget -c https://aeronav.faa.gov/visual/${VFRFILE}/All_Files/Sectional.zip
+wget -c https://aeronav.faa.gov/visual/${VFRFILE}/All_Files/Terminal.zip
+wget -c https://aeronav.faa.gov/visual/${VFRFILE}/All_Files/Helicopter.zip
+wget -c https://aeronav.faa.gov/visual/${VFRFILE}/All_Files/Grand_Canyon.zip
+wget -c https://aeronav.faa.gov/visual/${VFRFILE}/All_Files/Caribbean.zip
 
 for VFRFILE in *zip; do
 
@@ -94,3 +94,6 @@ for type in TAC SEC HEL FLY; do
 	done
     fi
 done
+
+mv ./charts/vfr-downloads/GrandCanyonGeneralAviation.tif ./charts/hel/GrandCanyonGeneralAviation.tif
+mv ./charts/sec/HonoluluInsetSEC.tif ./charts/tac/HonoluluInsetSEC.tif

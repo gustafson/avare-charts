@@ -87,20 +87,15 @@ clean-28:
 
 download-and-process-base-data:
 	$$(rm -f APT.txt AWOS.txt FIX.txt TWR.txt DOF.DAT NAV.txt AWY.txt aixm5.0.zip DAILY_DOF.ZIP)
-	## obstacles file.  Get this first as it is usually last posted... will thus not download the rest unless successful.
-	## https://nfdc.faa.gov/tod/public/TOD_DOF.html
-	## wget -N --no-check-certificate https://nfdc.faa.gov/tod/public/DOFS/DOF_$$(./cycledates.sh 56 dof).zip && unzip DOF*.zip DOF.DAT && rm DOF*.zip
 	echo "USING Daily DOF file rather than 56 day cycle.  This is, on average, more current than the 56 day cycle."
 	wget -N http://aeronav.faa.gov/Obst_Data/DAILY_DOF_DAT.ZIP && unzip DAILY_DOF_DAT.ZIP DOF.DAT && rm -f DAILY_DOF_DAT.ZIP
-	# https://nfdc.faa.gov/fadds/subscriptionDownload.do?productId=548752
-	## https://nfdc.faa.gov/webContent/28DaySub/2017-04-27/APT.zip
 	wget -N https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/APT.zip && unzip APT.zip && rm -f APT.zip
 	wget -N https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/AWOS.zip && unzip AWOS.zip && rm -f AWOS.zip
 	wget -N https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/TWR.zip && unzip TWR.zip && rm -f TWR.zip
 	wget -N https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/FIX.zip && unzip FIX.zip && rm -f FIX.zip
 	wget -N https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/NAV.zip && unzip NAV.zip && rm -f NAV.zip
 	wget -N https://nfdc.faa.gov/webContent/28DaySub/$(CYCLEDATE28BASE)/AWY.zip && unzip AWY.zip && rm -f AWY.zip
-	./saa.sh							     $(CYCLEDATE28BASE)
+	./saa.sh					 $(CYCLEDATE28BASE)
 	wget -N https://www.outerworldapps.com/WairToNowWork/avare_aptdiags.php && mv avare_aptdiags.php airdiags/aptdiags.csv
 	./saa.pl > saa.csv
 	./airport.pl > airport.csv
@@ -108,7 +103,7 @@ download-and-process-base-data:
 	./freq.pl > freq.csv
 	./fix.pl > fix.csv
 	./nav.pl > nav.csv
-	./dof.pl > dof.csv  ## New file format 3/2018
+	./dof.pl > dof.csv
 	./dof.sh > dof.csv
 	./awos.pl > awos.csv
 	./aw.pl > aw.csv
@@ -147,7 +142,6 @@ download-ifr:
 	## echo Downloading ifr for cycle $(CYCLE)
 	rm -f charts/ifr/*tif charts/ifr/*pdf charts/ifr/*zip
 	cd charts/ifr && wget -N http://aeronav.faa.gov/enroute/$$(../../cycledates.sh 56 ifr)/DDECUS.zip
-	## ./dlifr.sh $$(./cycledates.sh 56 ifr)  ## Currently this only gets the carribean
 	cd charts/ifr && unzip -o -j DDECUS.zip
 	## 
 	## ## Chart L06 requires special treatment... it is tagged for north but contains north and south
@@ -159,17 +153,6 @@ download-ifr:
 	@echo Done downloading and unziping ifr charts
 
 rename:
-	## rm -f charts/*/*tif
-	## cd charts/tac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	## cd charts/wac  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	## cd charts/sec  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	## cd charts/hel && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	## cd charts/ifh  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	## cd charts/ifa  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	## cd charts/ifr  && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	## cd charts/ifah && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	##cd charts/ifal && ls *zip | awk '{printf "%s *tif\n", $$1}' | xargs -n2 -P$(NP) unzip -j
-	#
 	@echo Reminder: unzip is done by the download code
 	@rm -f charts/tac/*Planning*tif
 	@echo -n $(rename " " "" charts/*/*tif)
@@ -185,8 +168,8 @@ stage-all: stage-vfr stage-ifr
 stage-ifr: charts/ifr/*tif
 	if [[ ! -d merge ]]; then mkdir merge; fi
 	@echo Compiling old c code which is still used!
-	## gcc -march=native -O3 -Wall stage-ifr-low.c -o stage-ifr-low 
-	## gcc -march=native -O3 -Wall stage-ifr-area.c -o stage-ifr-area
+        ## gcc -march=native -O3 -Wall stage-ifr-low.c -o stage-ifr-low 
+	gcc -march=native -O3 -Wall stage-ifr-area.c -o stage-ifr-area
 	./stage-ifr-area
 	sbatch --array=3-5 generate-tiles.pbs
 
@@ -195,12 +178,7 @@ stage-vfr: charts/sec/*tif charts/tac/*tif charts/fly/*tif #charts/wac/*tif
 	sbatch --array=0,1,9,13 generate-tiles.pbs
 
 ziptiles:
-	## ./ziptiles.sh
-ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
 	sbatch --array=0,1,3,4,5,9,13 ziptiles512.pbs
-else
-	sbatch --array=0,1,9,13 ziptiles512.pbs
-endif
 
 temp:
 	@for chart in 3; do \
