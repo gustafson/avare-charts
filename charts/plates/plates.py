@@ -27,7 +27,7 @@
 # WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import gdal
+from osgeo import gdal
 import os
 import sys
 from wand.image import Image, Color
@@ -260,13 +260,17 @@ def getTrims(tmpfile):
 
 def worker(r):
     try:
-        ProcessRecord(r)
+        ## Density must be passed so that it is a local variable
+        ProcessRecord(r, pdfDense=pdfDense)
     except:
         print("error on record: ", record)
 
 DEBUG=0
 ### This is the big utility function where all the action happends
-def ProcessRecord(r):
+def ProcessRecord(r, pdfDense=None):
+    if not pdfDense:
+        print ("ERROR: pdfDense must be passed so that it is local to a multiprocessing thread.")
+    
     ## Note the destination directories must already exist!
 
     ## If the image exists, assume it is good and skip it

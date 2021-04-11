@@ -71,7 +71,8 @@ merge/ifr/easternhemisphere.vrt: \
 	rm -f $@
 	gdalbuildvrt $@ $^
 
-STR1 = GDAL_DATA=/home/pete/software/gdal/gdal/data /home/pete/software/gdal/gdal/apps/gdalwarp -co BIGTIFF=YES -overwrite -wo NUM_THREADS=2 -multi -cutline
+# STR1 = GDAL_DATA=/home/pete/software/gdal/gdal/data /home/pete/software/gdal/gdal/apps/gdalwarp -co BIGTIFF=YES -overwrite -wo NUM_THREADS=2 -multi -cutline
+STR1 = gdalwarp -co BIGTIFF=YES -overwrite -wo NUM_THREADS=2 -multi -cutline
 STR2 = -crop_to_cutline -of gtiff -dstnodata 51 -r cubic
 
 mergeall: \

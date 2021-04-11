@@ -90,8 +90,6 @@ elif [[ $2 = afd ]]; then
     echo `date -d "$TODAY + $SREF days" +"%Y%^m%d"`
 elif [[ $2 = plates ]]; then 
     echo `date -d "$TODAY + $SREF days" +"%y%^m%d"`
-elif [[ $2 = vfrdl ]]; then 
-    echo `date -d "$TODAY + $SREF days" +"%y%m%d"`
 elif [[ $2 = lastcycle ]]; then
     if [[ ${CYCLEDAYS} -eq 28 ]]; then
 	#echo $TODAY

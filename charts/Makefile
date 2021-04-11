@@ -63,9 +63,7 @@ endif
 	@echo "  make update-vfr #$(CYCLEDATE28)"
 ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
 	@echo "  make rename"
-	@echo "  make stage-all #$(CYCLEDATE56) ## Makefile deletes expired tiles for 0,1,9,13 overwrites expired tiles in 3,4,5"
-else
-	@echo "  make stage-vfr #$(CYCLEDATE28) ## Makefile deletes expired tiles for 0,1,9,13"
+	@echo "  make stage-all #$(CYCLEDATE56) ## Generates all new tiles in tmp space then only overwrites different tiles for 0,1,9,13,3,4,5"
 endif
 	@echo
 	@echo "  make procedures.db #$(CYCLEDATE28)"
@@ -79,7 +77,6 @@ ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
 endif
 	@echo "  make download-and-process-base-data #$(CYCLEDATE56BASE) $$(./cycledates.sh 28 dof)"
 	@echo
-	@echo "  make geolist #$(CYCLEDATE28)"
 	@echo "  make ziptiles"
 	@echo "  make canada"
 	@echo "  make zipdatabase"
@@ -279,12 +276,17 @@ zipdatabase256:
 	## zip -9 final/256/databases.zip `find tiles/9/9 -name "*png"` ## Heli very large with gulf coast
 	pushd final/256/; ../../zip.py databases $(CYCLE); popd
 
-geolist:
-	./plates_list.sh
-	perl plate_list.pl > list_plates.txt
-	mv list_plates.txt final/.
-
-chartpoly.txt:
+updatemanifest:
+	## Only these require manifest updates (Includes IFR older than the last cycle conclusion)
+	## for a in ENRA_* ELUS_* EHUS_* alternates.zip; do #
+	pushd final && for a in `ls *zip`; do \
+	    echo Updating $$a; \
+	    b=`basename $$a .zip`; \
+	    zip -d $$a $$b > /dev/null ; \
+	    echo $$b `unzip -l $$a |tail -n1` > $$a.count \
+	    @echo ../zip.py `basename $$a .zip` $(CYCLE); \
+	    ../zip.py `basename $$a .zip` $(CYCLE); \
+	done
 
 canada:
 	wget -N http://ourairports.com/data/airports.csv && ./ourairports.pl > ourairports.csv
@@ -298,3 +300,4 @@ clean:
 	rm -f time.*txt *tif*sql
 
 .PHONY: retile
+
