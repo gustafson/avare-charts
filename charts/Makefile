@@ -51,34 +51,25 @@ all:
 	@echo "Pull the latest code"
 	@echo "  git pull"
 	@echo
-	@echo 'execute "make clean" to clean out temp files'
-	@echo
-	@echo 'execute "make update" to update a prior build (saving download time)'
-	@echo 'execute "make scratch" to start from scratch'
-	@echo
-	@echo "Due to FAA posting sequence, this may be the preferred order for this cycle (all included in above)."
 ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
+	@echo "Do 56 Day Cycle"
 	@echo "  make download-ifr #$(CYCLEDATE56)"
-endif
-	@echo "  make update-vfr #$(CYCLEDATE28)"
-ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
+	@echo "  make download-vfr #$(CYCLEDATE28)"
 	@echo "  make rename"
 	@echo "  make stage-all #$(CYCLEDATE56) ## Generates all new tiles in tmp space then only overwrites different tiles for 0,1,9,13,3,4,5"
+	@echo "  make afd.csv #$(CYCLEDATE56)"
+	@echo
 endif
-	@echo
+	@echo "Do Every Cycle"
 	@echo "  make procedures.db #$(CYCLEDATE28)"
-	@echo
 	@echo "  make download-plates #$(CYCLE)"
+	@echo "  make canada"
 	@echo "  make plates-png #$(CYCLEDATE28)"
 	@echo "  make mins-data #$(CYCLEDATE28)"
-ifeq ($(CYCLEDATE28), $(CYCLEDATE56))
-	@echo
-	@echo "  make afd.csv #$(CYCLEDATE56)"
-endif
 	@echo "  make download-and-process-base-data #$(CYCLEDATE56BASE) $$(./cycledates.sh 28 dof)"
 	@echo
+	@echo "Finalize"
 	@echo "  make ziptiles"
-	@echo "  make canada"
 	@echo "  make zipdatabase"
 	@echo "  make qualitycontrol"
 	@echo
@@ -88,15 +79,11 @@ endif
 	@echo "* AFD and canada are png because in-app doesn't look for webp of these"
 
 
-scratch: download-ifr download-vfr rename stage-all plates download-and-process-base-data zipdatabase
-update: download-ifr update-vfr rename stage-all plates download-and-process-base-data zipdatabase
+update: download-ifr download-vfr rename stage-all plates download-and-process-base-data zipdatabase
 
-clean:
-	find final -type f|grep -v "CAN_\|REL_\|ELEV_"| xargs rm # \|ELUS_\|EHUS\|AFD_
-	rm -rf merge ads.txt
-	rm -f sepsec septac stage-vfr stage-ifr stage-ifr-area stage-ifr-high stage-vfr-tac *.tif *.jpg *.xml
-	rm -f files*.csv logfile.txt *.log
-	rm -f ifr-gps-currency*{kmz,json,txt}
+clean-28:
+	rm -f final/CAN_ADS.zip final/*PLATES*
+	rm -f time.*txt
 
 download-and-process-base-data:
 	$$(rm -f APT.txt AWOS.txt FIX.txt TWR.txt DOF.DAT NAV.txt AWY.txt aixm5.0.zip DAILY_DOF.ZIP)
@@ -154,20 +141,6 @@ mins-data:
 	sbatch domins.pbs
 
 download-vfr:
-	echo Downloading vfr for cycle $(CYCLE)
-	echo This code is old and not recently tested
-	if [ ! -d merge ]; then mkdir merge; fi
-	if [ ! -d charts/sec ]; then mkdir -p charts/sec; fi
-	if [ ! -d charts/tac ]; then mkdir -p charts/tac; fi
-	if [ ! -d charts/oth ]; then mkdir -p charts/oth; fi
-	if [ ! -d charts/fly ]; then mkdir -p charts/fly; fi
-	cd charts/sec && \
-	perl ../../reapfiles.pl -f zip http://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/vfr/
-	rm -f *_P.zip *NFN.zip
-	mv *TAC*zip ../tac
-	mv *Heli.zip ../oth
-
-update-vfr:
 	./update_vfr_charts.sh ## Get updates, clean out old files for any updates
 
 download-ifr:
@@ -295,9 +268,6 @@ canada:
 
 qualitycontrol:
 	./qualitycontrol.sh
-
-clean:
-	rm -f time.*txt *tif*sql
 
 .PHONY: retile
 
