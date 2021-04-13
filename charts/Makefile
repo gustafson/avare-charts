@@ -31,7 +31,7 @@
 ## 1) Update NP variable in scripts
 
 CYCLE=$(shell ./cyclenumber.py)
-CYCLECIFP=$(shell ./cycledates.sh 28 vfrdl)
+CYCLECIFP=$(shell ./cycledates.sh 28 plates)
 CYCLEPLATES=$(shell ./cycledates.sh 28 plates)
 CYCLEDATE28BASE=$(shell ./cycledates.sh 28 base)
 CYCLEDATE56BASE=$(shell ./cycledates.sh 56 base)
@@ -104,7 +104,6 @@ download-and-process-base-data:
 	./fix.pl > fix.csv
 	./nav.pl > nav.csv
 	./dof.pl > dof.csv
-	./dof.sh > dof.csv
 	./awos.pl > awos.csv
 	./aw.pl > aw.csv
 

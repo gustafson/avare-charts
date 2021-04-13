@@ -99,7 +99,7 @@ function myfindwac (){
 	done
 }
 
-OPTIONS1="-x -w openlayers -c MUAVLLC --no-kml --resume --processes ${NP}"  ## --verbose
+OPTIONS1="-x --verbose -w openlayers -c MUAVLLC --no-kml --resume --processes ${NP}"  ## --verbose
 TIME1="/usr/bin/time -v --append -o"
 
 function gentiles(){

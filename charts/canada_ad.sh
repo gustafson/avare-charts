@@ -16,18 +16,19 @@ NP=`cat /proc/cpuinfo |grep processor|wc -l`
 
 # The navcan website has two versions, current and next, which update every 56
 # days. Get the next one when preparing charts.
-FILE=CanadianAirportCharts_Next.pdf
+FILE=cac_next.pdf
 CYCLE=$(./cyclenumber.py)
 export FILE
 export CYCLE
 
 # This is a big download
-wget -N http://www.navcanada.ca/en/products-and-services/Documents/$FILE
+[[ -f ${FILE} ]] && rm ${FILE}
+wget -N https://www.navcanada.ca/en/${FILE}
 
 [[ -d plates ]] || mkdir plates
 
 # Find number of pages in this doc, for our FOR loop
-PAGES=`pdfinfo $FILE  | grep Pages | sed 's/Pages:\s*//'`
+PAGES=`pdfinfo ${FILE}  | grep Pages | sed 's/Pages:\s*//'`
 export PAGES
 
 rm -fr plates/C*
@@ -58,14 +59,14 @@ function generateimages(){
 	mkdir -p plates/$IMG
 	# Page - 1 for convert
 	PAGE=`expr ${i} - 1`
-	echo ${i} ${FILE} ${AD} ${PAGE} $FILE[$PAGE]
+	echo ${i} ${FILE} ${AD} ${PAGE} ${FILE}[$PAGE]
 	
 	# Convert to ~1400x800 pixel image
 	## PNG not used anymore
-	convert -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage $FILE[$PAGE] plates/$IMG/AIRPORT-DIAGRAM.png && optipng -quiet plates/$IMG/AIRPORT-DIAGRAM.png
+	convert -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage ${FILE}[$PAGE] plates/$IMG/AIRPORT-DIAGRAM.png && optipng -quiet plates/$IMG/AIRPORT-DIAGRAM.png
 
 	# convert to efficient webp via stream
-	## convert -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage $FILE[$PAGE] png:- | cwebp -quiet -z 9 -lossless -o plates/$IMG/AIRPORT-DIAGRAM.webp -- -
+	## convert -dither none -density 150x150 -depth 8 -quality 00 -background white -alpha remove -alpha off -colors 15 -trim +repage ${FILE}[$PAGE] png:- | cwebp -quiet -z 9 -lossless -o plates/$IMG/AIRPORT-DIAGRAM.webp -- -
 
     fi
 

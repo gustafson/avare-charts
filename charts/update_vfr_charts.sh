@@ -76,6 +76,7 @@ for a in `seq 10`; do
     rename " " "" *
 done
 rename \' "" Chicago*
+rename U.S. US U.S.*
 
 echo Fixing filenames for Caribbean charts
 rename VFRChart SEC Caribbean[12]*tif
@@ -97,3 +98,5 @@ done
 
 mv ./charts/vfr-downloads/GrandCanyonGeneralAviation.tif ./charts/hel/GrandCanyonGeneralAviation.tif
 mv ./charts/sec/HonoluluInsetSEC.tif ./charts/tac/HonoluluInsetSEC.tif
+cp -al charts/sec/WesternAleutianIslandsEastSEC.tif charts/sec/WesternAleutianIslandsEast1WestSEC.tif
+cp -al charts/sec/WesternAleutianIslandsEastSEC.tif merge/sec/WesternAleutianIslandsEast2EastSEC.tif
