@@ -418,6 +418,11 @@ records = [r for r in records if recordState(r) in states]
 print("%s states and %s records to be processed on this node" % (len(states),len(records)))
 print(states)
 
+## Make final directory.  Do it here otherwise there have been
+## conflicts in multiprocessing.
+for p in ["lowres","highres"]:
+    if not os.path.isdir("../final-%s" % p):
+        os.makedirs ("../final-%s" % p)
 
 ## Make sure all the appropriate directories exist.
 ## The prevents directory creation collisions in multiprocessing
@@ -445,7 +450,9 @@ def ZipStateTiles(state):
 
      for p in ["lowres","highres"]:
          ## Must deal with multiple images per record.  Grab all at each airport
-         tmp = [glob.glob("plates.archive/%s/%s/plates/%s/*png" % (cycle,p,recordAirportID(r))) for r in records if recordState(r)==state]
+         tmp = [glob.glob("plates.archive/%s/%s/plates/%s/*png"
+                          % (cycle,p,recordAirportID(r)))
+                for r in records if recordState(r)==state]
 
          ## Flattent the list
          tmp = [i for sub in tmp for i in sub]
@@ -459,8 +466,6 @@ def ZipStateTiles(state):
          ## Do the zipping
          import zipfile
          zn = ("%s_PLATES.zip" % state)
-         if not os.path.isdir("../final-%s" % p):
-             os.makedirs ("../final-%s" % p)
          zf=zipfile.ZipFile("../final-%s/%s" % (p, zn), mode='w')
 
          ## Write the manifest

@@ -72,6 +72,7 @@ endif
 	@echo "  make ziptiles"
 	@echo "  make zipdatabase"
 	@echo "  make qualitycontrol"
+	@echo "  make upload"
 	@echo
 	@echo "Notes:"
 	@echo "* As of 1909 all VFR/IFR tiles are webp lossy.  Some other tiles are still png lossless"
@@ -248,3 +249,7 @@ qualitycontrol:
 
 .PHONY: retile
 
+upload:
+	rsync -avP final/ osprey.ceas.wmich.edu:/var/www/osprey.ceas.wmich.edu/htdocs/avare/$(CYCLE)/ --del
+	rsync -avP final/ avare.bubble.org:public_html/$(CYCLE)/
+	rsync -avP final/ mamba:/home/peter_gustafson/$(CYCLE)/
