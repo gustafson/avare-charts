@@ -33,6 +33,9 @@
 CYCLE=`./cyclenumber.py`
 MTIME=`./cycledates.sh 28 lastcycle` ## Use to select IFR or not
 
+echo Making sure manifests are up to date
+./updatemanifests.sh
+
 # pushd static
 pushd final
 

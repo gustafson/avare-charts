@@ -16,8 +16,10 @@ NP=`cat /proc/cpuinfo |grep processor|wc -l`
 
 # The navcan website has two versions, current and next, which update every 56
 # days. Get the next one when preparing charts.
-FILE=cac_next.pdf
 CYCLE=$(./cyclenumber.py)
+DATE=$(./cycledates.sh 56 canada)
+FILE=cac_${DATE}.pdf
+
 export FILE
 export CYCLE
 
