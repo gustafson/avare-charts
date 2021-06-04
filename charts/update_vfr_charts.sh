@@ -96,7 +96,10 @@ for type in TAC SEC HEL FLY; do
     fi
 done
 
+popd
 mv ./charts/vfr-downloads/GrandCanyonGeneralAviation.tif ./charts/hel/GrandCanyonGeneralAviation.tif
 mv ./charts/sec/HonoluluInsetSEC.tif ./charts/tac/HonoluluInsetSEC.tif
+rm -f charts/sec/WesternAleutianIslandsEast1WestSEC.tif
+rm -f charts/sec/WesternAleutianIslandsEast2EastSEC.tif
 cp -al charts/sec/WesternAleutianIslandsEastSEC.tif charts/sec/WesternAleutianIslandsEast1WestSEC.tif
-cp -al charts/sec/WesternAleutianIslandsEastSEC.tif merge/sec/WesternAleutianIslandsEast2EastSEC.tif
+cp -al charts/sec/WesternAleutianIslandsEastSEC.tif charts/sec/WesternAleutianIslandsEast2EastSEC.tif

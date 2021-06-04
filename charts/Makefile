@@ -63,7 +63,7 @@ endif
 	@echo "Do Every Cycle"
 	@echo "  make procedures.db #$(CYCLEDATE28)"
 	@echo "  make download-plates #$(CYCLE)"
-	@echo "  make canada"
+	@echo "  make canada #(available 10 days prior to $(CYCLEDATE56BASE))"
 	@echo "  make plates-png #$(CYCLEDATE28)"
 	@echo "  make mins-data #$(CYCLEDATE28)"
 	@echo "  make download-and-process-base-data #$(CYCLEDATE56BASE) $$(./cycledates.sh 28 dof)"
@@ -240,6 +240,8 @@ updatemanifest:
 	done
 
 canada:
+	@echo https://www.navcanada.ca/en/aeronautical-information/operational-guides.aspx
+	@echo Canada charts supposed to be release 10 days prior to effective date
 	wget -N http://ourairports.com/data/airports.csv && ./ourairports.pl > ourairports.csv
 	# ./ourairports.sh
 	./canada_ad.sh
