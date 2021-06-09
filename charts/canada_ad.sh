@@ -20,12 +20,18 @@ CYCLE=$(./cyclenumber.py)
 DATE=$(./cycledates.sh 56 canada)
 FILE=cac_${DATE}.pdf
 
+FILE=cac_next.pdf
+
 export FILE
 export CYCLE
 
 # This is a big download
-[[ -f ${FILE} ]] && rm ${FILE}
-wget -N https://www.navcanada.ca/en/${FILE}
+## https://www.navcanada.ca/en/aeronautical-information/operational-guides.aspx
+## [[ -f ${FILE} ]] && rm ${FILE}
+## wget -N https://www.navcanada.ca/en/${FILE}
+
+## Now downloaded with python
+./canadian_airport_charts_download.py
 
 [[ -d plates ]] || mkdir plates
 
