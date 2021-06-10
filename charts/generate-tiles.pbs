@@ -106,7 +106,7 @@ function gentiles(){
     
     if [[ ${1} -eq 0 ]]; then
 	rm -f z-logs/time.sec.txt
-	${TIME1} z-logs/time.sec.txt make -f Makefile.sec -j ${SLURM_NTASKS}
+	${TIME1} z-logs/time.sec.txt make -j ${SLURM_NTASKS} -f Makefile.sec
 	${TIME1} z-logs/time.sec.txt nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 -r near sec.vrt /dev/shm/tiles/0-build
 	
 	rsync -rcv --del /dev/shm/tiles/0-build/ tiles/0-build/ --exclude=*.xml	
@@ -128,7 +128,7 @@ function gentiles(){
 	    
     elif [[ ${1} -eq 1 ]]; then
 	rm -f z-logs/time.tac.txt
-	${TIME1} z-logs/time.tac.txt make -f Makefile.tac -j ${SLURM_NTASKS}
+	${TIME1} z-logs/time.tac.txt make -j ${SLURM_NTASKS} -f Makefile.tac
 	${TIME1} z-logs/time.tac.txt nice ./gdal2tiles.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near tac.vrt /dev/shm/tiles/1-build
 	
 	rsync -rcv --del /dev/shm/tiles/1-build/ tiles/1-build/ --exclude=*.xml	
@@ -171,7 +171,7 @@ function gentiles(){
     elif [[ ${1} -eq 3 ]]; then
 
 	rm -f z-logs/time.ifr.txt
-	${TIME1} z-logs/time.ifr.txt make -f Makefile.ifr -j ${SLURM_NTASKS}
+	${TIME1} z-logs/time.ifr.txt make -j ${SLURM_NTASKS} -f Makefile.ifr
 
 	${TIME1} z-logs/time.ifr.txt nice ./gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-east.vrt /dev/shm/tiles/3-build
 	${TIME1} z-logs/time.ifr.txt nice ./gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-west.vrt /dev/shm/tiles/3-build
@@ -185,15 +185,12 @@ function gentiles(){
 
     elif [[ ${1} -eq 4 ]]; then
 
-	make -C charts/ifr/ -j${SLURM_NTASKS} -f Makefile.ifh
-	
 	rm -f z-logs/time.ifh.txt
+	${TIME1} z-logs/time.ifh.txt make -j ${SLURM_NTASKS} -f Makefile.ifh
+	
 	${TIME1} z-logs/time.ifh.txt nice ./gdal2tiles.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r near ifh-east.vrt /dev/shm/tiles/4-build
 	${TIME1} z-logs/time.ifh.txt nice ./gdal2tiles.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r near ifh-west.vrt /dev/shm/tiles/4-build
 
-	## Remove temporary files
-	rm -fr /dev/shm/ENR_{H,A,P}*tif
-	
 	rsync -rcv --del /dev/shm/tiles/4-build/ tiles/4-build/ --exclude=*.xml
 	rdfind -makehardlinks true -n false tiles/4-build
 	find tiles/4-build -name "*png" | xargs -n1 -P${NP} bash -c updateifr
@@ -202,7 +199,7 @@ function gentiles(){
 	rm -fr /dev/shm/tiles/4-build
 
     elif [[ ${1} -eq 5 ]]; then
-	rm -f z-logs/time.ifa.txt
+	${TIME1} z-logs/time.ifa.txt make -j ${SLURM_NTASKS} -f Makefile.ifa
 
 	## The images are sparse, only create those that are necessary
 	for vrt in merge/ifa/*vrt; do
@@ -320,7 +317,7 @@ function gentiles(){
 
     elif [[ ${1} -eq 13 ]]; then
 	rm -f z-logs/time.fly.txt
-	${TIME1} z-logs/time.fly.txt make -f Makefile.fly -j ${SLURM_NTASKS}
+	${TIME1} z-logs/time.fly.txt make -j ${SLURM_NTASKS} -f Makefile.fly
 	${TIME1} z-logs/time.fly.txt nice ./gdal2tiles.py -t "VFR Flyways" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near fly.vrt /dev/shm/tiles/13-build
 	
 	rsync -rcv --del /dev/shm/tiles/13-build/ tiles/13-build/ --exclude=*.xml

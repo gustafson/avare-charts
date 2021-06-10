@@ -1,3 +1,30 @@
+# Copyright (c) 2020-2021, Peter A. Gustafson (peter.gustafson@wmich.edu)
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in
+#   the documentation and/or other materials provided with the
+#   distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+# WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
 TR10 := $(shell bc -l <<< 20026376.39/512/2^10)
 TR08 := $(shell bc -l <<< 20026376.39/512/2^8)
 TR07 := $(shell bc -l <<< 20026376.39/512/2^7)
@@ -13,321 +40,321 @@ ifr-east.vrt: merge/ifr/easternhemisphere.vrt
 	gdal_translate -r near -projwin_srs WGS84 -projwin  127.5 55.0 180.0 -5.25 -a_nodata 51 -of vrt merge/ifr/easternhemisphere.vrt $@
 
 merge/ifr/westernhemisphere.vrt: \
-	merge/ifr/01ENR_L21_westernhemisphere.tif \
-	merge/ifr/02ENR_P01east_westernhemisphere.tif \
-	merge/ifr/02ENR_P02_westernhemisphere.tif \
-	merge/ifr/10ENR_AKL01_westernhemisphere.tif \
-	merge/ifr/10ENR_AKL02C_westernhemisphere.tif \
-	merge/ifr/10ENR_AKL02E_westernhemisphere.tif \
-	merge/ifr/10ENR_AKL02W_westernhemisphere.tif \
-	merge/ifr/10ENR_AKL03_westernhemisphere.tif \
-	merge/ifr/10ENR_AKL04middle_westernhemisphere.tif \
-	merge/ifr/10ENR_AKL04north_westernhemisphere.tif \
-	merge/ifr/10ENR_AKL04south_westernhemisphere.tif \
-	merge/ifr/11ENR_L01_westernhemisphere.tif \
-	merge/ifr/11ENR_L02_westernhemisphere.tif \
-	merge/ifr/11ENR_L03_westernhemisphere.tif \
-	merge/ifr/11ENR_L04_westernhemisphere.tif \
-	merge/ifr/11ENR_L05_westernhemisphere.tif \
-	merge/ifr/11ENR_L06N_westernhemisphere.tif \
-	merge/ifr/11ENR_L06S_westernhemisphere.tif \
-	merge/ifr/11ENR_L07_westernhemisphere.tif \
-	merge/ifr/11ENR_L08_westernhemisphere.tif \
-	merge/ifr/11ENR_L09_westernhemisphere.tif \
-	merge/ifr/11ENR_L10_westernhemisphere.tif \
-	merge/ifr/11ENR_L11_westernhemisphere.tif \
-	merge/ifr/11ENR_L12_westernhemisphere.tif \
-	merge/ifr/11ENR_L13_westernhemisphere.tif \
-	merge/ifr/11ENR_L14_westernhemisphere.tif \
-	merge/ifr/11ENR_L15_westernhemisphere.tif \
-	merge/ifr/11ENR_L16_westernhemisphere.tif \
-	merge/ifr/11ENR_L17_westernhemisphere.tif \
-	merge/ifr/11ENR_L18_westernhemisphere.tif \
-	merge/ifr/11ENR_L19_westernhemisphere.tif \
-	merge/ifr/11ENR_L20_westernhemisphere.tif \
-	merge/ifr/11ENR_L22_westernhemisphere.tif \
-	merge/ifr/11ENR_L23_westernhemisphere.tif \
-	merge/ifr/11ENR_L24_westernhemisphere.tif \
-	merge/ifr/11ENR_L25_westernhemisphere.tif \
-	merge/ifr/11ENR_L26_westernhemisphere.tif \
-	merge/ifr/11ENR_L27_westernhemisphere.tif \
-	merge/ifr/11ENR_L28_westernhemisphere.tif \
-	merge/ifr/11ENR_L29_westernhemisphere.tif \
-	merge/ifr/11ENR_L30_westernhemisphere.tif \
-	merge/ifr/11ENR_L31_westernhemisphere.tif \
-	merge/ifr/11ENR_L32_westernhemisphere.tif \
-	merge/ifr/11ENR_L33_westernhemisphere.tif \
-	merge/ifr/11ENR_L34_westernhemisphere.tif \
-	merge/ifr/11ENR_L35_westernhemisphere.tif \
-	merge/ifr/11ENR_L36_westernhemisphere.tif
+	merge/ifr/01ENR_L21_westernhemisphere.vrt \
+	merge/ifr/02ENR_P01east_westernhemisphere.vrt \
+	merge/ifr/02ENR_P02_westernhemisphere.vrt \
+	merge/ifr/10ENR_AKL01_westernhemisphere.vrt \
+	merge/ifr/10ENR_AKL02C_westernhemisphere.vrt \
+	merge/ifr/10ENR_AKL02E_westernhemisphere.vrt \
+	merge/ifr/10ENR_AKL02W_westernhemisphere.vrt \
+	merge/ifr/10ENR_AKL03_westernhemisphere.vrt \
+	merge/ifr/10ENR_AKL04middle_westernhemisphere.vrt \
+	merge/ifr/10ENR_AKL04north_westernhemisphere.vrt \
+	merge/ifr/10ENR_AKL04south_westernhemisphere.vrt \
+	merge/ifr/11ENR_L01_westernhemisphere.vrt \
+	merge/ifr/11ENR_L02_westernhemisphere.vrt \
+	merge/ifr/11ENR_L03_westernhemisphere.vrt \
+	merge/ifr/11ENR_L04_westernhemisphere.vrt \
+	merge/ifr/11ENR_L05_westernhemisphere.vrt \
+	merge/ifr/11ENR_L06N_westernhemisphere.vrt \
+	merge/ifr/11ENR_L06S_westernhemisphere.vrt \
+	merge/ifr/11ENR_L07_westernhemisphere.vrt \
+	merge/ifr/11ENR_L08_westernhemisphere.vrt \
+	merge/ifr/11ENR_L09_westernhemisphere.vrt \
+	merge/ifr/11ENR_L10_westernhemisphere.vrt \
+	merge/ifr/11ENR_L11_westernhemisphere.vrt \
+	merge/ifr/11ENR_L12_westernhemisphere.vrt \
+	merge/ifr/11ENR_L13_westernhemisphere.vrt \
+	merge/ifr/11ENR_L14_westernhemisphere.vrt \
+	merge/ifr/11ENR_L15_westernhemisphere.vrt \
+	merge/ifr/11ENR_L16_westernhemisphere.vrt \
+	merge/ifr/11ENR_L17_westernhemisphere.vrt \
+	merge/ifr/11ENR_L18_westernhemisphere.vrt \
+	merge/ifr/11ENR_L19_westernhemisphere.vrt \
+	merge/ifr/11ENR_L20_westernhemisphere.vrt \
+	merge/ifr/11ENR_L22_westernhemisphere.vrt \
+	merge/ifr/11ENR_L23_westernhemisphere.vrt \
+	merge/ifr/11ENR_L24_westernhemisphere.vrt \
+	merge/ifr/11ENR_L25_westernhemisphere.vrt \
+	merge/ifr/11ENR_L26_westernhemisphere.vrt \
+	merge/ifr/11ENR_L27_westernhemisphere.vrt \
+	merge/ifr/11ENR_L28_westernhemisphere.vrt \
+	merge/ifr/11ENR_L29_westernhemisphere.vrt \
+	merge/ifr/11ENR_L30_westernhemisphere.vrt \
+	merge/ifr/11ENR_L31_westernhemisphere.vrt \
+	merge/ifr/11ENR_L32_westernhemisphere.vrt \
+	merge/ifr/11ENR_L33_westernhemisphere.vrt \
+	merge/ifr/11ENR_L34_westernhemisphere.vrt \
+	merge/ifr/11ENR_L35_westernhemisphere.vrt \
+	merge/ifr/11ENR_L36_westernhemisphere.vrt
 	rm -f $@
 	gdalbuildvrt $@ $^
 
 merge/ifr/easternhemisphere.vrt: \
-	merge/ifr/02ENR_P01east_easternhemisphere.tif \
-	merge/ifr/02ENR_P01west_easternhemisphere.tif \
-	merge/ifr/10ENR_AKL02W_easternhemisphere.tif \
-	merge/ifr/10ENR_P01_GUA_easternhemisphere.tif
+	merge/ifr/02ENR_P01east_easternhemisphere.vrt \
+	merge/ifr/02ENR_P01west_easternhemisphere.vrt \
+	merge/ifr/10ENR_AKL02W_easternhemisphere.vrt \
+	merge/ifr/10ENR_P01_GUA_easternhemisphere.vrt
 	rm -f $@
 	gdalbuildvrt $@ $^
 
-STR1 = gdalwarp -co BIGTIFF=YES -overwrite -wo NUM_THREADS=2 -multi -cutline
-STR2 = -crop_to_cutline -of gtiff -dstnodata 51 -r cubic
+STR1 = gdalwarp -cutline ## -co BIGTIFF=YES -overwrite -wo NUM_THREADS=2 -multi
+STR2 = -crop_to_cutline -of vrt -dstnodata 51 -r cubic
 
 mergeall: \
-merge/ifr/01ENR_L21_westernhemisphere.tif \
-merge/ifr/02ENR_P01east_easternhemisphere.tif \
-merge/ifr/02ENR_P01east_westernhemisphere.tif \
-merge/ifr/02ENR_P01west_easternhemisphere.tif \
-merge/ifr/02ENR_P02_westernhemisphere.tif \
-merge/ifr/10ENR_AKL01_westernhemisphere.tif \
-merge/ifr/10ENR_AKL02C_westernhemisphere.tif \
-merge/ifr/10ENR_AKL02E_westernhemisphere.tif \
-merge/ifr/10ENR_AKL02W_easternhemisphere.tif \
-merge/ifr/10ENR_AKL02W_westernhemisphere.tif \
-merge/ifr/10ENR_AKL03_westernhemisphere.tif \
-merge/ifr/10ENR_AKL04middle_westernhemisphere.tif \
-merge/ifr/10ENR_AKL04north_westernhemisphere.tif \
-merge/ifr/10ENR_AKL04south_westernhemisphere.tif \
-merge/ifr/10ENR_P01_GUA_easternhemisphere.tif \
-merge/ifr/11ENR_L01_westernhemisphere.tif \
-merge/ifr/11ENR_L02_westernhemisphere.tif \
-merge/ifr/11ENR_L03_westernhemisphere.tif \
-merge/ifr/11ENR_L04_westernhemisphere.tif \
-merge/ifr/11ENR_L05_westernhemisphere.tif \
-merge/ifr/11ENR_L06N_westernhemisphere.tif \
-merge/ifr/11ENR_L06S_westernhemisphere.tif \
-merge/ifr/11ENR_L07_westernhemisphere.tif \
-merge/ifr/11ENR_L08_westernhemisphere.tif \
-merge/ifr/11ENR_L09_westernhemisphere.tif \
-merge/ifr/11ENR_L10_westernhemisphere.tif \
-merge/ifr/11ENR_L11_westernhemisphere.tif \
-merge/ifr/11ENR_L12_westernhemisphere.tif \
-merge/ifr/11ENR_L13_westernhemisphere.tif \
-merge/ifr/11ENR_L14_westernhemisphere.tif \
-merge/ifr/11ENR_L15_westernhemisphere.tif \
-merge/ifr/11ENR_L16_westernhemisphere.tif \
-merge/ifr/11ENR_L17_westernhemisphere.tif \
-merge/ifr/11ENR_L18_westernhemisphere.tif \
-merge/ifr/11ENR_L19_westernhemisphere.tif \
-merge/ifr/11ENR_L20_westernhemisphere.tif \
-merge/ifr/11ENR_L22_westernhemisphere.tif \
-merge/ifr/11ENR_L23_westernhemisphere.tif \
-merge/ifr/11ENR_L24_westernhemisphere.tif \
-merge/ifr/11ENR_L25_westernhemisphere.tif \
-merge/ifr/11ENR_L26_westernhemisphere.tif \
-merge/ifr/11ENR_L27_westernhemisphere.tif \
-merge/ifr/11ENR_L28_westernhemisphere.tif \
-merge/ifr/11ENR_L29_westernhemisphere.tif \
-merge/ifr/11ENR_L30_westernhemisphere.tif \
-merge/ifr/11ENR_L31_westernhemisphere.tif \
-merge/ifr/11ENR_L32_westernhemisphere.tif \
-merge/ifr/11ENR_L33_westernhemisphere.tif \
-merge/ifr/11ENR_L34_westernhemisphere.tif \
-merge/ifr/11ENR_L35_westernhemisphere.tif \
-merge/ifr/11ENR_L36_westernhemisphere.tif
+merge/ifr/01ENR_L21_westernhemisphere.vrt \
+merge/ifr/02ENR_P01east_easternhemisphere.vrt \
+merge/ifr/02ENR_P01east_westernhemisphere.vrt \
+merge/ifr/02ENR_P01west_easternhemisphere.vrt \
+merge/ifr/02ENR_P02_westernhemisphere.vrt \
+merge/ifr/10ENR_AKL01_westernhemisphere.vrt \
+merge/ifr/10ENR_AKL02C_westernhemisphere.vrt \
+merge/ifr/10ENR_AKL02E_westernhemisphere.vrt \
+merge/ifr/10ENR_AKL02W_easternhemisphere.vrt \
+merge/ifr/10ENR_AKL02W_westernhemisphere.vrt \
+merge/ifr/10ENR_AKL03_westernhemisphere.vrt \
+merge/ifr/10ENR_AKL04middle_westernhemisphere.vrt \
+merge/ifr/10ENR_AKL04north_westernhemisphere.vrt \
+merge/ifr/10ENR_AKL04south_westernhemisphere.vrt \
+merge/ifr/10ENR_P01_GUA_easternhemisphere.vrt \
+merge/ifr/11ENR_L01_westernhemisphere.vrt \
+merge/ifr/11ENR_L02_westernhemisphere.vrt \
+merge/ifr/11ENR_L03_westernhemisphere.vrt \
+merge/ifr/11ENR_L04_westernhemisphere.vrt \
+merge/ifr/11ENR_L05_westernhemisphere.vrt \
+merge/ifr/11ENR_L06N_westernhemisphere.vrt \
+merge/ifr/11ENR_L06S_westernhemisphere.vrt \
+merge/ifr/11ENR_L07_westernhemisphere.vrt \
+merge/ifr/11ENR_L08_westernhemisphere.vrt \
+merge/ifr/11ENR_L09_westernhemisphere.vrt \
+merge/ifr/11ENR_L10_westernhemisphere.vrt \
+merge/ifr/11ENR_L11_westernhemisphere.vrt \
+merge/ifr/11ENR_L12_westernhemisphere.vrt \
+merge/ifr/11ENR_L13_westernhemisphere.vrt \
+merge/ifr/11ENR_L14_westernhemisphere.vrt \
+merge/ifr/11ENR_L15_westernhemisphere.vrt \
+merge/ifr/11ENR_L16_westernhemisphere.vrt \
+merge/ifr/11ENR_L17_westernhemisphere.vrt \
+merge/ifr/11ENR_L18_westernhemisphere.vrt \
+merge/ifr/11ENR_L19_westernhemisphere.vrt \
+merge/ifr/11ENR_L20_westernhemisphere.vrt \
+merge/ifr/11ENR_L22_westernhemisphere.vrt \
+merge/ifr/11ENR_L23_westernhemisphere.vrt \
+merge/ifr/11ENR_L24_westernhemisphere.vrt \
+merge/ifr/11ENR_L25_westernhemisphere.vrt \
+merge/ifr/11ENR_L26_westernhemisphere.vrt \
+merge/ifr/11ENR_L27_westernhemisphere.vrt \
+merge/ifr/11ENR_L28_westernhemisphere.vrt \
+merge/ifr/11ENR_L29_westernhemisphere.vrt \
+merge/ifr/11ENR_L30_westernhemisphere.vrt \
+merge/ifr/11ENR_L31_westernhemisphere.vrt \
+merge/ifr/11ENR_L32_westernhemisphere.vrt \
+merge/ifr/11ENR_L33_westernhemisphere.vrt \
+merge/ifr/11ENR_L34_westernhemisphere.vrt \
+merge/ifr/11ENR_L35_westernhemisphere.vrt \
+merge/ifr/11ENR_L36_westernhemisphere.vrt
 
-merge/ifr/02ENR_P01east_easternhemisphere.tif: charts/ifr/02ENR_P01east_easternhemisphere.geojson charts/ifr/ENR_P01.tif
+merge/ifr/02ENR_P01east_easternhemisphere.vrt: charts/ifr/02ENR_P01east_easternhemisphere.geojson charts/ifr/ENR_P01.tif
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/02ENR_P01east_easternhemisphere.geojson $(STR2) -tr $(TR07) $(TR07) -t_srs EPSG:3857 charts/ifr/ENR_P01.tif merge/ifr/02ENR_P01east_easternhemisphere.tif
+	$(STR1) charts/ifr/02ENR_P01east_easternhemisphere.geojson $(STR2) -tr $(TR07) $(TR07) -t_srs EPSG:3857 charts/ifr/ENR_P01.tif merge/ifr/02ENR_P01east_easternhemisphere.vrt
 
-merge/ifr/02ENR_P01east_westernhemisphere.tif: charts/ifr/02ENR_P01east_westernhemisphere.geojson charts/ifr/ENR_P01.tif
+merge/ifr/02ENR_P01east_westernhemisphere.vrt: charts/ifr/02ENR_P01east_westernhemisphere.geojson charts/ifr/ENR_P01.tif
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/02ENR_P01east_westernhemisphere.geojson $(STR2) -tr $(TR07) $(TR07) -t_srs EPSG:3857 charts/ifr/ENR_P01.tif merge/ifr/02ENR_P01east_westernhemisphere.tif
+	$(STR1) charts/ifr/02ENR_P01east_westernhemisphere.geojson $(STR2) -tr $(TR07) $(TR07) -t_srs EPSG:3857 charts/ifr/ENR_P01.tif merge/ifr/02ENR_P01east_westernhemisphere.vrt
 
-merge/ifr/02ENR_P01west_easternhemisphere.tif: charts/ifr/02ENR_P01west_easternhemisphere.geojson charts/ifr/ENR_P01.tif
+merge/ifr/02ENR_P01west_easternhemisphere.vrt: charts/ifr/02ENR_P01west_easternhemisphere.geojson charts/ifr/ENR_P01.tif
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/02ENR_P01west_easternhemisphere.geojson $(STR2) -tr $(TR07) $(TR07) -t_srs EPSG:3857 charts/ifr/ENR_P01.tif merge/ifr/02ENR_P01west_easternhemisphere.tif
+	$(STR1) charts/ifr/02ENR_P01west_easternhemisphere.geojson $(STR2) -tr $(TR07) $(TR07) -t_srs EPSG:3857 charts/ifr/ENR_P01.tif merge/ifr/02ENR_P01west_easternhemisphere.vrt
 
-merge/ifr/02ENR_P02_westernhemisphere.tif: charts/ifr/02ENR_P02_westernhemisphere.geojson charts/ifr/ENR_P02.tif
+merge/ifr/02ENR_P02_westernhemisphere.vrt: charts/ifr/02ENR_P02_westernhemisphere.geojson charts/ifr/ENR_P02.tif
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/02ENR_P02_westernhemisphere.geojson $(STR2) -tr $(TR07) $(TR07) -t_srs EPSG:3857 charts/ifr/ENR_P02.tif merge/ifr/02ENR_P02_westernhemisphere.tif
+	$(STR1) charts/ifr/02ENR_P02_westernhemisphere.geojson $(STR2) -tr $(TR07) $(TR07) -t_srs EPSG:3857 charts/ifr/ENR_P02.tif merge/ifr/02ENR_P02_westernhemisphere.vrt
 
 
-merge/ifr/10ENR_P01_GUA_easternhemisphere.tif: charts/ifr/10ENR_P01_GUA_easternhemisphere.geojson charts/ifr/ENR_P01_GUA.tif
+merge/ifr/10ENR_P01_GUA_easternhemisphere.vrt: charts/ifr/10ENR_P01_GUA_easternhemisphere.geojson charts/ifr/ENR_P01_GUA.tif
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/10ENR_P01_GUA_easternhemisphere.geojson $(STR2) -tr $(TR07) $(TR07) -t_srs EPSG:3857 charts/ifr/ENR_P01_GUA.tif merge/ifr/10ENR_P01_GUA_easternhemisphere.tif
+	$(STR1) charts/ifr/10ENR_P01_GUA_easternhemisphere.geojson $(STR2) -tr $(TR07) $(TR07) -t_srs EPSG:3857 charts/ifr/ENR_P01_GUA.tif merge/ifr/10ENR_P01_GUA_easternhemisphere.vrt
 
-merge/ifr/10ENR_AKL01_westernhemisphere.tif: charts/ifr/10ENR_AKL01_westernhemisphere.geojson charts/ifr/ENR_AKL01.pdf
+merge/ifr/10ENR_AKL01_westernhemisphere.vrt: charts/ifr/10ENR_AKL01_westernhemisphere.geojson charts/ifr/ENR_AKL01.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/10ENR_AKL01_westernhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL01.pdf merge/ifr/10ENR_AKL01_westernhemisphere.tif
+	$(STR1) charts/ifr/10ENR_AKL01_westernhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL01.pdf merge/ifr/10ENR_AKL01_westernhemisphere.vrt
 
-merge/ifr/10ENR_AKL02C_westernhemisphere.tif: charts/ifr/10ENR_AKL02C_westernhemisphere.geojson charts/ifr/ENR_AKL02C.tif
+merge/ifr/10ENR_AKL02C_westernhemisphere.vrt: charts/ifr/10ENR_AKL02C_westernhemisphere.geojson charts/ifr/ENR_AKL02C.tif
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/10ENR_AKL02C_westernhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL02C.tif merge/ifr/10ENR_AKL02C_westernhemisphere.tif
+	$(STR1) charts/ifr/10ENR_AKL02C_westernhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL02C.tif merge/ifr/10ENR_AKL02C_westernhemisphere.vrt
 
-merge/ifr/10ENR_AKL02E_westernhemisphere.tif: charts/ifr/10ENR_AKL02E_westernhemisphere.geojson charts/ifr/ENR_AKL02E.tif
+merge/ifr/10ENR_AKL02E_westernhemisphere.vrt: charts/ifr/10ENR_AKL02E_westernhemisphere.geojson charts/ifr/ENR_AKL02E.tif
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/10ENR_AKL02E_westernhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL02E.tif merge/ifr/10ENR_AKL02E_westernhemisphere.tif
+	$(STR1) charts/ifr/10ENR_AKL02E_westernhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL02E.tif merge/ifr/10ENR_AKL02E_westernhemisphere.vrt
 
-merge/ifr/10ENR_AKL03_westernhemisphere.tif: charts/ifr/10ENR_AKL03_westernhemisphere.geojson charts/ifr/ENR_AKL03.pdf
+merge/ifr/10ENR_AKL03_westernhemisphere.vrt: charts/ifr/10ENR_AKL03_westernhemisphere.geojson charts/ifr/ENR_AKL03.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/10ENR_AKL03_westernhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL03.pdf merge/ifr/10ENR_AKL03_westernhemisphere.tif
+	$(STR1) charts/ifr/10ENR_AKL03_westernhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL03.pdf merge/ifr/10ENR_AKL03_westernhemisphere.vrt
 
-merge/ifr/10ENR_AKL04north_westernhemisphere.tif: charts/ifr/10ENR_AKL04north_westernhemisphere.geojson charts/ifr/ENR_AKL04.pdf
+merge/ifr/10ENR_AKL04north_westernhemisphere.vrt: charts/ifr/10ENR_AKL04north_westernhemisphere.geojson charts/ifr/ENR_AKL04.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/10ENR_AKL04north_westernhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL04.pdf merge/ifr/10ENR_AKL04north_westernhemisphere.tif
+	$(STR1) charts/ifr/10ENR_AKL04north_westernhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL04.pdf merge/ifr/10ENR_AKL04north_westernhemisphere.vrt
 
-merge/ifr/10ENR_AKL04middle_westernhemisphere.tif: charts/ifr/10ENR_AKL04middle_westernhemisphere.geojson charts/ifr/ENR_AKL04.pdf
+merge/ifr/10ENR_AKL04middle_westernhemisphere.vrt: charts/ifr/10ENR_AKL04middle_westernhemisphere.geojson charts/ifr/ENR_AKL04.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/10ENR_AKL04middle_westernhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL04.pdf merge/ifr/10ENR_AKL04middle_westernhemisphere.tif
+	$(STR1) charts/ifr/10ENR_AKL04middle_westernhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL04.pdf merge/ifr/10ENR_AKL04middle_westernhemisphere.vrt
 
-merge/ifr/10ENR_AKL04south_westernhemisphere.tif: charts/ifr/10ENR_AKL04south_westernhemisphere.geojson charts/ifr/ENR_AKL04.pdf
+merge/ifr/10ENR_AKL04south_westernhemisphere.vrt: charts/ifr/10ENR_AKL04south_westernhemisphere.geojson charts/ifr/ENR_AKL04.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/10ENR_AKL04south_westernhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL04.pdf merge/ifr/10ENR_AKL04south_westernhemisphere.tif
+	$(STR1) charts/ifr/10ENR_AKL04south_westernhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL04.pdf merge/ifr/10ENR_AKL04south_westernhemisphere.vrt
 
-merge/ifr/10ENR_AKL02W_westernhemisphere.tif: charts/ifr/10ENR_AKL02W_westernhemisphere.geojson charts/ifr/ENR_AKL02W.tif
+merge/ifr/10ENR_AKL02W_westernhemisphere.vrt: charts/ifr/10ENR_AKL02W_westernhemisphere.geojson charts/ifr/ENR_AKL02W.tif
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/10ENR_AKL02W_westernhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL02W.tif merge/ifr/10ENR_AKL02W_westernhemisphere.tif
+	$(STR1) charts/ifr/10ENR_AKL02W_westernhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL02W.tif merge/ifr/10ENR_AKL02W_westernhemisphere.vrt
 
-merge/ifr/10ENR_AKL02W_easternhemisphere.tif: charts/ifr/10ENR_AKL02W_easternhemisphere.geojson charts/ifr/ENR_AKL02W.tif
+merge/ifr/10ENR_AKL02W_easternhemisphere.vrt: charts/ifr/10ENR_AKL02W_easternhemisphere.geojson charts/ifr/ENR_AKL02W.tif
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/10ENR_AKL02W_easternhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL02W.tif merge/ifr/10ENR_AKL02W_easternhemisphere.tif
+	$(STR1) charts/ifr/10ENR_AKL02W_easternhemisphere.geojson $(STR2) -tr $(TR08) $(TR08) -t_srs EPSG:3857 charts/ifr/ENR_AKL02W.tif merge/ifr/10ENR_AKL02W_easternhemisphere.vrt
 
-merge/ifr/01ENR_L21_westernhemisphere.tif: charts/ifr/01ENR_L21_westernhemisphere.geojson charts/ifr/ENR_L21.pdf
+merge/ifr/01ENR_L21_westernhemisphere.vrt: charts/ifr/01ENR_L21_westernhemisphere.geojson charts/ifr/ENR_L21.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/01ENR_L21_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L21.pdf merge/ifr/01ENR_L21_westernhemisphere.tif
+	$(STR1) charts/ifr/01ENR_L21_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L21.pdf merge/ifr/01ENR_L21_westernhemisphere.vrt
 
-merge/ifr/11ENR_L01_westernhemisphere.tif: charts/ifr/11ENR_L01_westernhemisphere.geojson charts/ifr/ENR_L01.pdf
+merge/ifr/11ENR_L01_westernhemisphere.vrt: charts/ifr/11ENR_L01_westernhemisphere.geojson charts/ifr/ENR_L01.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L01_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L01.pdf merge/ifr/11ENR_L01_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L01_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L01.pdf merge/ifr/11ENR_L01_westernhemisphere.vrt
 
-merge/ifr/11ENR_L02_westernhemisphere.tif: charts/ifr/11ENR_L02_westernhemisphere.geojson charts/ifr/ENR_L02.pdf
+merge/ifr/11ENR_L02_westernhemisphere.vrt: charts/ifr/11ENR_L02_westernhemisphere.geojson charts/ifr/ENR_L02.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L02_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L02.pdf merge/ifr/11ENR_L02_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L02_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L02.pdf merge/ifr/11ENR_L02_westernhemisphere.vrt
 
-merge/ifr/11ENR_L03_westernhemisphere.tif: charts/ifr/11ENR_L03_westernhemisphere.geojson charts/ifr/ENR_L03.pdf
+merge/ifr/11ENR_L03_westernhemisphere.vrt: charts/ifr/11ENR_L03_westernhemisphere.geojson charts/ifr/ENR_L03.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L03_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L03.pdf merge/ifr/11ENR_L03_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L03_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L03.pdf merge/ifr/11ENR_L03_westernhemisphere.vrt
 
-merge/ifr/11ENR_L04_westernhemisphere.tif: charts/ifr/11ENR_L04_westernhemisphere.geojson charts/ifr/ENR_L04.pdf
+merge/ifr/11ENR_L04_westernhemisphere.vrt: charts/ifr/11ENR_L04_westernhemisphere.geojson charts/ifr/ENR_L04.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L04_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L04.pdf merge/ifr/11ENR_L04_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L04_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L04.pdf merge/ifr/11ENR_L04_westernhemisphere.vrt
 
-merge/ifr/11ENR_L05_westernhemisphere.tif: charts/ifr/11ENR_L05_westernhemisphere.geojson charts/ifr/ENR_L05.pdf
+merge/ifr/11ENR_L05_westernhemisphere.vrt: charts/ifr/11ENR_L05_westernhemisphere.geojson charts/ifr/ENR_L05.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L05_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L05.pdf merge/ifr/11ENR_L05_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L05_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L05.pdf merge/ifr/11ENR_L05_westernhemisphere.vrt
 
-merge/ifr/11ENR_L06N_westernhemisphere.tif: charts/ifr/11ENR_L06N_westernhemisphere.geojson charts/ifr/ENR_L06N.pdf
+merge/ifr/11ENR_L06N_westernhemisphere.vrt: charts/ifr/11ENR_L06N_westernhemisphere.geojson charts/ifr/ENR_L06N.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L06N_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L06N.pdf merge/ifr/11ENR_L06N_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L06N_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L06N.pdf merge/ifr/11ENR_L06N_westernhemisphere.vrt
 
-merge/ifr/11ENR_L06S_westernhemisphere.tif: charts/ifr/11ENR_L06S_westernhemisphere.geojson charts/ifr/ENR_L06S.tif
+merge/ifr/11ENR_L06S_westernhemisphere.vrt: charts/ifr/11ENR_L06S_westernhemisphere.geojson charts/ifr/ENR_L06S.tif
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L06S_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L06S.tif merge/ifr/11ENR_L06S_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L06S_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L06S.tif merge/ifr/11ENR_L06S_westernhemisphere.vrt
 
-merge/ifr/11ENR_L07_westernhemisphere.tif: charts/ifr/11ENR_L07_westernhemisphere.geojson charts/ifr/ENR_L07.pdf
+merge/ifr/11ENR_L07_westernhemisphere.vrt: charts/ifr/11ENR_L07_westernhemisphere.geojson charts/ifr/ENR_L07.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L07_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L07.pdf merge/ifr/11ENR_L07_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L07_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L07.pdf merge/ifr/11ENR_L07_westernhemisphere.vrt
 
-merge/ifr/11ENR_L08_westernhemisphere.tif: charts/ifr/11ENR_L08_westernhemisphere.geojson charts/ifr/ENR_L08.pdf
+merge/ifr/11ENR_L08_westernhemisphere.vrt: charts/ifr/11ENR_L08_westernhemisphere.geojson charts/ifr/ENR_L08.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L08_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L08.pdf merge/ifr/11ENR_L08_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L08_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L08.pdf merge/ifr/11ENR_L08_westernhemisphere.vrt
 
-merge/ifr/11ENR_L09_westernhemisphere.tif: charts/ifr/11ENR_L09_westernhemisphere.geojson charts/ifr/ENR_L09.pdf
+merge/ifr/11ENR_L09_westernhemisphere.vrt: charts/ifr/11ENR_L09_westernhemisphere.geojson charts/ifr/ENR_L09.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L09_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L09.pdf merge/ifr/11ENR_L09_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L09_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L09.pdf merge/ifr/11ENR_L09_westernhemisphere.vrt
 
-merge/ifr/11ENR_L10_westernhemisphere.tif: charts/ifr/11ENR_L10_westernhemisphere.geojson charts/ifr/ENR_L10.pdf
+merge/ifr/11ENR_L10_westernhemisphere.vrt: charts/ifr/11ENR_L10_westernhemisphere.geojson charts/ifr/ENR_L10.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L10_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L10.pdf merge/ifr/11ENR_L10_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L10_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L10.pdf merge/ifr/11ENR_L10_westernhemisphere.vrt
 
-merge/ifr/11ENR_L11_westernhemisphere.tif: charts/ifr/11ENR_L11_westernhemisphere.geojson charts/ifr/ENR_L11.pdf
+merge/ifr/11ENR_L11_westernhemisphere.vrt: charts/ifr/11ENR_L11_westernhemisphere.geojson charts/ifr/ENR_L11.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L11_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L11.pdf merge/ifr/11ENR_L11_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L11_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L11.pdf merge/ifr/11ENR_L11_westernhemisphere.vrt
 
-merge/ifr/11ENR_L12_westernhemisphere.tif: charts/ifr/11ENR_L12_westernhemisphere.geojson charts/ifr/ENR_L12.pdf
+merge/ifr/11ENR_L12_westernhemisphere.vrt: charts/ifr/11ENR_L12_westernhemisphere.geojson charts/ifr/ENR_L12.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L12_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L12.pdf merge/ifr/11ENR_L12_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L12_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L12.pdf merge/ifr/11ENR_L12_westernhemisphere.vrt
 
-merge/ifr/11ENR_L13_westernhemisphere.tif: charts/ifr/11ENR_L13_westernhemisphere.geojson charts/ifr/ENR_L13.pdf
+merge/ifr/11ENR_L13_westernhemisphere.vrt: charts/ifr/11ENR_L13_westernhemisphere.geojson charts/ifr/ENR_L13.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L13_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L13.pdf merge/ifr/11ENR_L13_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L13_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L13.pdf merge/ifr/11ENR_L13_westernhemisphere.vrt
 
-merge/ifr/11ENR_L14_westernhemisphere.tif: charts/ifr/11ENR_L14_westernhemisphere.geojson charts/ifr/ENR_L14.pdf
+merge/ifr/11ENR_L14_westernhemisphere.vrt: charts/ifr/11ENR_L14_westernhemisphere.geojson charts/ifr/ENR_L14.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L14_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L14.pdf merge/ifr/11ENR_L14_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L14_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L14.pdf merge/ifr/11ENR_L14_westernhemisphere.vrt
 
-merge/ifr/11ENR_L15_westernhemisphere.tif: charts/ifr/11ENR_L15_westernhemisphere.geojson charts/ifr/ENR_L15.pdf
+merge/ifr/11ENR_L15_westernhemisphere.vrt: charts/ifr/11ENR_L15_westernhemisphere.geojson charts/ifr/ENR_L15.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L15_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L15.pdf merge/ifr/11ENR_L15_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L15_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L15.pdf merge/ifr/11ENR_L15_westernhemisphere.vrt
 
-merge/ifr/11ENR_L16_westernhemisphere.tif: charts/ifr/11ENR_L16_westernhemisphere.geojson charts/ifr/ENR_L16.pdf
+merge/ifr/11ENR_L16_westernhemisphere.vrt: charts/ifr/11ENR_L16_westernhemisphere.geojson charts/ifr/ENR_L16.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L16_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L16.pdf merge/ifr/11ENR_L16_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L16_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L16.pdf merge/ifr/11ENR_L16_westernhemisphere.vrt
 
-merge/ifr/11ENR_L17_westernhemisphere.tif: charts/ifr/11ENR_L17_westernhemisphere.geojson charts/ifr/ENR_L17.pdf
+merge/ifr/11ENR_L17_westernhemisphere.vrt: charts/ifr/11ENR_L17_westernhemisphere.geojson charts/ifr/ENR_L17.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L17_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L17.pdf merge/ifr/11ENR_L17_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L17_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L17.pdf merge/ifr/11ENR_L17_westernhemisphere.vrt
 
-merge/ifr/11ENR_L18_westernhemisphere.tif: charts/ifr/11ENR_L18_westernhemisphere.geojson charts/ifr/ENR_L18.pdf
+merge/ifr/11ENR_L18_westernhemisphere.vrt: charts/ifr/11ENR_L18_westernhemisphere.geojson charts/ifr/ENR_L18.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L18_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L18.pdf merge/ifr/11ENR_L18_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L18_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L18.pdf merge/ifr/11ENR_L18_westernhemisphere.vrt
 
-merge/ifr/11ENR_L19_westernhemisphere.tif: charts/ifr/11ENR_L19_westernhemisphere.geojson charts/ifr/ENR_L19.pdf
+merge/ifr/11ENR_L19_westernhemisphere.vrt: charts/ifr/11ENR_L19_westernhemisphere.geojson charts/ifr/ENR_L19.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L19_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L19.pdf merge/ifr/11ENR_L19_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L19_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L19.pdf merge/ifr/11ENR_L19_westernhemisphere.vrt
 
-merge/ifr/11ENR_L20_westernhemisphere.tif: charts/ifr/11ENR_L20_westernhemisphere.geojson charts/ifr/ENR_L20.pdf
+merge/ifr/11ENR_L20_westernhemisphere.vrt: charts/ifr/11ENR_L20_westernhemisphere.geojson charts/ifr/ENR_L20.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L20_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L20.pdf merge/ifr/11ENR_L20_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L20_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L20.pdf merge/ifr/11ENR_L20_westernhemisphere.vrt
 
-merge/ifr/11ENR_L22_westernhemisphere.tif: charts/ifr/11ENR_L22_westernhemisphere.geojson charts/ifr/ENR_L22.pdf
+merge/ifr/11ENR_L22_westernhemisphere.vrt: charts/ifr/11ENR_L22_westernhemisphere.geojson charts/ifr/ENR_L22.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L22_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L22.pdf merge/ifr/11ENR_L22_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L22_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L22.pdf merge/ifr/11ENR_L22_westernhemisphere.vrt
 
-merge/ifr/11ENR_L23_westernhemisphere.tif: charts/ifr/11ENR_L23_westernhemisphere.geojson charts/ifr/ENR_L23.pdf
+merge/ifr/11ENR_L23_westernhemisphere.vrt: charts/ifr/11ENR_L23_westernhemisphere.geojson charts/ifr/ENR_L23.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L23_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L23.pdf merge/ifr/11ENR_L23_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L23_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L23.pdf merge/ifr/11ENR_L23_westernhemisphere.vrt
 
-merge/ifr/11ENR_L24_westernhemisphere.tif: charts/ifr/11ENR_L24_westernhemisphere.geojson charts/ifr/ENR_L24.pdf
+merge/ifr/11ENR_L24_westernhemisphere.vrt: charts/ifr/11ENR_L24_westernhemisphere.geojson charts/ifr/ENR_L24.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L24_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L24.pdf merge/ifr/11ENR_L24_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L24_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L24.pdf merge/ifr/11ENR_L24_westernhemisphere.vrt
 
-merge/ifr/11ENR_L25_westernhemisphere.tif: charts/ifr/11ENR_L25_westernhemisphere.geojson charts/ifr/ENR_L25.pdf
+merge/ifr/11ENR_L25_westernhemisphere.vrt: charts/ifr/11ENR_L25_westernhemisphere.geojson charts/ifr/ENR_L25.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L25_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L25.pdf merge/ifr/11ENR_L25_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L25_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L25.pdf merge/ifr/11ENR_L25_westernhemisphere.vrt
 
-merge/ifr/11ENR_L26_westernhemisphere.tif: charts/ifr/11ENR_L26_westernhemisphere.geojson charts/ifr/ENR_L26.pdf
+merge/ifr/11ENR_L26_westernhemisphere.vrt: charts/ifr/11ENR_L26_westernhemisphere.geojson charts/ifr/ENR_L26.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L26_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L26.pdf merge/ifr/11ENR_L26_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L26_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L26.pdf merge/ifr/11ENR_L26_westernhemisphere.vrt
 
-merge/ifr/11ENR_L27_westernhemisphere.tif: charts/ifr/11ENR_L27_westernhemisphere.geojson charts/ifr/ENR_L27.pdf
+merge/ifr/11ENR_L27_westernhemisphere.vrt: charts/ifr/11ENR_L27_westernhemisphere.geojson charts/ifr/ENR_L27.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L27_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L27.pdf merge/ifr/11ENR_L27_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L27_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L27.pdf merge/ifr/11ENR_L27_westernhemisphere.vrt
 
-merge/ifr/11ENR_L28_westernhemisphere.tif: charts/ifr/11ENR_L28_westernhemisphere.geojson charts/ifr/ENR_L28.pdf
+merge/ifr/11ENR_L28_westernhemisphere.vrt: charts/ifr/11ENR_L28_westernhemisphere.geojson charts/ifr/ENR_L28.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L28_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L28.pdf merge/ifr/11ENR_L28_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L28_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L28.pdf merge/ifr/11ENR_L28_westernhemisphere.vrt
 
-merge/ifr/11ENR_L29_westernhemisphere.tif: charts/ifr/11ENR_L29_westernhemisphere.geojson charts/ifr/ENR_L29.pdf
+merge/ifr/11ENR_L29_westernhemisphere.vrt: charts/ifr/11ENR_L29_westernhemisphere.geojson charts/ifr/ENR_L29.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L29_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L29.pdf merge/ifr/11ENR_L29_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L29_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L29.pdf merge/ifr/11ENR_L29_westernhemisphere.vrt
 
-merge/ifr/11ENR_L30_westernhemisphere.tif: charts/ifr/11ENR_L30_westernhemisphere.geojson charts/ifr/ENR_L30.pdf
+merge/ifr/11ENR_L30_westernhemisphere.vrt: charts/ifr/11ENR_L30_westernhemisphere.geojson charts/ifr/ENR_L30.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L30_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L30.pdf merge/ifr/11ENR_L30_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L30_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L30.pdf merge/ifr/11ENR_L30_westernhemisphere.vrt
 
-merge/ifr/11ENR_L31_westernhemisphere.tif: charts/ifr/11ENR_L31_westernhemisphere.geojson charts/ifr/ENR_L31.pdf
+merge/ifr/11ENR_L31_westernhemisphere.vrt: charts/ifr/11ENR_L31_westernhemisphere.geojson charts/ifr/ENR_L31.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L31_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L31.pdf merge/ifr/11ENR_L31_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L31_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L31.pdf merge/ifr/11ENR_L31_westernhemisphere.vrt
 
-merge/ifr/11ENR_L32_westernhemisphere.tif: charts/ifr/11ENR_L32_westernhemisphere.geojson charts/ifr/ENR_L32.pdf
+merge/ifr/11ENR_L32_westernhemisphere.vrt: charts/ifr/11ENR_L32_westernhemisphere.geojson charts/ifr/ENR_L32.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L32_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L32.pdf merge/ifr/11ENR_L32_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L32_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L32.pdf merge/ifr/11ENR_L32_westernhemisphere.vrt
 
-merge/ifr/11ENR_L33_westernhemisphere.tif: charts/ifr/11ENR_L33_westernhemisphere.geojson charts/ifr/ENR_L33.pdf
+merge/ifr/11ENR_L33_westernhemisphere.vrt: charts/ifr/11ENR_L33_westernhemisphere.geojson charts/ifr/ENR_L33.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L33_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L33.pdf merge/ifr/11ENR_L33_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L33_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L33.pdf merge/ifr/11ENR_L33_westernhemisphere.vrt
 
-merge/ifr/11ENR_L34_westernhemisphere.tif: charts/ifr/11ENR_L34_westernhemisphere.geojson charts/ifr/ENR_L34.pdf
+merge/ifr/11ENR_L34_westernhemisphere.vrt: charts/ifr/11ENR_L34_westernhemisphere.geojson charts/ifr/ENR_L34.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L34_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L34.pdf merge/ifr/11ENR_L34_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L34_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L34.pdf merge/ifr/11ENR_L34_westernhemisphere.vrt
 
-merge/ifr/11ENR_L35_westernhemisphere.tif: charts/ifr/11ENR_L35_westernhemisphere.geojson charts/ifr/ENR_L35.pdf
+merge/ifr/11ENR_L35_westernhemisphere.vrt: charts/ifr/11ENR_L35_westernhemisphere.geojson charts/ifr/ENR_L35.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L35_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L35.pdf merge/ifr/11ENR_L35_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L35_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L35.pdf merge/ifr/11ENR_L35_westernhemisphere.vrt
 
-merge/ifr/11ENR_L36_westernhemisphere.tif: charts/ifr/11ENR_L36_westernhemisphere.geojson charts/ifr/ENR_L36.pdf
+merge/ifr/11ENR_L36_westernhemisphere.vrt: charts/ifr/11ENR_L36_westernhemisphere.geojson charts/ifr/ENR_L36.pdf
 	[[ -d merge/ifr ]] || mkdir -p merge/ifr
-	$(STR1) charts/ifr/11ENR_L36_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L36.pdf merge/ifr/11ENR_L36_westernhemisphere.tif
+	$(STR1) charts/ifr/11ENR_L36_westernhemisphere.geojson $(STR2) -tr $(TR10) $(TR10) -t_srs EPSG:3857 charts/ifr/ENR_L36.pdf merge/ifr/11ENR_L36_westernhemisphere.vrt

@@ -1,26 +1,51 @@
+# Copyright (c) 2020-2021, Peter A. Gustafson (peter.gustafson@wmich.edu)
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in
+#   the documentation and/or other materials provided with the
+#   distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+# WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
 TR := $(shell bc -l <<< 20026376.39/512/2^10)
 
 ## None of the sectional images have 51,51,51 gray, so it will be used for nodata to save space
 
 sec.vrt: warped
-	gdalbuildvrt -srcnodata 51 -vrtnodata 51 -r near -resolution highest sec.vrt -overwrite merge/sec/*SEC.tif # 
+	gdalbuildvrt -srcnodata 51 -vrtnodata 51 -r near -resolution highest sec.vrt -overwrite merge/sec/*SEC.vrt # 
 
-warped: $(subst .geojson,.tif,$(subst charts,merge,$(wildcard charts/sec/*.geojson)))
+warped: $(subst .geojson,.vrt,$(subst charts,merge,$(wildcard charts/sec/*.geojson)))
 
 charts/sec/SewardGlacierSEC.tif: charts/sec/JuneauSEC.tif
 	convert -crop 2858x1252+1589+2705 +repage $< $@
 	gdal_edit.py -a_srs EPSG:4326 $@ -gcp 99 1109 -141.0 60 0 -gcp 757 1114 -140.5 60 0 -gcp 1416 1115 -140.0 60 0 -gcp 2074 1111 -139.5 60 0 -gcp 2732 1101 -139.0 60 0 -gcp 105 671 -141.0 60.16666666666666666 0 -gcp 1414 677.5 -140.0 60.16666666666666666 0 -gcp 2724 664.5 -139.0 60.16666666666666666 0 -gcp 111 101 -141.0 60.38333333333333 0 -gcp 1413 107 -140.0 60.38333333333333 0 -gcp 2715 138 -139.0 60.36666666666667 0
 
-merge/sec/%.tif: charts/sec/%.tif charts/sec/%.geojson
+merge/sec/%.vrt: charts/sec/%.tif charts/sec/%.geojson
 	@echo Working on $<
 	@echo Erasing tiles that need to be replaced
 	grep $(notdir $(@:SEC.tif=)) ./charts/sec/TileManifest.sec.list |cut -f2 -d: |xargs -I {} rm -f tiles/0-build/{}
 	if [[ ! -d merge/sec/ ]]; then mkdir -p merge/sec/; fi
-	rm -f $@ $(@:.tif=.vrt) $(@:.tif=.warp.vrt) $(@:.tif=.rgb.vrt)
-	gdal_translate -of vrt -r cubicspline -expand rgb $< $(@:.tif=.rgb.vrt)
-	gdalwarp -of vrt -dstnodata 51 -r cubicspline -t_srs 'EPSG:3857' -cutline $(<:.tif=.geojson) -crop_to_cutline -tr $(TR) $(TR) $(@:.tif=.rgb.vrt) $(@:.tif=.warp.vrt)	
-	gdal_translate -r cubicspline $(@:.tif=.warp.vrt) $@
-	rm $(@:.tif=.rgb.vrt) $(@:.tif=.warp.vrt)
+	rm -f $@ $(@:.vrt=.warp.vrt) $(@:.vrt=.rgb.vrt)
+	gdal_translate -of vrt -r cubicspline -expand rgb $< $(@:.vrt=.rgb.vrt)
+	gdalwarp -of vrt -dstnodata 51 -r cubicspline -t_srs 'EPSG:3857' -cutline $(<:.tif=.geojson) -crop_to_cutline -tr $(TR) $(TR) $(@:.vrt=.rgb.vrt) $@	
 
 ## ## Create tile manifests by state:
 ## TR=$(bc -l <<< 20026376.39/512/2^10)

@@ -1,0 +1,84 @@
+# Copyright (c) 2020-2021, Peter A. Gustafson (peter.gustafson@wmich.edu)
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in
+#   the documentation and/or other materials provided with the
+#   distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+# WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+WARP=gdalwarp -multi -wm 512 -dstnodata 51 -overwrite -of vrt -t_srs 'EPSG:3857'
+
+IFHEAST = \
+merge/ifh/ENR_P01_east.vrt \
+merge/ifh/ENR_AKH02_east.vrt
+
+IFHWEST = \
+merge/ifh/ENR_P01_west.vrt \
+merge/ifh/ENR_AKH01_west.vrt \
+merge/ifh/ENR_AKH02_west.vrt \
+merge/ifh/ENR_H01_west.vrt \
+merge/ifh/ENR_H02_west.vrt \
+merge/ifh/ENR_H03_west.vrt \
+merge/ifh/ENR_H04_west.vrt \
+merge/ifh/ENR_H05_west.vrt \
+merge/ifh/ENR_H06_west.vrt \
+merge/ifh/ENR_H07_west.vrt \
+merge/ifh/ENR_H08_west.vrt \
+merge/ifh/ENR_H09_west.vrt \
+merge/ifh/ENR_H10_west.vrt \
+merge/ifh/ENR_H11_west.vrt
+
+VRT = ifh-east.vrt ifh-west.vrt
+
+ALL = $(IFHEAST) $(IFHWEST) $(VRT)
+
+all: $(ALL)
+
+clean:
+	rm -f $(ALL) *vrt
+
+merge/ifh/%_west.vrt: charts/ifr/%.pdf charts/ifr/%_west.geojson
+	$(eval JSN=$(subst .pdf,_west.geojson,$<))
+	rm -f $@ 
+	$(WARP) -cutline $(JSN) -crop_to_cutline -r bilinear $< -tr $(shell ./resolution.sh $<) $@
+
+merge/ifh/%_east.vrt: charts/ifr/%.pdf charts/ifr/%_east.geojson
+	$(eval JSN=$(subst .pdf,_east.geojson,$<))
+	rm -f $@ 
+	$(WARP) -cutline $(JSN) -crop_to_cutline -r bilinear $< -tr $(shell ./resolution.sh $<) $@
+
+## Not all have pdfs... pacific for example
+merge/ifh/%_west.vrt: charts/ifr/%.tif charts/ifr/%_west.geojson
+	$(eval JSN=$(subst .tif,_west.geojson,$<))
+	rm -f $@ 
+	$(WARP) -cutline $(JSN) -crop_to_cutline -r bilinear $< -tr $(shell ./resolution.sh $<) $@
+
+merge/ifh/%_east.vrt: charts/ifr/%.tif charts/ifr/%_east.geojson
+	$(eval JSN=$(subst .tif,_east.geojson,$<))
+	rm -f $@ 
+	$(WARP) -cutline $(JSN) -crop_to_cutline -r bilinear $< -tr $(shell ./resolution.sh $<) $@
+
+ifh-east.vrt: $(IFHEAST)
+	gdalbuildvrt -r near -resolution highest -overwrite $@ $(IFHEAST)
+
+ifh-west.vrt: $(IFHWEST)
+	gdalbuildvrt -r near -resolution highest -overwrite $@ $(IFHWEST)
