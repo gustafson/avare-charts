@@ -167,10 +167,6 @@ stage-all: stage-vfr stage-ifr
 
 stage-ifr: charts/ifr/*tif
 	if [[ ! -d merge ]]; then mkdir merge; fi
-	@echo Compiling old c code which is still used!
-        ## gcc -march=native -O3 -Wall stage-ifr-low.c -o stage-ifr-low 
-	gcc -march=native -O3 -Wall stage-ifr-area.c -o stage-ifr-area
-	./stage-ifr-area
 	sbatch --array=3-5 generate-tiles.pbs
 
 stage-vfr: charts/sec/*tif charts/tac/*tif charts/fly/*tif #charts/wac/*tif 

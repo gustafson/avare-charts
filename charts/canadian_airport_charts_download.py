@@ -35,13 +35,29 @@ import requests
 from bs4 import BeautifulSoup as bs
 base = "https://www.navcanada.ca"
 url = base + "/en/aeronautical-information/operational-guides.aspx"
+
+print ("Url request: {}".format(url))
+
 response = requests.get(url)
 soup = bs(response.text, features="lxml")
 
 ## Find the next pdf link
-url = [t for t in soup.find_all("a", {"class": "info"}) if "cac" in t["href"] and "next" in t.text]
-url = base + url[0]["href"]
+urls = soup.find_all("a", {"class": "info"})
+ #and "next" in t.text
+urls = [t for t in urls if "cac" in t["href"] and "pdf" in t["href"]]
+url = [t["href"] for t in urls if "upcoming" in t.text]
+urls = [t["href"] for t in urls]
 
+
+if (len(url)==0):
+    print("Next issuance has not been posted")
+    print("Current link(s) is/are: {}".format(", ".join(urls)))
+    exit()
+
+print ("Url request: {}".format(url))
+url = base + url[0]
+
+print ("Url request: {}".format(url))
 ## contents = requests.get(url)
 ## 
 ## with open('cac_next.pdf', 'wb') as f:

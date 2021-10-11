@@ -47,7 +47,7 @@ TMP=charts/vfr-downloads
 
 ##
 echo removing old zips
-## rm -f ${TMP}/*zip ${TMP}/*tif
+rm -f ${TMP}/*zip ${TMP}/*tif
 
 echo Fetching VFR update for $CYCLE
 [[ -d $TMP ]] || mkdir $TMP
