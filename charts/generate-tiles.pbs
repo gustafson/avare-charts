@@ -117,9 +117,9 @@ function gentiles(){
 	rm -fr /dev/shm/tiles/0-build
 	
 	## Used to create manifest
-	## for a in merge/sec/*tif; do 
-	##     nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 --srcnodata=51 -r near $a /dev/shm/$a
-	## done
+	for a in merge/sec/*tif; do 
+	    nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 --srcnodata=51 -r near $a /dev/shm/$a
+	done
 
 	## Used to create manifest by state
 	## for a in `ls shapefiles/state/*convexhull.geojson.vrt`; do
@@ -138,9 +138,9 @@ function gentiles(){
 	sed "s/type: 'png'/type: 'webp'/" /dev/shm/tiles/1-build/openlayers.html > tiles/1/openlayers.html
 	rm -fr /dev/shm/tiles/1-build
 	
-	## for vrt in merge/tac/*.tif; do
-	##     ${TIME1} z-logs/time.tac.txt nice ./gdal2tiles.py -t "VFR Terminal Area" ${OPTIONS1} -r lanczos ${vrt} -z 7-11 /dev/shm/tiles/1/${vrt}
-	## done
+	for vrt in merge/tac/Portl*.vrt; do
+	    ${TIME1} z-logs/time.tac.txt nice ./gdal2tiles.py -t "VFR Terminal Area" ${OPTIONS1} -r lanczos ${vrt} -z 7-11 /dev/shm/tiles/1/${vrt}
+	done
 
 	## ${TIME1} z-logs/time.tac.txt nice ./gdal2tiles.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-11 -r cubicspline tac.vrt /dev/shm/tiles/1
 	## rsync -avP --del /dev/shm/tiles/1/ tiles/1/ # --exclude=*.xml

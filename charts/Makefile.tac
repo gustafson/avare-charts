@@ -57,6 +57,7 @@ merge/tac/MiamiTAC.vrt \
 merge/tac/Minneapolis-StPaulTAC.vrt \
 merge/tac/NewOrleansTAC.vrt \
 merge/tac/PhoenixTAC.vrt \
+merge/tac/PortlandTAC.vrt \
 merge/tac/PuertoRico-VITAC.vrt \
 merge/tac/SaltLakeCityTAC.vrt \
 merge/tac/SanFranciscoTAC.vrt \
@@ -245,6 +246,13 @@ merge/tac/PittsburghTAC.vrt: charts/tac/PittsburghTAC*
 	grep PittsburghTAC ./charts/tac/TileManifest.tac.list |cut -f2 -d:|awk '{print "tiles/1-build/" $$1}' |xargs rm -f
 	gdal_translate -of vrt -r cubicspline -expand rgb `ls charts/tac/PittsburghTAC*.tif|grep -vi planning | tail -n1` merge/tac/PittsburghTAC_rgb.vrt
 	gdalwarp -of vrt -r cubicspline -dstnodata 51 -t_srs 'EPSG:3857' -cutline charts/tac/PittsburghTAC.geojson -crop_to_cutline merge/tac/PittsburghTAC_rgb.vrt merge/tac/PittsburghTAC.vrt
+
+merge/tac/PortlandTAC.vrt: charts/tac/PortlandTAC*
+	[[ -d merge/tac ]] || mkdir -p merge/tac
+	rm -f merge/tac/*PortlandTAC*
+	grep PortlandTAC ./charts/tac/TileManifest.tac.list |cut -f2 -d:|awk '{print "tiles/1-build/" $$1}' |xargs rm -f
+	gdal_translate -of vrt -r cubicspline -expand rgb `ls charts/tac/PortlandTAC*.tif|grep -vi planning | tail -n1` merge/tac/PortlandTAC_rgb.vrt
+	gdalwarp -of vrt -r cubicspline -dstnodata 51 -t_srs 'EPSG:3857' -cutline charts/tac/PortlandTAC.geojson -crop_to_cutline merge/tac/PortlandTAC_rgb.vrt merge/tac/PortlandTAC.vrt
 
 merge/tac/PuertoRico-VITAC.vrt: charts/tac/PuertoRico-VITAC*
 	[[ -d merge/tac ]] || mkdir -p merge/tac

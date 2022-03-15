@@ -242,6 +242,9 @@ canada:
 	# ./ourairports.sh
 	./canada_ad.sh
 
+openflightmaps:
+	./openflightmaps.py
+
 qualitycontrol:
 	./qualitycontrol.sh
 
@@ -249,5 +252,5 @@ qualitycontrol:
 
 upload:
 	rsync -avP final/ osprey.ceas.wmich.edu:/var/www/osprey.ceas.wmich.edu/htdocs/avare/$(CYCLE)/ --del
-	rsync -avP final/ avare.bubble.org:public_html/$(CYCLE)/
+	rsync -avP final/ peter@avare.bubble.org:public_html/$(CYCLE)/
 	rsync -avP final/ mamba:/home/peter_gustafson/$(CYCLE)/
