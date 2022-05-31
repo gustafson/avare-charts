@@ -3,7 +3,7 @@
 This repo is used to create charts for
 [Avare](https://play.google.com/store/apps/details?id=com.ds.Avare&hl=en_US).
 
-Additional details can be found at the [Avare homepage](https://apps4av.net/site/).
+Additional details can be found at the [Avare homepage](https://www.apps4av.com/).
 
 Questions should be addressed to the Avare mailing list:
 apps4av-forum@googlegroups.com.  Pete Gustafson is the primary contact
