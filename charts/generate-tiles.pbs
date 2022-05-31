@@ -99,7 +99,7 @@ function myfindwac (){
 	done
 }
 
-OPTIONS1="-x --verbose -w openlayers -c MUAVLLC --no-kml --resume --processes ${NP}"  ## --verbose
+OPTIONS1="--tilesize=512 -x --verbose -w openlayers -c MUAVLLC --no-kml --resume --processes ${NP}"  ## --verbose
 TIME1="/usr/bin/time -v --append -o"
 
 function gentiles(){
@@ -107,7 +107,7 @@ function gentiles(){
     if [[ ${1} -eq 0 ]]; then
 	rm -f z-logs/time.sec.txt
 	${TIME1} z-logs/time.sec.txt make -j ${SLURM_NTASKS} -f Makefile.sec
-	${TIME1} z-logs/time.sec.txt nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 -r near sec.vrt /dev/shm/tiles/0-build
+	${TIME1} z-logs/time.sec.txt nice gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 -r near sec.vrt /dev/shm/tiles/0-build
 	
 	rsync -rcv --del /dev/shm/tiles/0-build/ tiles/0-build/ --exclude=*.xml	
 	rdfind -makehardlinks true -n false tiles/0-build
@@ -118,18 +118,18 @@ function gentiles(){
 	
 	## Used to create manifest
 	for a in merge/sec/*tif; do 
-	    nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 --srcnodata=51 -r near $a /dev/shm/$a
+	    nice gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 --srcnodata=51 -r near $a /dev/shm/$a
 	done
 
 	## Used to create manifest by state
 	## for a in `ls shapefiles/state/*convexhull.geojson.vrt`; do
-	##     nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 --srcnodata=51 -r near $a /dev/shm/$a
+	##     nice gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 --srcnodata=51 -r near $a /dev/shm/$a
 	## done
 	    
     elif [[ ${1} -eq 1 ]]; then
 	rm -f z-logs/time.tac.txt
 	${TIME1} z-logs/time.tac.txt make -j ${SLURM_NTASKS} -f Makefile.tac
-	${TIME1} z-logs/time.tac.txt nice ./gdal2tiles.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near tac.vrt /dev/shm/tiles/1-build
+	${TIME1} z-logs/time.tac.txt nice gdal2tiles.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near tac.vrt /dev/shm/tiles/1-build
 	
 	rsync -rcv --del /dev/shm/tiles/1-build/ tiles/1-build/ --exclude=*.xml	
 	rdfind -makehardlinks true -n false tiles/1-build
@@ -139,16 +139,16 @@ function gentiles(){
 	rm -fr /dev/shm/tiles/1-build
 	
 	for vrt in merge/tac/Portl*.vrt; do
-	    ${TIME1} z-logs/time.tac.txt nice ./gdal2tiles.py -t "VFR Terminal Area" ${OPTIONS1} -r lanczos ${vrt} -z 7-11 /dev/shm/tiles/1/${vrt}
+	    ${TIME1} z-logs/time.tac.txt nice gdal2tiles.py -t "VFR Terminal Area" ${OPTIONS1} -r lanczos ${vrt} -z 7-11 /dev/shm/tiles/1/${vrt}
 	done
 
-	## ${TIME1} z-logs/time.tac.txt nice ./gdal2tiles.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-11 -r cubicspline tac.vrt /dev/shm/tiles/1
+	## ${TIME1} z-logs/time.tac.txt nice gdal2tiles.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-11 -r cubicspline tac.vrt /dev/shm/tiles/1
 	## rsync -avP --del /dev/shm/tiles/1/ tiles/1/ # --exclude=*.xml
 	## rm -fr /dev/shm/tiles/1
 
 	## Used to create manifest
 	## for a in merge/tac/*tif; do 
-	##     nice ./gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near $a /dev/shm/$a
+	##     nice gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near $a /dev/shm/$a
 	## done
 
     elif [[ ${1} -eq 2 ]]; then
@@ -156,7 +156,7 @@ function gentiles(){
 	## WACS are out of date and haven't been updated using the new process!
 	
 	rm -f z-logs/time.wac.txt
-	${TIME1} z-logs/time.wac.txt nice ./gdal2tiles.py -t "VFR World" ${OPTIONS1} -z 0-9 -r cubicspline wac.vrt /dev/shm/tiles/2
+	${TIME1} z-logs/time.wac.txt nice gdal2tiles.py -t "VFR World" ${OPTIONS1} -z 0-9 -r cubicspline wac.vrt /dev/shm/tiles/2
 	
 	## Remove xml
 	find /dev/shm/tiles/2/ -name "*aux.xml"| xargs rm
@@ -173,8 +173,8 @@ function gentiles(){
 	rm -f z-logs/time.ifr.txt
 	${TIME1} z-logs/time.ifr.txt make -j ${SLURM_NTASKS} -f Makefile.ifr
 
-	${TIME1} z-logs/time.ifr.txt nice ./gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-east.vrt /dev/shm/tiles/3-build
-	${TIME1} z-logs/time.ifr.txt nice ./gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-west.vrt /dev/shm/tiles/3-build
+	${TIME1} z-logs/time.ifr.txt nice gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-east.vrt /dev/shm/tiles/3-build
+	${TIME1} z-logs/time.ifr.txt nice gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-10 -r near ifr-west.vrt /dev/shm/tiles/3-build
 	
 	rsync -rcv --del /dev/shm/tiles/3-build/ tiles/3-build/ --exclude=*.xml
 	rdfind -makehardlinks true -n false tiles/3-build
@@ -188,8 +188,8 @@ function gentiles(){
 	rm -f z-logs/time.ifh.txt
 	${TIME1} z-logs/time.ifh.txt make -j ${SLURM_NTASKS} -f Makefile.ifh
 	
-	${TIME1} z-logs/time.ifh.txt nice ./gdal2tiles.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r near ifh-east.vrt /dev/shm/tiles/4-build
-	${TIME1} z-logs/time.ifh.txt nice ./gdal2tiles.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r near ifh-west.vrt /dev/shm/tiles/4-build
+	${TIME1} z-logs/time.ifh.txt nice gdal2tiles.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r near ifh-east.vrt /dev/shm/tiles/4-build
+	${TIME1} z-logs/time.ifh.txt nice gdal2tiles.py -t "IFR Enroute High" ${OPTIONS1} -z 0-9 -r near ifh-west.vrt /dev/shm/tiles/4-build
 
 	rsync -rcv --del /dev/shm/tiles/4-build/ tiles/4-build/ --exclude=*.xml
 	rdfind -makehardlinks true -n false tiles/4-build
@@ -203,14 +203,14 @@ function gentiles(){
 
 	## The images are sparse, only create those that are necessary
 	for vrt in merge/ifa/*vrt; do
-	    ${TIME1} z-logs/time.ifa.txt nice ./gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r lanczos ${vrt} -z 7-11 /dev/shm/tiles/5-build
+	    ${TIME1} z-logs/time.ifa.txt nice gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r lanczos ${vrt} -z 7-11 /dev/shm/tiles/5-build
 	done
 	
 	## Extend Guam which stands completely isolated
-	${TIME1} z-logs/time.ifa.txt nice ./gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-11 merge/ifa/ENR_P01_GUA.vrt /dev/shm/tiles/5-build
+	${TIME1} z-logs/time.ifa.txt nice gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-11 merge/ifa/ENR_P01_GUA.vrt /dev/shm/tiles/5-build
 	
 	## Extend the rest... there were a total of 213 images at this level including guam.  ifa.vrt excludes guam
-	${TIME1} z-logs/time.ifa.txt nice ./gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-6 ifa.vrt /dev/shm/tiles/5-build
+	${TIME1} z-logs/time.ifa.txt nice gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-6 ifa.vrt /dev/shm/tiles/5-build
 	
 	## find /dev/shm/tiles/5 -name "*png"|xargs md5sum|grep 4023a0e7925b07a6be26e2cddb65f0cd|cut -f3 -d" "|xargs rm
 	rsync -rcv --del /dev/shm/tiles/5-build/ tiles/5-build/ --exclude=*.xml
@@ -227,7 +227,7 @@ function gentiles(){
 	## grep png difference.txt |cut -c3-|sort -u > files.txt
 	## find . -name "*png" |grep -f files.txt |rev|sort|rev|grep .vrt\/6
 
-	## ${TIME1} z-logs/time.ifa.txt nice ./gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-11 ifa.vrt /dev/shm/tiles/5
+	## ${TIME1} z-logs/time.ifa.txt nice gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-11 ifa.vrt /dev/shm/tiles/5
 	## rsync -avP --exclude=*.xml /dev/shm/tiles/5/ tiles/5/ --del
 	
     elif [[ ${1} -eq 9 ]]; then
@@ -275,17 +275,17 @@ function gentiles(){
 	## CREATE MANIFEST 	## The images are sparse, only create those that are necessary
 	## CREATE MANIFEST 	echo Create manifest $IMBASE
 	## CREATE MANIFEST 	echo Creating image ${vrt}
-	## CREATE MANIFEST 	${TIME1} z-logs/time.heli.txt nice ./gdal2tiles.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 0-12 ${FILE} /dev/shm/${IMBASE}
+	## CREATE MANIFEST 	${TIME1} z-logs/time.heli.txt nice gdal2tiles.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 0-12 ${FILE} /dev/shm/${IMBASE}
 	## CREATE MANIFEST done
 
 	echo Creating sparse tiles based on individual images
 	for vrt in ${HELI}; do
 	    echo Creating image ${vrt}
-	    ${TIME1} z-logs/time.heli.txt nice ./gdal2tiles.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 8-12 ${vrt} /dev/shm/tiles/9-build
+	    ${TIME1} z-logs/time.heli.txt nice gdal2tiles.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 8-12 ${vrt} /dev/shm/tiles/9-build
 	done
 
 	echo Creating overview tiles based on all images
-	${TIME1} z-logs/time.heli.txt nice ./gdal2tiles.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 0-7 charts/hel/heli.vrt /dev/shm/tiles/9-build
+	${TIME1} z-logs/time.heli.txt nice gdal2tiles.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 0-7 charts/hel/heli.vrt /dev/shm/tiles/9-build
 	
 	rsync -rcv --del /dev/shm/tiles/9-build/ tiles/9-build/ --exclude=*.xml	
 	rdfind -makehardlinks true -n false tiles/9-build
@@ -318,7 +318,7 @@ function gentiles(){
     elif [[ ${1} -eq 13 ]]; then
 	rm -f z-logs/time.fly.txt
 	${TIME1} z-logs/time.fly.txt make -j ${SLURM_NTASKS} -f Makefile.fly
-	${TIME1} z-logs/time.fly.txt nice ./gdal2tiles.py -t "VFR Flyways" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near fly.vrt /dev/shm/tiles/13-build
+	${TIME1} z-logs/time.fly.txt nice gdal2tiles.py -t "VFR Flyways" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near fly.vrt /dev/shm/tiles/13-build
 	
 	rsync -rcv --del /dev/shm/tiles/13-build/ tiles/13-build/ --exclude=*.xml
 	rdfind -makehardlinks true -n false tiles/13-build
@@ -329,17 +329,17 @@ function gentiles(){
 	
 	## Used to create manifest
 	## for a in merge/fly/*png; do 
-	##     nice ./gdal2tiles.py -t "VFR Flyway" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near $a /dev/shm/$a
+	##     nice gdal2tiles.py -t "VFR Flyway" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near $a /dev/shm/$a
 	## done
 
 	## Used to create manifest by state
 	## for a in `ls shapefiles/state/*convexhull.geojson.vrt`; do
-	##     nice ./gdal2tiles.py -t "VFR Flyway" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near $a /dev/shm/$a
+	##     nice gdal2tiles.py -t "VFR Flyway" ${OPTIONS1} -z 0-11 --srcnodata=51 -r near $a /dev/shm/$a
 	## done
 	    
 	
     elif [[ ${1} -eq 199 ]]; then
-	${TIME1} z-logs/time.debug.txt nice ./gdal2tiles.py -t "DEBUG" ${OPTIONS1} -r lanczos plates.archive/1701/plates_MI/AZO/RNAV-GPS-RWY-17.pdf tiles/debug
+	${TIME1} z-logs/time.debug.txt nice gdal2tiles.py -t "DEBUG" ${OPTIONS1} -r lanczos plates.archive/1701/plates_MI/AZO/RNAV-GPS-RWY-17.pdf tiles/debug
 	## gdal_translate --config GDAL_PDF_DPI 150 -of Rasterlite RNAV-GPS-RWY-17.pdf RASTERLITE:my_db.sqlite,table=source -co DRIVER=WEBP
 	## find tiles/debug -name "*png"| xargs mogrify -unsharp 1x1 -format png8
 	## find tiles/debug -name "*png8"| xargs rename png8 png
