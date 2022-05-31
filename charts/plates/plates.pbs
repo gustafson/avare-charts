@@ -5,7 +5,7 @@
 #SBATCH --job-name=Plates
 #SBATCH --output=z-logs/logfile-Plates_%A_%a.out
 #SBATCH --error=z-logs/logfile-Plates_%A_%a.out
-#SBATCH --array=0,1
+#SBATCH --array=0-3
 
 #!/bin/bash
 # Copyright (c) 2015-21, Peter A. Gustafson (peter.gustafson@wmich.edu)
@@ -44,7 +44,7 @@ echo "SLURM_ARRAY_TASK_ID: $SLURM_ARRAY_TASK_ID"
 echo "SLURM_SUBMIT_DIR: $SLURM_SUBMIT_DIR"
 
 [[ ${SLURM_SUBMIT_DIR} ]] && cd ${SLURM_SUBMIT_DIR}
-./plates.py ${SLURM_ARRAY_TASK_ID} 2 ${SLURM_NTASKS}
+./plates.py ${SLURM_ARRAY_TASK_ID} 4 ${SLURM_NTASKS}
 
 ## # Rudimentary quality control
 ## echo Unique color counts of files produced
