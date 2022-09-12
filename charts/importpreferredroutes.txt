@@ -1,0 +1,8 @@
+CREATE TABLE preferredroutes(Orig Text, Route Text, Dest Text,
+       	     		     Hours1 Text, Hours2 Text, Hours3 Text,
+			     Type Text, Area Text, Altitude Text,
+			     Aircraft Text, Direction Text, Seq Int2,
+			     DCNTR Text, ACNTR Text);
+
+.separator ","
+.import --skip 1 prefroutes_db.csv preferredroutes
