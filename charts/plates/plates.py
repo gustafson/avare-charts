@@ -31,6 +31,7 @@ from osgeo import gdal
 import os
 import sys
 from wand.image import Image, Color
+from wand import drawing
 import tempfile
 import math
 import glob
@@ -43,6 +44,10 @@ size = 1900
 pdfDense = (size/594)*72
 #resampling="lanczos"
 resampling="bilinear" ## Good enough when downsampling from pdf
+
+CHOOSERES=["lowres","highres"]
+CHOOSERES=["lowres"]
+
 
 ### The following code is slightly modified from gdal for our purpose
 tileSize = 512
@@ -139,8 +144,10 @@ else:
 
 ##
 xmlfile = glob.glob('./DDTPP/*/d-TPP_Metafile.xml')
+print(f'Evaluating {xmlfile}')
 root = ET.parse(xmlfile[-1]).getroot()
 cycle = root.attrib['cycle']
+print(f'Found cycle {cycle}')
 
 ## Utility functions for working on records
 def runwayID(r):
@@ -194,7 +201,7 @@ def tmpDest(path,r,p):
         thedest = ("%s/%s" % (thedest,runwayID(r)+".png"))
         return(thedest)
 
-def writeImageNoWarp(pdf, out, resolution=pdfDense, trim=True):
+def writeImageNoWarp(pdf, out, resolution=pdfDense, trim=True, warn=False):
     with Image(filename=pdf, resolution=resolution) as pdf:
 
         pages = len(pdf.sequence)
@@ -237,6 +244,25 @@ def writeImageNoWarp(pdf, out, resolution=pdfDense, trim=True):
         i.normalize()
         i.quantize(16, dither=False)
         i.compression_quality=00
+        
+        if warn: # This is intended for plates that do not have proper GPS tags.  One found in 2305
+            with drawing.Drawing() as ctx:
+                ctx.fill_color = Color('RED')
+                ctx.font_family = 'Times New Roman, Nimbus Roman No9'
+                ctx.text_decoration = 'underline'
+                ctx.text_kerning = -1
+                ctx.gravity = 'center'
+                h = i.height
+                w = i.width
+                ctx.font_size = 0.018947368421052633*h
+                warnstr = 'Warning: no Avare GPS tag'
+                i.annotate(warnstr, ctx, left=0,      baseline=-h*.480, angle=0)
+                i.annotate(warnstr, ctx, left=-w*.48, baseline=-h*.300, angle=90)
+                i.annotate(warnstr, ctx, left=-w*.48, baseline=+h*.300, angle=90)
+                i.annotate(warnstr, ctx, left=+w*.48, baseline=-h*.300, angle=270)
+                i.annotate(warnstr, ctx, left=+w*.48, baseline=+h*.300, angle=270)
+                i.annotate(warnstr, ctx, left=0,      baseline=+h*.485, angle=0)
+                
         i.save(filename=out.replace(".png",".png8"))
         tmp = out.replace(".png","")+"*"
         #out = glob.glob(tmp)
@@ -274,7 +300,8 @@ def ProcessRecord(r, pdfDense=None):
     ## Note the destination directories must already exist!
 
     ## If the image exists, assume it is good and skip it
-    if (os.path.isfile(destImg(r, base="lowres"))) and (os.path.isfile(destImg(r, base="highres"))):
+    ## if (os.path.isfile(destImg(r, base="lowres"))) and (os.path.isfile(destImg(r, base="highres"))):
+    if all([os.path.isfile(destImg(r, base=res)) for res in CHOOSERES]):
         return (None)
 
     ## Work in a temporary directory that gets automagically deleted upon completion
@@ -302,66 +329,77 @@ def ProcessRecord(r, pdfDense=None):
             else:
                 trim = True # -trim +repage
 
-            for p in ["lowres","highres"]:
+            for p in CHOOSERES:
                 thedense = pdfDense if p=="lowres" else pdfDense*2
                 writeImageNoWarp(srcImg(r), tmpDest(path,r,p), resolution = thedense, trim=trim)
 
         else:
             
             highDensityTmp = path+"/highDensityTmp.tif"
+            extension = "png8"
 
             ## Warp the image to high density. Do at least at 2x because high res is at 2x
             commstr = "gdalwarp -r %s -q -dstalpha --config GDAL_PDF_DPI %s -t_srs EPSG:3857 %s %s" % (resampling, pdfDense*2, srcImg(r), highDensityTmp)
-            if (os.system(commstr)):
+            try:
+                os.system(commstr)
+           
+                for p in CHOOSERES:
+                    thedest = tmpDest(path,r,p)
+                    thesize = size if p=="lowres" else size*2
+                    ds = gdal.Translate(thedest,gdal.Open(highDensityTmp),
+                                        resampleAlg=resampling, srcWin=getTrims(highDensityTmp),
+                                        height=thesize, width=0, scaleParams=[[]])
+                    ds = None
+
+                    ## Get the corner strings for the geotag
+                    cornerstr = getTagCoordinates(thedest)
+
+                    ## Write the png image
+                    with Image(filename=thedest) as img:
+
+                        #img.sharpen(radius=5.0,sigma=5.0)
+                        img.background_color = Color('white') # Set white background.
+                        img.alpha_channel = 'remove' 
+                        img.format=extension
+                        img.normalize()
+                        img.quantize(16, dither=False)
+                        # img.type = 'palette'
+                        img.save(filename=thedest+"."+extension)
+
+                        ## Write avare geotag into file.  Suppress the warning
+                        if (extension=="png8"):
+                            commstr=("mv %s %s" % (thedest+"."+extension, thedest))
+                        else:
+                            commstr="echo -n"
+                        commstr+=' && optipng -quiet %s' % (thedest)
+                        commstr+=' && exiftool -overwrite_original_in_place -q -Comment="%s" %s 2> /dev/null ' % (cornerstr, thedest)
+                        commstr+=' && exiv2 -M"set Exif.Photo.UserComment charset=Ascii %s" %s' % (cornerstr, thedest)
+                        ## commstr+=' && identify %s' % (thedest)
+                        commstr+=' && cwebp -quiet -lossless -z 9 -metadata exif %s -o %s' % (thedest, thedest.replace(".png",".webp"))
+                        ## commstr+=' && identify %s' % (thedest)
+                        if (os.system(commstr)):
+                            print("Failed at exif writing %s %s %s %s" % (r))
+                        if DEBUG:
+                            print (commstr)
+
+            except:
                 print("Failed warping didn't work")
                 print(commstr)
 
-            #ds = gdal.Warp(highDensityTmp, srcfile, dstSRS='EPSG:3857',
-            #               height=str(size), dstAlpha=True, format="GTiff") # "lanczos", "cubicspline" , resampleAlg="nearestneighbor"
-            #ds = None ## This is needed to ensure it is written
-            ## ds = gdal.Translate(tmpfile2,gdal.Open(highDensityTmp),resampleAlg="lanczos", srcWin=getTrims(highDensityTmp))
-            
-            for p in ["lowres","highres"]:
-                thedest = tmpDest(path,r,p)
-                thesize = size if p=="lowres" else size*2
-                ds = gdal.Translate(thedest,gdal.Open(highDensityTmp),
-                                    resampleAlg=resampling, srcWin=getTrims(highDensityTmp), height=thesize, width=0, scaleParams=[[]])
-                ds = None
+                ## Fall back to non-gps tagged
+                for p in CHOOSERES:
+                    os.system('touch %s' % tmpDest(path,r,p).replace(".png",".webp.broken"))
+                    os.system("mv %s %s" % (tmpDest(path,r,p).replace(".png",".webp.broken"), destDir(r,base=p)+"/"))
 
-                ## Get the corner strings for the geotag
-                cornerstr = getTagCoordinates(thedest)
-
-                ## Write the png image
-                with Image(filename=thedest) as img:
-
-                    #img.sharpen(radius=5.0,sigma=5.0)
-                    img.background_color = Color('white') # Set white background.
-                    img.alpha_channel = 'remove' 
-                    extension = "png8"
-                    img.format=extension
-                    img.normalize()
-                    img.quantize(16, dither=False)
-                    # img.type = 'palette'
-                    img.save(filename=thedest+"."+extension)
-
-                    ## Write avare geotag into file.  Suppress the warning
-                    if (extension=="png8"):
-                        commstr=("mv %s %s" % (thedest+"."+extension, thedest))
-                    else:
-                        commstr="echo -n"
-                    commstr+=' && optipng -quiet %s' % (thedest)
-                    commstr+=' && exiftool -overwrite_original_in_place -q -Comment="%s" %s 2> /dev/null ' % (cornerstr, thedest)
-                    commstr+=' && exiv2 -M"set Exif.Photo.UserComment charset=Ascii %s" %s' % (cornerstr, thedest)
-                    ## commstr+=' && identify %s' % (thedest)
-                    commstr+=' && cwebp -quiet -lossless -z 9 -metadata exif %s -o %s' % (thedest, thedest.replace(".png",".webp"))
-                    ## commstr+=' && identify %s' % (thedest)
-                    if (os.system(commstr)):
-                        print("Failed at exif writing %s %s %s %s" % (r))
-                    if DEBUG:
-                        print (commstr)
-
+                    ## From here the treatment is the same as airport diagram above
+                    thedense = pdfDense if p=="lowres" else pdfDense*2
+                    thedest = tmpDest(path,r,p)
+                    writeImageNoWarp(srcImg(r), thedest, resolution = thedense, trim=False, warn=True)
+                    commstr=f'cwebp -quiet -lossless -z 9 -metadata exif %s -o %s' % (thedest, thedest.replace(".png",".webp"))
+                    os.system(commstr)
+                            
         ## Finally move the resulting file(*) into place
-        for p in ["lowres","highres"]:
+        for p in CHOOSERES:
             commstr = "mv %s %s" % (tmpDest(path,r,p), destDir(r,base=p)+"/")
             commstr += " && mv %s %s" % (tmpDest(path,r,p).replace(".png",".webp"), destDir(r,base=p)+"/")
             if os.system(commstr):
@@ -420,14 +458,14 @@ print(states)
 
 ## Make final directory.  Do it here otherwise there have been
 ## conflicts in multiprocessing.
-for p in ["lowres","highres"]:
+for p in CHOOSERES:
     if not os.path.isdir("../final-%s" % p):
         os.makedirs ("../final-%s" % p)
 
 ## Make sure all the appropriate directories exist.
 ## The prevents directory creation collisions in multiprocessing
 for r in records:
-    for p in ["lowres","highres"]:
+    for p in CHOOSERES:
         if not os.path.isdir(destDir(r, base=p)):
             os.makedirs (destDir(r, base=p))
 
@@ -448,7 +486,7 @@ with mp.Pool(processes=cpus) as pool:
 def ZipStateTiles(state):
      print("Zipping %s" % state)
 
-     for p in ["lowres","highres"]:
+     for p in CHOOSERES:
          ## Must deal with multiple images per record.  Grab all at each airport
          tmp = [glob.glob("plates.archive/%s/%s/plates/%s/*png"
                           % (cycle,p,recordAirportID(r)))

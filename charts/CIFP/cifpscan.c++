@@ -12,7 +12,7 @@ int continuation(char *line, int l){
 }
 
 int endofsegment(char *line, int l){  
-  if (!strncmp(line+l,"E",1)){  // End of Continuous Segment
+  if (!strncmp(line+l,"E",1)){  // End of Continous Segment
     return 1;
   }
   return 0;
@@ -28,19 +28,19 @@ APPROACH_T emptyapproach;
 
 int AirportRecordPrimary (char *line){
   int n=0;
-  mystrncpy (airport.RecordType, line, &n, 1, false); // 1
-  mystrncpy (airport.CustomerAreaCode, line, &n, 3, false); // 4
-  mystrncpy (airport.SectionCode, line, &n, 1, false); // 5
-  mystrncpy (airport.BlankSpacing, line, &n, 1, false); // 6
-  mystrncpy (airport.AirportICAOIdentifier, line, &n, 4, false); // 10
-  mystrncpy (airport.ICAOCode1, line, &n, 2, false); // 12
-  mystrncpy (airport.SubsectionCode, line, &n, 1, false); // 13
-  mystrncpy (airport.ATAIATADesignator, line, &n, 3, false); // 16
-  mystrncpy (airport.ReservedExpansion1, line, &n, 2, false); // 18
-  mystrncpy (airport.BlankSpacing, line, &n, 3, false); // 21
-  mystrncpy (airport.ContinuationRecordNo, line, &n, 1, false); // 22
-  mystrncpy (airport.SpeedLimitAltitude, line, &n, 5, false); // 27
-  mystrncpy (airport.LongestRunway, line, &n, 3, false); // 30
+  mystrncpy (airport.RecordType, line, &n, 1, false);
+  mystrncpy (airport.CustomerAreaCode, line, &n, 3, false);
+  mystrncpy (airport.SectionCode, line, &n, 1, false);
+  mystrncpy (airport.BlankSpacing, line, &n, 1, false);
+  mystrncpy (airport.AirportICAOIdentifier, line, &n, 4, false);
+  mystrncpy (airport.ICAOCode1, line, &n, 2, false);
+  mystrncpy (airport.SubsectionCode, line, &n, 1, false);
+  mystrncpy (airport.ATAIATADesignator, line, &n, 3, false);
+  mystrncpy (airport.ReservedExpansion1, line, &n, 2, false);
+  mystrncpy (airport.BlankSpacing, line, &n, 3, false);
+  mystrncpy (airport.ContinuationRecordNo, line, &n, 1, false);
+  mystrncpy (airport.SpeedLimitAltitude, line, &n, 5, false);
+  mystrncpy (airport.LongestRunway, line, &n, 3, false);
   mystrncpy (airport.IFRCapability, line, &n, 1, false);
   mystrncpy (airport.LongestRunwaySurfaceCode, line, &n, 1, false);
   mystrncpy (airport.AirportReferencePtLatitude, line, &n, 9, false);
@@ -85,7 +85,6 @@ int AirportRecordContinuation (char *line){
 
 
 int ApproachRecord (char *line, std::ofstream& approachfile){
-
   int cont=continuation(line,38);
 
   // Gather the data from the file
@@ -104,7 +103,6 @@ int ApproachRecord (char *line, std::ofstream& approachfile){
     approach.printprimary();
     
   }else if (cont==2){
-    std::cerr << " -- This might be wrong!!!";
     
     approach.ApproachRecordDataContinuation (line);
     approach.printdatacontinuation();
@@ -136,15 +134,7 @@ int ApproachRecord (char *line, std::ofstream& approachfile){
     // approach.transitions[transnum].Runway = approach.SIDSTARApproachIdentifier;
     // approach.transitions[transnum].seqnumber.push_back(approach.iSequenceNumber);
     int transnum = approach.itransitionNumber;
-
-    if (transnum < 0){
-      std::cout << "\nWARNING!!! This approach transition is BAD. Skipping.";
-      
-    } else if (transnum<100){
-      // KALM NEVER GETS HERE
-
-      std::cout << transnum;
-      
+    if (transnum<100){
       approach.transitions[transnum].FlightPlan += approach.FixIdentifier;
       approach.transitions[transnum].FlightPlan += ",";
       approach.transitions[transnum].Altitude += approach.Altitude1;
@@ -179,7 +169,6 @@ int ApproachRecord (char *line, std::ofstream& approachfile){
 
   // Print out the actual sequences
   if ((endofsegment(line,40)) && endofapproach){
-    
     for (int i=0;i<=approach.itransitionNumber;i++){
 
       // General info about the approach
@@ -319,13 +308,8 @@ int main ( int argc, char* argv[] ){
      	printf ("Unknown Record Type\n");
       }
     }
-
     approachfile.close();
-    std::cout << "Approach file closed.\n";
-    
     fclose(file);
-    std::cout << "Input file closed.\n";
-    
   }
   else{
     perror(filename);

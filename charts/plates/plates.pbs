@@ -6,6 +6,8 @@
 #SBATCH --output=z-logs/logfile-Plates_%A_%a.out
 #SBATCH --error=z-logs/logfile-Plates_%A_%a.out
 #SBATCH --array=0-3
+### #SBATCH --nodelist=osprey,falcon
+#### SBATCH --exclude=blackhawk
 
 #!/bin/bash
 # Copyright (c) 2015-21, Peter A. Gustafson (peter.gustafson@wmich.edu)

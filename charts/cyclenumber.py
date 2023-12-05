@@ -30,13 +30,21 @@
 import datetime
 import sys
 
+import argparse
+parser = argparse.ArgumentParser(
+    prog='cyclenumber.py',
+    description='Choose the cycle number for Avare charts',
+    epilog='Copyright 2023 Peter A. Gustafson')
+
 ## Are we replacing version.php or planning for the next cycle
+parser.add_argument('-v', '--version', action='store_true')
+## Are we replacing version.php or planning for the next cycle
+parser.add_argument('-c', '--current', action='store_true')
+## Are we deleting an old cycle
+parser.add_argument('-o', '--old', action='store_true')
 
-CURRENT=False
-if (len(sys.argv) > 1):
-    if (sys.argv[1] == "version.php"):
-        CURRENT=True
-
+## Parse the args
+args = parser.parse_args()
 
 ## Set the time zone to UTC
 UTC = datetime.timezone(offset=datetime.timedelta(0))
@@ -50,7 +58,7 @@ daysInFuture = ((refdate-now).days)%28
 
 ## If we are writing current cycle to version.php, use the date
 ## associated with the last change
-if CURRENT:
+if args.current:
     daysInFuture -= 28
 
 ## Identify the cycle change
@@ -62,9 +70,13 @@ daysinYear = (cycleDate-datetime.datetime(cycleDate.year, 1, 1, 0, 0, tzinfo=UTC
 ## Determine the next cyclenumber
 import math
 cyclenumber = math.floor(daysinYear.days/28)+1
+
+if args.old:
+    cyclenumber -= 1
+
 cyclestr = ("%s%02d"  % (cycleDate.strftime("%y"), cyclenumber))
 
-if CURRENT:
-    print('<?php echo "%s";?>' % cyclestr)
+if args.version:
+    print(f'<?php echo "{cyclestr}";?>')
 else:
     print(cyclestr)

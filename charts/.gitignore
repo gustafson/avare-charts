@@ -1,5 +1,6 @@
 ## Save these due to file write efficiency and hopeful future distributed distribution efficiency (i.e., individual tiles don't change, then don't change the file)
 tiles/[0-9]*
+tiles/bluemarble
 
 ## Save these for an archive
 CIFP/cifp*.zip
@@ -33,6 +34,7 @@ charts/tac/*tif
 charts/vfr-downloads/*
 charts/vfr-downloads/*pdf
 charts/vfr-downloads/*tif
+charts/static/TPC*zip
 CIFP/2*
 CIFP/cifpscan
 dof.csv

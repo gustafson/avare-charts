@@ -3,10 +3,10 @@ all: procedures.db
 ## cifpscanc: cifpscan.c
 ## 	gcc cifpscan.c -o cifpscanc -g
 ## 
-cifpscan: cifpscan.c++ cifpscan.h
-	g++ -std=c++11 cifpscan.c++ -O0 -o cifpscan -g
+## cifpscan: cifpscan.c++ cifpscan.h
+## 	g++ -std=c++11 cifpscan.c++ -O0 -o cifpscan -g
 
-procedures.db: cifpscan
+procedures.db: cifpparse.py
 	./createdb.sh
 	sqlite3 procedures.db 'select Airport, AppType, Runway, ChangeCycle from procedures'|sort -u|wc
 

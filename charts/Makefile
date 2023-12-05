@@ -122,11 +122,11 @@ download-plates:
 	cd plates/DDTPP && ../unzip_DDTPP.sh $(CYCLE)
 
 procedures.db: 
-	#pushd CIFP && wget -c http://aeronav.faa.gov/Upload_313-d/cifp/cifp_$(CYCLECIFP).zip
-	#pushd CIFP && rm -fr $(CYCLECIFP) && mkdir $(CYCLECIFP)
-	#pushd CIFP/$(CYCLECIFP) && unzip ../cifp_$(CYCLECIFP).zip
-	#pushd CIFP && rm -f procedures.db
-	#pushd CIFP && make procedures.db && mv procedures.db ..
+	pushd CIFP && wget -c http://aeronav.faa.gov/Upload_313-d/cifp/cifp_$(CYCLECIFP).zip
+	pushd CIFP && rm -fr $(CYCLECIFP) && mkdir $(CYCLECIFP)
+	pushd CIFP/$(CYCLECIFP) && unzip ../cifp_$(CYCLECIFP).zip
+	pushd CIFP && rm -f procedures.db
+	pushd CIFP && make procedures.db && mv procedures.db ..
         ### The following is required because osprey (the database prep host) is somehow on the faa blacklist
 	ssh pilot.ceas.wmich.edu 'cd /dev/shm/; wget https://www.fly.faa.gov/rmt/data_file/prefroutes_db.csv ; cat prefroutes_db.csv' > prefroutes_db.csv
 	sqlite3 procedures.db < importpreferredroutes.txt
@@ -254,6 +254,6 @@ qualitycontrol:
 .PHONY: retile
 
 upload:
+	rsync -avP final/ apps4av@mamba:/home/apps4av/mamba.dreamhosters.com/new/$(CYCLE)/ --del
+	rsync -avP final/ peter@avare.bubble.org:public_html/$(CYCLE)/ --del
 	rsync -avP final/ osprey.ceas.wmich.edu:/var/www/osprey.ceas.wmich.edu/htdocs/avare/$(CYCLE)/ --del
-	rsync -avP final/ peter@avare.bubble.org:public_html/$(CYCLE)/
-	rsync -avP final/ mamba:/home/peter_gustafson/$(CYCLE)/

@@ -116,10 +116,10 @@ function gentiles(){
 	sed "s/type: 'png'/type: 'webp'/" /dev/shm/tiles/0-build/openlayers.html > tiles/0/openlayers.html
 	rm -fr /dev/shm/tiles/0-build
 	
-	## Used to create manifest
-	for a in merge/sec/*tif; do 
-	    nice gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 --srcnodata=51 -r near $a /dev/shm/$a
-	done
+	## Used only to create manifest
+	## for a in merge/sec/*tif; do 
+	##     nice gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-10 --srcnodata=51 -r near $a /dev/shm/$a
+	## done
 
 	## Used to create manifest by state
 	## for a in `ls shapefiles/state/*convexhull.geojson.vrt`; do
@@ -153,7 +153,7 @@ function gentiles(){
 
     elif [[ ${1} -eq 2 ]]; then
 
-	## WACS are out of date and haven't been updated using the new process!
+	## WACS are out of date and won't be updated using the new process!
 	
 	rm -f z-logs/time.wac.txt
 	${TIME1} z-logs/time.wac.txt nice gdal2tiles.py -t "VFR World" ${OPTIONS1} -z 0-9 -r cubicspline wac.vrt /dev/shm/tiles/2
