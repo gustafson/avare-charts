@@ -58,7 +58,7 @@ daysInFuture = ((refdate-now).days)%28
 
 ## If we are writing current cycle to version.php, use the date
 ## associated with the last change
-if args.current:
+if args.current or args.version:
     daysInFuture -= 28
 
 ## Identify the cycle change

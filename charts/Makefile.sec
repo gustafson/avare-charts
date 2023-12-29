@@ -41,7 +41,8 @@ charts/sec/SewardGlacierSEC.tif: charts/sec/JuneauSEC.tif
 merge/sec/%.vrt: charts/sec/%.tif charts/sec/%.geojson
 	@echo Working on $<
 	@echo Erasing tiles that need to be replaced
-	grep $(notdir $(@:SEC.tif=)) ./charts/sec/TileManifest.sec.list |cut -f2 -d: |xargs -I {} rm -f tiles/0-build/{}
+	grep $(notdir $(@:SEC.tif=)) ./charts/sec/TileManifest.sec.512.list |cut -f2 -d: |xargs -I {} rm -f tiles/0-build-512/{}
+	grep $(notdir $(@:SEC.tif=)) ./charts/sec/TileManifest.sec.256.list |cut -f2 -d: |xargs -I {} rm -f tiles/0-build-256/{}
 	if [[ ! -d merge/sec/ ]]; then mkdir -p merge/sec/; fi
 	rm -f $@ $(@:.vrt=.warp.vrt) $(@:.vrt=.rgb.vrt)
 	gdal_translate -of vrt -r cubicspline -expand rgb $< $(@:.vrt=.rgb.vrt)
@@ -49,6 +50,9 @@ merge/sec/%.vrt: charts/sec/%.tif charts/sec/%.geojson
 
 ## ## Create tile manifests by state:
 ## TR=$(bc -l <<< 20026376.39/512/2^10)
-## for state in `ls shapefiles/state/*convexhull.geojson`; do
-##     gdalwarp -of vrt -dstnodata 51 -r near -t_srs EPSG:3857 -cutline ${state} -crop_to_cutline -tr ${TR} ${TR} sec.vrt ${state}.vrt
+## for state in shapefiles/state/[A-Z][A-Z].geojson; do
+##     OUTFILE=`basename ${state} .geojson`
+##     DIR=`dirname ${state}`
+##     OUT="${DIR}/${OUTFILE}.vrt"
+##     gdalwarp -of vrt -dstnodata 51 -r near -t_srs EPSG:3857 -cutline ${state} -crop_to_cutline -tr ${TR} ${TR} sec.vrt ${OUT}
 ## done

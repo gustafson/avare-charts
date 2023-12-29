@@ -6,7 +6,7 @@ import os.path
 
 import math
 
-tileSize = 512
+tileSize = 256
 originShift = 2 * math.pi * 6378137.0 / 2.0
 initialResolution = 20037508.342789244 * 2.0 / tileSize
 
@@ -155,7 +155,7 @@ def main(argv):
     else:
         sys.exit()
 
-    ## print "debug: " + ftype + "maxzoom" + str(maxzoom) + "minzoom" + str(minzoom)
+    ## print (f"debug: {ftype} maxzoom {maxzoom} minzoom {minzoom}")
     ## for zoom in range (minzoom,maxzoom):
     for zoom in range (0,maxzoom):
         p1 = MetersToPixels(m1, zoom)

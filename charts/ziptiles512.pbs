@@ -43,7 +43,14 @@ echo "SLURM_NTASKS: $SLURM_NTASKS"
 echo "SLURMTMPDIR: $SLURMTMPDIR"
 echo "working directory = $SLURM_SUBMIT_DIR"
 
+SIZE=512
+SIZE=256
+
 [[ ${SLURM_SUBMIT_DIR} ]] && cd ${SLURM_SUBMIT_DIR}
+
+## Remove symlink and add it back
+rm tiles/${SLURM_ARRAY_TASK_ID}
+ln -s ${SLURM_SUBMIT_DIR}/tiles-${SIZE}/${SLURM_ARRAY_TASK_ID} tiles/${SLURM_ARRAY_TASK_ID}
 
 function mygroup(){
     corners=`./extract_corners.sh $1`
@@ -106,20 +113,24 @@ export -f createjpgfrompng_byimage
 export -f createvfrwebpfrompng_byimage
 export -f createifrwebpfrompng_byimage
 
+
+[[ -d final-${SIZE} ]] || mkdir final-${SIZE}
+## [[ -d final_png_${SIZE} ]] || mkdir final_png_${SIZE}
+
 if [[ ${SLURM_ARRAY_TASK_ID} -eq 0 ]]; then
     ## Images created in generate_tiles.pbs
 
     ## These are the zip file names
-    BASES=`cut -f1 -d: charts/sec/TileManifest.sec.list|sort -u`
+    BASES=`cut -f1 -d: charts/sec/TileManifest.sec.${SIZE}.list|sort -u`
 
     for BASE in ${BASES}; do
 	## Remove the old zip file
-	rm -f final/${BASE}.zip
+	rm -f final-${SIZE}/${BASE}.zip
 
 	## Create webp zips
 	echo ${CYCLE} > ${BASE}
-	grep $BASE charts/sec/TileManifest.sec.list |cut -f2 -d: | awk '{printf ("tiles/0/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
-	tail -n+2 ${BASE} | xargs zip -9 final/${BASE}.zip ${BASE}
+	grep $BASE charts/sec/TileManifest.sec.${SIZE}.list |cut -f2 -d: | awk '{printf ("tiles/0/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final-${SIZE}/${BASE}.zip ${BASE}
 	
 	rm ${BASE}
     done
@@ -129,16 +140,16 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 1 ]]; then
     ## Images created in generate_tiles.pbs
 
     ## These are the zip file names
-    BASES=`cut -f1 -d: charts/tac/TileManifest.tac.list|sort -u`
+    BASES=`cut -f1 -d: charts/tac/TileManifest.tac.${SIZE}.list|sort -u`
 
     for BASE in ${BASES}; do
 	## Remove the old zip file
-	rm -f final/${BASE}.zip
+	rm -f final-${SIZE}/${BASE}.zip
 
 	## Create webp zips
 	echo ${CYCLE} > ${BASE}
-	grep $BASE charts/tac/TileManifest.tac.list |cut -f2 -d: | awk '{printf ("tiles/1/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
-	tail -n+2 ${BASE} | xargs zip -9 final/${BASE}.zip ${BASE}
+	grep $BASE charts/tac/TileManifest.tac.${SIZE}.list |cut -f2 -d: | awk '{printf ("tiles/1/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final-${SIZE}/${BASE}.zip ${BASE}
 	
 	rm ${BASE}
     done
@@ -146,70 +157,76 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 1 ]]; then
 
 elif [[ ${SLURM_ARRAY_TASK_ID} -eq 2 ]]; then
 
-    images=`ls merge/wac/*_c.vrt`
-    ## Convert the files
-    for img in "${images}"; do
-    	createjpgfrompng_byimage ${BASE} wac
-    	createvfrwebpfrompng_byimage ${BASE} wac
-    done    
-
-    ## JPG FILES
-    ## Remove old zips
-    for img in ${images}; do
-    	BASE=`echo $img | sed -e s.merge/wac/..g -e s/_c.vrt//g|sed -e s/..C/C/g`
-    	rm -f final/${BASE}.zip
-    	rm -f ${BASE}
-    done
-    
-    ## This is done is a separate step to ensure CH-22 (which has to
-    ## parts) is completely pulled
-    for img in ${images}; do
-    	BASE=`echo $img | sed -e s.merge/wac/..g -e s/_c.vrt//g|sed -e s/..C/C/g`
-    	[[ -f ${BASE} ]] || echo ${CYCLE} > ${BASE}
-    	mygroup ${img} wac jpg forzip >> ${BASE}
-    	tail -n+2 ${BASE} |xargs zip -u -9 final/${BASE}.zip ${BASE}	
-    done
-    
-    ## WEBP FILES
-    ## Remove old zips
-    for img in ${images}; do
-	BASE=`echo $img | sed -e s.merge/wac/..g -e s/_c.vrt//g|sed -e s/..C/C/g`
-	rm -f final_webp/${BASE}.zip
-	rm -f ${BASE}
-    done
-
-    for img in ${images}; do
-	BASE=`echo $img | sed -e s.merge/wac/..g -e s/_c.vrt//g|sed -e s/..C/C/g`
-	[[ -f ${BASE} ]] || echo ${CYCLE} > ${BASE}
-	mygroup ${img} wac webp forzip >> ${BASE}
-	tail -n+2 ${BASE} |xargs zip -u -9 final_webp/${BASE}.zip ${BASE}
-    done
-
-    for img in ${images}; do
-	BASE=`echo $img | sed -e s.merge/wac/..g -e s/_c.vrt//g|sed -e s/..C/C/g`
-	rm -f ${BASE}
-    done
-    wait
+    echo "WAC is no longer updated"
+    ## images=`ls merge/wac/*_c.vrt`
+    ## ## Convert the files
+    ## for img in "${images}"; do
+    ## 	createjpgfrompng_byimage ${BASE} wac
+    ## 	createvfrwebpfrompng_byimage ${BASE} wac
+    ## done    
+    ## 
+    ## ## JPG FILES
+    ## ## Remove old zips
+    ## for img in ${images}; do
+    ## 	BASE=`echo $img | sed -e s.merge/wac/..g -e s/_c.vrt//g|sed -e s/..C/C/g`
+    ## 	rm -f final-${SIZE}/${BASE}.zip
+    ## 	rm -f ${BASE}
+    ## done
+    ## 
+    ## ## This is done is a separate step to ensure CH-22 (which has to
+    ## ## parts) is completely pulled
+    ## for img in ${images}; do
+    ## 	BASE=`echo $img | sed -e s.merge/wac/..g -e s/_c.vrt//g|sed -e s/..C/C/g`
+    ## 	[[ -f ${BASE} ]] || echo ${CYCLE} > ${BASE}
+    ## 	mygroup ${img} wac jpg forzip >> ${BASE}
+    ## 	tail -n+2 ${BASE} |xargs zip -u -9 final-${SIZE}/${BASE}.zip ${BASE}	
+    ## done
+    ## 
+    ## ## WEBP FILES
+    ## ## Remove old zips
+    ## for img in ${images}; do
+    ## 	BASE=`echo $img | sed -e s.merge/wac/..g -e s/_c.vrt//g|sed -e s/..C/C/g`
+    ## 	rm -f final_webp_${SIZE}/${BASE}.zip
+    ## 	rm -f ${BASE}
+    ## done
+    ## 
+    ## for img in ${images}; do
+    ## 	BASE=`echo $img | sed -e s.merge/wac/..g -e s/_c.vrt//g|sed -e s/..C/C/g`
+    ## 	[[ -f ${BASE} ]] || echo ${CYCLE} > ${BASE}
+    ## 	mygroup ${img} wac webp forzip >> ${BASE}
+    ## 	tail -n+2 ${BASE} |xargs zip -u -9 final_webp_${SIZE}/${BASE}.zip ${BASE}
+    ## done
+    ## 
+    ## for img in ${images}; do
+    ## 	BASE=`echo $img | sed -e s.merge/wac/..g -e s/_c.vrt//g|sed -e s/..C/C/g`
+    ## 	rm -f ${BASE}
+    ## done
+    ## wait
 
 elif [[ ${SLURM_ARRAY_TASK_ID} -eq 3 ]]; then
-    
+
+    ## For manifests
+    ## ./ziptiles.py -179.90  75.0 -128.45 50.50 ifr latlon webp forzip > /dev/shm/ifr.manifest.AK
+    ## ./ziptiles.py -165.00  25.0 -150.00 15.00 ifr latlon webp forzip > /dev/shm/ifr.manifest.HI
+    ## ./ziptiles.py  -68.00  19.5  -64.00 17.00 ifr latlon webp forzip > /dev/shm/ifr.manifest.PR
+    ## ./ziptiles.py  -85.00 50.15  -40.00 38.00 ifr latlon webp forzip > /dev/shm/ifr.manifest.NE
+    ## ./ziptiles.py -110.00 50.15  -85.00 38.00 ifr latlon webp forzip > /dev/shm/ifr.manifest.NC
+    ## ./ziptiles.py -131.21 50.15 -110.00 38.00 ifr latlon webp forzip > /dev/shm/ifr.manifest.NW
+    ## ./ziptiles.py  -85.00 38.00  -40.00 23.13 ifr latlon webp forzip > /dev/shm/ifr.manifest.SE
+    ## ./ziptiles.py -110.00 38.00  -85.00 23.13 ifr latlon webp forzip > /dev/shm/ifr.manifest.SC
+    ## ./ziptiles.py -131.21 38.00 -110.00 23.13 ifr latlon webp forzip > /dev/shm/ifr.manifest.SW
+
     ## These are the zip file names
-    BASES=`cut -f1 -d: charts/ifr/TileManifest.ifr.list|sort -u`
+    BASES=`cut -f1 -d: charts/ifr/TileManifest.ifr.${SIZE}.list|sort -u`
 
     for BASE in ${BASES}; do
 	## Remove the old zip file
-	rm -f final/${BASE}.zip
-	rm -f final_webp/${BASE}.zip
-
-	## Create png zips (deprecated)
-	echo ${CYCLE} > ${BASE}
-	grep $BASE charts/ifr/TileManifest.ifr.list |cut -f2 -d: | awk '{printf ("tiles/3/%s\n", $1)}' | sed s/png/png/ >> ${BASE}
-	tail -n+2 ${BASE} | xargs zip -9 final_png/${BASE}.zip ${BASE}
+	rm -f final-${SIZE}/${BASE}.zip
 
 	## Create webp zips
 	echo ${CYCLE} > ${BASE}
-	grep $BASE charts/ifr/TileManifest.ifr.list |cut -f2 -d: | awk '{printf ("tiles/3/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
-	tail -n+2 ${BASE} | xargs zip -9 final/${BASE}.zip ${BASE}
+	grep $BASE charts/ifr/TileManifest.ifr.${SIZE}.list |cut -f2 -d: | awk '{printf ("tiles/3/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final-${SIZE}/${BASE}.zip ${BASE}
 	
 	rm ${BASE}
     done
@@ -217,23 +234,28 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 3 ]]; then
 
 elif [[ ${SLURM_ARRAY_TASK_ID} -eq 4 ]]; then
 
+    ## For manifests
+    ## ./ziptiles.py -179.90  75.0 -128.45 50.50 ifh latlon webp forzip > /dev/shm/ifh.manifest.AK
+    ## ./ziptiles.py -165.00  25.0 -150.00 15.00 ifh latlon webp forzip > /dev/shm/ifh.manifest.HI
+    ## ./ziptiles.py  -68.00  19.5  -64.00 17.00 ifh latlon webp forzip > /dev/shm/ifh.manifest.PR
+    ## ./ziptiles.py  -85.00 50.15  -40.00 38.00 ifh latlon webp forzip > /dev/shm/ifh.manifest.NE
+    ## ./ziptiles.py -110.00 50.15  -85.00 38.00 ifh latlon webp forzip > /dev/shm/ifh.manifest.NC
+    ## ./ziptiles.py -131.21 50.15 -110.00 38.00 ifh latlon webp forzip > /dev/shm/ifh.manifest.NW
+    ## ./ziptiles.py  -85.00 38.00  -40.00 23.13 ifh latlon webp forzip > /dev/shm/ifh.manifest.SE
+    ## ./ziptiles.py -110.00 38.00  -85.00 23.13 ifh latlon webp forzip > /dev/shm/ifh.manifest.SC
+    ## ./ziptiles.py -131.21 38.00 -110.00 23.13 ifh latlon webp forzip > /dev/shm/ifh.manifest.SW
+
     ## These are the zip file names
-    BASES=`cut -f1 -d: charts/ifr/TileManifest.ifh.list|sort -u`
+    BASES=`cut -f1 -d: charts/ifr/TileManifest.ifh.${SIZE}.list|sort -u`
 
     for BASE in ${BASES}; do
 	## Remove the old zip file
-	rm -f final/${BASE}.zip
-	rm -f final_webp/${BASE}.zip
-
-	## Create png zips (deprecated)
-	echo ${CYCLE} > ${BASE}
-	grep $BASE charts/ifr/TileManifest.ifh.list |cut -f2 -d: | awk '{printf ("tiles/4/%s\n", $1)}' | sed s/png/png/ >> ${BASE}
-	tail -n+2 ${BASE} | xargs zip -9 final_png/${BASE}.zip ${BASE}
+	rm -f final-${SIZE}/${BASE}.zip
 
 	## Create webp zips
 	echo ${CYCLE} > ${BASE}
-	grep $BASE charts/ifr/TileManifest.ifh.list |cut -f2 -d: | awk '{printf ("tiles/4/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
-	tail -n+2 ${BASE} | xargs zip -9 final/${BASE}.zip ${BASE}
+	grep $BASE charts/ifr/TileManifest.ifh.${SIZE}.list |cut -f2 -d: | awk '{printf ("tiles/4/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final-${SIZE}/${BASE}.zip ${BASE}
 	
 	rm ${BASE}
     done
@@ -242,22 +264,16 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 4 ]]; then
 elif [[ ${SLURM_ARRAY_TASK_ID} -eq 5 ]]; then
 
     ## These are the zip file names
-    BASES=`cut -f1 -d: charts/ifr/TileManifest.ifa.list|sort -u`
+    BASES=`cut -f1 -d: charts/ifr/TileManifest.ifa.${SIZE}.list|sort -u`
 
     for BASE in ${BASES}; do
 	## Remove the old zip file
-	rm -f final/${BASE}.zip
-	rm -f final_webp/${BASE}.zip
-
-	## Create png zips (deprecated)
-	echo ${CYCLE} > ${BASE}
-	grep $BASE charts/ifr/TileManifest.ifa.list |cut -f2 -d: | awk '{printf ("tiles/5/%s\n", $1)}' | sed s/png/png/ >> ${BASE}
-	tail -n+2 ${BASE} | xargs zip -9 final_png/${BASE}.zip ${BASE}
+	rm -f final-${SIZE}/${BASE}.zip
 
 	## Create webp zips
 	echo ${CYCLE} > ${BASE}
-	grep $BASE charts/ifr/TileManifest.ifa.list |cut -f2 -d: | awk '{printf ("tiles/5/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
-	tail -n+2 ${BASE} | xargs zip -9 final/${BASE}.zip ${BASE}
+	grep $BASE charts/ifr/TileManifest.ifa.${SIZE}.list |cut -f2 -d: | awk '{printf ("tiles/5/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final-${SIZE}/${BASE}.zip ${BASE}
 	
 	rm ${BASE}
     done
@@ -349,9 +365,9 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 8 ]]; then
     echo start Candian topo
     for img in `ls ../can-topo/[0-9]*vrt`; do
 	BASE=`echo $img|cut -f3 -d/|cut -f1 -d.`
-	[[ -f final/CAN_${BASE}.zip ]] && rm final/CAN_${BASE}.zip
-	echo final/CAN_${BASE}.zip
-	zip -9 --quiet final/CAN_${BASE}.zip `mygroup ${img} topo jpg forzip`
+	[[ -f final-${SIZE}/CAN_${BASE}.zip ]] && rm final-${SIZE}/CAN_${BASE}.zip
+	echo final-${SIZE}/CAN_${BASE}.zip
+	zip -9 --quiet final-${SIZE}/CAN_${BASE}.zip `mygroup ${img} topo jpg forzip`
     done
     wait
 
@@ -386,12 +402,12 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 9 ]]; then
 	for TYPE in png webp; do 
 	    echo ${CYCLE} > ${IMBASE}
 	    if [[ $TYPE == png ]]; then
-		ZIP=final_${TYPE}/${IMBASE}.zip
+		ZIP=final_${TYPE}_${SIZE}/${IMBASE}.zip
 	    else
-		ZIP=final/${IMBASE}.zip
+		ZIP=final-${SIZE}/${IMBASE}.zip
 	    fi
 	    rm -f $ZIP
-	    grep ${IMBASE} charts/hel/TileManifest.hel.list |cut -f2 -d: | xargs -I{} -n1 echo tiles/9/{} | sed s/.png/.${TYPE}/ >> ${IMBASE}
+	    grep ${IMBASE} charts/hel/TileManifest.hel.${SIZE}.list |cut -f2 -d: | xargs -I{} -n1 echo tiles/9/{} | sed s/.png/.${TYPE}/ >> ${IMBASE}
 	    tail -n+2 ${IMBASE} | xargs zip -9 $ZIP ${IMBASE}
 	done
 	[[ -f ${IMBASE} ]] && rm ${IMBASE}
@@ -403,25 +419,25 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 10 ]]; then
     echo start TPC
     for img in `ls ../tpc/*2.vrt`; do
 	BASE=`echo $img|cut -f3 -d/|cut -f1 -d.|sed s/_2//`
-	[[ -f final/TPC_${BASE}.zip ]] && rm final/TPC_${BASE}.zip
-	echo final/TPC_${BASE}.zip
-	zip -9 --quiet final/TPC_${BASE}.zip `mygroup ${img} tpc jpg forzip`
+	[[ -f final-${SIZE}/TPC_${BASE}.zip ]] && rm final-${SIZE}/TPC_${BASE}.zip
+	echo final-${SIZE}/TPC_${BASE}.zip
+	zip -9 --quiet final-${SIZE}/TPC_${BASE}.zip `mygroup ${img} tpc jpg forzip`
     done
     wait
     echo done topo
 
 elif [[ ${SLURM_ARRAY_TASK_ID} -eq 13 ]]; then
     ## These are the zip file names
-    BASES=`cut -f1 -d: charts/fly/TileManifest.fly.list|sort -u`
+    BASES=`cut -f1 -d: charts/fly/TileManifest.fly.${SIZE}.list|sort -u`
 
     for BASE in ${BASES}; do
 	## Remove the old zip file
-	rm -f final/${BASE}.zip
+	rm -f final-${SIZE}/${BASE}.zip
 
 	## Create webp zips
 	echo ${CYCLE} > ${BASE}
-	grep $BASE charts/fly/TileManifest.fly.list |cut -f2 -d: | awk '{printf ("tiles/13/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
-	tail -n+2 ${BASE} | xargs zip -9 final/${BASE}.zip ${BASE}
+	grep $BASE charts/fly/TileManifest.fly.${SIZE}.list |cut -f2 -d: | awk '{printf ("tiles/13/%s\n", $1)}' | sed s/png/webp/ >> ${BASE}
+	tail -n+2 ${BASE} | xargs zip -9 final-${SIZE}/${BASE}.zip ${BASE}
 	
 	rm ${BASE}
     done

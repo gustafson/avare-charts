@@ -82,7 +82,11 @@ rename seP SEP *pdf
 popd
 pushd /dev/shm/afd
 
-perl ${SLURM_SUBMIT_DIR}/afd.pl ${CYCLE} afd/*xml
+cp afd/*xml .
+${SLURM_SUBMIT_DIR}/afd.py
+
+## perl ${SLURM_SUBMIT_DIR}/afd.pl ${CYCLE} afd/*xml
+
 cp afd.csv ${SLURM_SUBMIT_DIR}/.
 
 ## Divide and conquer

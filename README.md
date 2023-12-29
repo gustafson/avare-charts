@@ -39,7 +39,10 @@ Assembling proper charts requires at least the following dependencies:
 -   libwebp
 -   optipng
 -   python
+    -   pypdf
+-   mmv
 -   [Slurm](https://slurm.schedmd.com/documentation.html) (for job submission/management)
+
 
 Building charts without slurm workload management is likely possible but is not supported.
 
