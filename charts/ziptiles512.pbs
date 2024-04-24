@@ -44,7 +44,7 @@ echo "SLURMTMPDIR: $SLURMTMPDIR"
 echo "working directory = $SLURM_SUBMIT_DIR"
 
 SIZE=512
-SIZE=256
+#SIZE=256
 
 [[ ${SLURM_SUBMIT_DIR} ]] && cd ${SLURM_SUBMIT_DIR}
 
@@ -399,7 +399,7 @@ elif [[ ${SLURM_ARRAY_TASK_ID} -eq 9 ]]; then
 	    IMBASE=${IMG}Heli
 	fi
 
-	for TYPE in png webp; do 
+	for TYPE in webp; do # png 
 	    echo ${CYCLE} > ${IMBASE}
 	    if [[ $TYPE == png ]]; then
 		ZIP=final_${TYPE}_${SIZE}/${IMBASE}.zip

@@ -59,7 +59,7 @@ fi
 
 
 ## If within 1 day of the prior cycle, choose it instead.
-if [[ $SREF -gt 27 ]]; then
+if [[ $SREF -gt 25 ]]; then
     SREF=$(($SREF-${CYCLEDAYS}))
 fi
 

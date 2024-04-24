@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --mem-per-cpu=2000
-#SBATCH --ntasks=8
+#SBATCH --ntasks=20
 #SBATCH --time=1000:00:00
 #SBATCH --job-name=AFD
 #SBATCH --output=z-logs/AFD_%A_%a.out
@@ -56,6 +56,10 @@ else
     SLURM_SUBMIT_DIR=`pwd`
 fi
 
+
+[[ -d ${SLURM_SUBMIT_DIR}/final ]] || mkdir -p ${SLURM_SUBMIT_DIR}/final
+[[ -d ${SLURM_SUBMIT_DIR}/final_webp ]] || mkdir -p ${SLURM_SUBMIT_DIR}/final_webp
+
 CYCLE=`./cycledates.sh 56`
 CYCLEDATE=`./cycledates.sh 56 afd`
 CYCLENUMBER=`./cyclenumber.py`
@@ -67,8 +71,8 @@ pushd /dev/shm/afd/afd
 wget -c http://aeronav.faa.gov/upload_313-d/supplements/DCS_${CYCLEDATE}.zip
 unzip -o DCS_${CYCLEDATE}.zip
 
-## Format change 2008 cycle
-[[ -d DCS_${CYCLEDATE} ]] && mv DCS_${CYCLEDATE}/*pdf DCS_${CYCLEDATE}/*xml .
+## ## Format change 2008 cycle
+## [[ -d DCS_${CYCLEDATE} ]] && mv DCS_${CYCLEDATE}/*pdf DCS_${CYCLEDATE}/*xml .
 
 for a in SE NE NC NW SC SW EC AK PAC; do
     rename ${a} ${a,,} ${a}*pdf
@@ -76,18 +80,20 @@ done
 rename _${CYCLE} "" *pdf
 rm *front*pdf *rear*pdf
 
-## deal with september typo
-rename seP SEP *pdf
+## ## deal with september typo
+## rename seP SEP *pdf
 
 popd
-pushd /dev/shm/afd
+pushd /dev/shm/afd/afd
 
-cp afd/*xml .
 ${SLURM_SUBMIT_DIR}/afd.py
 
 ## perl ${SLURM_SUBMIT_DIR}/afd.pl ${CYCLE} afd/*xml
 
 cp afd.csv ${SLURM_SUBMIT_DIR}/.
+
+popd
+pushd /dev/shm/afd
 
 ## Divide and conquer
 NPDF=`ls afd/*.pdf|wc -l`
@@ -101,6 +107,12 @@ DPI=225
 find afd -name "*.pdf" | 
 xargs -P ${NP} -n ${NPDFPER} mogrify -trim +repage -dither none -antialias -density ${DPI} -depth 8 -quality 00 -background white  -alpha remove -alpha off -colors 15 -format png
 wait
+
+## Remove the extra pages.  This is enabled by Pete's changes to the
+## database structure 12/25/2023 (those changes added the extra pages
+## numbers to the database)
+rm afd/*-[1-9].png
+mmv "afd/*-0.png" "afd/#1.png"
 
 ## Optimize the png for file size and rendering
 find afd -name "*.png" | 

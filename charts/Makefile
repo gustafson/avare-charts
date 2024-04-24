@@ -101,7 +101,8 @@ download-and-process-base-data:
 	./saa.pl > saa.csv
 	./airport.pl > airport.csv
 	./runway.pl > runway.csv
-	./freq.pl > freq.csv
+	./airport.py ## Does both airports and runways
+	./freq.pl | iconv -f ISO-8859-1 -t UTF-8 > freq.csv
 	./fix.pl > fix.csv
 	./nav.pl > nav.csv
 	./dof.pl > dof.csv
@@ -109,7 +110,6 @@ download-and-process-base-data:
 	./aw.pl > aw.csv
 
 plates-png: 
-	cd plates/DDTPP && unzip DDTPPE*zip d-TPP_Metafile.xml
 	cd plates && sbatch plates.pbs
 
 download-plates:
@@ -188,7 +188,9 @@ temp:
 zipdatabase:
 	echo "Zipping cycle " $(CYCLE)
 	rm -f main.db
+	./airport-fix-ids.py
 	sqlite3 main.db < importother.sql
+	#sqlite3 main.db < importother-v2.sql
 	sqlite3 main.db "VACUUM;"
 	sqlite3 procedures.db "VACUUM;"
 	rm obs.db; sqlite3 main.db ".dump obs" | sqlite3 obs.db
@@ -241,7 +243,7 @@ updatemanifest:
 canada:
 	@echo https://www.navcanada.ca/en/aeronautical-information/operational-guides.aspx
 	@echo Canada charts supposed to be release 10 days prior to effective date
-	wget -N http://ourairports.com/data/airports.csv && ./ourairports.pl > ourairports.csv
+	wget -N http://ourairports.com/data/airports.csv && ./ourairports.py > ourairports.csv
 	# ./ourairports.sh
 	./canada_ad.sh
 

@@ -474,6 +474,7 @@ for r in records:
 ## Bookkeeping to estimate completion
 count = []
 total = len(records)
+records = records[::-1]
 with mp.Pool(processes=cpus) as pool:
     # pool.map(worker, records)
     for instance in pool.imap_unordered(worker, records):
@@ -482,6 +483,9 @@ with mp.Pool(processes=cpus) as pool:
             print ("Approximately %2.2f%% complete" % (100*len(count)/total))
 #records[33]
 #worker(records[33])
+
+
+
 
 def ZipStateTiles(state):
      print("Zipping %s" % state)

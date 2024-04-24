@@ -26,7 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 tac.vrt: warped
-	gdalbuildvrt -r cubicspline -srcnodata 51 -vrtnodata 51 -resolution highest tac.vrt -overwrite merge/tac/*TAC.vrt
+	gdalbuildvrt -r cubicspline -srcnodata 51 -vrtnodata 51 -resolution highest $@ -overwrite merge/tac/*TAC.vrt merge/tac/*Inset.vrt
 
 warped: \
 merge/tac/Baltimore-WashingtonTAC.vrt \

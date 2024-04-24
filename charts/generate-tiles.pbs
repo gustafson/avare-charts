@@ -41,37 +41,40 @@ echo "SLURM_NNODES: $SLURM_NNODES"
 echo "SLURMTMPDIR: $SLURMTMPDIR"
 echo "working directory = $SLURM_SUBMIT_DIR"
 
-
+SIZE=512
+#SIZE=256
+#BUILDDIR=/dev/shm
+BUILDDIR=/home/pete/avare.charts.git/charts
 
 function updatevfr () {
     PNG=$0
-    WBP=`echo ${PNG} |sed s/-build// | sed s/png/webp/ | sed s./dev/shm/..`
+    # WBP=`echo ${PNG} |sed s/-build// | sed s/png/webp/ | sed s.${BUILDDIR}/..`
 
-    if [[ ! -f ${WBP} || ${PNG} -nt ${WBP} ]] ; then
-	D=`dirname ${WBP}`
-	[[ ! -d ${D} ]] && mkdir -p ${D}
-	echo Creating ${WBP}
-	convert -unsharp 1x1 -format webp -define webp:method=6:thread-level=1 -quality 60 ${PNG} ${WBP}
-
-	## Webp lossless
-	## convert -format webp -define webp:lossless=true,method=6:thread-level=1 ${PNG} ${WBP}
-    fi
+    ## if [[ ! -f ${WBP} || ${PNG} -nt ${WBP} ]] ; then
+    ## 	D=`dirname ${WBP}`
+    ## 	[[ ! -d ${D} ]] && mkdir -p ${D}
+    ## 	echo Creating ${WBP}
+    ## 	convert -unsharp 1x1 -format webp -define webp:method=6:thread-level=1 -quality 60 ${PNG} ${WBP}
+    ## 
+    ## 	## Webp lossless
+    ## 	## convert -format webp -define webp:lossless=true,method=6:thread-level=1 ${PNG} ${WBP}
+    ## fi
 
 }
 
 function updateifr () {
     PNG=$0
-    WBP=`echo ${PNG} |sed s/-build// | sed s/png/webp/`
-    echo working on $PNG
-
-    if [[ ! -f ${WBP} || ${PNG} -nt ${WBP} ]] ; then
-	D=`dirname ${WBP}`
-	[[ ! -d ${D} ]] && mkdir -p ${D}
-	echo Creating ${WBP}
-	convert -format webp -define webp:method=6:thread-level=1 -quality 60 ${PNG} ${WBP}
-	## Webp lossless
-	## convert -format webp -define webp:lossless=true,method=6:thread-level=1 ${PNG} ${WBP}
-    fi
+    # WBP=`echo ${PNG} |sed s/-build// | sed s/png/webp/`
+    # echo working on $PNG
+    # 
+    # if [[ ! -f ${WBP} || ${PNG} -nt ${WBP} ]] ; then
+    # 	D=`dirname ${WBP}`
+    # 	[[ ! -d ${D} ]] && mkdir -p ${D}
+    # 	echo Creating ${WBP}
+    # 	convert -format webp -define webp:method=6:thread-level=1 -quality 60 ${PNG} ${WBP}
+    # 	## Webp lossless
+    # 	## convert -format webp -define webp:lossless=true,method=6:thread-level=1 ${PNG} ${WBP}
+    # fi
 }
 
 export -f updatevfr
@@ -81,19 +84,17 @@ export -f updateifr
 NP=$((${SLURM_NTASKS}*2))
 [[ ${SLURM_SUBMIT_DIR} ]] && cd ${SLURM_SUBMIT_DIR}
 
-function myfindwac (){
-    ## The purpose of this was to pick every other row and column to label with expired
-    find /dev/shm/tiles/2 -name "*png"|
-	while IFS=\/ read start dev shm tiles type layer lat img; do
-	    lon=$(basename $img .png)
-	    if [[ $((($lat + $lon) % 2)) -eq 0 ]]; then
-		echo /$dev/$shm/$tiles/$type/$layer/$lat/$img
-	    fi
-	done
-}
+# function myfindwac (){
+#     ## The purpose of this was to pick every other row and column to label with expired
+#     find ${BUILDDIR}/tiles/2 -name "*png"|
+# 	while IFS=\/ read start dev shm tiles type layer lat img; do
+# 	    lon=$(basename $img .png)
+# 	    if [[ $((($lat + $lon) % 2)) -eq 0 ]]; then
+# 		echo /$dev/$shm/$tiles/$type/$layer/$lat/$img
+# 	    fi
+# 	done
+# }
 
-SIZE=512
-SIZE=256
 
 if [[ ${SIZE} -eq 256 ]]; then
     DEPTH09=10
@@ -104,11 +105,14 @@ else
     DEPTH09=9
     DEPTH10=10
     DEPTH11=11
-    DEPTH11=12
+    DEPTH12=12
 fi
 
-OPTIONS1="--tilesize=${SIZE} --tiledriver=PNG -x -w all -c MUAVLLC --no-kml --resume --processes ${NP}"  ## --verbose
+OPTIONS1="--tilesize=${SIZE} --tiledriver=WEBP --config WEBP_LEVEL_OVERVIEW 90 --config WEBP_LEVEL 90 --exclude --webviewer=all -c MUAVLLC --no-kml --resume --processes ${NP}"  ## --verbose
+#OPTIONS1="--tilesize=${SIZE} --tiledriver=PNG --exclude --webviewer=all -c MUAVLLC --no-kml --resume --processes ${NP}"  ## --verbose
 TIME1="/usr/bin/time -v --append -o"
+#GDAL_CONFIG_FILE=gdal_config.txt
+
 
 function gentiles(){
     
@@ -118,31 +122,32 @@ function gentiles(){
 	echo "Delete cached tiles that need to be replaced and recreate the vrt for the sectionals"
 	${TIME1} z-logs/time.sec.txt make -j ${SLURM_NTASKS} -f Makefile.sec
 	
-	echo "Copy the tiles that didn't get replaced using the Makefile.sec"
-	[[ -d /dev/shm/tiles-${SIZE}/0-build ]] || mkdir -p /dev/shm/tiles-${SIZE}/0-build
-	rsync -rc tiles-${SIZE}/0-build/ /dev/shm/tiles-${SIZE}/0-build/ --exclude=*.xml	
+	## echo "Copy the tiles that didn't get replaced using the Makefile.sec"
+	## [[ -d ${BUILDDIR}/tiles-${SIZE}/0-build ]] || mkdir -p ${BUILDDIR}/tiles-${SIZE}/0-build
+	## rsync -rc tiles-${SIZE}/0-build/ ${BUILDDIR}/tiles-${SIZE}/0-build/ --exclude=*.xml	
 	
 	echo "Build out new tiles"
-	${TIME1} z-logs/time.sec.txt nice gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-${DEPTH10} -r near sec.vrt /dev/shm/tiles-${SIZE}/0-build
-	
-	echo "Copy new tiles into the cache directory, hardlink identical files"
-	rsync -rc --del /dev/shm/tiles-${SIZE}/0-build/ tiles-${SIZE}/0-build/ --exclude=*.xml	
+	${TIME1} z-logs/time.sec.txt nice gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-${DEPTH10} -r near sec.vrt ${BUILDDIR}/tiles-${SIZE}/0-build
 	rdfind -makehardlinks true -n false tiles-${SIZE}/0-build
 	
-	echo "Convert the png to webp tiles"
-	find tiles-${SIZE}/0-build -name "*png" | xargs -n1 -P${NP} bash -c updatevfr
-	rdfind -makehardlinks true -n false tiles-${SIZE}/0
-	sed "s/type: 'png'/type: 'webp'/" /dev/shm/tiles-${SIZE}/0-build/openlayers.html > tiles-${SIZE}/0/openlayers.html
-	rm -fr /dev/shm/tiles-${SIZE}/0-build
+	## echo "Copy new tiles into the cache directory, hardlink identical files"
+	## rsync -rc --del ${BUILDDIR}/tiles-${SIZE}/0-build/ tiles-${SIZE}/0-build/ --exclude=*.xml	
+	## rdfind -makehardlinks true -n false tiles-${SIZE}/0-build
+	
+	## echo "Convert the png to webp tiles"
+	## find tiles-${SIZE}/0-build -name "*png" | xargs -n1 -P${NP} bash -c updatevfr
+	## rdfind -makehardlinks true -n false tiles-${SIZE}/0
+	## sed "s/type: 'png'/type: 'webp'/" ${BUILDDIR}/tiles-${SIZE}/0-build/openlayers.html > tiles-${SIZE}/0/openlayers.html
+	## rm -fr ${BUILDDIR}/tiles-${SIZE}/0-build
 	
 	## ## Used only to create manifest
 	## for a in merge/sec/*SEC.vrt; do 
-	##     nice gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-${DEPTH10} --srcnodata=51 -r near $a /dev/shm/$a
+	##     nice gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-${DEPTH10} --srcnodata=51 -r near $a ${BUILDDIR}/$a
 	## done
 	## 
 	## ## Used to create manifest by state
 	## for a in shapefiles/state/[A-Z][A-Z].vrt; do
-	##     nice gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-${DEPTH10} --srcnodata=51 -r near $a /dev/shm/$a
+	##     nice gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-${DEPTH10} --srcnodata=51 -r near $a ${BUILDDIR}/$a
 	## done
 	    
     elif [[ ${1} -eq 1 ]]; then
@@ -151,26 +156,27 @@ function gentiles(){
 	## echo "Delete cached tiles that need to be replaced and recreate the vrt for the sectionals"
 	${TIME1} z-logs/time.tac.txt make -j ${SLURM_NTASKS} -f Makefile.tac
 	
-	echo "Copy the tiles that didn't get replaced using the Makefile.sec"
-	[[ -d /dev/shm/tiles-${SIZE}/1-build ]] || mkdir -p /dev/shm/tiles-${SIZE}/1-build
-	rsync -rc tiles-${SIZE}/1-build/ /dev/shm/tiles-${SIZE}/1-build/ --exclude=*.xml	
+	## echo "Copy the tiles that didn't get replaced using the Makefile.sec"
+	[[ -d ${BUILDDIR}/tiles-${SIZE}/1-build ]] || mkdir -p ${BUILDDIR}/tiles-${SIZE}/1-build
+	rsync -rc tiles-${SIZE}/1-build/ ${BUILDDIR}/tiles-${SIZE}/1-build/ --exclude=*.xml	
 	
 	echo "Build out new tiles"
-	${TIME1} z-logs/time.tac.txt nice gdal2tiles.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-${DEPTH11} --srcnodata=51 -r near tac.vrt /dev/shm/tiles-${SIZE}/1-build
+	echo ${TIME1} z-logs/time.tac.txt nice gdal2tiles.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-${DEPTH11} --srcnodata=51 -r near tac.vrt ${BUILDDIR}/tiles-${SIZE}/1-build
+	${TIME1} z-logs/time.tac.txt nice gdal2tiles.py -t "VFR Terminal Area" ${OPTIONS1} -z 0-${DEPTH11} --srcnodata=51 -r near tac.vrt ${BUILDDIR}/tiles-${SIZE}/1-build
 	
 	echo "Copy new tiles into the cache directory, hardlink identical files"
-	rsync -rc --del /dev/shm/tiles-${SIZE}/1-build/ tiles-${SIZE}/1-build/ --exclude=*.xml	
+	rsync -rc --del ${BUILDDIR}/tiles-${SIZE}/1-build/ tiles-${SIZE}/1-build/ --exclude=*.xml	
 	rdfind -makehardlinks true -n false tiles-${SIZE}/1-build
 	
-	echo "Convert the png to webp tiles"
-	find tiles-${SIZE}/1-build -name "*png" | xargs -n1 -P${NP} bash -c updatevfr
-	rdfind -makehardlinks true -n false tiles-${SIZE}/1
-	sed "s/type: 'png'/type: 'webp'/" /dev/shm/tiles-${SIZE}/1-build/openlayers.html > tiles-${SIZE}/1/openlayers.html
-	rm -fr /dev/shm/tiles-${SIZE}/1-build
+	## echo "Convert the png to webp tiles"
+	## find tiles-${SIZE}/1-build -name "*png" | xargs -n1 -P${NP} bash -c updatevfr
+	## rdfind -makehardlinks true -n false tiles-${SIZE}/1
+	## sed "s/type: 'png'/type: 'webp'/" ${BUILDDIR}/tiles-${SIZE}/1-build/openlayers.html > tiles-${SIZE}/1/openlayers.html
+	#rm -fr ${BUILDDIR}/tiles-${SIZE}/1-build
 	
 	## ## Used to create manifest
 	## for a in merge/tac/*TAC.vrt; do 
-	##     nice gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-${DEPTH11} --srcnodata=51 -r near $a /dev/shm/$a
+	##     nice gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-${DEPTH11} --srcnodata=51 -r near $a ${BUILDDIR}/$a
 	## done
 
     elif [[ ${1} -eq 2 ]]; then
@@ -178,64 +184,67 @@ function gentiles(){
 	echo "WACS are out of date and won't be updated using the new process!"
 	## 
 	## rm -f z-logs/time.wac.txt
-	## ${TIME1} z-logs/time.wac.txt nice gdal2tiles.py -t "VFR World" ${OPTIONS1} -z 0-${DEPTH09} -r cubicspline wac.vrt /dev/shm/tiles-${SIZE}/2
+	## ${TIME1} z-logs/time.wac.txt nice gdal2tiles.py -t "VFR World" ${OPTIONS1} -z 0-${DEPTH09} -r cubicspline wac.vrt ${BUILDDIR}/tiles-${SIZE}/2
 	## 
 	## ## Remove xml
-	## find /dev/shm/tiles-${SIZE}/2/ -name "*aux.xml"| xargs rm
+	## find ${BUILDDIR}/tiles-${SIZE}/2/ -name "*aux.xml"| xargs rm
 	## 
 	## ## Mark every other row and column as expired in a checkerboard pattern
 	## myfindwac | xargs -n 1 -P ${NP} mogrify -gravity center -pointsize 40 -fill white \
 	## 		  -draw "fill-opacity 0.20 rotate -45 text 0,0 'Expired'" -stroke red -strokewidth 1 
 	## 
-	## sed "s/type: 'png'/type: 'webp'/" /dev/shm/tiles-${SIZE}/2/ tiles-${SIZE}/2/ --del
-	## rm -fr /dev/shm/tiles-${SIZE}/2
+	## sed "s/type: 'png'/type: 'webp'/" ${BUILDDIR}/tiles-${SIZE}/2/ tiles-${SIZE}/2/ --del
+	## rm -fr ${BUILDDIR}/tiles-${SIZE}/2
 	
     elif [[ ${1} -eq 3 ]]; then
 
 	rm -f z-logs/time.ifr.txt
-	${TIME1} z-logs/time.ifr.txt make -j ${SLURM_NTASKS} -f Makefile.ifr
+	#${TIME1} z-logs/time.ifr.txt make -j ${SLURM_NTASKS} -f Makefile.ifr
 
-	${TIME1} z-logs/time.ifr.txt nice gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-${DEPTH10} -r near ifr-east.vrt /dev/shm/tiles-${SIZE}/3-build
-	${TIME1} z-logs/time.ifr.txt nice gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-${DEPTH10} -r near ifr-west.vrt /dev/shm/tiles-${SIZE}/3-build
-	
-	rsync -rc --del /dev/shm/tiles-${SIZE}/3-build/ tiles-${SIZE}/3-build/ --exclude=*.xml
+	${TIME1} z-logs/time.ifr.txt nice gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-${DEPTH10} -r near ifr-east.vrt ${BUILDDIR}/tiles-${SIZE}/3-build
+	${TIME1} z-logs/time.ifr.txt nice gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-${DEPTH10} -r near ifr-west.vrt ${BUILDDIR}/tiles-${SIZE}/3-build
 	rdfind -makehardlinks true -n false tiles-${SIZE}/3-build
-	find tiles-${SIZE}/3-build -name "*png" | xargs -n1 -P${NP} bash -c updateifr
-	rdfind -makehardlinks true -n false tiles-${SIZE}/3
-	sed "s/type: 'png'/type: 'webp'/" /dev/shm/tiles-${SIZE}/3-build/openlayers.html > tiles-${SIZE}/3/openlayers.html
-	rm -fr /dev/shm/tiles-${SIZE}/3-build
+	
+	## rsync -rc --del ${BUILDDIR}/tiles-${SIZE}/3-build/ tiles-${SIZE}/3-build/ --exclude=*.xml
+	## rdfind -makehardlinks true -n false tiles-${SIZE}/3-build
+	## find tiles-${SIZE}/3-build -name "*png" | xargs -n1 -P${NP} bash -c updateifr
+	## rdfind -makehardlinks true -n false tiles-${SIZE}/3
+	## sed "s/type: 'png'/type: 'webp'/" ${BUILDDIR}/tiles-${SIZE}/3-build/openlayers.html > tiles-${SIZE}/3/openlayers.html
+	# rm -fr ${BUILDDIR}/tiles-${SIZE}/3-build
 
     elif [[ ${1} -eq 4 ]]; then
 
 	rm -f z-logs/time.ifh.txt
 	${TIME1} z-logs/time.ifh.txt make -j ${SLURM_NTASKS} -f Makefile.ifh
 	
-	${TIME1} z-logs/time.ifh.txt nice gdal2tiles.py -t "IFR Enroute High" ${OPTIONS1} -z 0-${DEPTH09} -r near ifh-east.vrt /dev/shm/tiles-${SIZE}/4-build
-	${TIME1} z-logs/time.ifh.txt nice gdal2tiles.py -t "IFR Enroute High" ${OPTIONS1} -z 0-${DEPTH09} -r near ifh-west.vrt /dev/shm/tiles-${SIZE}/4-build
+	${TIME1} z-logs/time.ifh.txt nice gdal2tiles.py -t "IFR Enroute High" ${OPTIONS1} -z 0-${DEPTH09} -r near ifh-east.vrt ${BUILDDIR}/tiles-${SIZE}/4-build
+	${TIME1} z-logs/time.ifh.txt nice gdal2tiles.py -t "IFR Enroute High" ${OPTIONS1} -z 0-${DEPTH09} -r near ifh-west.vrt ${BUILDDIR}/tiles-${SIZE}/4-build
+	rdfind -makehardlinks true -n false ${BUILDDIR}/tiles-${SIZE}/4-build
 
-	rsync -rc --del /dev/shm/tiles-${SIZE}/4-build/ tiles-${SIZE}/4-build/ --exclude=*.xml
-	rdfind -makehardlinks true -n false tiles-${SIZE}/4-build
-	find tiles-${SIZE}/4-build -name "*png" | xargs -n1 -P${NP} bash -c updateifr
-	rdfind -makehardlinks true -n false tiles-${SIZE}/4
-	sed "s/type: 'png'/type: 'webp'/" /dev/shm/tiles-${SIZE}/4-build/openlayers.html > tiles-${SIZE}/4/openlayers.html
-	rm -fr /dev/shm/tiles-${SIZE}/4-build
+	## rsync -rc --del ${BUILDDIR}/tiles-${SIZE}/4-build/ tiles-${SIZE}/4-build/ --exclude=*.xml
+	## rdfind -makehardlinks true -n false tiles-${SIZE}/4-build
+	## find tiles-${SIZE}/4-build -name "*png" | xargs -n1 -P${NP} bash -c updateifr
+	## rdfind -makehardlinks true -n false tiles-${SIZE}/4
+	## sed "s/type: 'png'/type: 'webp'/" ${BUILDDIR}/tiles-${SIZE}/4-build/openlayers.html > tiles-${SIZE}/4/openlayers.html
+	# rm -fr ${BUILDDIR}/tiles-${SIZE}/4-build
 
     elif [[ ${1} -eq 5 ]]; then
 	
-	## ${TIME1} z-logs/time.ifa.txt make -j ${SLURM_NTASKS} -f Makefile.ifa
-	## 
-	## ## Guam which stands completely isolated
-	## ${TIME1} z-logs/time.ifa.txt nice gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-${DEPTH11} merge/ifa/ENR_P01_GUA.vrt /dev/shm/tiles-${SIZE}/5-build
-	## 
-	## ## The rest... there were a total of 213 images at this level including guam.  ifa.vrt excludes guam
-	## ${TIME1} z-logs/time.ifa.txt nice gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r lanczos -z 0-${DEPTH11} ifa.vrt /dev/shm/tiles-${SIZE}/5-build
-	## 
-	## rsync -rc --del /dev/shm/tiles-${SIZE}/5-build/ tiles-${SIZE}/5-build/ --exclude=*.xml
-	## rdfind -makehardlinks true -n false tiles-${SIZE}/5-build
-	## find tiles-${SIZE}/5-build -name "*png" | xargs -n1 -P${NP} bash -c updateifr
-	## rdfind -makehardlinks true -n false tiles-${SIZE}/5
-	## sed "s/type: 'png'/type: 'webp'/" /dev/shm/tiles-${SIZE}/5-build/openlayers.html > tiles-${SIZE}/5/openlayers.html
-	## rm -fr /dev/shm/tiles-${SIZE}/5
+	${TIME1} z-logs/time.ifa.txt make -j ${SLURM_NTASKS} -f Makefile.ifa
+	
+	## Guam which stands completely isolated
+	${TIME1} z-logs/time.ifa.txt nice gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r near -z 0-${DEPTH11} merge/ifa/ENR_P01_GUA.vrt ${BUILDDIR}/tiles-${SIZE}/5-build
+	
+	## The rest... there were a total of 213 images at this level including guam.  ifa.vrt excludes guam
+	${TIME1} z-logs/time.ifa.txt nice gdal2tiles.py -t "IFR Area" ${OPTIONS1} -r near -z 0-${DEPTH11} ifa.vrt ${BUILDDIR}/tiles-${SIZE}/5-build
+	rdfind -makehardlinks true -n false tiles-${SIZE}/5-build
+	
+	# rsync -rc --del ${BUILDDIR}/tiles-${SIZE}/5-build/ tiles-${SIZE}/5-build/ --exclude=*.xml
+	# rdfind -makehardlinks true -n false tiles-${SIZE}/5-build
+	# find tiles-${SIZE}/5-build -name "*png" | xargs -n1 -P${NP} bash -c updateifr
+	# rdfind -makehardlinks true -n false tiles-${SIZE}/5
+	#sed "s/type: 'png'/type: 'webp'/" ${BUILDDIR}/tiles-${SIZE}/5-build/openlayers.html > tiles-${SIZE}/5/openlayers.html
+	# rm -fr ${BUILDDIR}/tiles-${SIZE}/5
 
 	## This was how level 6 was identified as the key level after creating tiles for individual images
 	## find . -name "*png"|cut -f3- -d/|sort > sorted.txt
@@ -245,9 +254,9 @@ function gentiles(){
 	## find . -name "*png" |grep -f files.txt |rev|sort|rev|grep .vrt\/6
 
 	## Used to create manifest
-	for a in merge/ifa/*.vrt; do 
-	    echo nice gdal2tiles.py -t "IFR Area" ${OPTIONS1} -z 0-${DEPTH11} --srcnodata=51 -r near $a /dev/shm/$a
-	done
+	## for a in merge/ifa/*.vrt; do 
+	##     echo nice gdal2tiles.py -t "IFR Area" ${OPTIONS1} -z 0-${DEPTH11} --srcnodata=51 -r near $a ${BUILDDIR}/$a
+	## done
 	
     elif [[ ${1} -eq 9 ]]; then
 	rm -f z-logs/time.heli.txt
@@ -267,36 +276,38 @@ function gentiles(){
     "   
 
 	echo Creating tiles
-	${TIME1} z-logs/time.heli.txt nice gdal2tiles.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 0-${DEPTH12} charts/hel/heli.vrt /dev/shm/tiles-${SIZE}/9-build
-	
-	rsync -rc --del /dev/shm/tiles-${SIZE}/9-build/ tiles-${SIZE}/9-build/ --exclude=*.xml	
+	${TIME1} z-logs/time.heli.txt nice gdal2tiles.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 0-${DEPTH12} charts/hel/heli.vrt ${BUILDDIR}/tiles-${SIZE}/9-build
 	rdfind -makehardlinks true -n false tiles-${SIZE}/9-build
-	find tiles-${SIZE}/9-build -name "*png" | xargs -n1 -P${NP} bash -c updatevfr
-	rdfind -makehardlinks true -n false tiles-${SIZE}/9
-	sed "s/type: 'png'/type: 'webp'/" /dev/shm/tiles-${SIZE}/9-build/openlayers.html > tiles-${SIZE}/9/openlayers.html
-	rm -fr /dev/shm/tiles-${SIZE}/9-build	
+	
+	# rsync -rc --del ${BUILDDIR}/tiles-${SIZE}/9-build/ tiles-${SIZE}/9-build/ --exclude=*.xml	
+	# rdfind -makehardlinks true -n false tiles-${SIZE}/9-build
+	# find tiles-${SIZE}/9-build -name "*png" | xargs -n1 -P${NP} bash -c updatevfr
+	# rdfind -makehardlinks true -n false tiles-${SIZE}/9
+	# sed "s/type: 'png'/type: 'webp'/" ${BUILDDIR}/tiles-${SIZE}/9-build/openlayers.html > tiles-${SIZE}/9/openlayers.html
+	# rm -fr ${BUILDDIR}/tiles-${SIZE}/9-build	
 	
 	## echo Creating tile manifest
 	## for vrt in ${HELI}; do
 	##     echo Creating image ${vrt}
-	##     ${TIME1} z-logs/time.heli.txt nice gdal2tiles.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 0-${DEPTH12} ${vrt} /dev/shm/${vrt}
+	##     ${TIME1} z-logs/time.heli.txt nice gdal2tiles.py -t "Helicoptor Route Chart" ${OPTIONS1} -r near -z 0-${DEPTH12} ${vrt} ${BUILDDIR}/${vrt}
 	## done
 
     elif [[ ${1} -eq 13 ]]; then
 	rm -f z-logs/time.fly.txt
 	${TIME1} z-logs/time.fly.txt make -j ${SLURM_NTASKS} -f Makefile.fly
-	${TIME1} z-logs/time.fly.txt nice gdal2tiles.py -t "VFR Flyways" ${OPTIONS1} -z 0-${DEPTH11} --srcnodata=51 -r near fly.vrt /dev/shm/tiles-${SIZE}/13-build
-	
-	rsync -rc --del /dev/shm/tiles-${SIZE}/13-build/ tiles-${SIZE}/13-build/ --exclude=*.xml
+	${TIME1} z-logs/time.fly.txt nice gdal2tiles.py -t "VFR Flyways" ${OPTIONS1} -z 0-${DEPTH11} --srcnodata=51 -r near fly.vrt ${BUILDDIR}/tiles-${SIZE}/13-build
 	rdfind -makehardlinks true -n false tiles-${SIZE}/13-build
-	find tiles-${SIZE}/13-build -name "*png" | xargs -n1 -P${NP} bash -c updatevfr
-	rdfind -makehardlinks true -n false tiles-${SIZE}/13
-	sed "s/type: 'png'/type: 'webp'/" /dev/shm/tiles-${SIZE}/13-build/openlayers.html > tiles-${SIZE}/13/openlayers.html
-	rm -fr /dev/shm/tiles-${SIZE}/13-build
+	
+	## rsync -rc --del ${BUILDDIR}/tiles-${SIZE}/13-build/ tiles-${SIZE}/13-build/ --exclude=*.xml
+	## rdfind -makehardlinks true -n false tiles-${SIZE}/13-build
+	## find tiles-${SIZE}/13-build -name "*png" | xargs -n1 -P${NP} bash -c updatevfr
+	## rdfind -makehardlinks true -n false tiles-${SIZE}/13
+	## sed "s/type: 'png'/type: 'webp'/" ${BUILDDIR}/tiles-${SIZE}/13-build/openlayers.html > tiles-${SIZE}/13/openlayers.html
+	# rm -fr ${BUILDDIR}/tiles-${SIZE}/13-build
 	
 	## ## Used to create manifest
 	## for a in merge/fly/*png; do 
-	##     nice gdal2tiles.py -t "VFR Flyway" ${OPTIONS1} -z 0-${DEPTH11} --srcnodata=51 -r near $a /dev/shm/$a
+	##     nice gdal2tiles.py -t "VFR Flyway" ${OPTIONS1} -z 0-${DEPTH11} --srcnodata=51 -r near $a ${BUILDDIR}/$a
 	## done
 
     elif [[ ${1} -eq 199 ]]; then
@@ -311,7 +322,7 @@ function gentiles(){
 }
 
 gentiles ${SLURM_ARRAY_TASK_ID}
-[[ -d /dev/shm/tiles-${SIZE} ]] && rmdir --ignore-fail-on-non-empty /dev/shm/tiles-${SIZE}
+[[ -d ${BUILDDIR}/tiles-${SIZE} ]] && rmdir --ignore-fail-on-non-empty ${BUILDDIR}/tiles-${SIZE}
 
 ## 0 Sectional
 ## 1 TAC

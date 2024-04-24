@@ -40,6 +40,7 @@ Assembling proper charts requires at least the following dependencies:
 -   optipng
 -   python
     -   pypdf
+    -   [airportsdata](https://pypi.org/project/airportsdata/)
 -   mmv
 -   [Slurm](https://slurm.schedmd.com/documentation.html) (for job submission/management)
 
