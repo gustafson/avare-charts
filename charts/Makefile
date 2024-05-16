@@ -70,6 +70,7 @@ endif
 	@echo
 	@echo "Finalize"
 	@echo "  make ziptiles"
+	@echo "  make zipafd"
 	@echo "  make zipdatabase"
 	@echo "  make qualitycontrol"
 	@echo "  make upload"
@@ -133,7 +134,8 @@ procedures.db:
 
 afd.csv:
 	rm -f afd.csv
-	sbatch -n 40 afd.sh
+	sbatch --nice=10 -w osprey -n 20 afd.sh
+	#@echo sbatch -w --dependency=afterok:$(PID) afdzip.pbs
 
 mins-data:
 	sbatch domins.pbs
@@ -179,6 +181,9 @@ stage-vfr: charts/sec/*tif charts/tac/*tif charts/fly/*tif #charts/wac/*tif
 ziptiles:
 	sbatch --array=0,1,3,4,5,9,13 ziptiles512.pbs
 
+zipafd:
+	sbatch afdzip.pbs
+
 temp:
 	@for chart in 3; do \
 	DEP=`qsub -t $$chart generate-tiles.pbs`; \
@@ -187,25 +192,27 @@ temp:
 
 zipdatabase:
 	echo "Zipping cycle " $(CYCLE)
-	rm -f main.db
+	rm -f main.db mainx.db
 	./airport-fix-ids.py
 	sqlite3 main.db < importother.sql
-	#sqlite3 main.db < importother-v2.sql
+	sqlite3 mainx.db < importother-v2.sql
 	sqlite3 main.db "VACUUM;"
+	sqlite3 mainx.db "VACUUM;"
 	sqlite3 procedures.db "VACUUM;"
 	rm obs.db; sqlite3 main.db ".dump obs" | sqlite3 obs.db
 	sqlite3 main.db "drop table obs; vacuum;"
+	sqlite3 mainx.db "drop table obs; vacuum;"
 	sqlite3 obs.db "vacuum;"
 	rm -f final/databases.zip
 	## 
-	zip -9 final/databases.zip procedures.db main.db obs.db
+	zip -9 final/databases.zip procedures.db main.db mainx.db obs.db
 	zip -9 final/databases.zip `find tiles/[0123457]/[0-5] -name "*webp"` 
 	zip -9 final/databases.zip `find tiles/[03]/6 -name "*webp"`
 	zip -9 final/databases.zip `find tiles/[15]/[67] -name "*webp"`
 	zip -9 final/databases.zip `find tiles/13/[0-7] -name "*webp"` ## Flyway
 	zip -9 final/databases.zip `find tiles/6/6 -name "*png"` ## Elevation tiles have not been updated to include lower layers
 	## Canada (7) and Heli (8) large and not for general distribution
-	pushd final; ../zip.py databases $(CYCLE); popd
+	#pushd final; ../zip.py databases $(CYCLE); popd
 
 zipdatabase256:
 	echo "Zipping cycle " $(CYCLE)
