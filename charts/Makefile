@@ -212,7 +212,7 @@ zipdatabase:
 	zip -9 final/databases.zip `find tiles/13/[0-7] -name "*webp"` ## Flyway
 	zip -9 final/databases.zip `find tiles/6/6 -name "*png"` ## Elevation tiles have not been updated to include lower layers
 	## Canada (7) and Heli (8) large and not for general distribution
-	#pushd final; ../zip.py databases $(CYCLE); popd
+	pushd final; ../zip.py databases $(CYCLE); popd
 
 zipdatabase256:
 	echo "Zipping cycle " $(CYCLE)
