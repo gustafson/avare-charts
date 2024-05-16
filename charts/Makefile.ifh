@@ -56,13 +56,13 @@ all: $(ALL)
 clean:
 	rm -f $(ALL) *vrt
 
-merge/ifh/%_west.vrt: charts/ifr/%.pdf charts/ifr/%_west.geojson
-	$(eval JSN=$(subst .pdf,_west.geojson,$<))
+merge/ifh/%_west.vrt: charts/ifr/%.tif charts/ifr/%_west.geojson
+	$(eval JSN=$(subst .tif,_west.geojson,$<))
 	rm -f $@ 
 	$(WARP) -cutline $(JSN) -crop_to_cutline -r bilinear $< -tr $(shell ./resolution.sh $<) $@
 
-merge/ifh/%_east.vrt: charts/ifr/%.pdf charts/ifr/%_east.geojson
-	$(eval JSN=$(subst .pdf,_east.geojson,$<))
+merge/ifh/%_east.vrt: charts/ifr/%.tif charts/ifr/%_east.geojson
+	$(eval JSN=$(subst .tif,_east.geojson,$<))
 	rm -f $@ 
 	$(WARP) -cutline $(JSN) -crop_to_cutline -r bilinear $< -tr $(shell ./resolution.sh $<) $@
 

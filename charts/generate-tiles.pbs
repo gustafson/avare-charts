@@ -43,22 +43,21 @@ echo "working directory = $SLURM_SUBMIT_DIR"
 
 SIZE=512
 #SIZE=256
-#BUILDDIR=/dev/shm
 BUILDDIR=/home/pete/avare.charts.git/charts
 
 function updatevfr () {
     PNG=$0
     # WBP=`echo ${PNG} |sed s/-build// | sed s/png/webp/ | sed s.${BUILDDIR}/..`
 
-    ## if [[ ! -f ${WBP} || ${PNG} -nt ${WBP} ]] ; then
-    ## 	D=`dirname ${WBP}`
-    ## 	[[ ! -d ${D} ]] && mkdir -p ${D}
-    ## 	echo Creating ${WBP}
-    ## 	convert -unsharp 1x1 -format webp -define webp:method=6:thread-level=1 -quality 60 ${PNG} ${WBP}
-    ## 
-    ## 	## Webp lossless
-    ## 	## convert -format webp -define webp:lossless=true,method=6:thread-level=1 ${PNG} ${WBP}
-    ## fi
+    if [[ ! -f ${WBP} || ${PNG} -nt ${WBP} ]] ; then
+    	D=`dirname ${WBP}`
+    	[[ ! -d ${D} ]] && mkdir -p ${D}
+    	echo Creating ${WBP}
+    	convert -unsharp 1x1 -format webp -define webp:method=6:thread-level=1 -quality 60 ${PNG} ${WBP}
+    
+    	## Webp lossless
+    	## convert -format webp -define webp:lossless=true,method=6:thread-level=1 ${PNG} ${WBP}
+    fi
 
 }
 
@@ -67,14 +66,14 @@ function updateifr () {
     # WBP=`echo ${PNG} |sed s/-build// | sed s/png/webp/`
     # echo working on $PNG
     # 
-    # if [[ ! -f ${WBP} || ${PNG} -nt ${WBP} ]] ; then
-    # 	D=`dirname ${WBP}`
-    # 	[[ ! -d ${D} ]] && mkdir -p ${D}
-    # 	echo Creating ${WBP}
-    # 	convert -format webp -define webp:method=6:thread-level=1 -quality 60 ${PNG} ${WBP}
-    # 	## Webp lossless
-    # 	## convert -format webp -define webp:lossless=true,method=6:thread-level=1 ${PNG} ${WBP}
-    # fi
+    if [[ ! -f ${WBP} || ${PNG} -nt ${WBP} ]] ; then
+    	D=`dirname ${WBP}`
+    	[[ ! -d ${D} ]] && mkdir -p ${D}
+    	echo Creating ${WBP}
+    	convert -format webp -define webp:method=6:thread-level=1 -quality 60 ${PNG} ${WBP}
+    	## Webp lossless
+    	## convert -format webp -define webp:lossless=true,method=6:thread-level=1 ${PNG} ${WBP}
+    fi
 }
 
 export -f updatevfr
@@ -108,8 +107,9 @@ else
     DEPTH12=12
 fi
 
-OPTIONS1="--tilesize=${SIZE} --tiledriver=WEBP --config WEBP_LEVEL_OVERVIEW 90 --config WEBP_LEVEL 90 --exclude --webviewer=all -c MUAVLLC --no-kml --resume --processes ${NP}"  ## --verbose
-#OPTIONS1="--tilesize=${SIZE} --tiledriver=PNG --exclude --webviewer=all -c MUAVLLC --no-kml --resume --processes ${NP}"  ## --verbose
+OPTIONS1="--tilesize=${SIZE} --tiledriver=WEBP --tiledriver=WEBP --webp-quality=60 --exclude --webviewer=all -c MUAVLLC --no-kml --resume --processes ${NP}"  ## --verbose
+# OPTIONS1="--tilesize=${SIZE} --tiledriver=WEBP --tiledriver=WEBP --webp-lossless --exclude --webviewer=all -c MUAVLLC --no-kml --resume --processes ${NP}"  ## --verbose
+# OPTIONS1="--tilesize=${SIZE} --tiledriver=PNG --exclude --webviewer=all -c MUAVLLC --no-kml --resume --processes ${NP}"  ## --verbose
 TIME1="/usr/bin/time -v --append -o"
 #GDAL_CONFIG_FILE=gdal_config.txt
 
@@ -176,7 +176,7 @@ function gentiles(){
 	
 	## ## Used to create manifest
 	## for a in merge/tac/*TAC.vrt; do 
-	##     nice gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-${DEPTH11} --srcnodata=51 -r near $a ${BUILDDIR}/$a
+	##     nice gdal2tiles.py -t "VFR Sectional" ${OPTIONS1} -z 0-${DEPTH11} --srcnodata=51 -r lanczos $a ${BUILDDIR}/$a
 	## done
 
     elif [[ ${1} -eq 2 ]]; then
@@ -200,10 +200,11 @@ function gentiles(){
 
 	rm -f z-logs/time.ifr.txt
 	#${TIME1} z-logs/time.ifr.txt make -j ${SLURM_NTASKS} -f Makefile.ifr
-
+	echo ${TIME1} z-logs/time.ifr.txt nice gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-${DEPTH10} -r near ifr-east.vrt ${BUILDDIR}/tiles-${SIZE}/3-build
 	${TIME1} z-logs/time.ifr.txt nice gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-${DEPTH10} -r near ifr-east.vrt ${BUILDDIR}/tiles-${SIZE}/3-build
+	echo ${TIME1} z-logs/time.ifr.txt nice gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-${DEPTH10} -r near ifr-west.vrt ${BUILDDIR}/tiles-${SIZE}/3-build
 	${TIME1} z-logs/time.ifr.txt nice gdal2tiles.py -t "IFR Enroute Low" ${OPTIONS1} -z 0-${DEPTH10} -r near ifr-west.vrt ${BUILDDIR}/tiles-${SIZE}/3-build
-	rdfind -makehardlinks true -n false tiles-${SIZE}/3-build
+	#rdfind -makehardlinks true -n false tiles-${SIZE}/3-build
 	
 	## rsync -rc --del ${BUILDDIR}/tiles-${SIZE}/3-build/ tiles-${SIZE}/3-build/ --exclude=*.xml
 	## rdfind -makehardlinks true -n false tiles-${SIZE}/3-build
@@ -311,13 +312,13 @@ function gentiles(){
 	## done
 
     elif [[ ${1} -eq 199 ]]; then
-	${TIME1} z-logs/time.debug.txt nice gdal2tiles.py -t "DEBUG" ${OPTIONS1} -r lanczos plates.archive/1701/plates_MI/AZO/RNAV-GPS-RWY-17.pdf tiles-${SIZE}/debug
+	${TIME1} z-logs/time.debug.txt nice gdal2tiles.py -t "DEBUG" ${OPTIONS1} -r near plates.archive/1701/plates_MI/AZO/RNAV-GPS-RWY-17.pdf tiles-${SIZE}/debug
 	## gdal_translate --config GDAL_PDF_DPI 150 -of Rasterlite RNAV-GPS-RWY-17.pdf RASTERLITE:my_db.sqlite,table=source -co DRIVER=WEBP
 	## find tiles-${SIZE}/debug -name "*png"| xargs mogrify -unsharp 1x1 -format png8
 	## find tiles-${SIZE}/debug -name "*png8"| xargs rename png8 png
 	## find tiles-${SIZE}/debug -name "*png" |xargs -n1 -P16 optipng
 
-	gdal_translate -of GPKG byte.tif byte.gpkg -co TILING_SCHEME=GoogleMapsCompatible -co RESAMPLING LANCZOS
+	gdal_translate -of GPKG byte.tif byte.gpkg -co TILING_SCHEME=GoogleMapsCompatible -co RESAMPLING NEAR
     fi
 }
 
