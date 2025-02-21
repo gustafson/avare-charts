@@ -1,3 +1,6 @@
+**This repo is obsolete and thus archival**. With increasing compute power making it easier to create
+charts on a single machine, we have moved o a simpler process which is [here](https://github.com/apps4av/charts).
+
 # Avare Chart Creation Scripts
 
 This repo is used to create charts for
